@@ -1,0 +1,29 @@
+uuid: 78aa37f4-06e9-4627-9791-1e0264340491
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.spotlight_page.field_description
+    - field.field.paragraph.spotlight_page.field_image
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.spotlight_page
+  module:
+    - image
+id: paragraph.spotlight_page.preview
+targetEntityType: paragraph
+bundle: spotlight_page
+mode: preview
+content:
+  field_image:
+    type: image
+    weight: 1
+    label: visually_hidden
+    settings:
+      image_style: thumbnail
+      image_link: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  field_description: true
+  uid: true

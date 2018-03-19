@@ -1,0 +1,31 @@
+uuid: a41d9f08-f49e-4de7-9026-1f3282fb2a64
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.resources_video.field_title
+    - field.field.paragraph.resources_video.field_video
+    - paragraphs.paragraphs_type.resources_video
+  module:
+    - video_embed_field
+id: paragraph.resources_video.default
+targetEntityType: paragraph
+bundle: resources_video
+mode: default
+content:
+  field_title:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_video:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    type: video_embed_field_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

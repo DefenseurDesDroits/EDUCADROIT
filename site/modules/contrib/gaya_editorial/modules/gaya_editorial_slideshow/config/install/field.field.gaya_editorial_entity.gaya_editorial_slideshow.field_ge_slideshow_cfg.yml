@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.gaya_editorial_entity.field_ge_slideshow_cfg
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_slideshow
+  module:
+    - gaya_editorial_slideshow
+id: gaya_editorial_entity.gaya_editorial_slideshow.field_ge_slideshow_cfg
+field_name: field_ge_slideshow_cfg
+entity_type: gaya_editorial_entity
+bundle: gaya_editorial_slideshow
+label: 'Slideshow configuration'
+description: 'Set the configuration of this slideshow.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: ge_imagesslideshow_configuration
+locked: true

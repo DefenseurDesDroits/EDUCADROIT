@@ -1,0 +1,162 @@
+uuid: 8762ff87-f5ad-4219-8747-aff9cb8dddd0
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.node.speaker.field_address
+    - field.field.node.speaker.field_description
+    - field.field.node.speaker.field_paragraphs
+    - field.field.node.speaker.field_region
+    - field.field.node.speaker.field_speaker_type
+    - field.field.node.speaker.field_speciality
+    - node.type.speaker
+  module:
+    - field_group
+    - paragraphs
+    - path
+    - text
+third_party_settings:
+  field_group:
+    group_main:
+      children:
+        - title
+        - field_region
+        - field_speaker_type
+        - field_speciality
+      parent_name: group_vertigo
+      weight: 1
+      format_type: tab
+      format_settings:
+        id: ''
+        classes: ''
+        formatter: open
+        description: ''
+        required_fields: true
+      label: Général
+    group_content:
+      children:
+        - field_description
+        - field_address
+      parent_name: group_vertigo
+      weight: 2
+      format_type: tab
+      format_settings:
+        id: ''
+        classes: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+      label: Contenus
+    group_referers:
+      children:
+        - field_paragraphs
+      parent_name: group_vertigo
+      weight: 3
+      format_type: tab
+      format_settings:
+        id: ''
+        classes: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+      label: Référents
+    group_vertigo:
+      children:
+        - group_main
+        - group_content
+        - group_referers
+      parent_name: ''
+      weight: 0
+      format_type: tabs
+      format_settings:
+        id: ''
+        classes: ''
+        direction: vertical
+      label: Vertigo
+id: node.speaker.default
+targetEntityType: node
+bundle: speaker
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 6
+    settings: {  }
+    third_party_settings: {  }
+  field_address:
+    weight: 6
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea
+  field_description:
+    weight: 5
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: text_textarea
+  field_paragraphs:
+    weight: 9
+    settings:
+      title: Référent
+      title_plural: Référents
+      edit_mode: open
+      add_mode: button
+      form_display_mode: default
+    third_party_settings: {  }
+    type: entity_reference_paragraphs
+  field_region:
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    type: options_buttons
+  field_speaker_type:
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    type: options_buttons
+  field_speciality:
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+    type: options_buttons
+  langcode:
+    type: language_select
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 9
+    settings: {  }
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 7
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 8
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

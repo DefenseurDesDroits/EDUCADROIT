@@ -1,0 +1,25 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a Gaya Editorial GE formatted image field width link.
+ *
+ * Available variables:
+ * - image: A collection of image data.
+ * - image_style: An optional image style.
+ * - url: An optional URL the image can be linked to.
+ *        - Is an array with path and target
+ *
+ * @see template_preprocess_image_formatter()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if url %}
+    {% if url.target %}
+        <a href="{{ url.path }}" target="{{ url.target }}">{{ image }}</a>
+    {% else %}
+        <a href="{{ url.path }}">{{ image }}</a>
+    {% endif %}
+{% else %}
+    {{ image }}
+{% endif %}

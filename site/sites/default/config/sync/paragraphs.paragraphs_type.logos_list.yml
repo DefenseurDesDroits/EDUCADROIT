@@ -1,0 +1,6 @@
+uuid: cf9b48a9-2caa-4e35-b914-4c3c657bc9c9
+langcode: fr
+status: true
+dependencies: {  }
+id: logos_list
+label: 'Liste de Logos'

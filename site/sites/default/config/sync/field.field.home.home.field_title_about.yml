@@ -1,0 +1,20 @@
+uuid: a988771f-5afc-480b-bcd1-a129def14972
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_title_about
+  module:
+    - ddd_base
+id: home.home.field_title_about
+field_name: field_title_about
+entity_type: home
+bundle: home
+label: 'A Propos : Titre'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

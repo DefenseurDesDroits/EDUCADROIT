@@ -1,0 +1,43 @@
+<div class="col-md-6">
+  <div class="post">
+      <div class="txt txt-button">
+          <div class="inner">
+
+                  <h2 class="heading">{{content.field_title}}</h2>
+
+
+
+
+
+                  <p>{{content.field_description}}</p>
+
+          </div>
+
+
+
+
+              <a class="btn icon-link open-popup-link" title="Soumettre : Proposer un outil pédagogique" href="#popup">{{content.field_button_title}}</a>
+
+      </div>
+
+
+      <figure>
+          {{content.field_image}}
+      </figure>
+
+  </div>
+
+  <div id="popup" class="white-popup">
+    <h3>{{content.field_title}}</h3>
+
+    <div class="standfirst">
+        <p>{{content.field_description}}</p>
+    </div>
+
+    {{ form }}
+  </div>
+
+</div>
+
+
+

@@ -1,0 +1,37 @@
+uuid: d63eb782-2baf-469b-8b3d-9412844aa9e8
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.glossary.glossary.field_label
+    - field.field.glossary.glossary.field_teaser
+    - field.field.glossary.glossary.field_vocabularies
+  module:
+    - ddd_glossary
+id: glossary.glossary.default
+targetEntityType: glossary
+bundle: glossary
+mode: default
+content:
+  field_label:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_teaser:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_vocabularies:
+    weight: 3
+    label: visually_hidden
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+hidden:
+  user_id: true

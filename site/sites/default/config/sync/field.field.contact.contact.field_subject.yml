@@ -1,0 +1,29 @@
+uuid: e59566f8-ccd9-42c4-8c65-d01753150744
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.contact.field_subject
+    - taxonomy.vocabulary.contact_object
+  module:
+    - ddd_contact
+id: contact.contact.field_subject
+field_name: field_subject
+entity_type: contact
+bundle: contact
+label: Objet
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      contact_object: contact_object
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

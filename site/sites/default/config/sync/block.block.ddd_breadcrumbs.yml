@@ -1,0 +1,22 @@
+uuid: 7d000222-23c3-4cd5-8166-2060927895f8
+langcode: fr
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - ddd
+_core:
+  default_config_hash: 8by5KRsb7ZpmjHj0ms1d7xAG_xH54AWsOX6spDLJ59U
+id: ddd_breadcrumbs
+theme: ddd
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  provider: system
+  label_display: '0'
+visibility: {  }

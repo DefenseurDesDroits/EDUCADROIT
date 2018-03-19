@@ -1,0 +1,40 @@
+<p class="skip-link">
+  <a href="#content">Aller au contenu</a>
+  <a href="#navbar-toggle">Aller au menu</a>
+</p>
+
+<div class="page-container">
+    <header role="banner" class="header">
+        <div class="disclaimer">
+            <div class="container">
+                <button type="button" class="close"> <span class="icon-cross"></span> <span>Close</span></button>
+                <p>{{ cookies|raw }}</p>
+            </div><!-- .container -->
+        </div><!-- .disclaimer -->
+        <div class="container">
+            {{ page.primary_menu }}
+        </div><!-- .container -->
+    </header>
+
+
+    <div id="content" class="page-content">
+        <main id="main" class="main" role="main">
+            {% if is_front == false %}
+            <div class="container">
+                {{ page.breadcrumb }}
+                {{ page.highlighted }}
+                {{ page.help }}
+                {{ messages }}
+            </div>
+            {% endif %}
+            {{ page.content }}
+        </main>
+        <!-- .main -->
+
+        <footer id="footer" class="footer">
+            {{ page.footer }}
+        </footer>
+    </div>
+</div>
+<!-- .page-container -->
+

@@ -1,0 +1,40 @@
+uuid: af753657-fc2c-4277-bd42-e3a9ea2c3487
+langcode: fr
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files_modal
+    - field.field.paragraph.logo.field_image
+    - field.field.paragraph.logo.field_link
+    - paragraphs.paragraphs_type.logo
+  module:
+    - entity_browser
+    - link
+id: paragraph.logo.default
+targetEntityType: paragraph
+bundle: logo
+mode: default
+content:
+  field_image:
+    weight: 1
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_edit
+      view_mode: thumbnail
+      open: false
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: entity_browser_file
+  field_link:
+    weight: 0
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+    type: link_default
+hidden:
+  created: true
+  status: true
+  uid: true

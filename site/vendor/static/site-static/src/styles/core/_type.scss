@@ -1,0 +1,84 @@
+// Core: Type
+// =====================================================================================================================
+
+h1 {
+    font-size: 60px;
+    line-height: 66px;
+    font-family: gooddogregular;
+}
+
+h2 {
+    font-size: 20px;
+    line-height: 26px;
+    text-transform: uppercase;
+    font-family: oswalddemibold;
+
+    @media (min-width: $screen-sm) {
+        font-size: 32px;
+        line-height: 42px;
+    }
+
+    .icon-rotate {
+        display: block;
+        font-size: 80px;
+        margin-top: 50px;
+    }
+}
+
+h3 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lead {
+    font-weight: 700;
+}
+
+.title {
+    padding: 0 30px;
+    margin-top: 0;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 36px;
+    font-family: oswalddemibold;
+    color: #fff;
+    text-transform: none;
+
+    strong {
+        display: block;
+        margin-bottom: 30px;
+        font-size: 80px;
+        line-height: 80px;
+        font-family: gooddogregular;
+    }
+
+    &.title-smiley {
+        font-size: $font-size-large;
+        font-family: $font-family-base;
+        margin-top: -40px;
+
+        strong {
+            position: relative;
+            padding-bottom: 100px;
+
+            &:after {
+                position: absolute;
+                content: '';
+                width: 92px;
+                height: 72px;
+                left: 50%;
+                bottom: 0;
+                transform: translate(-50%);
+            }
+        }
+    }
+
+    &.title-correct strong:after {
+        background: url('../images/smiley-happy.svg') 50% 50% no-repeat;
+    }
+
+    &.title-wrong strong:after {
+        background: url('../images/smiley-happy.svg') 0 0 no-repeat;
+    }
+}

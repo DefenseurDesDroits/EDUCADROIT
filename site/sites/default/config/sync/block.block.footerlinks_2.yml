@@ -1,0 +1,20 @@
+uuid: 8f798e1b-0a35-471c-8991-804f2ef3849a
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd
+id: footerlinks_2
+theme: ddd
+region: footer
+weight: -6
+provider: null
+plugin: FooterLinks
+settings:
+  id: FooterLinks
+  label: FooterLinks
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

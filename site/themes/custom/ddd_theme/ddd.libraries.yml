@@ -1,0 +1,19 @@
+ddd-styling:
+  version: VERSION
+  css:
+    theme:
+      assets-misc/styles/forum.css: {}
+      assets/styles/theme.min.css: {}
+      assets/styles/vendor.min.css: {}
+      assets-misc/styles/custom.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once
+  js:
+    assets/scripts/ie8.min.js: {}
+    assets/scripts/theme.min.js: {}
+    assets/scripts/vendor.min.js: {}
+    assets-misc/scripts/custom.js: {}

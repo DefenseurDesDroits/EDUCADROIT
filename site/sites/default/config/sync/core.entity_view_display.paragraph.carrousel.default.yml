@@ -1,0 +1,48 @@
+uuid: e4ceec2f-0e85-44fc-a3a8-88668dfe8097
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.carrousel.field_carrousel_description
+    - field.field.paragraph.carrousel.field_carrousel_picture
+    - field.field.paragraph.carrousel.field_carrousel_title
+    - field.field.paragraph.carrousel.field_carrousel_upload
+    - paragraphs.paragraphs_type.carrousel
+  module:
+    - image
+id: paragraph.carrousel.default
+targetEntityType: paragraph
+bundle: carrousel
+mode: default
+content:
+  field_carrousel_description:
+    weight: 3
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_carrousel_picture:
+    weight: 2
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_carrousel_title:
+    weight: 0
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_carrousel_upload:
+    weight: 4
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

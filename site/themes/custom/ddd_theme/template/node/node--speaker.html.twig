@@ -1,0 +1,79 @@
+<section class="section-content">
+    <div class="container">
+
+        <div class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{ label }}</h1>
+            </header>
+            <!-- .article-header -->
+
+            <div class="article-focus article-focus-2">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2>Description</h2>
+                        <p class="small">
+                        {% if content.field_region|render %}
+                          <strong>Région :</strong>
+                          {% for i in 0..content.field_region|length %}
+                            {% if content.field_region[i]|render %}
+                              {% if content.field_region[i + 1]|render %}
+                                {{ content.field_region[i] }},
+                              {% else %}
+                                {{ content.field_region[i] }}
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          <br />
+                        {% endif %}
+
+                        {% if content.field_speaker_type|render %}
+                          <strong>Type d'intervenant :</strong>
+                          {% for i in 0..content.field_speaker_type|length %}
+                            {% if content.field_speaker_type[i]|render %}
+                              {% if content.field_speaker_type[i + 1]|render %}
+                                {{ content.field_speaker_type[i] }},
+                              {% else %}
+                                {{ content.field_speaker_type[i] }}
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          <br />
+                        {% endif %}
+
+                        {% if content.field_speciality|render %}
+                          <strong>Spécialités :</strong>
+                          {% for i in 0..content.field_speciality|length %}
+                            {% if content.field_speciality[i]|render %}
+                              {% if content.field_speciality[i + 1]|render %}
+                                {{ content.field_speciality[i] }},
+                              {% else %}
+                                {{ content.field_speciality[i] }}
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          <br />
+                        {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{content.field_description}}
+
+            <hr />
+            {% if content.field_address|render %}
+                <h3 class="h4">Coordonnées :</h3>
+                {{ content.field_address }}
+            {% endif %}
+
+            {% if content.field_paragraphs|render %}
+                <h3 class="h4">Vos référents :</h3>
+
+                <div class="row">
+                    {{ content.field_paragraphs }}
+                </div>
+            {% endif %}
+            {{share}}
+        </div>
+    </div>
+</section>

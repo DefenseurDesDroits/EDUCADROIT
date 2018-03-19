@@ -1,0 +1,55 @@
+<?php
+function ddd_forum_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_forum_connection_page' => [
+      'variables' => [
+        'form' => NULL,
+      ],
+    ],
+    'ddd_forum_page' => [
+      'variables' => [
+        'collection' => NULL,
+      ],
+    ],
+    'ddd_comment_form' => [
+      'render element' => 'form',
+    ],
+    'ddd_forum_connection_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}
+
+function ddd_forum_form_comment_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form['#title'] = '';
+  $form['#theme'] = 'ddd_comment_form';
+  $form['attributes']['class'][] = 'form-forum';
+  $form['subject']['#title'] = t('Titre de votre message');
+  $form['comment_body']['#title'] = t('Votre message');
+  $form['actions']['preview']['#attributes']['class'][] = 'link';
+  $form['actions']['submit']['#attributes']['class'][] = 'btn';
+  $form['actions']['preview']['#value'] = t('Prévisualiser');
+  unset($form['comment_body']['#parents']);
+}
+
+
+/**
+ * Lors de la consultation d'un noeud de type forum, on doit vérifier que l'on
+ * est bien connecté
+ *
+ * Dans le cas contraire, on renvoi un AccessDeniedHttpException
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ *
+ * @param $variables
+ */
+function ddd_forum_preprocess_node(&$variables) {
+  $variables['node'] = $variables['elements']['#node'];
+  $node = $variables['node'];
+  switch ($node->getType()) {
+    case 'forum':
+      if (!\Drupal::currentUser()->isAuthenticated()) {
+        throw new \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException();
+      }
+  }
+}

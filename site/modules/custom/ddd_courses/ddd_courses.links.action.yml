@@ -1,0 +1,22 @@
+ddd_courses.courses_add:
+  route_name: ddd_courses.courses_add
+  title: 'Ajouter un Parcours'
+  appears_on:
+    - entity.courses.collection
+    - entity.courses.canonical
+
+ddd_courses.course_add:
+  route_name: ddd_courses.course_add
+  title: 'Ajouter un Parcours'
+  appears_on:
+    - entity.course.collection
+    - entity.course.canonical
+
+entity.courses.edit_form:
+  route_name: entity.courses.edit_form
+  route_parameters:
+    courses: 1
+  title: 'Paramètres des Parcours'
+  appears_on:
+    - entity.course.collection
+    - entity.course.canonical

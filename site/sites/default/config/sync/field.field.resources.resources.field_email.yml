@@ -1,0 +1,20 @@
+uuid: 3d02b192-50f2-497d-9727-0f4f7630c68a
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.resources.field_email
+  module:
+    - ddd_resources
+id: resources.resources.field_email
+field_name: field_email
+entity_type: resources
+bundle: resources
+label: 'Email administrateur'
+description: '''Cet email est utilisé lorsqu''une ressources est signalé "hors ligne"'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

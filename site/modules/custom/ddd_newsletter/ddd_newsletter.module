@@ -1,0 +1,15 @@
+<?php
+function ddd_newsletter_theme($existing, $type, $theme, $path) {
+  return [
+    # Filter forms
+    'ddd_newsletter_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}
+
+// function ddd_newsletter_paragraph_view(&$build, $entity, $display, $view_mode){
+//   if ($entity->field_email_title){
+//     kpr($build);
+//   }
+// }

@@ -1,0 +1,21 @@
+uuid: bdd6bf3c-575d-4867-9c2c-6c03de7375ea
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_medias
+id: medias.field_label
+field_name: field_label
+entity_type: medias
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,163 @@
+// Fonts
+// ------------------------------------------------------------
+
+/*taille de l'enfant en em = taille voulue de l'enfant en pixels  / taille du parent en pixels*/
+
+html {
+  font-size: 100%;
+}
+
+body {
+  font-size: 62.5%; /*1em - 10px, 0.8em - 8px, 1.6em - 16px*/
+}
+.page-container, .container {
+  font-size: 1.3em; /*13px=1em*/
+  line-height: 1.5em;
+}
+
+.page-container .container {
+  font-size: 1.231em; /*16px*/
+  line-height: 1.5em;
+}
+
+.navbar, .page-content, .main .footer, .page-overlay	{
+  font-size: 1em;
+  line-height: 1.5em;
+}
+
+form legend, form  input, form  select, form button, li li, li p, td p, blockquote p, pre {
+  font-size: 1em;
+  line-height: 1.5em;
+}
+
+// Fonts:       Oswald
+// ------------------------------------------------------------
+// Variantes: - oswald   (400)
+//            - oswalddemi-bold  (600)
+//            - oswaldbold    (700)
+// ------------------------------------------------------------
+@font-face {
+  font-family: 'Oswald';
+  src: url('@{icon-font-path}oswald_regular-webfont.woff2') format('woff2'),
+       url('@{icon-font-path}oswald_regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Oswalddemi-bold';
+  src: url('@{icon-font-path}oswald_demibold-webfont.woff2') format('woff2'),
+  url('@{icon-font-path}oswald_demibold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Oswaldbold';
+  src: url('@{icon-font-path}oswald_bold-webfont.woff2') format('woff2'),
+       url('@{icon-font-path}oswald_bold-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+// Fonts:       Icons
+// ------------------------------------------------------------
+@font-face {
+  font-family: 'icomoon';
+  src:  url('@{icon-font-path}icomoon.eot?h3g4tf');
+  src:  url('@{icon-font-path}icomoon.eot?h3g4tf#iefix') format('embedded-opentype'),
+  url('@{icon-font-path}icomoon.ttf?h3g4tf') format('truetype'),
+  url('@{icon-font-path}icomoon.woff?h3g4tf') format('woff'),
+  url('@{icon-font-path}icomoon.svg?h3g4tf#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arrow-next:before {
+  content: "\e900";
+}
+.icon-arrow-prev:before {
+  content: "\e901";
+}
+.icon-back:before {
+  content: "\e902";
+}
+.icon-download-2:before {
+  content: "\e903";
+}
+.icon-download:before {
+  content: "\e904";
+}
+.icon-external:before {
+  content: "\e905";
+}
+.icon-facebook-2:before {
+  content: "\e906";
+}
+.icon-facebook:before {
+  content: "\e907";
+}
+.icon-glossary:before {
+  content: "\e908";
+}
+.icon-link:before {
+  content: "\e909";
+}
+.icon-mail:before {
+  content: "\e90a";
+}
+.icon-nav-first:before {
+  content: "\e90b";
+}
+.icon-nav-last:before {
+  content: "\e90c";
+}
+.icon-nav-next:before {
+  content: "\e90d";
+}
+.icon-nav-prev:before {
+  content: "\e90e";
+}
+.icon-private:before {
+  content: "\e90f";
+}
+.icon-twitter-2:before {
+  content: "\e910";
+}
+.icon-twitter:before {
+  content: "\e911";
+}
+.icon-warning:before {
+  content: "\e912";
+}
+.icon-forum:before {
+  content: "\e914";
+}
+.icon-close:before {
+  content: "\e913";
+}
+.icon-profil:before {
+  content: "\e915";
+}
+.icon-cross:before {
+  content: "\e916";
+}
+.icon-disconnect:before {
+  content: "\e918";
+}
+

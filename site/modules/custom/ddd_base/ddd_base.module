@@ -1,0 +1,257 @@
+<?php
+
+use \Drupal\Core\Url;
+use Drupal\image\Entity\ImageStyle;
+
+function ddd_base_menu_alter(&$items) {
+  $items['admin/structure/taxonomy/manage/%taxonomy_vocabulary_machine_name']['access callback'] = FALSE;
+}
+
+function ddd_base_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_home_page' => [
+      'variables' => [
+        'about' => NULL,
+        'resources' => NULL,
+        'courses' => NULL,
+        'speakers' => NULL,
+        'resources_list' => NULL,
+        'spotlight' => NULL,
+        'file' => NULL
+      ],
+    ],
+    'ddd_user_page' => [
+      'variables' => [
+        'title' => NULL,
+        'teaser' => NULL,
+        'form' => NULL
+      ],
+    ],
+    'ddd_profile_page_form' => [
+      'render element' => 'form'
+    ],
+    'ddd_first_connection_form' => [
+      'render element' => 'form'
+    ],
+    'ddd_retrieve_password_form' => [
+      'render element' => 'form'
+    ],
+    'share' => [
+      'variables' => ['query' => NULL],
+    ],
+    'ddd_forum_password_form' => [
+      'render element' => 'form'
+    ]
+  ];
+}
+
+function ddd_base_share(){
+  $query = [];
+  return [
+    'query' => $query
+  ];
+}
+
+function _ddd_base_get_configs(){
+  if (!$config = entity_load('config', 'config')){
+    // default configurations
+    $datas = [
+      'id' => 'config',
+      'label' => 'Configurations',
+      'teaser' => 'teaser',
+    ];
+    $config = entity_create('config', $datas);
+    $config->save();
+  }
+  else {
+    $datas = $config;
+  }
+  return $datas;
+}
+
+function _ddd_base_size_convert($bytes){
+    $bytes = floatval($bytes);
+    $arBytes = array(
+        0 => array(
+            "UNIT" => "To",
+            "VALUE" => pow(1024, 4)
+        ),
+        1 => array(
+            "UNIT" => "Go",
+            "VALUE" => pow(1024, 3)
+        ),
+        2 => array(
+            "UNIT" => "Mo",
+            "VALUE" => pow(1024, 2)
+        ),
+        3 => array(
+            "UNIT" => "Ko",
+            "VALUE" => 1024
+        ),
+        4 => array(
+            "UNIT" => "Octets",
+            "VALUE" => 1
+        ),
+    );
+
+    foreach($arBytes as $arItem)
+    {
+        if($bytes >= $arItem["VALUE"])
+        {
+            $result = $bytes / $arItem["VALUE"];
+            $result = str_replace(".", "," , strval(round($result, 2)))." ".$arItem["UNIT"];
+            break;
+        }
+    }
+    return $result;
+}
+
+function ddd_base_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+  switch ($form_id){
+    case 'node_resource_form':
+    case 'node_page_form':
+    case 'node_speaker_form':
+    case 'node_media_form':
+    case 'node_forum_form':
+      $form['revision']['#access'] = false;
+      $form['revision_information']['#access'] = false;
+      $form['revision_log']['#access'] = false;
+      $form['created']['#access'] = false;
+      $form['uid']['#access'] = false;
+      $form['promote']['#access'] = false;
+      $form['sticky']['#access'] = false;
+    break;
+    case 'user_pass':
+      $form['#theme'] = 'ddd_forum_password_form';
+      $form['actions']['submit']['#attributes']['class'][] = 'btn';
+    break;
+    case 'user_register_form':
+      $form['account']['notify']['#access'] = false;
+    break;
+  }
+}
+
+function ddd_base_mail($key, &$message, $params) {
+  $options = array(
+    'langcode' => $message['langcode'],
+  );
+  $btn_style = [
+    'margin-bottom: 0;',
+    'font-weight: 400;',
+    'text-align: center;',
+    'vertical-align: middle;',
+    'touch-action: manipulation;',
+    'white-space: nowrap;',
+    'border-radius: 0;',
+    'user-select: none;',
+    'display: inline-block;',
+    'padding: 18px 20px 14px;',
+    'font-size: 18px;',
+    'line-height: 100%;',
+    'background: #1e274a;',
+    'border: none;',
+    'color: #fff;',
+  ];
+  switch ($key) {
+    case 'contact_message':
+      $message['subject'] = 'Une demande de contact a été émise via Défenseur des droits';
+      $message['body'][] = 'Bonjour, ';
+      $message['body'][] = 'Une demande a été émise via le formulaire de contact du site.';
+      $message['body'][] = 'Sujet du message : ' . $params['subject'];
+      $message['body'][] = 'Message :<br>'. $params['message'] . '<br>' . $params['surname'] . ' ' . $params['firstname'];
+      $message['body'][] = 'Vous pouvez répondre directement à cette personne en répondant à ce mail.';
+    break;
+    case 'offline_resource':
+      $message['subject'] = 'Une ressource n\'est plus en ligne';
+      $message['body'][] = ' Un utilisateur signale que l\'une des ressources de la fiche "'. $params['title'] .'" (<a href="'. $params['link'] .'">'. $params['link'] .'</a>) n\'est plus en ligne.';
+    break;
+    case 'contributor_insert':
+      $message['subject'] = 'Votre compte pour l\'espace réservé de l\'Education aux droits a été créé';
+      $route_parameters = ['token' => $params['token']];
+      $message['body'] = ['Bonjour,',
+        'Veuillez trouver ci-dessous votre lien d\'accès à l\'espace réservé de notre site :',
+        '<a style="'.implode($btn_style).'" href="' . Url::fromRoute('ddd_base.user.first', $route_parameters)->toString() . '">Connectez-vous à l\'espace</a>',
+        'L\'équipe du Défenseur des Droits'
+      ];
+    break;
+    case 'first_connection':
+      $message['subject'] = 'Votre mot de passe pour l\'espace réservé L\'éducation aux droits';
+      $message['body'] = ['Bonjour,',
+        'Veuillez trouver ci-dessous votre mot de passe pour accéder à l\'espace réservé de notre site :',
+        $params['password'],
+        '<a style="'.implode($btn_style).'" href="' . Url::fromRoute('ddd_forum.connection')->toString() . '">Connectez-vous à l\'espace</a>',
+        'L\'équipe du Défenseur des Droits'
+      ];
+    break;
+    case 'forgotten_password':
+      $message['subject'] = 'L\'éducation aux droits - Mot de passe oublié';
+      $message['body'] = ['Bonjour,',
+        'Veuillez trouver ci-dessous votre mot de passe pour accéder à l\'espace réservé de notre site :',
+        $params['password'],
+        '<a style="'.implode($btn_style).'" href="' . Url::fromRoute('ddd_forum.connection')->toString() . '">Connectez-vous à l\'espace</a>',
+        'L\'équipe du Défenseur des Droits'
+      ];
+    break;
+  }
+}
+
+function ddd_base_user_insert(Drupal\Core\Entity\EntityInterface $entity){
+  $roles = $entity->getRoles();
+  if (in_array('contributors', $roles)){
+    $pwd = create_generated_password();
+    $hash = create_generated_password();
+    $entity->setPassword($pwd);
+    $entity->set('field_first_connection_hash', $hash);
+    $module = 'ddd_base';
+    $key = 'contributor_insert';
+    $from = 'ne-pas-repondre@defenseurdesdroits.fr';
+    $to = $entity->getEmail();
+    $language_code = 'fr';
+    $send_now = TRUE;
+    $params = [
+      'token' => $hash
+    ];
+    $result = \Drupal::service('plugin.manager.mail')->mail($module, $key, $to, $language_code, $params, $from, $send_now);
+    $entity->save();
+    drupal_set_message(t('Un email de première connexion a été envoyé à '.$to), 'success');
+  }
+}
+
+function create_generated_password($length = 16){
+  $values = array_merge(range(65, 90), range(97, 122), range(48, 57));
+  $max = count($values) - 1;
+  $pwd = chr(mt_rand(97, 122));
+  for ($i = 1; $i < $length; $i++) {
+    $pwd .= chr($values[mt_rand(0, $max)]);
+  }
+  return $pwd;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function ddd_base_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode){
+  if($entity->getEntityTypeId() == 'node' && $entity->bundle() == 'page' && $entity->hasField('field_carrousel')){
+    $contents = $entity->get('field_carrousel')->referencedEntities();
+    $contents_number = count($contents);
+    $current_index = 1;
+    //Charger tous les titres des chapitres
+    foreach ($contents as $key => $content) {
+      if(reset($content)['field_carrousel_title']['x-default'][0]['value'] != null){
+        $titles [$key] = reset($content)['field_carrousel_title']['x-default'][0]['value'];
+      }
+    }
+    foreach ($contents as $key => $content) {
+      $path = $content->get('field_carrousel_picture')->entity->get('uri')->value;
+      $url = ImageStyle::load('570x600')->buildUrl($path);
+      $build['field_carrousel'][$key]['current_index'] = $current_index ;
+      $build['field_carrousel'][$key]['last_index'] = $contents_number ;
+      $build['field_carrousel'][$key]['titles'] = $titles;
+      $build['field_carrousel'][$key]['image'] = $url;
+      ++$current_index;
+    }
+  }
+}
+
+
+

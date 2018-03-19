@@ -1,0 +1,29 @@
+uuid: ae6edf00-88a9-4e21-94d1-65676d678022
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_file
+    - file_entity.type.document
+    - paragraphs.paragraphs_type.document_focus
+id: paragraph.document_focus.field_file
+field_name: field_file
+entity_type: paragraph
+bundle: document_focus
+label: Document
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings:
+    target_bundles:
+      document: document
+    sort:
+      field: field_title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

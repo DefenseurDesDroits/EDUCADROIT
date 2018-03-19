@@ -1,0 +1,21 @@
+uuid: 487a2085-879e-4ec3-9f71-ba5767864afc
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+id: course.field_introduction
+field_name: field_introduction
+entity_type: course
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

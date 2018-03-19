@@ -1,0 +1,32 @@
+uuid: c65a31f7-c9ed-4a2c-a31a-453d7bcfe716
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ckeditor_media_embed
+    - video_embed_wysiwyg
+name: 'Filtered HTML'
+format: filtered_html
+weight: 0
+filters:
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    weight: -10
+    settings:
+      allowed_html: '<em> <strong> <cite> <blockquote cite> <code> <ul type> <ol start type> <li> <dl> <dt> <dd> <h2 id> <h3 id> <h4 id> <h5 id> <h6 id> <img src alt data-entity-type data-entity-uuid> <p> <drupal-entity data-entity-type data-entity-uuid data-entity-embed-display data-entity-embed-display-settings data-align data-caption data-embed-button> <a href hreflang !href accesskey id rel target title>'
+      filter_html_help: true
+      filter_html_nofollow: false
+  video_embed_wysiwyg:
+    id: video_embed_wysiwyg
+    provider: video_embed_wysiwyg
+    status: true
+    weight: 0
+    settings: {  }
+  filter_ckeditor_media_embed:
+    id: filter_ckeditor_media_embed
+    provider: ckeditor_media_embed
+    status: true
+    weight: 0
+    settings: {  }

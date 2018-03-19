@@ -1,0 +1,20 @@
+uuid: 07a6aa85-412a-44e0-96c6-0dfcf97dccdb
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.course.field_introduction
+  module:
+    - ddd_courses
+id: course.course.field_introduction
+field_name: field_introduction
+entity_type: course
+bundle: course
+label: Introduction
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

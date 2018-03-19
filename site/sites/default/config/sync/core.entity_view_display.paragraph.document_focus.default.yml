@@ -1,0 +1,30 @@
+uuid: ebbac808-a950-47a6-a482-42d30180e3d9
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.document_focus.field_description
+    - field.field.paragraph.document_focus.field_file
+    - paragraphs.paragraphs_type.document_focus
+id: paragraph.document_focus.default
+targetEntityType: paragraph
+bundle: document_focus
+mode: default
+content:
+  field_description:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_file:
+    weight: 0
+    label: visually_hidden
+    settings:
+      view_mode: default
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_entity_view
+hidden:
+  created: true
+  uid: true

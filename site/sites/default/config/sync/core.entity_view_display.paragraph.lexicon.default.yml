@@ -1,0 +1,29 @@
+uuid: 75532b1f-00b9-49e5-b6ea-c2566bc01e2f
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lexicon.field_definition
+    - field.field.paragraph.lexicon.field_label
+    - paragraphs.paragraphs_type.lexicon
+id: paragraph.lexicon.default
+targetEntityType: paragraph
+bundle: lexicon
+mode: default
+content:
+  field_definition:
+    weight: 1
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_label:
+    weight: 0
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

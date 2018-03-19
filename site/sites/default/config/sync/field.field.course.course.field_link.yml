@@ -1,0 +1,23 @@
+uuid: f1e1c2a5-d810-421b-be5b-9f4d571db395
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.course.field_link
+  module:
+    - ddd_courses
+    - link
+id: course.course.field_link
+field_name: field_link
+entity_type: course
+bundle: course
+label: Lien
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link

@@ -1,0 +1,14 @@
+uuid: 08edaa0b-6e8e-4b7a-af57-063471b41546
+langcode: fr
+status: true
+dependencies: {  }
+name: 160x100
+label: 160x100
+effects:
+  d578c5d2-51f6-44e5-964d-afd9b113c3f9:
+    uuid: d578c5d2-51f6-44e5-964d-afd9b113c3f9
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 160
+      height: 100

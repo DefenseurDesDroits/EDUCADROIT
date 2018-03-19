@@ -1,0 +1,38 @@
+uuid: 48402629-2ed5-4ae2-be5a-a608d8c7ecf6
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_carrousel_picture
+    - paragraphs.paragraphs_type.carrousel
+  module:
+    - image
+id: paragraph.carrousel.field_carrousel_picture
+field_name: field_carrousel_picture
+entity_type: paragraph
+bundle: carrousel
+label: Image
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'png gif jpg jpeg'
+  max_filesize: ''
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: true
+  alt_field_required: true
+  title_field: false
+  title_field_required: false
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: image

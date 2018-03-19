@@ -1,0 +1,125 @@
+// Core: Scaffolding
+// =====================================================================================================================
+
+// Base
+// ---------------------------------------------------------------------------------------------------------------------
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+body {
+    position: relative;
+    padding-top: 50px;
+    height: 100vh;
+    background: url('../images/body-bg.jpg') repeat-x;
+    background-size: 1920px 1080px;
+    background-position: 0 50%;
+
+    @include font-smoothing();
+
+    .layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        opacity: 0;
+        transition: opacity .35s ease;
+        z-index: -1;
+    }
+
+    &.sidebar-active .layer {
+        opacity: .4;
+        z-index: 2;
+    }
+
+    @media (min-width: $screen-sm) and (max-width: 1024px) and (orientation: landscape) {
+        padding-top: 100px;
+    }
+
+    @media (min-width: 1024px) {
+        padding-top: 100px;
+    }
+}
+
+// Component: `.main`
+// ---------------------------------------------------------------------------------------------------------------------
+.main {
+    display: flex;
+    height: calc(100vh - 100px);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+// Component: `.container`
+// ---------------------------------------------------------------------------------------------------------------------
+.container {
+    position: relative;
+    background: url('../images/container-bg.svg') 0 0;
+    background-size: 100% 100%;
+    color: #fff;
+
+    @media (min-width: $screen-sm) {
+        width: 510px;
+        height: 510px;
+    }
+}
+
+// Component: `.valign`
+// ---------------------------------------------------------------------------------------------------------------------
+.valign {
+    position: relative;
+    display: table;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    line-height: 22px;
+}
+
+// Component: `.valign-middle`
+// ---------------------------------------------------------------------------------------------------------------------
+.valign-middle {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0 75px;
+    text-align: center;
+}
+
+// Component: `.valign-top`
+// ---------------------------------------------------------------------------------------------------------------------
+.valign-top {
+    display: table-cell;
+    padding: 30px;
+    vertical-align: top;
+    text-align: center;
+
+    @media (min-width: $screen-sm) {
+        padding: 75px 20px;
+    }
+}
+
+// Component: `.icon-loading`
+// ---------------------------------------------------------------------------------------------------------------------
+@keyframes loading {
+    from {
+        opacity: 1;
+
+    }
+
+    to {
+        opacity: 1;
+        transform: rotate(360deg);
+    }
+}
+
+.loading {
+    display: inline-block;
+    font-size: 50px;
+    animation: loading 2s linear infinite;
+}

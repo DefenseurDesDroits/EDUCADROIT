@@ -1,0 +1,24 @@
+<nav id="nav" class="navbar navbar-fixed-top">
+    <a href="{{ path('ddd_courses.parcours', {course: current_course}) }}" class="btn btn-primary btn-home"><i class="icon-home"></i></a>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-nav-episodes" data-toggle="collapse">
+        <i class="icon-menu-burger"></i>
+        <span class="label">Episodes</span>
+    </button><!-- .navbar-toggle -->
+</nav>
+
+<main id="main" class="main">
+    <div class="page-container page-container-desktop">
+            {{ page.content }}
+<div id="cookies-eu-banner" class="cookies-banner" style="display: none;">
+    <div class="container">
+        <p>Notre site utilise des cookies pour faciliter le bon fonctionnement de certains services. En continuant d'utiliser le site, vous acceptez que ce dernier installe de façon temporaire ces cookies sur votre ordinateur. Pour obtenir plus d'informations sur les cookies utilisés et la façon dont ils sont employés, rendez-vous sur la page des <a id="cookies-eu-more" href="#">mentions légales</a>. <button id="cookies-eu-accept" class="btn close"><span class="sr-only">Fermer</span></button></p>
+        <div class="buttons">
+            <button id="cookies-eu-reject">Reject</button>
+            <button id="cookies-eu-accept">Accept</button>
+        </div>
+    </div>
+</div>
+<!-- .cookies-banner -->
+
+<div class="layer"></div>
+<script src="//www.youtube.com/iframe_api"></script>

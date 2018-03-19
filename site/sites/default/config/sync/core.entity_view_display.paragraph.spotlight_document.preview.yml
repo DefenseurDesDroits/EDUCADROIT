@@ -1,0 +1,26 @@
+uuid: 15707ea3-984e-44ba-9e13-9fc81e043f94
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.spotlight_document.field_description
+    - field.field.paragraph.spotlight_document.field_file
+    - paragraphs.paragraphs_type.spotlight_document
+id: paragraph.spotlight_document.preview
+targetEntityType: paragraph
+bundle: spotlight_document
+mode: preview
+content:
+  field_file:
+    weight: 0
+    label: visually_hidden
+    settings:
+      view_mode: spotlight
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_entity_view
+hidden:
+  created: true
+  field_description: true
+  uid: true

@@ -1,0 +1,70 @@
+uuid: f6ce8ed6-b3ad-4733-85d7-57f998966775
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.course.course.field_episodes
+    - field.field.course.course.field_image
+    - field.field.course.course.field_introduction
+    - field.field.course.course.field_link
+    - field.field.course.course.field_teaser
+    - image.style.738x547
+  module:
+    - ddd_courses
+    - entity_reference_revisions
+    - image
+    - link
+id: course.course.default
+targetEntityType: course
+bundle: course
+mode: default
+content:
+  field_episodes:
+    type: entity_reference_revisions_entity_view
+    weight: 4
+    label: visually_hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+  field_image:
+    weight: 2
+    label: visually_hidden
+    settings:
+      image_style: 738x547
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_introduction:
+    weight: 5
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_link:
+    weight: 3
+    label: visually_hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+  field_teaser:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  label:
+    label: visually_hidden
+    type: string
+    weight: -3
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden:
+  user_id: true

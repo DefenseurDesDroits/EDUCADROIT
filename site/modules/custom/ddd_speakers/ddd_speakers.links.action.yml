@@ -1,0 +1,13 @@
+ddd_speakers.speakers_add:
+  route_name: ddd_speakers.speakers_add
+  title: 'Add Speakers'
+  appears_on:
+    - entity.speakers.collection
+    - entity.speakers.canonical
+
+ddd_speakers.referrer_add:
+  route_name: ddd_speakers.referrer_add
+  title: 'Add Referrer'
+  appears_on:
+    - entity.referrer.collection
+    - entity.referrer.canonical

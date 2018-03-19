@@ -1,0 +1,44 @@
+---
+layout: base.hbs
+---
+
+<div class="page-container">
+    <header role="banner" class="header">
+        {{#if page.home}}
+            <div class="disclaimer">
+                <div class="container">
+                    <button type="button" class="close"> <span class="icon-cross"></span> <span>Close</span></button>
+                    <p>Le site utilise des cookies pour le fonctionnement des boutons de partage sur les réseaux sociaux et la mesure d'audience des vidéos et des pages<br />
+                        de ce site. En poursuivant votre navigation sur ce site, vous acceptez leur utilisation. En savoir plus et gérer ses paramètres <a href="#">ici</a>.</p>
+                </div><!-- .container -->
+            </div><!-- .disclaimer -->
+        {{/if}}
+
+        <div class="container">
+            {{#if page.home}}
+                <h1 class="identity">
+                    <img src="http://pix.gaya.fr/194/80/" alt="Défenseur des droits" />
+                </h1>
+            {{else}}
+                <p class="identity">
+                    <a href="home.html">
+                        <img src="http://pix.gaya.fr/194/80/" alt="Défenseur des droits" />
+                    </a>
+                </p>
+            {{/if}}
+
+            {{> nav}}
+        </div><!-- .container -->
+    </header>
+
+
+    <div id="content" class="page-content">
+        <main id="main" class="main" role="main">
+            {{> body}}
+        </main>
+        <!-- .main -->
+
+        {{> footer}}
+    </div>
+</div>
+<!-- .page-container -->

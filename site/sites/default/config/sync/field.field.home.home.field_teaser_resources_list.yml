@@ -1,0 +1,20 @@
+uuid: a9908caf-f997-4520-be21-b95efe716266
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_teaser_resources_list
+  module:
+    - ddd_base
+id: home.home.field_teaser_resources_list
+field_name: field_teaser_resources_list
+entity_type: home
+bundle: home
+label: 'Ressources Liste : Chapô'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

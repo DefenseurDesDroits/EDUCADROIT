@@ -1,0 +1,62 @@
+---
+title: Mon profil
+psd: 16-ddd-mon-profil
+
+order: 11
+connected: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"title": "Page"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">Mon profil</h1>
+
+                <div class="standfirst">
+                    <p>Pour activer votre compte et avoir accès au forum, vous devez renseigner les informations ci-dessous.</p>
+                </div>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <form action="#">
+                    <div class="form-group">
+                        <label for="f01" class="control-label">Nom *</label>
+                        <input id="f01" required="required" aria-required="true" class="form-control" type="text" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="f02" class="control-label">Prénom *</label>
+                        <input id="f02" required="required" aria-required="true" class="form-control" type="text" />
+                    </div>
+
+                    <div class="form-group has-error">
+                        <label for="f03" class="control-label">Organisme *</label>
+                        <p id="message-error-organisme" class="form-message">Message d'erreur</p>
+                        <input id="f03" required="required" aria-required="true" aria-describedby="message-error-organisme" class="form-control" type="text" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="f04" class="control-label">Fonction *</label>
+                        <input id="f04" required="required" aria-required="true" class="form-control" type="text" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p class="small">* Champs obligatoires</p>
+                        </div>
+
+                        <div class="col-sm-6 text-right">
+                            <button class="btn" type="submit">Envoyer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

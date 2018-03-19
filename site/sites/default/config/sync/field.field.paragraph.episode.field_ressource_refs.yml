@@ -1,0 +1,28 @@
+uuid: 747cd107-558b-43a5-a030-edc7e0a52a05
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_ressource_refs
+    - node.type.resource
+    - paragraphs.paragraphs_type.episode
+id: paragraph.episode.field_ressource_refs
+field_name: field_ressource_refs
+entity_type: paragraph
+bundle: episode
+label: 'Ressources pédagogiques'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      resource: resource
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

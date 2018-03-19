@@ -1,0 +1,20 @@
+uuid: 49f2e3b9-be95-44a0-95f3-866be7067248
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd_parcours
+id: ddd_parcours_footerlinks_2
+theme: ddd_parcours
+region: footer
+weight: -6
+provider: null
+plugin: FooterLinks
+settings:
+  id: FooterLinks
+  label: FooterLinks
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

@@ -1,0 +1,24 @@
+// Components: Links
+// =====================================================================================================================
+a {
+    text-decoration: underline;
+
+    &:hover,
+    &:focus {
+        color: $brand-primary;
+        text-decoration: none;
+    }
+}
+
+.link {
+    margin-bottom: 10px;
+    font-family: oswalddemibold;
+
+    a {
+        color: $gray-dark;
+    }
+
+    i {
+        margin-left: 10px;
+    }
+}

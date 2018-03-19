@@ -1,0 +1,91 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_title
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_title_heading
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_autohide
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_autoplay
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_height
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_id
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_modestbranding
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_provider
+    - field.field.gaya_editorial_entity.gaya_editorial_video.field_ge_video_width
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_video
+  module:
+    - options
+    - user
+id: gaya_editorial_entity.gaya_editorial_video.default
+targetEntityType: gaya_editorial_entity
+bundle: gaya_editorial_video
+mode: default
+content:
+  field_ge_video_autohide:
+    weight: 5
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_ge_video_autoplay:
+    weight: 6
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+  field_ge_video_height:
+    weight: 7
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+  field_ge_video_id:
+    weight: 2
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_ge_video_modestbranding:
+    weight: 3
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+  field_ge_video_provider:
+    weight: 4
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_ge_video_width:
+    weight: 8
+    label: above
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    type: number_integer
+  field_ge_title:
+    weight: -3
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_ge_title_heading:
+    type: list_key
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  user_id: true
+  name: true

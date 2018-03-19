@@ -1,0 +1,20 @@
+uuid: 189b8f9f-684a-45ed-9844-cff254ffafbd
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.resources.field_teaser
+  module:
+    - ddd_resources
+id: resources.resources.field_teaser
+field_name: field_teaser
+entity_type: resources
+bundle: resources
+label: Chapô
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

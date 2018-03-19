@@ -1,0 +1,22 @@
+uuid: a6795d45-837c-4763-a71f-9fde8543213d
+langcode: fr
+status: true
+dependencies:
+  module:
+    - node
+id: speakers
+label: Intervenants
+type: 'canonical_entities:node'
+pattern: '/trouver-un-intervenant/[node:title]'
+selection_criteria:
+  9611fb85-2c61-4f8f-8b8c-b8eb92e29a03:
+    id: node_type
+    bundles:
+      speaker: speaker
+    negate: false
+    context_mapping:
+      node: node
+    uuid: 9611fb85-2c61-4f8f-8b8c-b8eb92e29a03
+selection_logic: and
+weight: -5
+relationships: {  }

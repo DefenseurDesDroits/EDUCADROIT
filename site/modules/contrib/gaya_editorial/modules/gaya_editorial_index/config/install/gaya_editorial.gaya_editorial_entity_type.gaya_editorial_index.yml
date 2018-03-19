@@ -1,0 +1,6 @@
+langcode: en
+status: true
+dependencies: {  }
+id: gaya_editorial_index
+label: 'Gaya Editorial Index'
+locked: true

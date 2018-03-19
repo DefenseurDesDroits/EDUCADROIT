@@ -1,0 +1,73 @@
+{% if form.surname['#errors'] %}
+    {% set error = form.surname['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-surname" class="control-label">{{ form.surname['#title'] }} *</label>
+    <p id="message-error-surname" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-surname" class="control-label">{{form.surname['#title']}} *</label>
+{% endif %}
+    {{ form.surname }}
+</div>
+
+{% if form.firstname['#errors'] %}
+    {% set error = form.firstname['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-firstname" class="control-label">{{ form.firstname['#title'] }} *</label>
+    <p id="message-error-firstname" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-firstname" class="control-label">{{form.firstname['#title']}} *</label>
+{% endif %}
+    {{ form.firstname }}
+</div>
+
+{% if form.organization['#errors'] %}
+    {% set error = form.organization['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-organization" class="control-label">{{ form.organization['#title'] }} *</label>
+    <p id="message-error-organization" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-organization" class="control-label">{{form.organization['#title']}} *</label>
+{% endif %}
+    {{ form.organization }}
+</div>
+
+{% if form.capacities['#errors'] %}
+    {% set error = form.capacities['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-capacities" class="control-label">{{ form.capacities['#title'] }} *</label>
+    <p id="message-error-capacities" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-capacities" class="control-label">{{form.capacities['#title']}} *</label>
+{% endif %}
+    {{ form.capacities }}
+</div>
+
+<input type="text" style="visibility:hidden; position:absolute;">
+{% if form.password['#errors'] %}
+    {% set error = form.password['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-password" class="control-label">{{ form.password['#title'] }} *</label>
+    <p id="message-error-password" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-password" class="control-label">{{form.password['#title']}}</label>
+{% endif %}
+    {{ form.password }}
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <p class="small">* {{ 'Champs obligatoires'|t }}</p>
+    </div>
+
+    <div class="col-sm-6 text-right">
+        {{ form.submit }}
+    </div>
+    {{ form.form_token }}
+    {{ form.form_build_id }}
+    {{ form.form_id }}
+</div>

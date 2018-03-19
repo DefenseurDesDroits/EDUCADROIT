@@ -1,0 +1,21 @@
+uuid: f624e0c2-505a-4185-a76e-264eab29ba48
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.courses.field_description
+  module:
+    - ddd_courses
+    - text
+id: courses.courses.field_description
+field_name: field_description
+entity_type: courses
+bundle: courses
+label: Description
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

@@ -1,0 +1,20 @@
+uuid: 5aa7d409-7978-4858-8b1c-c0058707c6a3
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.resources.field_label
+  module:
+    - ddd_resources
+id: resources.resources.field_label
+field_name: field_label
+entity_type: resources
+bundle: resources
+label: Titre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

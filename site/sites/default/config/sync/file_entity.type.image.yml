@@ -1,0 +1,11 @@
+uuid: 795ad623-d671-4954-afaa-07d1c3bb6c5d
+langcode: fr
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: Cnm8jai7mUWRJe41uZo5lyvpDJcbdkbGutMFhqPDUys
+id: image
+label: Image
+description: 'Un fichier <em>Image</em> est un visuel fixe.'
+mimetypes:
+  - 'image/*'

@@ -1,0 +1,21 @@
+uuid: b217943f-a744-4546-b4fb-bcb17d0278ce
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.newsletter.newsletter.field_email
+  module:
+    - ddd_newsletter
+id: newsletter.newsletter.default
+targetEntityType: newsletter
+bundle: newsletter
+mode: default
+content:
+  field_email:
+    weight: 0
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+hidden:
+  user_id: true

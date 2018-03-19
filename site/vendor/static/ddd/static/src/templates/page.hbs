@@ -1,0 +1,156 @@
+---
+title: Page éditoriale
+psd: 10-ddd-a-propos
+
+order: 2
+content: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"title": "Page"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">À propos</h1>
+
+                <div class="standfirst">
+                    <p>Restabat ut caesar post haec properaret accitus et abstergendae causa suspicionis sororem. (chapo)</p>
+                </div>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-focus article-focus-2">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2>1’30” pour comprendre l’éducation au(x) droit(s)</h2>
+
+                        {{>video}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="article-content">
+                <h2>h2. Heading 2</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut consectetur deleniti deserunt eligendi impedit iste, itaque laboriosam libero sequi soluta suscipit tempora tenetur totam voluptas. Accusamus deleniti eum voluptas!</p>
+
+                <h3>h3. Heading 3</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut consectetur deleniti deserunt eligendi impedit iste, itaque laboriosam libero sequi soluta suscipit tempora tenetur totam voluptas. Accusamus deleniti eum voluptas!</p>
+
+                <h4>h4. Heading 4</h4>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut consectetur deleniti deserunt eligendi impedit iste, itaque laboriosam libero sequi soluta suscipit tempora tenetur totam voluptas. Accusamus deleniti eum voluptas!</p>
+
+                <h5>h5. Heading 5</h5>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut consectetur deleniti deserunt eligendi impedit iste, itaque laboriosam libero sequi soluta suscipit tempora tenetur totam voluptas. Accusamus deleniti eum voluptas!</p>
+
+                <h6>h6. Heading 6</h6>
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet aut consectetur deleniti deserunt eligendi impedit iste, itaque laboriosam libero sequi soluta suscipit tempora tenetur totam voluptas. Accusamus deleniti eum voluptas!</p>
+
+                <h5>List Unordered</h5>
+                <ul>
+                    <li>Quorum ipse maximam partem illo affinitatis tempore injunxerat caesari</li>
+                    <li>Legionum permotus, quas ab itinere asiae syriaeque duabus suam potentiam</li>
+                    <li>Dominatumque converterat atque impellit simul infamia duarum</li>
+                </ul>
+
+                <h5>List Ordered</h5>
+                <ol>
+                    <li>Quorum ipse maximam partem illo affinitatis tempore injunxerat caesari</li>
+                    <li>Legionum permotus, quas ab itinere asiae syriaeque duabus suam potentiam</li>
+                    <li>Dominatumque converterat atque impellit simul infamia duarum</li>
+                </ol>
+
+                {{> video}}
+
+                <div class="article-focus">
+                    <h5>List Unordered</h5>
+
+                    <ul>
+                        <li>Quorum ipse maximam partem illo affinitatis tempore injunxerat caesari</li>
+                        <li>Legionum permotus, quas ab itinere asiae syriaeque duabus suam potentiam</li>
+                        <li>Dominatumque converterat atque impellit simul infamia duarum</li>
+                    </ul>
+                </div>
+
+                {{#parseJSON '{"heading": "Manuel d’éducation au(x) droit(s)", "standfirst": "Ce manuel décrit les objectifs pédagogiques et propose des contenus et des éléments pour faciliter vos interventions.", "text": "Et prima post osdroenam quam, ut dictum est, ab hac descriptione discrevimus commagena, nunc euphratensis clementer adsurgit hierapoli, vetere nino et samosata civitatibus amplis inlustris. Coactique aliquotiens nostri pedites ad eos persequendos scandere clivos sublimes etiam si lapsantibus plantis fruticeta prensando vel dumos ad vertices.", "figure": "yes", "button": "Télécharger", "icon": "icon-download-2"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+
+                <h2>Nos partenaire</h2>
+                <div class="nav-horizontal">
+                    <ul class="list-inline">
+                        <li><a href="#"><img src="../images/logo-lemonde.png" alt="Le monde"></a></li>
+                        <li><a href="#"><img src="../images/logo-francetelevision.png" alt="France télévision"></a></li>
+                        <li><a href="#"><img src="../images/logo-dessinspourlapaix.png" alt="Dessins pour la paix"></a></li>
+                        <li><a href="#"><img src="../images/logo-france24.png" alt="France 24"></a></li>
+                    </ul>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="post post-2">
+                            <div class="txt">
+                                <h2 class="heading">S’inscrire à la newsletter</h2>
+
+                                <p>Vous souhaitez recevoir les dernières nouvelles de notre plateforme, inscrivez-vous !</p>
+
+                                <form action="#">
+                                    <div class="form-group">
+                                        <label for="f01" class="control-label">Votre email (nom@exemple.fr)</label>
+                                        <input id="f01" required="required" aria-required="true" aria-describedby="message-error-name" class="form-control" type="text" />
+                                        <button type="submit" class="btn">S'inscrire</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="post post-2 post-color-2">
+                            <div class="txt">
+                                <h2 class="heading">Contactez-nous</h2>
+
+                                <p>Vous souhaitez devenir intervenant, participer à notre programme ? Contactez-nous !</p>
+
+                                <p><a class="btn" href="">Nous écrire</a> </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {{#parseJSON '{"heading": "Manuel d’éducation au(x) droit(s)", "standfirst": "Ce manuel décrit les objectifs pédagogiques et propose des contenus et des éléments pour faciliter vos interventions.", "text": "Et prima post osdroenam quam, ut dictum est, ab hac descriptione discrevimus commagena, nunc euphratensis clementer adsurgit hierapoli, vetere nino et samosata civitatibus amplis inlustris. Coactique aliquotiens nostri pedites ad eos persequendos scandere clivos sublimes etiam si lapsantibus plantis fruticeta prensando vel dumos ad vertices.", "figure": "yes", "button": "Télécharger", "icon": "icon-download-2", "valign": "valign"}'}}
+                            {{>post}}
+                        {{/parseJSON}}
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="post post-2 post-color-2">
+                            <div class="txt valign">
+                                <h2 class="heading">Contactez-nous</h2>
+
+                                <p>Vous souhaitez devenir intervenant, participer à notre programme ? Contactez-nous !</p>
+
+                                <p><a class="btn" href="">Nous écrire</a> </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{> share}}
+
+                {{#parseJSON '{"button": "Yes"}'}}
+                    {{> share}}
+                {{/parseJSON}}
+
+                {{#parseJSON '{"text": "Yes"}'}}
+                    {{> share}}
+                {{/parseJSON}}
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

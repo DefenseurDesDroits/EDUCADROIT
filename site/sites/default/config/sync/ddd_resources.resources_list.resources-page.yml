@@ -1,0 +1,7 @@
+uuid: 3438b74e-4d19-4a96-9756-0290ac121f6f
+langcode: fr
+status: true
+dependencies: {  }
+id: resources-page
+label: 'Centre de ressources'
+teaser: null

@@ -1,0 +1,22 @@
+uuid: 4bb40f01-abe4-4929-973d-fda0a412e4d3
+langcode: fr
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - ddd
+_core:
+  default_config_hash: 80N66GdzEvwqi1m-_GZ-ulkk8AJG9beoXcZ4-pMVKjI
+id: ddd_content
+theme: ddd
+region: content
+weight: -5
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  provider: system
+  label_display: '0'
+visibility: {  }

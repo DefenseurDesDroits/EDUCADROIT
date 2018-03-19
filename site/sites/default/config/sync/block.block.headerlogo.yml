@@ -1,0 +1,20 @@
+uuid: 7ab1ae95-42c2-4fc9-afbd-1df226813f10
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd
+id: headerlogo
+theme: ddd
+region: primary_menu
+weight: -5
+provider: null
+plugin: HeaderLogo
+settings:
+  id: HeaderLogo
+  label: HeaderLogo
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

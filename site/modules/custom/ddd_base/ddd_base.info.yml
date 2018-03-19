@@ -1,0 +1,10 @@
+name: DDD Base
+# core: 8.x
+description: Defenseur des droits Module de base
+package: DDD
+type: module
+
+# Information added by Drupal.org packaging script on 2016-08-30
+version: '8.x'
+core: '8.x'
+project: 'ddd'

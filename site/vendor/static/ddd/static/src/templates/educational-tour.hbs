@@ -1,0 +1,68 @@
+---
+title: Parcours pédagogique
+psd: 11-ddd-parcours-pedagogiques
+
+order: 8
+educational-tour: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"title": "Page"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{title}}</h1>
+
+                <div class="standfirst">
+                    <p>Restabat ut caesar post haec properaret accitus et abstergendae causa suspicionis sororem. (chapo)</p>
+                </div>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{#parseJSON '{"heading": "Parcours pédagogique élémentaire", "text": "Le droit expliqué aux 6-11 ans", "figure": "yes", "color": "post-color-3", "button": "Lancer", "icon": "icon-link"}'}}
+                            {{>post}}
+                        {{/parseJSON}}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{#parseJSON '{"heading": "Parcours pédagogique secondaire", "text": "Le droit expliqué aux 12-15 ans", "sticker": "Parcours<br />prochainement<br />disponible", "figure": "yes", "color": "post-color-4"}'}}
+                            {{>post}}
+                        {{/parseJSON}}
+                    </div>
+                </div><!-- .row -->
+
+                <div class="article-focus article-focus-2">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>Adolescebat autem obstinatum propositum erga haec et similia multa scrutanda, stimulos admovente regina, quae abrupte mariti fortunas trudebat in exitium praeceps, cum eum potius lenitate feminea ad veritatis humanitatisque viam reducere utilia suadendo deberet, ut in Gordianorum actibus factitasse Maximini truculenti illius imperatoris rettulimus coniugem.</p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h2 class="h3">Les points clés abordés :</h2>
+
+                            <ul>
+                                <li>Le droit, c’est quoi ?</li>
+                                <li>Qui crée le droit ?</li>
+                                <li>Sommes-nous tous égaux devant la loi ?</li>
+                                <li>Qui protège le droit et les droits ?</li>
+                                <li>Mêmes infractions, mêmes sanctions ?</li>
+                                <li>Qu’est-ce que je risque si je ne respecte pas la loi ?</li>
+                                <li>Quels sont mes droits ?</li>
+                                <li>Mes droits s’appliquent-ils partout et tout le temps ?</li>
+                                <li>Les droits sont-ils les mêmes dans tous les pays ?</li>
+                                <li>Défendre nos droits, changer la loi !</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

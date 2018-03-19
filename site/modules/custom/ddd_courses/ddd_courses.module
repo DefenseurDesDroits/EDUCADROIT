@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * @file
+ * Contains Drupal\ddd_courses\ddd_courses.module.
+ */
+
+function ddd_courses_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_courses_page' => [
+      'variables' => ['title' => NULL, 'teaser' => NULL, 'collection' => NULL, 'footer_description' => NULL, 'footer_title' => NULL, 'footer_keys' => NULL],
+    ],
+    'ddd_parcours_page' => [
+      'variables' => [
+        'course' => NULL,
+        'title' => NULL,
+        'episodes' => NULL,
+        'image_left' => NULL,
+        'image_right' => NULL,
+      ]
+    ],
+    'ddd_episode_page' => [
+      'variables' => [
+        'course' => NULL,
+        'title' => NULL,
+        'episode_title' => NULL,
+        'episode_keep_in_mind' => NULL,
+        'episode_glossary' => NULL,
+        'episode_ressources' => NULL,
+        'episode_video' => NULL,
+        'quizz_url' => NULL,
+        'episodes' => NULL,
+        'image_left' => NULL,
+        'image_right' => NULL,
+        'next' => NULL
+      ]
+    ],
+    'ddd_quizz_page' => [
+      'variables' => [
+        'course' => NULL,
+        'title' => NULL,
+        'episode_title' => NULL,
+        'episode_keep_in_mind' => NULL,
+        'episode_glossary' => NULL,
+        'episode_ressources' => NULL,
+        'episode_video' => NULL,
+        'episodes' => NULL,
+        'image_left' => NULL,
+        'image_right' => NULL,
+        'quizz' => NULL,
+        'next' => NULL
+      ]
+    ],
+    'course' => [
+      'variables' => ['course' => NULL, 'content' => NULL],
+    ]
+  ];
+}
+
+
+function ddd_courses_entity_view_alter(&$build, $entity, $display) {
+  if ($build['#view_mode'] == 'full') {
+    if ($build['#theme'] == 'course'){
+      $build['#content'] = [];
+      if (!empty($build['label']))
+        $build['#content']['label'] = $build['label'];
+      if (!empty($build['field_lead']))
+        $build['#content']['field_lead'] = $build['field_lead'];
+      if (!empty($build['field_teaser']))
+        $build['#content']['field_teaser'] = $build['field_teaser'];
+      if (!empty($build['field_image']))
+        $build['#content']['field_image'] = $build['field_image'];
+      if (!empty($build['field_introduction']))
+        $build['#content']['field_introduction'] = $build['field_introduction'];
+    }
+    if ($build['#theme'] == 'vocabulary'){
+      $build['#content'] = [];
+      if (!empty($build['label']))
+        $build['#content']['label'] = $build['label'];
+      if (!empty($build['field_definition']))
+        $build['#content']['field_definition'] = $build['field_definition'];
+    }
+  }
+}

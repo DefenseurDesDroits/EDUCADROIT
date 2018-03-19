@@ -1,0 +1,28 @@
+entity.config.add_form:
+  path: '/admin/content/config/add'
+  defaults:
+    _entity_form: 'config.add'
+    _title: 'Ajouter une Configuration'
+  requirements:
+    _permission: 'administer content'
+entity.config.collection:
+  path: '/admin/content/config'
+  defaults:
+    _entity_list: 'config'
+    _title: 'Configurations'
+  requirements:
+    _permission: 'administer content'
+entity.config.edit:
+  path: '/admin/content/config/{config}/edit'
+  defaults:
+    _entity_form: 'config.edit'
+    _title: 'Editer la Configuration du Site'
+  requirements:
+    _permission: 'administer content'
+entity.config.delete:
+  path: '/admin/content/config/{config}/delete'
+  defaults:
+    _entity_form: 'config.delete'
+    _title: 'Supprimer une Configuration'
+  requirements:
+    _permission: 'administer content'

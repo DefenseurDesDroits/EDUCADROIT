@@ -1,0 +1,6 @@
+uuid: 741d5018-b991-4ea0-ba63-64c95c6d3845
+langcode: fr
+status: true
+dependencies: {  }
+id: spotlight_content
+label: 'Contenus du site'

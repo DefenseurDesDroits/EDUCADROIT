@@ -1,0 +1,20 @@
+resources.settings_tab:
+  route_name: ddd_resources.resources_settings
+  title: Settings
+  base_route: ddd_resources.resources_settings
+
+resources.view:
+  route_name: entity.resources.canonical
+  base_route: entity.resources.canonical
+  title: View
+
+resources.page_edit:
+  route_name: entity.resources.edit_form
+  base_route: entity.resources.canonical
+  title: Edit
+
+resources.delete_confirm:
+  route_name:  entity.resources.delete_form
+  base_route:  entity.resources.canonical
+  title: Delete
+  weight: 10

@@ -1,0 +1,9 @@
+uuid: 878521e2-fce5-4f6b-be03-30d14d2f6615
+langcode: fr
+status: true
+dependencies: {  }
+name: Publics
+vid: public
+description: 'Public ressources'
+hierarchy: 0
+weight: -8

@@ -1,0 +1,109 @@
+# Page Speakers List
+ddd_speakers.speakers:
+  path: /trouver-un-intervenant
+  defaults:
+    _content: '\Drupal\ddd_speakers\Controller\SpeakersListController::speakersPage'
+    _controller: '\Drupal\ddd_speakers\Controller\SpeakersListController::speakersPage'
+    _title: 'Trouver un Intervenant'
+  requirements:
+    _permission: 'access content'
+
+# Page Referrer Entity
+entity.speakers.canonical:
+  path: '/admin/content/speakers/{speakers}'
+  defaults:
+    _entity_view: 'speakers'
+    _title: 'Speakers Content'
+  requirements:
+    _entity_access: 'speakers.view'
+
+entity.speakers.collection:
+  path: '/admin/content/speakers/list'
+  defaults:
+    _entity_list: 'speakers'
+    _title: 'Speakers List'
+  requirements:
+    _permission: 'view speakers entity'
+
+ddd_speakers.speakers_add:
+  path: '/admin/content/speakers/add'
+  defaults:
+    _entity_form: speakers.add
+    _title: 'Add Speakers'
+  requirements:
+    _entity_create_access: 'speakers'
+
+entity.speakers.edit_form:
+  path: '/admin/content/speakers/{speakers}/edit'
+  defaults:
+    _entity_form: speakers.edit
+    _title: 'Edit Speakers'
+  requirements:
+    _entity_access: 'speakers.edit'
+
+entity.speakers.delete_form:
+  path: '/admin/content/speakers/{speakers}/delete'
+  defaults:
+    _entity_form: speakers.delete
+    _title: 'Delete Speakers'
+  requirements:
+    _entity_access: 'speakers.delete'
+
+ddd_speakers.speakers_settings:
+  path: 'admin/structure/speakers'
+  defaults:
+    _form: '\Drupal\ddd_speakers\Form\SpeakersSettingsForm'
+    _title: 'Speakers Settings'
+  requirements:
+    _permission: 'administer speakers entity'
+
+# Speakers Entities
+entity.referrer.canonical:
+  path: '/admin/content/referrer/{referrer}'
+  defaults:
+    _entity_view: 'referrer'
+    _title: 'Referrer Content'
+  requirements:
+    _entity_access: 'referrer.view'
+
+entity.referrer.collection:
+  path: '/admin/content/referrer/list'
+  defaults:
+    _entity_list: 'referrer'
+    _title: 'Referrer List'
+  requirements:
+    _permission: 'view referrer entity'
+
+ddd_speakers.referrer_add:
+  path: '/admin/content/referrer/add'
+  defaults:
+    _entity_form: referrer.add
+    _title: 'Add Referrer'
+  requirements:
+    _entity_create_access: 'referrer'
+
+entity.referrer.edit_form:
+  path: '/admin/content/referrer/{referrer}/edit'
+  defaults:
+    _entity_form: referrer.edit
+    _title: 'Edit Referrer'
+  requirements:
+    _entity_access: 'referrer.edit'
+
+entity.referrer.delete_form:
+  path: '/admin/content/referrer/{referrer}/delete'
+  defaults:
+    _entity_form: referrer.delete
+    _title: 'Delete Referrer'
+  requirements:
+    _entity_access: 'referrer.delete'
+
+ddd_speakers.referrer_settings:
+  path: 'admin/structure/referrer'
+  defaults:
+    _form: '\Drupal\ddd_speakers\Form\ReferrerSettingsForm'
+    _title: 'Referrer Settings'
+  requirements:
+    _permission: 'administer referrer entity'
+
+

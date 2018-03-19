@@ -1,0 +1,9 @@
+uuid: c82dd2c2-bc56-4d97-b589-899e145775b1
+langcode: fr
+status: true
+dependencies: {  }
+name: Formats
+vid: formats
+description: 'Formats Ressources'
+hierarchy: 0
+weight: -10

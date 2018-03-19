@@ -1,0 +1,20 @@
+contact.settings_tab:
+  route_name: ddd_contact.contact_settings
+  title: Settings
+  base_route: ddd_contact.contact_settings
+
+contact.view:
+  route_name: entity.contact.canonical
+  base_route: entity.contact.canonical
+  title: View
+
+contact.page_edit:
+  route_name: entity.contact.edit_form
+  base_route: entity.contact.canonical
+  title: Edit
+
+contact.delete_confirm:
+  route_name:  entity.contact.delete_form
+  base_route:  entity.contact.canonical
+  title: Delete
+  weight: 10

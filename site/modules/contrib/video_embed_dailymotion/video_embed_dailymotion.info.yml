@@ -1,0 +1,13 @@
+name: Video Embed Field Dailymotion
+type: module
+description: 'A video_embed_field integration with Dailymotion.'
+package: Field types
+# core: 8.x
+dependencies:
+  - video_embed_field
+
+# Information added by Drupal.org packaging script on 2016-03-09
+version: '8.x-1.1'
+core: '8.x'
+project: 'video_embed_dailymotion'
+datestamp: 1457516305

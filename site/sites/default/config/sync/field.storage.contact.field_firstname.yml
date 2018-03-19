@@ -1,0 +1,21 @@
+uuid: 4ec4c79f-c5b5-408e-9f9e-59691a21a181
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_contact
+id: contact.field_firstname
+field_name: field_firstname
+entity_type: contact
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

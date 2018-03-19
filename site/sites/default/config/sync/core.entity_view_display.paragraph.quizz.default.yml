@@ -1,0 +1,55 @@
+uuid: ce5b3028-b5cb-467c-abce-5b3d71791ca6
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.quizz.field_answer_description
+    - field.field.paragraph.quizz.field_answers
+    - field.field.paragraph.quizz.field_right_answer
+    - field.field.paragraph.quizz.field_subtitle
+    - field.field.paragraph.quizz.field_title
+    - paragraphs.paragraphs_type.quizz
+  module:
+    - options
+id: paragraph.quizz.default
+targetEntityType: paragraph
+bundle: quizz
+mode: default
+content:
+  field_answer_description:
+    weight: 4
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_answers:
+    weight: 2
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_right_answer:
+    weight: 3
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_subtitle:
+    weight: 1
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_title:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

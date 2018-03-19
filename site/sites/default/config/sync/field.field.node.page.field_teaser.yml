@@ -1,0 +1,21 @@
+uuid: a9fbe6f4-4c49-4e10-a8de-f97c903770ba
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_teaser
+    - node.type.page
+  module:
+    - text
+id: node.page.field_teaser
+field_name: field_teaser
+entity_type: node
+bundle: page
+label: Chapô
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

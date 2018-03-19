@@ -1,0 +1,11 @@
+{# share.html.twig #}
+<div class="share">
+  {% if resource %}
+  <a onclick="offlineResource()" id="offline-resource" class="warning" data-link="{{ path('ddd_resources.offline_resource', {'id': resource}) }}">Signaler qu’une ressource n'est plus en ligne</a>
+  {% endif %}
+  <p class="text-right">
+      <strong>Partager sur</strong>
+      <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u={{ url.encoded }}&title={{ title.encoded }}" target="_blank" onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=600,width=600');return false;"><span>Facebook</span></a>
+      <a class="icon-twitter" href="https://twitter.com/intent/tweet?status={{ title.raw }} {{ url.raw }}" target="_blank"><span>Twitter</span></a>
+  </p>
+</div>

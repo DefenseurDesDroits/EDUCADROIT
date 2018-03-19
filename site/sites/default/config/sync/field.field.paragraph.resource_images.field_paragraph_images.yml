@@ -1,0 +1,75 @@
+uuid: 9cc735d0-7b1b-4789-84e4-ffe7022ef437
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_paragraph_images
+    - paragraphs.paragraphs_type.image
+    - paragraphs.paragraphs_type.resource_images
+  module:
+    - entity_reference_revisions
+id: paragraph.resource_images.field_paragraph_images
+field_name: field_paragraph_images
+entity_type: paragraph
+bundle: resource_images
+label: Images
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      image: image
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 17
+        enabled: false
+      focus:
+        weight: 18
+        enabled: false
+      image:
+        enabled: true
+        weight: 19
+      lexicon:
+        weight: 20
+        enabled: false
+      logo:
+        weight: 21
+        enabled: false
+      logos_list:
+        weight: 22
+        enabled: false
+      referrer:
+        weight: 23
+        enabled: false
+      resources_video:
+        weight: 24
+        enabled: false
+      resource_images:
+        weight: 25
+        enabled: false
+      ressources_link:
+        weight: 26
+        enabled: false
+      spotlight_contact:
+        weight: 27
+        enabled: false
+      spotlight_document:
+        weight: 28
+        enabled: false
+      spotlight_learning_tools:
+        weight: 29
+        enabled: false
+      spotlight_newsletter:
+        weight: 30
+        enabled: false
+      spotlight_page:
+        weight: 31
+        enabled: false
+      text_content:
+        weight: 32
+        enabled: false
+field_type: entity_reference_revisions

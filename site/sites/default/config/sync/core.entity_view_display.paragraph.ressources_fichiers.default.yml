@@ -1,0 +1,31 @@
+uuid: daa8310f-9d73-4ad7-aeb6-31cf355c16cb
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ressources_fichiers.field_fichier
+    - field.field.paragraph.ressources_fichiers.field_title
+    - paragraphs.paragraphs_type.ressources_fichiers
+  module:
+    - file
+id: paragraph.ressources_fichiers.default
+targetEntityType: paragraph
+bundle: ressources_fichiers
+mode: default
+content:
+  field_fichier:
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: file_default
+  field_title:
+    weight: 1
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

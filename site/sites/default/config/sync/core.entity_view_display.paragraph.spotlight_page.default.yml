@@ -1,0 +1,41 @@
+uuid: c4b9febf-24b2-43d4-bc1e-d383193a7d6e
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.spotlight_page.field_description
+    - field.field.paragraph.spotlight_page.field_image
+    - field.field.paragraph.spotlight_page.field_page
+    - image.style.738x547
+    - paragraphs.paragraphs_type.spotlight_page
+  module:
+    - image
+    - options
+id: paragraph.spotlight_page.default
+targetEntityType: paragraph
+bundle: spotlight_page
+mode: default
+content:
+  field_description:
+    type: basic_string
+    weight: 2
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  field_image:
+    weight: 1
+    label: visually_hidden
+    settings:
+      image_style: 738x547
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_page:
+    weight: 3
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+hidden:
+  created: true
+  uid: true

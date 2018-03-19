@@ -1,0 +1,32 @@
+uuid: 84e51ad7-e8c2-4d85-bad8-c6831fcb0685
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.ressources_fichiers.field_fichier
+    - field.field.paragraph.ressources_fichiers.field_title
+    - paragraphs.paragraphs_type.ressources_fichiers
+  module:
+    - file
+id: paragraph.ressources_fichiers.default
+targetEntityType: paragraph
+bundle: ressources_fichiers
+mode: default
+content:
+  field_fichier:
+    weight: 0
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+    type: file_generic
+  field_title:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

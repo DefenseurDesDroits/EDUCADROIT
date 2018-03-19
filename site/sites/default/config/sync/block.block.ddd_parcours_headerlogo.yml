@@ -1,0 +1,20 @@
+uuid: ae6ec22f-3a65-4bf1-bf19-ec9d941a47d2
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd_parcours
+id: ddd_parcours_headerlogo
+theme: ddd_parcours
+region: primary_menu
+weight: -6
+provider: null
+plugin: HeaderLogo
+settings:
+  id: HeaderLogo
+  label: HeaderLogo
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

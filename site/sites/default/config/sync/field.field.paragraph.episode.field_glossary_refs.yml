@@ -1,0 +1,25 @@
+uuid: 8104b518-ce12-4ea6-a25d-2ae578733eed
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_glossary_refs
+    - paragraphs.paragraphs_type.episode
+id: paragraph.episode.field_glossary_refs
+field_name: field_glossary_refs
+entity_type: paragraph
+bundle: episode
+label: Définitions
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:vocabulary'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

@@ -1,0 +1,68 @@
+uuid: e1c30221-8836-45e5-a959-781036503d74
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.node.speaker.field_address
+    - field.field.node.speaker.field_description
+    - field.field.node.speaker.field_paragraphs
+    - field.field.node.speaker.field_region
+    - field.field.node.speaker.field_speaker_type
+    - field.field.node.speaker.field_speciality
+    - node.type.speaker
+  module:
+    - entity_reference_revisions
+    - text
+    - user
+id: node.speaker.default
+targetEntityType: node
+bundle: speaker
+mode: default
+content:
+  field_address:
+    weight: 105
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  field_description:
+    weight: 104
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  field_paragraphs:
+    weight: 106
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
+  field_region:
+    weight: 101
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_speaker_type:
+    weight: 102
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_speciality:
+    weight: 103
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true

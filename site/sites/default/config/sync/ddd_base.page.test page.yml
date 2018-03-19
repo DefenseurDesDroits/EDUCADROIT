@@ -1,0 +1,7 @@
+uuid: ceb2ae82-1b99-4abd-b3a3-91f970835e74
+langcode: fr
+status: true
+dependencies: {  }
+id: 'test page'
+label: 'Test Page 2'
+teaser: 'ceci est un chapo'

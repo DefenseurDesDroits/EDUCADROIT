@@ -1,0 +1,20 @@
+uuid: 88fcac25-2af2-438e-81cc-5ef60371b99e
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.speakers.field_teaser
+  module:
+    - ddd_speakers
+id: speakers.speakers.field_teaser
+field_name: field_teaser
+entity_type: speakers
+bundle: speakers
+label: Chapô
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

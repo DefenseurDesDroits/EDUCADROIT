@@ -1,0 +1,19 @@
+uuid: a535e1ff-bdd0-49cf-a2c7-1fc39def0883
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_glossary
+id: vocabulary.field_definition
+field_name: field_definition
+entity_type: vocabulary
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

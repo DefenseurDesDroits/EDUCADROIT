@@ -1,0 +1,20 @@
+medias.settings_tab:
+  route_name: ddd_medias.medias_settings
+  title: Settings
+  base_route: ddd_medias.medias_settings
+
+medias.view:
+  route_name: entity.medias.canonical
+  base_route: entity.medias.canonical
+  title: View
+
+medias.page_edit:
+  route_name: entity.medias.edit_form
+  base_route: entity.medias.canonical
+  title: Edit
+
+medias.delete_confirm:
+  route_name:  entity.medias.delete_form
+  base_route:  entity.medias.canonical
+  title: Delete
+  weight: 10

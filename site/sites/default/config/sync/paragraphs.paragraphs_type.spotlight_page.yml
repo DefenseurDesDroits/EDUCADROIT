@@ -1,0 +1,6 @@
+uuid: 38886478-e249-4eb4-8000-89cf272efc98
+langcode: fr
+status: true
+dependencies: {  }
+id: spotlight_page
+label: 'Page du Site'

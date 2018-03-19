@@ -1,0 +1,27 @@
+uuid: 8013683b-e506-4fd8-8ea2-0ddeb249b883
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_fichier
+    - paragraphs.paragraphs_type.ressources_fichiers
+  module:
+    - file
+id: paragraph.ressources_fichiers.field_fichier
+field_name: field_fichier
+entity_type: paragraph
+bundle: ressources_fichiers
+label: Fichier
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: ''
+  description_field: false
+  handler: 'default:file'
+  handler_settings: {  }
+field_type: file

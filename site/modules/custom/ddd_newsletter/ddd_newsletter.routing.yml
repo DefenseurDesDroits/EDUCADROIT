@@ -1,0 +1,58 @@
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+entity.newsletter.canonical:
+  path: '/admin/content/newsletter/{newsletter}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the newsletter entity
+    _entity_view: 'newsletter'
+    _title: 'Newsletter Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'newsletter.view'
+
+entity.newsletter.collection:
+  path: '/admin/content/newsletter/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the newsletter entity.
+    _entity_list: 'newsletter'
+    _title: 'Newsletter : Liste des Inscriptions'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view newsletter entity'
+
+ddd_newsletter.newsletter_add:
+  path: '/admin/content/newsletter/add'
+  defaults:
+  # Calls the form.add controller, defined in the newsletter entity.
+    _entity_form: newsletter.add
+    _title: 'Newsletter : Ajouter une Inscription'
+  requirements:
+    _entity_create_access: 'newsletter'
+
+entity.newsletter.edit_form:
+  path: '/admin/content/newsletter/{newsletter}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the newsletter entity.
+    _entity_form: newsletter.edit
+    _title: 'Newsletter : Editer une Inscription'
+  requirements:
+    _entity_access: 'newsletter.edit'
+
+entity.newsletter.delete_form:
+  path: '/admin/content/newsletter/{newsletter}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the newsletter entity.
+    _entity_form: newsletter.delete
+    _title: 'Delete Newsletter'
+  requirements:
+    _entity_access: 'newsletter.delete'
+
+ddd_newsletter.newsletter_settings:
+  path: 'admin/structure/newsletter'
+  defaults:
+    _form: '\Drupal\ddd_newsletter\Form\NewsletterSettingsForm'
+    _title: 'Newsletter Settings'
+  requirements:
+    _permission: 'administer newsletter entity'

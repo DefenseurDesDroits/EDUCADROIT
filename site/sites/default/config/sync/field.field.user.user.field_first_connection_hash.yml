@@ -1,0 +1,20 @@
+uuid: ef0e6acb-d625-40c7-978f-7357461ea653
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_first_connection_hash
+  module:
+    - user
+id: user.user.field_first_connection_hash
+field_name: field_first_connection_hash
+entity_type: user
+bundle: user
+label: 'First Connection Hash'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

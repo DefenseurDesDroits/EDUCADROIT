@@ -1,0 +1,20 @@
+uuid: 63804fed-efbd-4599-be7a-194475ba171c
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.newsletter.field_email
+  module:
+    - ddd_newsletter
+id: newsletter.newsletter.field_email
+field_name: field_email
+entity_type: newsletter
+bundle: newsletter
+label: Courriel
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

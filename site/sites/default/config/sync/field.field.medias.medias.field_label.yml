@@ -1,0 +1,20 @@
+uuid: f2d0012d-97ab-4b6d-9eeb-1af9e18c6979
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.medias.field_label
+  module:
+    - ddd_medias
+id: medias.medias.field_label
+field_name: field_label
+entity_type: medias
+bundle: medias
+label: Titre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

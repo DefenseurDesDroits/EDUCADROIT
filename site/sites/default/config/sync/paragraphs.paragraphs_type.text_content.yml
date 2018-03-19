@@ -1,0 +1,6 @@
+uuid: aa3bc656-f4b8-4262-a39e-d768e3e95d64
+langcode: fr
+status: true
+dependencies: {  }
+id: text_content
+label: 'Contenu textuel'

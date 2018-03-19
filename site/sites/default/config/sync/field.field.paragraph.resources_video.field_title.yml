@@ -1,0 +1,19 @@
+uuid: a0ba0ab0-7112-41b0-9f40-a2cb668a5dbc
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_title
+    - paragraphs.paragraphs_type.resources_video
+id: paragraph.resources_video.field_title
+field_name: field_title
+entity_type: paragraph
+bundle: resources_video
+label: Titre
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

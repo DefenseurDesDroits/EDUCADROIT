@@ -1,0 +1,20 @@
+uuid: e5d1676d-43ff-409c-bfdf-a1de808b286a
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.courses.field_label
+  module:
+    - ddd_courses
+id: courses.courses.field_label
+field_name: field_label
+entity_type: courses
+bundle: courses
+label: Titre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Contains Drupal\ddd_resources\ddd_resources.module.
+ */
+
+function ddd_resources_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_resources_page' => [
+      'variables' => [
+        'title' => NULL,
+        'teaser' => NULL,
+        'filter' => NULL,
+        'collection' => NULL,
+        'pager' => NULL,
+        'spotlight' => NULL,
+        'results_count' => NULL
+      ],
+    ],
+    # Forms
+    'ddd_resource_form' => [
+      'render element' => 'form',
+    ],
+    'ddd_resources_filter_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}

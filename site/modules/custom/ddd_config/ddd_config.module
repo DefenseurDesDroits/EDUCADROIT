@@ -1,0 +1,4 @@
+<?php
+function ddd_config_theme($existing, $type, $theme, $path) {
+  return [];
+}

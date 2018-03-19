@@ -1,0 +1,22 @@
+uuid: 4d146006-b3c8-4fef-af0e-d0233bccc73f
+langcode: fr
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - ddd_parcours
+_core:
+  default_config_hash: 80N66GdzEvwqi1m-_GZ-ulkk8AJG9beoXcZ4-pMVKjI
+id: ddd_parcours_content
+theme: ddd_parcours
+region: content
+weight: -5
+provider: null
+plugin: system_main_block
+settings:
+  id: system_main_block
+  label: 'Main page content'
+  provider: system
+  label_display: '0'
+visibility: {  }

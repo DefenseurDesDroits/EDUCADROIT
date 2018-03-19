@@ -1,0 +1,21 @@
+uuid: 6b20f99e-21da-4b7b-869e-2bcbff4b7bed
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+id: home.field_title_speakers
+field_name: field_title_speakers
+entity_type: home
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

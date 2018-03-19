@@ -1,0 +1,19 @@
+uuid: 57a55d76-2edc-4e34-a861-1b4e571179bb
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_year
+    - node.type.resource
+id: node.resource.field_year
+field_name: field_year
+entity_type: node
+bundle: resource
+label: Année
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

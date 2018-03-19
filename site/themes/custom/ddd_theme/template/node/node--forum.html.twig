@@ -1,0 +1,24 @@
+<div class="container">
+
+
+        <article class="article">
+            {# <header class="article-header">
+                <h1 class="article-title">{{ label }}</h1>
+
+                <div class="standfirst">
+                    {{ content.body }}
+                </div>
+                <hr/>
+            </header> #}
+            <!-- .post-header -->
+            {# {{ content.taxonomy_forums }} #}
+            <header class="article-header">
+              <h1 class="article-title">
+                {{ title }}
+              </h1>
+            </header>
+            {# {{kpr(content.comment_forum)}} #}
+            {{ content.comment_forum }}
+            <!-- .article-content -->
+        </article>
+    </div>

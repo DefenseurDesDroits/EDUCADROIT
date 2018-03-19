@@ -1,0 +1,26 @@
+uuid: 00304347-73b3-4ebd-abd4-43334a30a909
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_courses
+  module:
+    - ddd_base
+id: home.home.field_courses
+field_name: field_courses
+entity_type: home
+bundle: home
+label: 'Parcours Pédagogiques'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:course'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

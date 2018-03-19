@@ -1,0 +1,9 @@
+{
+  "generator-static": {
+    "projectName": "Ddd Parcours",
+    "projectDesc": "This is static sources for the project.",
+    "projectType": "site",
+    "projectCms": "drupal-theme",
+    "bowerComponents": []
+  }
+}

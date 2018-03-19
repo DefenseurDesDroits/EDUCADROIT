@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * Contains gaya_editorial_slideshow.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $route_name
+ * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+ * @return string
+ */
+function gaya_editorial_slideshow_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the gaya_editorial_slideshow module.
+    case 'help.page.gaya_editorial_slideshow':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Gaya Editorial Slideshow') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_slideshow_theme() {
+  $theme = [];
+  $theme['ge_slideshow_theme_caroufredsel'] = [
+    'template' => 'ge_slideshow_theme_caroufredsel',
+    'variables' => gaya_editorial_slideshow_theme_default_variables()
+  ];
+  return $theme;
+}
+
+/**
+ * Return the default variables for the theme slideshow
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @return array
+ */
+function gaya_editorial_slideshow_theme_default_variables() {
+  return array(
+    'title' => '',
+    'theme_style' => '',
+    'style_name' => '',
+    'little_picture' => '',
+    'style_name_little' => '',
+    'autostart' => '',
+    'pictures' => '',
+    'pictures_little' => '',
+    'entity_id' => '',
+    'entity_bundle' => '',
+    'field_ge_title' => '',
+    'field_ge_title_heading' => ''
+  );
+}
+
+/**
+ * Hook for gaya_editorial_slideshow
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @return array
+ */
+function gaya_editorial_slideshow_ge_slideshow_theme_api() {
+  $themes = array(
+    'ge_slideshow_theme_caroufredsel' => array(
+      'name' => \Drupal::translation()->translate('Default Caroufredsel'),
+      'version' => '1.0',
+      'librariesAttach' => array('caroufredsel-default'),
+      'module' => 'gaya_editorial_slideshow'
+    )
+  );
+  return $themes;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param array $suggestions
+ * @param array $variables
+ * @param $hook
+ */
+function gaya_editorial_slideshow_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_slideshow') {
+      $suggestions[] = $variables['elements']['field_ge_slideshow_cfg']['#object']->field_ge_slideshow_cfg->theme_style;
+      $suggestions[] = $variables['elements']['field_ge_slideshow_cfg']['#object']->field_ge_slideshow_cfg->theme_style . '__' . $variables['elements']['#gaya_editorial_entity']->id();
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $variables
+ * @param $hook
+ */
+function gaya_editorial_slideshow_preprocess(&$variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_slideshow') {
+
+      // Get entity object
+      $entity = $variables['elements']['#gaya_editorial_entity'];
+
+      // Object informations
+      $variables['entity_id'] = $entity->id();
+      $variables['entity_bundle'] = $entity->bundle();
+      $variables['name'] = $entity->getName();
+
+      // Configuration information
+      $variables['slideshow_cfg'] = $entity->get('field_ge_slideshow_cfg')
+        ->getValue();
+
+      // Override the image style for the large !
+      foreach ($entity->get('field_ge_slideshow_pics')
+                 ->getValue() as $key => $value) {
+        $variables['elements']['field_ge_slideshow_pics'][$key]['#image_style'] = $variables['slideshow_cfg'][0]['style_name'];
+      }
+
+      // Clone the field_ge_slideshow_pics and set the image style for the little picture !
+      if ($variables['slideshow_cfg'][0]['little_picture'] == 1) {
+        $variables['elements']['field_ge_slideshow_pics_little'] = $variables['elements']['field_ge_slideshow_pics'];
+        for ($i = 0; $i < count($variables['elements']['field_ge_slideshow_pics_little']['#items']); ++$i) {
+          $variables['elements']['field_ge_slideshow_pics_little'][$i]['#image_style'] = $variables['slideshow_cfg'][0]['style_name_little'];
+        }
+      }
+
+      // Attachs Library CSS / JS from setting module.libraries.yml
+      $theme_configuration = gaya_editorial_slideshow_get_theme_config($variables['slideshow_cfg'][0]['theme_style']);
+      if ($theme_configuration !== FALSE && is_array($theme_configuration) && count($theme_configuration) > 0) {
+        if (isset($theme_configuration['module']) && isset($theme_configuration['module']) != '' && isset($theme_configuration['librariesAttach']) && count($theme_configuration['librariesAttach'])) {
+          foreach ($theme_configuration['librariesAttach'] as $libraries) {
+            $variables['#attached']['library'][] = $theme_configuration['module'] . '/' . $libraries;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Retrieve the configuration of the theme slideshow choosed
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $theme
+ * @return array | boolean
+ */
+function gaya_editorial_slideshow_get_theme_config($theme) {
+  $config = Drupal::config('gaya_editorial_slideshow.settings');
+  $hook = $config->get('hook_ge_slideshow_theme');
+  $modules_founds = Drupal::moduleHandler()->getImplementations($hook);
+  foreach ($modules_founds as $module) {
+    $module_information = Drupal::moduleHandler()->invoke($module, $hook);
+  }
+  if (isset($module_information[$theme])) {
+    return $module_information[$theme];
+  }
+  else {
+    return FALSE;
+  }
+}

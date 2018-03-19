@@ -1,0 +1,11 @@
+uuid: 361c96f3-1cac-4adf-9dba-46e2ec229291
+langcode: fr
+status: true
+dependencies: {  }
+name: Ressource
+type: resource
+description: ''
+help: ''
+new_revision: false
+preview_mode: 0
+display_submitted: true

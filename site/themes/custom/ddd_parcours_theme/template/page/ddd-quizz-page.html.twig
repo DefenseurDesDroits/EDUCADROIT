@@ -1,0 +1,122 @@
+<div class="container">
+    <div class="valign">
+        <div class="valign-top">
+            {% set frame = 1 %}
+            {% for question in quizz %}
+                <div id="quiz-frame-{{ frame }}" class="quiz-frame animated
+                    {% if frame == 1 %}
+                    active
+                    {% endif %}
+                ">
+                    <h2 class="title">{{ question.title }}</h2>
+                    <p class="lead">{{ question.subtitle }}</p>
+                    <form id="form-{{ frame }}" action="#" class="form form-quiz">
+                        {% for answer in question.answers %}
+                            <div class="radio"><label><input type="radio" name="name" id="input{{ frame }}" value="" data-target="#quiz-frame-{{ frame + answer.frame }}">{{ answer.title }}</label></div>
+                        {% endfor %}
+                        {# <div class="radio"><label><input type="radio" name="name" id="input02" value="" data-target="#quiz-frame-03">B. L’ensemble des lois et des règles juridiques du pays</label></div> #}
+                        <div class="text-center"><button type="button" data-form="#form-{{ frame }}" class="btn btn-secondary btn-check"><i class="icon-check"></i> <span class="label">Vérifier la réponse</span></button></div>
+                    </form>
+                </div><!-- .quiz-frame -->
+                {% set frame = frame + 1 %}
+                <div id="quiz-frame-{{ frame }}" class="quiz-frame animated">
+                    <h2 class="title title-smiley title-correct"><strong>Bravo !</strong> La bonne réponse est la réponse {{ question.answer }}</h2>
+                    <p>{{ question.answer_description }}</p>
+                    <button type="button" class="btn btn-secondary" data-target="#quiz-frame-{{ frame + 2 }}"><i class="icon-arrow-right"></i> <span class="label">Question Suivante</span></button>
+                </div><!-- .quiz-frame -->
+                {% set frame = frame + 1 %}
+                <div id="quiz-frame-{{ frame }}" class="quiz-frame animated">
+                    <h2 class="title title-smiley title-wrong"><strong>Oups...</strong> La bonne réponse est la réponse {{ question.answer }}</h2>
+                    <p>{{ question.answer_description }}</p>
+                    <button type="button" class="btn btn-secondary" data-target="#quiz-frame-{{ frame + 1 }}"><i class="icon-arrow-right"></i> <span class="label">Question Suivante</span></button>
+                </div><!-- .quiz-frame -->
+                {% set frame = frame + 1 %}
+            {% endfor %}
+
+            <div id="quiz-frame-{{ frame }}" class="quiz-frame animated">
+                <h2 class="title"><strong>Merci</strong> d'avoir participé au quiz</h2>
+                <div class="btn-inline"><button type="button" class="btn btn-secondary" data-target="#sidebar-ressources" data-toggle="collapse"><i class="icon-ressources"></i> <span class="label">Ressources</span></button>
+                {% if next %}
+                    <a href="{{ next }}" class="btn btn-secondary"><i class="icon-arrow-right"></i> <span class="label">Voir l'épisode suivant</a>
+                {% endif %}
+                </div>
+            </div><!-- .quiz-frame -->
+        </div>
+    </div>
+    <div class="figures">
+        {% if image_left %}
+            <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+        {% endif %}
+        {% if image_right %}
+            <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+        {% endif %}
+    </div><!-- .figures -->
+</div>
+</div>
+
+
+    <div class="page-container page-container-tablet">
+        <div class="container">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Merci de tourner votre tablette pour une meilleur expérience <i class="icon-rotate"></i></h2>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-tablet -->
+
+
+    <div class="page-container page-container-mobile">
+        <div class="container container-mobile">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Ce programme n'est pas adapté à votre mobile</h2>
+                    <p class="lead">Consultez le site depuis votre ordinateur ou votre tablette en mode paysage.</p>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-mobile -->
+</main><!-- .main -->
+
+<div id="sidebar-ressources" class="sidebar collapse">
+    <h2 class="sidebar-title">Ressources</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-ressources" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+    <section class="sidebar-section section-focus">
+        {{ episode_keep_in_mind }}
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        {{ episode_glossary }}
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        {{ episode_ressources }}
+    </section><!-- .section -->
+</div>
+<div id="sidebar-nav-episodes" class="sidebar collapse">
+    <h2 class="sidebar-title">Épisodes</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-nav-episodes" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+
+    <nav class="nav-episodes">
+        <ul class="list-unstyled list-episodes">
+            {% for episode in episodes %}
+                {{ episode }}
+            {% endfor %}
+        </ul>
+    </nav><!-- .nav-episodes -->
+</div>
+

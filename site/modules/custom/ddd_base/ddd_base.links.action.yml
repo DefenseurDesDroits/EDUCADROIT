@@ -1,0 +1,6 @@
+ddd_base.home_add:
+  route_name: ddd_base.home_add
+  title: 'Add Home'
+  appears_on:
+    - entity.home.collection
+    - entity.home.canonical

@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Contains gaya_editorial_index.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_index_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the gaya_editorial_picture module.
+    case 'help.page.gaya_editorial_index':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Gaya Editorial Index') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_preprocess
+ *
+ * Add variables in twig
+ *
+ * - entity_id: The entity ID of the object
+ * - entity_bundle: The bundle of the object
+ * - name: The backoffice title
+ * - field_ge_title: The title can be showed
+ * - field_ge_description: The description can be showed
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $variables
+ * @param $hook
+ */
+function gaya_editorial_index_preprocess(&$variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_index') {
+      $entity = $variables['elements']['#gaya_editorial_entity'];
+      $variables['entity_id'] = $entity->id();
+      $variables['entity_bundle'] = $entity->bundle();
+      $variables['name'] = $entity->getName();
+      $variables['field_ge_title'] = $entity->get('field_ge_title')->getValue();
+      $variables['field_ge_description'] = $entity->get('field_ge_description')
+        ->getValue();
+    }
+  }
+}
+
+/**
+ * Retreive the information from the entity object
+ *
+ * - entity_id: The entity ID of the object
+ * - entity_bundle: The bundle of the object
+ * - name: The backoffice title
+ * - field_ge_title: The title can be showed
+ * - field_ge_description: The description can be showed
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $variables
+ * @param $entity
+ * @return mixed
+ */
+function gaya_editorial_index_retrieve_preprocess_entity($entity) {
+  $variables['entity_id'] = $entity->id();
+  $variables['entity_bundle'] = $entity->bundle();
+  $variables['name'] = $entity->getName();
+  $variables['field_ge_title'] = $entity->get('field_ge_title')->getValue();
+  $variables['field_ge_description'] = $entity->get('field_ge_description')
+    ->getValue();
+  return $variables;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param array $suggestions
+ * @param array $variables
+ * @param $hook
+ */
+function gaya_editorial_index_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_index') {
+      $suggestions[] = 'gaya_editorial_index';
+      $suggestions[] = 'gaya_editorial_index__' . $variables['elements']['#gaya_editorial_entity']->id();
+    }
+  }
+}
+
+/**
+ * Implements preprocess node
+ * - Add the twig template of index for the node if necessary
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $variables
+ */
+function gaya_editorial_index_preprocess_node(&$variables) {
+  $i = 0;
+  if( isset($variables['elements']['#node']->field_ge_editorial) ) {
+    foreach ($variables['elements']['#node']->field_ge_editorial->getValue() as $key => $entity) {
+      $entity = \Drupal::entityTypeManager()
+        ->getStorage('gaya_editorial_entity')
+        ->load($entity['target_id']);
+      if ($entity->bundle() == 'gaya_editorial_index') {
+        $entity_info['#items'][$i] = gaya_editorial_index_retrieve_preprocess_entity($entity);
+        $variables['gaya_editorial_index'] = $entity_info;
+        $variables['gaya_editorial_index']['#theme'] = 'gaya_editorial_index_node_index';
+        ++$i;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme
+ *
+ * --
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_index_theme() {
+  $theme = [];
+  $theme['gaya_editorial_index'] = [
+    'variables' => array(
+      'entity_id' => '',
+      'entity_bundle' => '',
+      'name' => '',
+      'field_ge_title' => '',
+      'field_ge_description' => ''
+    ),
+    'template' => 'gaya_editorial_index',
+  ];
+  $theme['gaya_editorial_index_node_index'] = [
+    'variables' => array(
+      'items' => array(),
+    ),
+    'template' => 'gaya_editorial_index_node_index',
+  ];
+  return $theme;
+}

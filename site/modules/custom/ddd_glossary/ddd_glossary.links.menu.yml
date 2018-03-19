@@ -1,0 +1,10 @@
+entity.glossary.collection:
+  title: 'Glossary List'
+  route_name: entity.glossary.collection
+  description: 'List Glossaries'
+  weight: 10
+glossary.admin.structure.settings:
+  title: Glossary Settings
+  description: 'Configure Glossary entity'
+  route_name:  ddd_glossary.glossary_settings
+  parent: system.admin_structure

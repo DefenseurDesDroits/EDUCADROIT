@@ -1,0 +1,19 @@
+uuid: ce31c7f6-8f1f-4d09-86ab-69ac758a4716
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_definition
+    - paragraphs.paragraphs_type.lexicon
+id: paragraph.lexicon.field_definition
+field_name: field_definition
+entity_type: paragraph
+bundle: lexicon
+label: Définition
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

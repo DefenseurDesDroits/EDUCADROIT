@@ -1,0 +1,49 @@
+<section class="section-content">
+  <div class="container">
+    <div class="article">
+      <header class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+
+        <div class="standfirst">
+          <p>{{ teaser }}</p>
+        </div>
+      </header>
+      <!-- .article-header -->
+      <div class="section-default section-blue">
+        {{ filter }}
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>{{ results_count }} résultats</strong> pour les critères sélectionnés</p>
+        </div>
+
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      {% for resource in collection %}
+        {{ resource }}
+      {% endfor %}
+
+      <div class="row">
+        <div class="col-sm-12">
+          {{ pager }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<aside>
+    <div class="container">
+        <div class="row">
+          {% for paragraph in spotlight %}
+              {{ paragraph }}
+          {% endfor %}
+        </div>
+    </div>
+</aside>
+
+
+
+

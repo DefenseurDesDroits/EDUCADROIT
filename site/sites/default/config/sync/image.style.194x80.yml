@@ -1,0 +1,14 @@
+uuid: 62a879fd-5104-4914-9067-e729f72337c0
+langcode: fr
+status: true
+dependencies: {  }
+name: 194x80
+label: 194x80
+effects:
+  0cdf877f-2bd4-4737-b843-ef353b8dc0aa:
+    uuid: 0cdf877f-2bd4-4737-b843-ef353b8dc0aa
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 194
+      height: 80

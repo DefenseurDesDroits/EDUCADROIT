@@ -1,0 +1,20 @@
+home.settings_tab:
+  route_name: ddd_base.home_settings
+  title: Settings
+  base_route: ddd_base.home_settings
+
+home.view:
+  route_name: entity.home.canonical
+  base_route: entity.home.canonical
+  title: View
+
+home.page_edit:
+  route_name: entity.home.edit_form
+  base_route: entity.home.canonical
+  title: Edit
+
+home.delete_confirm:
+  route_name:  entity.home.delete_form
+  base_route:  entity.home.canonical
+  title: Delete
+  weight: 10

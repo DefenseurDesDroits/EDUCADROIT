@@ -1,0 +1,8 @@
+uuid: 65208503-364e-4df8-aec9-35e6ba75daf1
+langcode: fr
+status: true
+dependencies: {  }
+id: configs
+label: Configurations
+description: ''
+locked: false

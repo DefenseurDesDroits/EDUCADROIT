@@ -1,0 +1,12 @@
+ddd_newsletter.newsletter_add:
+  route_name: ddd_newsletter.newsletter_add
+  title: 'Ajouter une Inscription'
+  appears_on:
+    - entity.newsletter.collection
+    - entity.newsletter.canonical
+newsletters_csv.rest_export_1:
+  route_name: view.newsletters_csv.rest_export_1
+  title: 'Exporter les Inscriptions'
+  appears_on:
+    - entity.newsletter.collection
+    - entity.newsletter.canonical

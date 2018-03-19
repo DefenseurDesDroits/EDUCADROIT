@@ -1,0 +1,20 @@
+uuid: 66d8fc93-e0a6-4552-abf8-f95ebc994b34
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.courses.field_teaser
+  module:
+    - ddd_courses
+id: courses.courses.field_teaser
+field_name: field_teaser
+entity_type: courses
+bundle: courses
+label: Chapô
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

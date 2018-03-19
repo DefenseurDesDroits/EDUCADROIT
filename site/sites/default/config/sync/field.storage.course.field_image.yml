@@ -1,0 +1,30 @@
+uuid: 57bf9ca0-5707-4bd5-b7f4-c2a405d98528
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+    - file
+    - image
+id: course.field_image
+field_name: field_image
+entity_type: course
+type: image
+settings:
+  uri_scheme: public
+  default_image:
+    uuid: ''
+    alt: ''
+    title: ''
+    width: null
+    height: null
+  target_type: file
+  display_field: false
+  display_default: false
+module: image
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

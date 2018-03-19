@@ -1,0 +1,38 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.gaya_editorial_entity.gaya_editorial_text.field_ge_text_formated
+    - field.field.gaya_editorial_entity.gaya_editorial_text.field_ge_title
+    - field.field.gaya_editorial_entity.gaya_editorial_text.field_ge_title_heading
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_text
+  module:
+    - text
+    - user
+id: gaya_editorial_entity.gaya_editorial_text.default
+targetEntityType: gaya_editorial_entity
+bundle: gaya_editorial_text
+mode: default
+content:
+  field_ge_text_formated:
+    weight: 1
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  field_ge_title:
+    weight: -3
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_ge_title_heading:
+    type: list_key
+    weight: 0
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  user_id: true
+  name: true

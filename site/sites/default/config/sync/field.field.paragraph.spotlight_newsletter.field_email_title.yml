@@ -1,0 +1,19 @@
+uuid: d2108b9c-9a35-4ddb-9e12-5b96ff916f11
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_email_title
+    - paragraphs.paragraphs_type.spotlight_newsletter
+id: paragraph.spotlight_newsletter.field_email_title
+field_name: field_email_title
+entity_type: paragraph
+bundle: spotlight_newsletter
+label: 'Titre Champ email'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,10 @@
+name: DDD Speakers
+type: module
+description: Defenseur des droits Module de gestion des Intervenants
+package: DDD
+dependencies:
+  - options
+
+version: '8.x'
+core: '8.x'
+project: 'ddd'

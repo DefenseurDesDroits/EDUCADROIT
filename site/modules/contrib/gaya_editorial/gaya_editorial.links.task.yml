@@ -1,0 +1,17 @@
+# Gaya editorial entity routing definition
+entity.gaya_editorial_entity.canonical:
+  route_name: entity.gaya_editorial_entity.canonical
+  base_route: entity.gaya_editorial_entity.canonical
+  title: 'View'
+
+entity.gaya_editorial_entity.edit_form:
+  route_name: entity.gaya_editorial_entity.edit_form
+  base_route: entity.gaya_editorial_entity.canonical
+  title: Edit
+
+entity.gaya_editorial_entity.delete_form:
+  route_name:  entity.gaya_editorial_entity.delete_form
+  base_route:  entity.gaya_editorial_entity.canonical
+  title: Delete
+  weight: 10
+

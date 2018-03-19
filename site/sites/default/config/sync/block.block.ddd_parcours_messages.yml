@@ -1,0 +1,22 @@
+uuid: b866b65e-4f3c-4aa3-bbf3-fd2fc3ed8747
+langcode: fr
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - ddd_parcours
+_core:
+  default_config_hash: YqKTtloWJ8FjLtfVNfrHaK6kVgxT67lC1cJ3j6i6WLo
+id: ddd_parcours_messages
+theme: ddd_parcours
+region: content
+weight: -7
+provider: null
+plugin: system_messages_block
+settings:
+  id: system_messages_block
+  label: 'Status messages'
+  provider: system
+  label_display: '0'
+visibility: {  }

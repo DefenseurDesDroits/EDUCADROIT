@@ -1,0 +1,31 @@
+uuid: d8af215d-fa58-43ae-a89a-74bf5fce5747
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.lexicon.field_definition
+    - field.field.paragraph.lexicon.field_label
+    - paragraphs.paragraphs_type.lexicon
+id: paragraph.lexicon.default
+targetEntityType: paragraph
+bundle: lexicon
+mode: default
+content:
+  field_definition:
+    weight: 1
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+  field_label:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

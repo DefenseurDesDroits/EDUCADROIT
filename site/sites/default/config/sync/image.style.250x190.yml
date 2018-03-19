@@ -1,0 +1,14 @@
+uuid: 3e748b92-f244-4734-a3ed-bb2e70ff0220
+langcode: fr
+status: true
+dependencies: {  }
+name: 250x190
+label: 250x190
+effects:
+  3fbf9e7a-061c-40a1-bcac-60b90ad6c105:
+    uuid: 3fbf9e7a-061c-40a1-bcac-60b90ad6c105
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 250
+      height: 190

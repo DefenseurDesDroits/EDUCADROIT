@@ -1,0 +1,142 @@
+# Page Courses List
+ddd_courses.courses:
+  path: /parcours-pedagogique
+  defaults:
+    _content: '\Drupal\ddd_courses\Controller\CoursesController::coursesPage'
+    _controller: '\Drupal\ddd_courses\Controller\CoursesController::coursesPage'
+    _title: 'Parcours Pédagogique'
+  requirements:
+    _permission: 'access content'
+
+ddd_courses.parcours:
+  path: '/parcours/{course}'
+  defaults:
+    _content: '\Drupal\ddd_courses\Controller\CoursesController::parcoursPage'
+    _controller: '\Drupal\ddd_courses\Controller\CoursesController::parcoursPage'
+    _title: 'Parcours Pedagogique'
+  requirements:
+    _permission: 'access content'
+  parameters:
+    course: {}
+
+ddd_courses.episode:
+  path: '/parcours/{course}/episode/{episode}'
+  defaults:
+    _content: '\Drupal\ddd_courses\Controller\CoursesController::episodePage'
+    _controller: '\Drupal\ddd_courses\Controller\CoursesController::episodePage'
+    _title: 'Parcours Pedagogique - Episode'
+  requirements:
+    _permission: 'access content'
+  parameters:
+    course: {}
+    episode: {}
+
+ddd_courses.quizz:
+  path: '/parcours/{course}/quizz/{episode}'
+  defaults:
+    _content: '\Drupal\ddd_courses\Controller\CoursesController::quizzPage'
+    _controller: '\Drupal\ddd_courses\Controller\CoursesController::quizzPage'
+    _title: 'Parcours Pedagogique - Quizz'
+  requirements:
+    _permission: 'access content'
+  parameters:
+    course: {}
+    episode: {}
+
+# Page Course Entity
+entity.courses.canonical:
+  path: '/admin/content/courses/{courses}'
+  defaults:
+    _entity_view: 'courses'
+    _title: 'Courses Content'
+  requirements:
+    _entity_access: 'courses.view'
+
+entity.courses.collection:
+  path: '/admin/content/courses/list'
+  defaults:
+    _entity_list: 'courses'
+    _title: 'Courses List'
+  requirements:
+    _permission: 'view courses entity'
+
+ddd_courses.courses_add:
+  path: '/admin/content/courses/add'
+  defaults:
+    _entity_form: courses.add
+    _title: 'Add Courses'
+  requirements:
+    _entity_create_access: 'courses'
+
+entity.courses.edit_form:
+  path: '/admin/content/courses/{courses}/edit'
+  defaults:
+    _entity_form: courses.edit
+    _title: 'Editer Parametre des Parcours'
+  requirements:
+    _entity_access: 'courses.edit'
+
+entity.courses.delete_form:
+  path: '/admin/content/courses/{courses}/delete'
+  defaults:
+    _entity_form: courses.delete
+    _title: 'Delete Courses'
+  requirements:
+    _entity_access: 'courses.delete'
+
+ddd_courses.courses_settings:
+  path: 'admin/structure/courses'
+  defaults:
+    _form: '\Drupal\ddd_courses\Form\CoursesSettingsForm'
+    _title: 'Courses Settings'
+  requirements:
+    _permission: 'administer courses entity'
+
+# Courses Entities
+entity.course.canonical:
+  path: '/admin/content/course/{course}'
+  defaults:
+    _entity_view: 'course'
+    _title: 'Parcours Pedagogique'
+  requirements:
+    _entity_access: 'course.view'
+
+entity.course.collection:
+  path: '/admin/content/course/list'
+  defaults:
+    _entity_list: 'course'
+    _title: 'Course List'
+  requirements:
+    _permission: 'view course entity'
+
+ddd_courses.course_add:
+  path: '/admin/content/course/add'
+  defaults:
+    _entity_form: course.add
+    _title: 'Add Course'
+  requirements:
+    _entity_create_access: 'course'
+
+entity.course.edit_form:
+  path: '/admin/content/course/{course}/edit'
+  defaults:
+    _entity_form: course.edit
+    _title: 'Edit Course'
+  requirements:
+    _entity_access: 'course.edit'
+
+entity.course.delete_form:
+  path: '/admin/content/course/{course}/delete'
+  defaults:
+    _entity_form: course.delete
+    _title: 'Delete Course'
+  requirements:
+    _entity_access: 'course.delete'
+
+ddd_courses.course_settings:
+  path: 'admin/structure/course'
+  defaults:
+    _form: '\Drupal\ddd_courses\Form\CourseSettingsForm'
+    _title: 'Course Settings'
+  requirements:
+    _permission: 'administer course entity'

@@ -1,0 +1,94 @@
+uuid: f428f56d-1b29-4b86-a7e8-2ca83c3cae99
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.resources.resources.field_email
+    - field.field.resources.resources.field_label
+    - field.field.resources.resources.field_spotlights
+    - field.field.resources.resources.field_teaser
+  module:
+    - ddd_resources
+    - field_group
+    - paragraphs
+third_party_settings:
+  field_group:
+    group_main:
+      children:
+        - field_label
+        - field_email
+        - field_teaser
+      parent_name: group_group
+      weight: 1
+      format_type: tab
+      format_settings:
+        id: ''
+        classes: ''
+        formatter: open
+        description: ''
+        required_fields: true
+      label: Général
+    group_spotlights:
+      children:
+        - field_spotlights
+      parent_name: group_group
+      weight: 2
+      format_type: tab
+      format_settings:
+        id: ''
+        classes: ''
+        formatter: closed
+        description: ''
+        required_fields: true
+      label: 'Mise en Avant'
+    group_group:
+      children:
+        - group_main
+        - group_spotlights
+      parent_name: ''
+      weight: 0
+      format_type: tabs
+      format_settings:
+        id: ''
+        classes: ''
+        direction: vertical
+      label: group
+id: resources.resources.default
+targetEntityType: resources
+bundle: resources
+mode: default
+content:
+  field_email:
+    weight: 2
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: email_default
+  field_label:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_spotlights:
+    type: entity_reference_paragraphs
+    weight: 2
+    settings:
+      title: Paragraphe
+      title_plural: Paragraphs
+      edit_mode: closed
+      add_mode: button
+      form_display_mode: default
+    third_party_settings: {  }
+  field_teaser:
+    weight: 3
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+hidden:
+  langcode: true
+  user_id: true

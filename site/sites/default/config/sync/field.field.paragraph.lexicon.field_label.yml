@@ -1,0 +1,19 @@
+uuid: d10e5a08-fc86-4c6f-9c25-df0dd494cd07
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_label
+    - paragraphs.paragraphs_type.lexicon
+id: paragraph.lexicon.field_label
+field_name: field_label
+entity_type: paragraph
+bundle: lexicon
+label: Mot
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

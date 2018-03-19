@@ -1,0 +1,2 @@
+# Settings of the module gaya_editorial.
+hook_ge_module: 'ge_module_api'

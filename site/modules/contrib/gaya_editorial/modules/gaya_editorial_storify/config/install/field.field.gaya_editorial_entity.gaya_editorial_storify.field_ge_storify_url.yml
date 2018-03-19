@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.gaya_editorial_entity.field_ge_storify_url
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_storify
+id: gaya_editorial_entity.gaya_editorial_storify.field_ge_storify_url
+field_name: field_ge_storify_url
+entity_type: gaya_editorial_entity
+bundle: gaya_editorial_storify
+label: URL
+description: 'Enter the url of your storify page with no http: Ex: //storify.com/user/page'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

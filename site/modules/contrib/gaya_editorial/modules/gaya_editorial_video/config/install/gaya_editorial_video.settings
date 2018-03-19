@@ -1,0 +1,15 @@
+# Settings of the module gaya_editorial_video.
+dailymotion:
+  default_options:
+    -
+      autoplay: 1
+      controls: 1
+      endscreen-enable: 1
+      sharing-enable: 1
+youtube:
+  default_options:
+    -
+      autoplay: 1
+      controls: 1
+      endscreen-enable: 1
+      sharing-enable: 1

@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Theme override for a breadcrumb trail.
+ *
+ * Available variables:
+ * - breadcrumb: Breadcrumb trail items.
+ */
+#}
+{% if breadcrumb %}
+  <nav role="navigation" id="breadcrumb" class="nav-horizontal">
+    {% if back %}
+    <a class="btn btn-back" onclick="history.back()"><span class="icon-back"></span> Retour aux résultats</a>
+    {% endif %}
+    <ul class="breadcrumb">
+      {% for item in breadcrumb %}
+        <li>
+          {% if item.url %}
+            <a href="{{ item.url }}">{{ item.text }}</a>
+          {% else %}
+            {{ item.text }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endif %}

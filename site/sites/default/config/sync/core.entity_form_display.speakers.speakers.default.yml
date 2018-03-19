@@ -1,0 +1,31 @@
+uuid: 82e360e1-828f-4d8e-97f6-aa4dd0811979
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.speakers.speakers.field_label
+    - field.field.speakers.speakers.field_teaser
+  module:
+    - ddd_speakers
+id: speakers.speakers.default
+targetEntityType: speakers
+bundle: speakers
+mode: default
+content:
+  field_label:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_teaser:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+hidden:
+  langcode: true
+  user_id: true

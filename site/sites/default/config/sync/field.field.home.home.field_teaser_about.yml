@@ -1,0 +1,20 @@
+uuid: 2677c69f-3c81-4555-909b-538be3835ef4
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_teaser_about
+  module:
+    - ddd_base
+id: home.home.field_teaser_about
+field_name: field_teaser_about
+entity_type: home
+bundle: home
+label: 'A Propos : Chapô'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

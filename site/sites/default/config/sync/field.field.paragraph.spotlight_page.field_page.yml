@@ -1,0 +1,21 @@
+uuid: 743d5ad1-f74a-422b-9fb3-01908be8867c
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_page
+    - paragraphs.paragraphs_type.spotlight_page
+  module:
+    - options
+id: paragraph.spotlight_page.field_page
+field_name: field_page
+entity_type: paragraph
+bundle: spotlight_page
+label: Page
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

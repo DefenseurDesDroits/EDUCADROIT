@@ -1,0 +1,37 @@
+uuid: e857e507-529c-48dd-b760-79c38c0bf1f2
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.spotlight_contact.field_button_title
+    - field.field.paragraph.spotlight_contact.field_description
+    - field.field.paragraph.spotlight_contact.field_title
+    - paragraphs.paragraphs_type.spotlight_contact
+id: paragraph.spotlight_contact.default
+targetEntityType: paragraph
+bundle: spotlight_contact
+mode: default
+content:
+  field_button_title:
+    weight: 2
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_description:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_title:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

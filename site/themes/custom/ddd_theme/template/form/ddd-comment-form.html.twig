@@ -1,0 +1,30 @@
+<h2>{{ 'Ajouter une réponse' | t}}</h2>
+<div class="form-group">
+  <label for="edit-subject-0-value" class="control-label">
+  {{ form.subject['#title'] }}
+  </label>
+  {{ form.subject }}
+</div>
+
+<div class="form-group">
+  <label for="edit-comment-body-0-value" class="control-label">
+  {{ form.comment_body['#title'] }}
+  </label>
+  {{ form.comment_body }}
+</div>
+{{ form.form_token }}
+{{ form.form_build_id }}
+{{ form.form_id }}
+
+<div class="row">
+    <div class="col-sm-6">
+    </div>
+
+    <div class="col-sm-6 text-right">
+      {{ form.actions.preview }}
+      {{ form.actions.submit }}
+    </div>
+</div>
+
+
+

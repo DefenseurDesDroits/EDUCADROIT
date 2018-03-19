@@ -1,0 +1,20 @@
+uuid: b2a5dc41-3a09-4523-8a76-13426c6075f7
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd_parcours
+id: ddd_parcours_footerbottom
+theme: ddd_parcours
+region: footer
+weight: -5
+provider: null
+plugin: FooterBottom
+settings:
+  id: FooterBottom
+  label: FooterBottom
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

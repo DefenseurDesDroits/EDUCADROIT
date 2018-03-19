@@ -1,0 +1,25 @@
+uuid: d48ef0f7-e033-4740-81c9-849396ad15ce
+langcode: fr
+status: false
+dependencies:
+  content:
+    - 'block_content:tracker_twitter:2169d3f4-772a-4ec6-94fc-b4a221b1a4af'
+  module:
+    - block_content
+  theme:
+    - ddd
+id: twitterlancement
+theme: ddd
+region: '-1'
+weight: -4
+provider: null
+plugin: 'block_content:2169d3f4-772a-4ec6-94fc-b4a221b1a4af'
+settings:
+  id: 'block_content:2169d3f4-772a-4ec6-94fc-b4a221b1a4af'
+  label: 'Twitter Lancement'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

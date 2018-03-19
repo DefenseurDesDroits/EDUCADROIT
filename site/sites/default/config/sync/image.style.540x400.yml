@@ -1,0 +1,14 @@
+uuid: 65edd2f0-9992-4e45-a76c-5d16603cc100
+langcode: fr
+status: true
+dependencies: {  }
+name: 540x400
+label: 540x400
+effects:
+  90b779b7-c2b9-4168-a1f7-277bff15260a:
+    uuid: 90b779b7-c2b9-4168-a1f7-277bff15260a
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 540
+      height: 400

@@ -1,0 +1,55 @@
+// Directory: Navs
+// =====================================================================================================================
+
+// Component: `.sidebar`
+// ---------------------------------------------------------------------------------------------------------------------
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 480px;
+    height: 100% !important;
+    background-color: #fff;
+    transform: translateX(100%);
+    transition: transform .35s ease;
+    overflow-y: auto;
+    z-index: 1040;
+
+    &.in {
+        transform: translateX(0);
+    }
+}
+
+// Component: `.sidebar-title`
+// ---------------------------------------------------------------------------------------------------------------------
+.sidebar-title {
+    background-color: $brand-primary;
+    margin: 0;
+    padding: 40px 20px;
+    color: #fff;
+}
+
+// Component: `.sidebar .navbar-toggle`
+// ---------------------------------------------------------------------------------------------------------------------
+.sidebar {
+    .navbar-toggle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 3;
+
+        i {
+            font-size: $font-size-base;
+            background: url('../images/btn-close-bg.svg') no-repeat;
+            color: $brand-primary;
+
+            &:before {
+                content: $icon-close;
+            }
+        }
+
+        .label {
+            color: #fff;
+        }
+    }
+}

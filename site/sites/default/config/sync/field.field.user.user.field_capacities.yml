@@ -1,0 +1,20 @@
+uuid: 252b7dd3-73a6-4edb-ab19-34e2d847acc5
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_capacities
+  module:
+    - user
+id: user.user.field_capacities
+field_name: field_capacities
+entity_type: user
+bundle: user
+label: Fonctions
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

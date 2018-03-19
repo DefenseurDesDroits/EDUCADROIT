@@ -1,0 +1,20 @@
+uuid: acaec37d-4c42-4a17-a5aa-a9fe59f73990
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_teaser_speakers
+  module:
+    - ddd_base
+id: home.home.field_teaser_speakers
+field_name: field_teaser_speakers
+entity_type: home
+bundle: home
+label: 'Intervenants : Chapô'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

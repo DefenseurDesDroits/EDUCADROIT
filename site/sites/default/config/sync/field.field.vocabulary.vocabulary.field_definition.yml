@@ -1,0 +1,20 @@
+uuid: 034c053d-d65d-4c79-b88e-309af22597b8
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.vocabulary.field_definition
+  module:
+    - ddd_glossary
+id: vocabulary.vocabulary.field_definition
+field_name: field_definition
+entity_type: vocabulary
+bundle: vocabulary
+label: Définition
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * Contains gaya_editorial_text_two_col.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_text_two_col_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the gaya_editorial_text_two_col module.
+    case 'help.page.gaya_editorial_text_two_col':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Gaya Editorial Text Two Col') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_preprocess
+ *
+ * Add variables in twig
+ *
+ * - entity_id: The entity ID of the object
+ * - entity_bundle: The bundle of the object
+ * - name: The backoffice title
+ * - field_ge_title: The title can be showed
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $variables
+ * @param $hook
+ */
+function gaya_editorial_text_two_col_preprocess(&$variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_text_two_col') {
+      $entity = $variables['elements']['#gaya_editorial_entity'];
+      $variables['entity_id'] = $entity->id();
+      $variables['entity_bundle'] = $entity->bundle();
+      $variables['name'] = $entity->getName();
+      $variables['field_ge_title'] = $entity->get('field_ge_title')->getValue();
+      $variables['field_ge_text_formated'] = $entity->get('field_ge_text_formated')->getValue();
+      $variables['field_ge_text_formated_two'] = $entity->get('field_ge_text_formated_two')->getValue();
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param array $suggestions
+ * @param array $variables
+ * @param $hook
+ */
+function gaya_editorial_text_two_col_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
+  if ($hook == 'gaya_editorial_entity') {
+    if ($variables['elements']['#gaya_editorial_entity']->bundle() == 'gaya_editorial_text_two_col') {
+      $suggestions[] = 'gaya_editorial_text_two_col';
+      $suggestions[] = 'gaya_editorial_text_two_col__' . $variables['elements']['#gaya_editorial_entity']->id();
+    }
+  }
+}
+
+/**
+ * Implements hook_theme
+ *
+ * --
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_text_two_col_theme() {
+  $theme = [];
+  $theme['gaya_editorial_text_two_col'] = [
+    'variables' => array(
+      'entity_id' => '',
+      'entity_bundle' => '',
+      'name' => '',
+      'field_ge_title' => '',
+      'field_ge_text_formated' => '',
+      'field_ge_text_formated_two' => '',
+    ),
+    'template' => 'gaya_editorial_text_two_col',
+  ];
+  return $theme;
+}

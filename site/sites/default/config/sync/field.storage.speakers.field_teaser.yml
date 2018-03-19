@@ -1,0 +1,21 @@
+uuid: c8359ad9-83c4-4e5a-b7a7-4a260b16e6b7
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_speakers
+id: speakers.field_teaser
+field_name: field_teaser
+entity_type: speakers
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

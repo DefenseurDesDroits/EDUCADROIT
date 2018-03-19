@@ -1,0 +1,90 @@
+<div class="container">
+    <div class="valign">
+        <div class="valign-top">
+            <h1>{{ episode_title }}</h1>
+            <div class="btn-inline">
+                <a href="{{ episode_video }}?rel=0&showinfo=0&autoplay=1&" class="btn btn-secondary video-toggle" data-url="{{ quizz_url }}"><i class="icon-play"></i> <span class="label">Lire la vidéo</span></a>
+                <button type="button" class="btn btn-secondary" data-target="#sidebar-ressources" data-toggle="collapse"><i class="icon-ressources"></i> <span class="label">Ressources</span></button>
+            </div>
+            <div class="text-center">
+                <div class="loading"><i class="icon-loading"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="figures">
+        {% if image_left %}
+            <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+        {% endif %}
+        {% if image_right %}
+            <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+        {% endif %}
+    </div>
+</div><!-- .container -->
+
+    </div>
+
+
+    <div class="page-container page-container-tablet">
+        <div class="container">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Merci de tourner votre tablette pour une meilleur expérience <i class="icon-rotate"></i></h2>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-tablet -->
+
+
+    <div class="page-container page-container-mobile">
+        <div class="container container-mobile">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Ce programme n'est pas adapté à votre mobile</h2>
+                    <p class="lead">Consultez le site depuis votre ordinateur ou votre tablette en mode paysage.</p>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-mobile -->
+</main><!-- .main -->
+
+<div id="sidebar-ressources" class="sidebar collapse">
+    <h2 class="sidebar-title">Ressources</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-ressources" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+    <section class="sidebar-section section-focus">
+        {{ episode_keep_in_mind }}
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        {{ episode_glossary }}
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        {{ episode_ressources }}
+    </section><!-- .section -->
+</div>
+<div id="sidebar-nav-episodes" class="sidebar collapse">
+    <h2 class="sidebar-title">Épisodes</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-nav-episodes" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+
+    <nav class="nav-episodes">
+        <ul class="list-unstyled list-episodes">
+            {% for episode in episodes %}
+                {{ episode }}
+            {% endfor %}
+        </ul>
+    </nav><!-- .nav-episodes -->
+</div>

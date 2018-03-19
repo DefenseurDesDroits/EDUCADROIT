@@ -1,0 +1,95 @@
+entity.contactconfig.add_form:
+  path: '/admin/content/contactconfig/add'
+  defaults:
+    _entity_form: 'contactconfig.add'
+    _title: 'Ajouter une page Contact'
+  requirements:
+    _permission: 'administer content'
+entity.contactconfig.collection:
+  path: '/admin/content/contactconfig'
+  defaults:
+    _entity_list: 'contactconfig'
+    _title: 'Page Contact'
+  requirements:
+    _permission: 'administer content'
+entity.contactconfig.edit:
+  path: '/admin/content/contactconfig/{contactconfig}/edit'
+  defaults:
+    _entity_form: 'contactconfig.edit'
+    _title: 'Editer page Contact'
+  requirements:
+    _permission: 'administer content'
+entity.contactconfig.delete:
+  path: '/admin/content/contactconfig/{contactconfig}/delete'
+  defaults:
+    _entity_form: 'contactconfig.delete'
+    _title: 'Supprimer page Contact'
+  requirements:
+    _permission: 'administer content'
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+entity.contact.canonical:
+  path: '/admin/content/contact/{contact}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the contact entity
+    _entity_view: 'contact'
+    _title: 'Contact Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'contact.view'
+
+entity.contact.collection:
+  path: '/admin/content/contact/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the contact entity.
+    _entity_list: 'contact'
+    _title: 'Contact List'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view contact entity'
+
+ddd_contact.contact_add:
+  path: '/admin/content/contact/add'
+  defaults:
+  # Calls the form.add controller, defined in the contact entity.
+    _entity_form: contact.add
+    _title: 'Ajouter un Contact'
+  requirements:
+    _entity_create_access: 'contact'
+
+entity.contact.edit_form:
+  path: '/admin/content/contact/{contact}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the contact entity.
+    _entity_form: contact.edit
+    _title: 'Edit Contact'
+  requirements:
+    _entity_access: 'contact.edit'
+
+entity.contact.delete_form:
+  path: '/admin/content/contact/{contact}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the contact entity.
+    _entity_form: contact.delete
+    _title: 'Delete Contact'
+  requirements:
+    _entity_access: 'contact.delete'
+
+ddd_contact.contact_settings:
+  path: 'admin/structure/contact'
+  defaults:
+    _form: '\Drupal\ddd_contact\Form\ContactSettingsForm'
+    _title: 'Contact Settings'
+  requirements:
+    _permission: 'administer contact entity'
+
+ddd_contact.contacts:
+  path: /contact
+  defaults:
+    _content: '\Drupal\ddd_contact\Controller\ContactController::contactPage'
+    _controller: '\Drupal\ddd_contact\Controller\ContactController::contactPage'
+    _title: 'Contact'
+  requirements:
+    _permission: 'access content'

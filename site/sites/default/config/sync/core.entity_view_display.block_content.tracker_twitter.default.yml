@@ -1,0 +1,22 @@
+uuid: b4e8464b-2504-476d-927f-b305f3d1e024
+langcode: fr
+status: true
+dependencies:
+  config:
+    - block_content.type.tracker_twitter
+    - field.field.block_content.tracker_twitter.body
+  module:
+    - text
+id: block_content.tracker_twitter.default
+targetEntityType: block_content
+bundle: tracker_twitter
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true

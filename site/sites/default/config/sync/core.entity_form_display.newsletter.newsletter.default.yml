@@ -1,0 +1,23 @@
+uuid: bb283f9e-3e6b-43d3-8f12-5a2f79f46ba7
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.newsletter.newsletter.field_email
+  module:
+    - ddd_newsletter
+id: newsletter.newsletter.default
+targetEntityType: newsletter
+bundle: newsletter
+mode: default
+content:
+  field_email:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: email_default
+hidden:
+  langcode: true
+  user_id: true

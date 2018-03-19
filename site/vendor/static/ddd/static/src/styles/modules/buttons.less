@@ -1,0 +1,73 @@
+// Buttons
+// --------------------------------------------------
+
+// Component: `.btn`
+// --------------------------------------------------
+.btn {
+  display: inline-block;
+  padding: 25px 20px;
+  font-family: @font-family-alt-demibold;
+  font-size: 18px;
+  line-height: 100%;
+  background: #1e274a;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  transition: color .35s;
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    text-decoration: underline;
+  }
+  
+  .article & { color: #fff; text-decoration: none; }
+  .article &:hover, .article &:focus { color: #fff; text-decoration: underline; }
+}
+
+.btn-thin {
+  padding: 17px 20px;
+  font-size: 16px;
+}
+
+form .btn {
+  padding: 18px 20px 14px;
+}
+
+.btn-back {
+  position: relative;
+  z-index: 3;
+  float: right;
+  padding: 17px 20px;
+  font-size: 1em;
+
+  .icon-back {
+    position: absolute;
+    top: 0;
+    left: -50px;
+    color: #494b61;
+    font-size: 50px;
+  }
+  
+  &:hover, &:focus {
+    text-decoration: underline;
+  }
+  
+  .text-left & {
+    float: none;
+    margin-top: 50px;
+    margin-left: 50px;
+  }
+}
+
+// Modifier: `.btn-outline-default`
+// --------------------------------------------------
+.btn-outline-default {
+  background-color: transparent;
+
+  &:hover,
+  &:focus {
+    background-color: transparent;
+    color: @link-color;
+  }
+}

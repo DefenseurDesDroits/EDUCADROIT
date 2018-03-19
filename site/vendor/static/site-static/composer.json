@@ -1,0 +1,7 @@
+{
+  "name": "ddd-parcours/site-static",
+  "version": "0.1.5",
+  "description": "Static sources for the site.",
+  "type": "drupal-theme",
+  "license": "proprietary"
+}

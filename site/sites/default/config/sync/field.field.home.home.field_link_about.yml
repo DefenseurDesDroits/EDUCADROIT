@@ -1,0 +1,23 @@
+uuid: da7e9390-0268-4918-a914-20ddf136b5fd
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_link_about
+  module:
+    - ddd_base
+    - link
+id: home.home.field_link_about
+field_name: field_link_about
+entity_type: home
+bundle: home
+label: 'A Propos : Lien'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 1
+  title: 1
+field_type: link

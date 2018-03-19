@@ -1,0 +1,19 @@
+uuid: 73a9115b-a51f-4258-8832-bfcc7ba4d0aa
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_carrousel_upload
+    - paragraphs.paragraphs_type.carrousel
+id: paragraph.carrousel.field_carrousel_upload
+field_name: field_carrousel_upload
+entity_type: paragraph
+bundle: carrousel
+label: 'Lien de téléchargement'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,90 @@
+---
+title: Forum
+psd: 17-DDD-Forum
+
+order: 14
+connected: true
+forums: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"title": "Discussion générale"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">Discussion générale</h1>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <div id="forum-topic-list">
+
+                    <table class="sticky-header" style="position: fixed; top: 0px; left: 71.5px; visibility: hidden; width: 835px;"><thead style="">
+                    <tr>
+                        <th class="views-field views-field-topic-icon" style="width: 28px; display: table-cell;">
+                        </th>
+                        <th class="views-field views-field-title" style="width: 519px; display: table-cell;">
+                            <a href="/forums/sapeurs-pompiers-volontaires?order=title&amp;sort=asc" title="trier par Sujet / Début du sujet" class="active">Sujet / Début du sujet</a>          </th>
+                        <th class="views-field views-field-comment-count" style="width: 91px; display: table-cell;">
+                            <a href="/forums/sapeurs-pompiers-volontaires?order=comment_count&amp;sort=asc" title="trier par Réponses" class="active">Réponses</a>          </th>
+                        <th class="views-field views-field-last-updated active" style="width: 152px; display: table-cell;">
+                            <a href="/forums/sapeurs-pompiers-volontaires?order=last_updated&amp;sort=asc" title="trier par Dernier message" class="active">Dernier message<img src="http://www.pompiers.fr/misc/arrow-asc.png" alt="trier par ordre croissant" title="trier par ordre croissant" width="13" height="13"></a>          </th>
+                    </tr>
+                    </thead></table><table class="forum-table forum-table-topics forum-table forum-table-topics sticky-enabled cols-4 tableheader-processed sticky-table">
+                    <thead>
+                    <tr>
+                        <th class="views-field views-field-title">
+                            <a href="#" title="trier par Sujet / Début du sujet" class="active">Sujet</a>          </th>
+                        <th class="views-field views-field-comment-count">
+                            <a href="#" title="trier par Réponses" class="active">Réponses</a>          </th>
+                        <th class="views-field views-field-last-updated active">
+                            <a href="#" title="trier par Dernier message" class="active">Dernier message<img src="http://www.pompiers.fr/misc/arrow-asc.png" alt="trier par ordre croissant" title="trier par ordre croissant" width="13" height="13"></a>          </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="odd views-row-first">
+                        <td class="views-field views-field-title">
+                            <a href="#"><span class="forum-topic-title">Consectetur adipiscing elit</span> </a> <br> <strong>Par <span class="username">Dam's30</span></strong> 11/12/2016 - 10:04
+                        </td>
+                        <td class="views-field views-field-comment-count">
+                            0<br>
+                        </td>
+                        <td class="views-field views-field-last-updated active">
+                            <strong>par <span class="username">Dam's30</span></strong><br>11/12/2016 - 10:04
+                        </td>
+                    </tr>
+                    <tr class="even">
+                        <td class="views-field views-field-title">
+                            <a href="#"><span class="forum-topic-title">Consectetur adipiscing elit</span> </a> <br> <strong>Par <span class="username">Dam's30</span></strong> 11/12/2016 - 10:04
+                        </td>
+                        <td class="views-field views-field-comment-count">
+                            0<br>
+                        </td>
+                        <td class="views-field views-field-last-updated active">
+                            <strong>par <span class="username">Dam's30</span></strong><br>11/12/2016 - 10:04
+                        </td>
+                    </tr>
+                    <tr class="odd views-row-last">
+                        <td class="views-field views-field-title">
+                            <a href="#"><span class="forum-topic-title">Consectetur adipiscing elit</span> </a> <br> <strong>Par <span class="username">Dam's30</span></strong> 11/12/2016 - 10:04
+                        </td>
+                        <td class="views-field views-field-comment-count">
+                            0<br>
+                        </td>
+                        <td class="views-field views-field-last-updated active">
+                            <strong>par <span class="username">Dam's30</span></strong><br>11/12/2016 - 10:04
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <p><a class="btn btn-thin" href="#">Ajouter un sujet</a> </p>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

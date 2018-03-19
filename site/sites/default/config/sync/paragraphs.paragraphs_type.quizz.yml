@@ -1,0 +1,6 @@
+uuid: 518119e8-ed48-4efa-a231-a62dc6aea857
+langcode: fr
+status: true
+dependencies: {  }
+id: quizz
+label: Quizz

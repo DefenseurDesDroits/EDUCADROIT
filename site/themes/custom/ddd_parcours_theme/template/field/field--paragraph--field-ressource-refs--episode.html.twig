@@ -1,0 +1,6 @@
+ <div class="sidebar-section-content">
+    <h2 class="sidebar-section-title">Ressources pédagogiques</h2>
+    {% for item in items %}
+      <div class="link"><a href="{{ path(item.content['#url'].routeName, item.content['#url'].routeParameters) }}" target="_blank">{{ item.content['#title'] }}</a> <i class="icon-external-link"></i></div>
+    {% endfor %}
+</div>

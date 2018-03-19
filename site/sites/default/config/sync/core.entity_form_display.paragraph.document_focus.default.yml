@@ -1,0 +1,39 @@
+uuid: eb08381a-877b-4476-bf4f-de4e219d578d
+langcode: fr
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files_modal
+    - field.field.paragraph.document_focus.field_description
+    - field.field.paragraph.document_focus.field_file
+    - paragraphs.paragraphs_type.document_focus
+  module:
+    - entity_browser
+id: paragraph.document_focus.default
+targetEntityType: paragraph
+bundle: document_focus
+mode: default
+content:
+  field_description:
+    weight: 1
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+  field_file:
+    weight: 0
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_display: label
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_append
+      open: false
+      field_widget_display_settings: {  }
+    third_party_settings: {  }
+    type: entity_browser_entity_reference
+hidden:
+  created: true
+  status: true
+  uid: true

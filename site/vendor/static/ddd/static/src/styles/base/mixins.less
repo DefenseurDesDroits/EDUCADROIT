@@ -1,0 +1,46 @@
+// =Mixins
+// --------------------------------------------------
+.font-smoothing() {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+.icon-ion(@content: "") {
+  content: @content;
+  display: inline-block;
+  font-family: @ionicons-font-name;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-rendering: auto;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.overflow-scrolling() {
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+/*iframe*/
+.iframe {
+  position: relative;
+  margin: 20px 0;
+  padding-bottom: 56.25%;
+  padding-top: 30px;
+  width: auto;
+  height: 0;
+  overflow: hidden;
+
+  iframe, object, embed {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}

@@ -1,0 +1,39 @@
+uuid: 307cebac-943e-4dad-9e7f-9b2ff24e1dd6
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.media.field_description
+    - field.field.node.media.field_image
+    - image.style.720x410
+    - node.type.media
+  module:
+    - image
+    - text
+    - user
+id: node.media.teaser
+targetEntityType: node
+bundle: media
+mode: teaser
+content:
+  field_description:
+    type: text_default
+    weight: 2
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  field_image:
+    type: image
+    weight: 1
+    label: visually_hidden
+    settings:
+      image_style: 720x410
+      image_link: ''
+    third_party_settings: {  }
+  links:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true

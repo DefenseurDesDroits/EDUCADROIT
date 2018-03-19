@@ -1,0 +1,23 @@
+gaya_editorial.admin_config_page:
+  title: 'Gaya editorial module'
+  parent: system.admin_config_content
+  description: 'Gaya editorial module perform and Provide all content block type. Enable or disable a submodule for add a new custom block type.'
+  route_name: gaya_editorial.admin_config_page
+  weight: -10
+
+# Gaya editorial entity menu items definition
+entity.gaya_editorial_entity.collection:
+  title: 'Gaya editorial entity list'
+  route_name: entity.gaya_editorial_entity.collection
+  description: 'List Gaya editorial entity entities'
+  parent: system.admin_structure
+  weight: 100
+
+# Gaya editorial entity type menu items definition
+entity.gaya_editorial_entity_type.collection:
+  title: 'Gaya editorial entity type'
+  route_name: entity.gaya_editorial_entity_type.collection
+  description: 'List Gaya editorial entity type (bundles)'
+  parent: system.admin_structure
+  weight: 99
+

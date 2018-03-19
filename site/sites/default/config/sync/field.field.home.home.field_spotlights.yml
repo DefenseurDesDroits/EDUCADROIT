@@ -1,0 +1,88 @@
+uuid: 6ec25e93-978a-4090-9b46-dae63cbec996
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_spotlights
+    - paragraphs.paragraphs_type.spotlight_contact
+    - paragraphs.paragraphs_type.spotlight_content
+    - paragraphs.paragraphs_type.spotlight_document
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+    - paragraphs.paragraphs_type.spotlight_newsletter
+    - paragraphs.paragraphs_type.spotlight_page
+  module:
+    - ddd_base
+    - entity_reference_revisions
+id: home.home.field_spotlights
+field_name: field_spotlights
+entity_type: home
+bundle: home
+label: 'Mise en Avant'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      spotlight_document: spotlight_document
+      spotlight_page: spotlight_page
+      spotlight_learning_tools: spotlight_learning_tools
+      spotlight_contact: spotlight_contact
+      spotlight_newsletter: spotlight_newsletter
+      spotlight_content: spotlight_content
+    target_bundles_drag_drop:
+      spotlight_document:
+        enabled: true
+        weight: 12
+      spotlight_page:
+        enabled: true
+        weight: 13
+      document_focus:
+        weight: 13
+        enabled: false
+      focus:
+        weight: 14
+        enabled: false
+      lexicon:
+        weight: 15
+        enabled: false
+      spotlight_learning_tools:
+        enabled: true
+        weight: 15
+      spotlight_contact:
+        enabled: true
+        weight: 15
+      logo:
+        weight: 16
+        enabled: false
+      spotlight_newsletter:
+        enabled: true
+        weight: 16
+      logos_list:
+        weight: 17
+        enabled: false
+      spotlight_content:
+        enabled: true
+        weight: 18
+      referrer:
+        weight: 18
+        enabled: false
+      resource_images:
+        weight: 19
+        enabled: false
+      resources_video:
+        weight: 20
+        enabled: false
+      ressources_link:
+        weight: 21
+        enabled: false
+      image:
+        weight: 21
+        enabled: false
+      text_content:
+        weight: 22
+        enabled: false
+field_type: entity_reference_revisions

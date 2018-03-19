@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Contains Drupal\ddd_speakers\ddd_speakers.module.
+ */
+
+function ddd_speakers_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_speakers_page' => [
+      'variables' => [
+        'title' => NULL,
+        'teaser' => NULL,
+        'collection' => NULL,
+        'footer_description' => NULL,
+        'footer_title' => NULL,
+        'footer_keys' => NULL,
+        'filter' => NULL,
+        'results_count' => NULL,
+        'pager' => NULL
+      ],
+    ],
+    'ddd_speakers_filter_form' => [
+      'render element' => 'form',
+    ],
+    'referrer' => [
+      'variables' => ['referrer' => NULL, 'content' => NULL],
+    ],
+  ];
+}
+
+
+function ddd_speakers_entity_view_alter(&$build, $entity, $display) {
+  if ($build['#view_mode'] == 'full') {
+    if ($build['#theme'] == 'referrer'){
+      $build['#content'] = [];
+      if (!empty($build['field_image']))
+        $build['#content']['field_image'] = $build['field_image'];
+      if (!empty($build['field_label']))
+        $build['#content']['field_label'] = $build['field_label'];
+      if (!empty($build['field_teaser']))
+        $build['#content']['field_teaser'] = $build['field_teaser'];
+    }
+  }
+}

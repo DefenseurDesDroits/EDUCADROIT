@@ -1,0 +1,6 @@
+uuid: e03683fd-217a-4b8c-8f87-967da1b017e4
+langcode: fr
+status: true
+dependencies: {  }
+id: resource_images
+label: 'Ressources Images'

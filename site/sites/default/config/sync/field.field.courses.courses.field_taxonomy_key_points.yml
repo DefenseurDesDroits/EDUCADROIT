@@ -1,0 +1,29 @@
+uuid: 67940161-e97a-43a1-a247-635c25a251d2
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.courses.field_taxonomy_key_points
+    - taxonomy.vocabulary.key_points
+  module:
+    - ddd_courses
+id: courses.courses.field_taxonomy_key_points
+field_name: field_taxonomy_key_points
+entity_type: courses
+bundle: courses
+label: 'Liste Points Clés'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      key_points: key_points
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

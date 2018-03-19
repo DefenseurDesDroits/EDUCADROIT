@@ -1,0 +1,14 @@
+uuid: f9a3ec4b-729c-4560-89f6-867146896f64
+langcode: fr
+status: true
+dependencies: {  }
+name: 256x148
+label: 256x148
+effects:
+  dd7dfcd7-866f-4251-801c-62a13ac6df2b:
+    uuid: dd7dfcd7-866f-4251-801c-62a13ac6df2b
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 256
+      height: 148

@@ -1,0 +1,84 @@
+uuid: 878ce3ef-9407-4e91-83a6-b6c295ad5ef3
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_quizz
+    - paragraphs.paragraphs_type.episode
+    - paragraphs.paragraphs_type.quizz
+  module:
+    - entity_reference_revisions
+id: paragraph.episode.field_quizz
+field_name: field_quizz
+entity_type: paragraph
+bundle: episode
+label: Quizz
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      quizz: quizz
+    target_bundles_drag_drop:
+      episode:
+        weight: 20
+        enabled: false
+      document_focus:
+        weight: 21
+        enabled: false
+      focus:
+        weight: 22
+        enabled: false
+      image:
+        weight: 23
+        enabled: false
+      lexicon:
+        weight: 24
+        enabled: false
+      logo:
+        weight: 25
+        enabled: false
+      logos_list:
+        weight: 26
+        enabled: false
+      quizz:
+        enabled: true
+        weight: 27
+      referrer:
+        weight: 28
+        enabled: false
+      resource_images:
+        weight: 29
+        enabled: false
+      resources_video:
+        weight: 30
+        enabled: false
+      ressources_link:
+        weight: 31
+        enabled: false
+      spotlight_contact:
+        weight: 32
+        enabled: false
+      spotlight_content:
+        weight: 33
+        enabled: false
+      spotlight_document:
+        weight: 34
+        enabled: false
+      spotlight_learning_tools:
+        weight: 35
+        enabled: false
+      spotlight_newsletter:
+        weight: 36
+        enabled: false
+      spotlight_page:
+        weight: 37
+        enabled: false
+      text_content:
+        weight: 38
+        enabled: false
+field_type: entity_reference_revisions

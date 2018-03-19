@@ -1,0 +1,19 @@
+uuid: 938a9600-9d00-4af3-970c-d96b79ed0a33
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_resources
+id: resources.field_teaser
+field_name: field_teaser
+entity_type: resources
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

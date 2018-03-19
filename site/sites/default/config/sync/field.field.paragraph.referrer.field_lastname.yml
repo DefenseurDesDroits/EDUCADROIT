@@ -1,0 +1,19 @@
+uuid: e25988c6-ba4d-4ec0-a107-a6a7b808e9f8
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_lastname
+    - paragraphs.paragraphs_type.referrer
+id: paragraph.referrer.field_lastname
+field_name: field_lastname
+entity_type: paragraph
+bundle: referrer
+label: Nom
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

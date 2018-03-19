@@ -1,0 +1,21 @@
+uuid: cd1595dc-83c4-41d8-9ffb-501827802b23
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_medias
+    - entity_reference_revisions
+    - paragraphs
+id: medias.field_spotlights
+field_name: field_spotlights
+entity_type: medias
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: 2
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

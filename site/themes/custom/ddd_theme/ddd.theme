@@ -1,0 +1,493 @@
+<?php
+use  \Drupal\image\Entity\ImageStyle;
+use \Drupal\Core\Url;
+use \Drupal\Core\Form\FormStateInterface;
+use \Drupal\Core\Entity\EntityViewBuilderInterface;
+
+// function ddd_preprocess_page(&$variables){
+//   kpr($variables);
+// }
+
+
+
+function ddd_preprocess_paragraph__text_content(&$variables){
+  $variables['render'] = str_replace(
+    ['<iframe', '</iframe>'],
+    ['<div class="row"><div class="col-sm-8"><div class="iframe"><iframe', '</iframe></div></div></div>'],
+    $variables['elements']['field_content'][0]['#text']
+  );
+}
+
+function ddd_preprocess_paragraph__focus(&$variables){
+  $variables['render'] = str_replace(
+    ['<iframe', '</iframe>'],
+    ['<div class="row"><div class="col-sm-8"><div class="iframe"><iframe', '</iframe></div></div></div>'],
+    $variables['elements']['field_content'][0]['#text']
+  );
+}
+
+function ddd_preprocess_menu__main(&$variables){
+  $routes = [
+    'resource' => 'ddd_resources.resources',
+    'speaker' => 'ddd_speakers.speakers',
+    'media' => 'ddd_medias.medias',
+  ];
+  $request = Drupal::request();
+  if ($node = $request->attributes->get('node')){
+    if ($route = $routes[$node->getType()]){
+      foreach ($variables['items'] as $key => $item){
+        if ($item['url']->getRouteName() == $route){
+          $variables['items'][$key]['in_active_trail'] = true;
+        }
+      }
+    }
+  }
+  $current_path = \Drupal::service('path.current')->getPath();
+  $node_type = '';
+  if ($node = Drupal::request()->attributes->get('node')){
+    $node_type = $node->getType();
+  }
+  $variables['nav_quick'] = [];
+  $variables['nav_quick'][] = [
+    'title' => 'Glossaire',
+    'path' => 'ddd_glossary.glossaries',
+    'icon' => 'icon-glossary',
+    'class' => (strpos($current_path, '/glossaire') === 0 ? 'active' : '')
+  ];
+  if (\Drupal::currentUser()->isAnonymous()) {
+    $variables['nav_quick'][] = [
+      'title' => 'Espace réservé',
+      'path' => 'ddd_forum.connection',
+      'icon' => 'icon-private',
+      'class' => (strpos($current_path, '/espace-reserve') === 0 ? 'active' : '')
+    ];
+    $variables['logged_in'] = false;
+  }
+  else {
+    $variables['nav_quick'][] = [
+      'title' => 'Forum',
+      'path' => 'forum.index',
+      'icon' => 'icon-forum',
+      'class' => (strpos($current_path, '/forum') === 0 || $node_type == 'forum' ? 'active' : '')
+    ];
+    $variables['nav_quick'][] = [
+      'title' => 'Mon profil',
+      'path' => 'ddd_base.user.profile',
+      'icon' => 'icon-profil',
+      'class' => (strpos($current_path, '/user/profile') === 0 ? 'active' : '')
+    ];
+    $variables['nav_quick'][] = [
+      'title' => t('Log Out'),
+      'path' => 'user.logout.http',
+    ];
+    $variables['logged_in'] == true;
+  }
+  $variables['#cache']['contexts'] = [];
+}
+
+function ddd_preprocess_breadcrumb(&$variables){
+  $request = Drupal::request();
+  if ($node = $request->attributes->get('node')){
+    switch ($node->getType()) {
+      case 'resource':
+        $variables['back'] = true;
+        $variables['breadcrumb'][1] = ['text' => 'Centre de Ressources', 'url' => \Drupal\Core\Url::fromRoute('ddd_resources.resources')];
+        break;
+      case 'speaker':
+        $variables['back'] = true;
+        $variables['breadcrumb'][1] = ['text' => 'Trouver un Intervenant', 'url' => \Drupal\Core\Url::fromRoute('ddd_speakers.speakers')];
+        break;
+      case 'media':
+        $variables['back'] = true;
+        $variables['breadcrumb'][1] = ['text' => 'Se Former en Ligne', 'url' => \Drupal\Core\Url::fromRoute('ddd_medias.medias')];
+        break;
+    }
+  }
+  if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+    $variables['breadcrumb'][] = ['text' => $title];
+  }
+  # !!! change cache context !!!
+  $variables['#cache']['contexts'][] = 'url';
+}
+
+function ddd_preprocess_paragraph__resource_images(&$variables){
+  $_ENV["images_count"] = count($variables['elements']['field_paragraph_images']['#items']);
+  $_ENV["image_key"] = 0;
+}
+
+function ddd_preprocess_paragraph__image(&$variables){
+  if (isset($_ENV["image_key"])){
+    $_ENV["image_key"]++;
+  }
+  else{
+    $_ENV["image_key"] = 1;
+  }
+  $variables['pager'] = $_ENV["image_key"] . '/' . $_ENV["images_count"];
+}
+
+function ddd_preprocess_paragraph__logo(&$variables){
+  $url = '';
+  if (!empty($variables['elements']['field_link']['#items'])){
+    foreach ($variables['elements']['field_link']['#items'] as $key => $value){
+      if (!empty($value->uri)){
+        $url = $value->uri;
+      }
+    }
+  }
+  $variables['link'] = $url;
+}
+
+function ddd_preprocess_pager(&$variables){
+  global $pager_page_array, $pager_total;
+  $variables['items']['count'] = reset($pager_total);
+}
+
+function ddd_preprocess_file__document__spotlight(&$variables){
+  $variables['document'] = [
+    'url' => file_create_url($variables['file']->getFileUri()),
+    'filesize' => _ddd_base_size_convert($variables['file']->filesize->value),
+    'filemime' => str_replace('application/', '', $variables['file']->filemime->value),
+    'title' => $variables['file']->field_title->value,
+  ];
+}
+
+function ddd_preprocess_course(&$variables){
+  if (!empty($variables['course']->field_link)){
+    foreach ($variables['course']->field_link as $value){
+      $variables['link'] = $value;
+    }
+  }
+}
+
+function ddd_preprocess_paragraph__referrer(&$variables){
+  if (!empty($variables['paragraph']->field_email)){
+    foreach ($variables['paragraph']->field_email as $value){
+      $variables['email'] = $value->value;
+    }
+  }
+  $variables['name'] = '';
+  if (!empty($variables['paragraph']->field_firstname)){
+    foreach ($variables['paragraph']->field_firstname as $value){
+      $variables['name'] .= $value->value . ' ';
+    }
+  }
+  if (!empty($variables['paragraph']->field_lastname)){
+    foreach ($variables['paragraph']->field_lastname as $value){
+      $variables['name'] .= $value->value;
+    }
+  }
+  $variables['organisation'] = '';
+  $request = \Drupal::request();
+  if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+    $variables['organisation'] = \Drupal::service('title_resolver')->getTitle($request, $route);
+  }
+}
+
+function ddd_preprocess_paragraph__document_focus(&$variables){
+  if (!empty($variables['paragraph']->field_file)){
+    foreach ($variables['paragraph']->field_file as $value){
+      $file = file_load($value->target_id);
+      foreach ($file->field_image as $key => $image){
+        $img = file_load($image->target_id);
+        $uri = $img->getFileUri();
+        $images = [
+          'url' => ImageStyle::load('730x548')->buildUrl($uri),
+          'name' => $image->title,
+        ];
+      }
+      $variables['document'] = [
+        'description' => $file->field_description->value,
+        'title' => $file->field_title->value,
+        'url' => file_create_url($file->getFileUri()),
+        'image' => $images
+      ];
+    }
+  }
+}
+
+function ddd_preprocess_paragraph__spotlight_document(&$variables){
+  if (!empty($variables['paragraph']->field_file)){
+    foreach ($variables['paragraph']->field_file as $value){
+      $file = file_load($value->target_id);
+      foreach ($file->field_image as $key => $image){
+        $img = file_load($image->target_id);
+        $uri = $img->getFileUri();
+        $images = [
+          'url' => ImageStyle::load('730x548')->buildUrl($uri),
+          'name' => $image->title,
+        ];
+      }
+      $variables['document'] = [
+        'description' => $file->field_description->value,
+        'title' => $file->field_title->value,
+        'url' => file_create_url($file->getFileUri()),
+        'image' => $images
+      ];
+    }
+  }
+}
+
+function ddd_preprocess_paragraph__spotlight_content(&$variables){
+  if (!empty($variables['paragraph']->field_node_ref)){
+    foreach ($variables['paragraph']->field_node_ref as $value){
+      $node = node_load($value->target_id);
+      $options = ['absolute' => TRUE];
+      $url = \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $node->nid->value], $options);
+      $url = $url->toString();
+      $variables['node_page'] = [
+        'title' => $node->title->value,
+        'url' => $url,
+      ];
+    }
+  }
+}
+
+function ddd_preprocess_paragraph__spotlight_page(&$variables){
+  $pages = [
+    '<front>' => 'Page d\'accueil',
+    'ddd_resources.resources' => 'Ressources',
+    'ddd_courses.courses' => 'Parcours Pédagogique',
+    'ddd_medias.medias' => 'Formations en ligne',
+    'ddd_speakers.speakers' => 'Trouver un Intervenant',
+    'ddd_contact.contacts' => 'Contact',
+    'ddd_glossary.glossaries' => 'Glossaire'
+  ];
+  $variables['node_page'] = ['title' => '','url' => ''];
+  if (!empty($variables['paragraph']->field_page)){
+    foreach ($variables['paragraph']->field_page as $value){
+      $url = \Drupal\Core\Url::fromRoute($value->value);
+      $variables['node_page'] = [
+        'title' => $pages[$value->value],
+        'url' => $url,
+      ];
+    }
+  }
+}
+
+function ddd_preprocess_paragraph__spotlight_newsletter(&$variables){
+  $email_title = $variables['paragraph']->field_email_title->value;
+  $button_title = $variables['paragraph']->field_button_title->value;
+  $form = \Drupal::formBuilder()->getForm('Drupal\ddd_newsletter\Form\NewsletterBlockForm', $email_title, $button_title);
+  $variables['form'] = render($form);
+}
+
+function ddd_preprocess_paragraph__spotlight_learning_tools(&$variables){
+  $form = \Drupal::formBuilder()->getForm('Drupal\ddd_resources\Form\ResourceContribForm');
+  $variables['form'] = render($form);
+}
+
+function ddd_preprocess_share(&$variables){
+  $query = \Drupal::request()->query->all();
+  $current_url = Drupal::url('<current>', $query, ['absolute'=>true]);
+  $request = \Drupal::request();
+  if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+    $title = \Drupal::service('title_resolver')->getTitle($request, $route);
+  }
+  // $title = \Drupal::config()->get('system.site')->get('name');
+  $variables['query'] = $query;
+  $variables['url'] = [
+    'raw' => $current_url,
+    'encoded' => urlencode($current_url)
+  ];
+  $variables['title'] = [
+    'raw' => $title,
+    'encoded' => urlencode($title)
+  ];
+  $request = Drupal::request();
+  if ($node = $request->attributes->get('node')){
+    if ($node->getType() == 'resource'){
+      $variables['resource'] = $node->id();
+    }
+  }
+  $variables['#cache']['contexts'][] = 'url';
+}
+
+function ddd_preprocess_page(&$variables){
+  $config = _ddd_base_get_configs();
+  $config = $config->getHeader();
+  $variables['cookies'] = $config['ddd_cookie_disclaimer'];
+}
+
+function ddd_preprocess_node__page(&$variables){
+  $variables['share'] = [
+    '#theme' => 'share'
+  ];
+}
+
+function ddd_preprocess_node__resource(&$variables){
+  $variables['share'] = [
+    '#theme' => 'share'
+  ];
+}
+
+function ddd_preprocess_node__speaker(&$variables){
+  $variables['share'] = [
+    '#theme' => 'share'
+  ];
+}
+
+function ddd_preprocess_node__forum(&$variables){
+  $variables['title'] = $variables['elements']['#node']->getTitle();
+}
+
+function ddd_preprocess_input__radio(&$variables){
+  $variables['title'] = $variables['element']['#title'];
+  $variables['key'] = $variables['element']['#return_value'];
+}
+
+function ddd_preprocess_input__file(&$variables){
+  $variables['title'] = $variables['element']['#title'];
+}
+
+function ddd_preprocess_paragraph__ressources_link(&$variables){
+  $items = $variables['elements']['field_links']['#items'];
+  $links = [];
+  if (!empty($items)){
+    foreach ($items as $key => $item){
+      $query = \Drupal::entityQuery('file');
+      $query->condition('uri', str_replace('internal:/sites/default/files', 'public:/', $item->uri));
+      $ids = $query->execute();
+      $files = file_load_multiple($ids);
+      $file = reset($files);
+      if (!empty($file)){
+        $links[$key] = [
+          'filesize' => _ddd_base_size_convert($file->filesize->value),
+          'filemime' => strtoupper(str_replace('application/', '', $file->filemime->value)),
+          'title' => $item->title,
+          'uri' => $item->uri,
+        ];
+      }
+      else {
+        $links[$key] = [
+          'title' => $item->title,
+          'uri' => $item->uri,
+        ];
+      }
+    }
+  }
+  $variables['links'] = $links;
+}
+
+function ddd_preprocess_paragraph__ressources_fichiers(&$variables){
+  $links = [];
+  if (!empty($variables['elements']['field_fichier'][0]['#file'])){
+    $file = $variables['elements']['field_fichier'][0]['#file'];
+    if (!empty($file)){
+      $links[$key] = [
+        'filesize' => _ddd_base_size_convert($file->filesize->value),
+        'filemime' => strtoupper(str_replace('application/', '', $file->filemime->value)),
+        'title' => $file->filename->value,
+        'uri' => file_create_url($file->uri->value),
+      ];
+    }
+  }
+  $variables['links'] = $links;
+}
+
+
+function ddd_preprocess_comment(&$variables){
+  static $comment_index = false;
+  if ($comment_index !== false){
+    $comment_index++;
+  }
+  else{
+    $comment_index = 1;
+  }
+  $variables['index'] = $comment_index;
+  $username = trim(strip_tags(render($variables['author'])));
+  $users = \Drupal::entityTypeManager()->getStorage('user')
+    ->loadByProperties(['name' => $username]);
+  $user = reset($users);
+
+  $created = $user->getCreatedTime();
+  $login = $user->getLastLoginTime();
+  $variables['author_created'] = date('j' , $created) . ' ' . t(date('F' , $created)) . ' ' . date('Y' , $created);
+  $variables['author_login'] = get_time_ago($login);
+  $variables['author_logged'] = $user->isAuthenticated() ? t('connecté') : t('non connecté');
+  # !!! change cache context !!!
+  unset($variables['#cache']['contexts']);
+}
+
+function ddd_preprocess_menu_local_action(&$variables){
+  $variables['hide'] = false;
+  $current_path = \Drupal::service('path.current')->getPath();
+  if (strpos($current_path, '/forum') === 0){
+    $variables['hide'] = true;
+  }
+}
+
+function ddd_preprocess_forum_submitted(&$variables){
+  $variables['time'] = date('d/m/Y - H:i', $variables['topic']->created);
+}
+
+// function ddd_preprocess_forum_list(&$variables){
+//   kpr($variables);
+// }
+
+function get_time_ago($time){
+  $ago = (time() - $time) / (60*60);
+
+  // $ago = date('O', $time) / 100 - 1;
+  $years = $months = $weeks = $days = $hours = 0;
+  if ($ago < 1){
+    return 'Il y a moins d\'une heure';
+  }
+  elseif ($ago < 24){
+    $hours = intval($ago);
+  }
+  elseif ($ago < 24*7){
+    $days = intval($ago / 24);
+    $hours = intval($ago % 24);
+  }
+  elseif ($ago < 24*31){
+    $weeks = intval($ago / (24*7));
+    $days = intval(($ago % (24*7)) / 24);
+  }
+  elseif ($ago < 24*365){
+    $months = intval($ago / (24*31));
+    $weeks = intval(($ago % (24*31)) / (24*7));
+  }
+  else{
+    $years = intval($ago / (24*365));
+  }
+
+  $output = [];
+  if ($years != 0){
+    if ($years == 1){
+      $output[] = 'plus d\'' . $years . ' an';
+    }
+    else {
+      $output[] = 'plus de ' . $years . ' ans';
+    }
+  }
+  if ($months != 0){
+    $output[] = $months . ' mois';
+  }
+  if ($weeks != 0){
+    if ($weeks == 1){
+      $output[] = $weeks . ' semaine';
+    }
+    else {
+      $output[] = $weeks . ' semaines';
+    }
+  }
+  if ($days != 0){
+    if ($days == 1){
+      $output[] = $days . ' jour';
+    }
+    else {
+      $output[] = $days . ' jours';
+    }
+  }
+  if ($hours != 0){
+    if ($hours == 1){
+      $output[] = $hours . ' heure';
+    }
+    else {
+      $output[] = $hours . ' heures';
+    }
+  }
+  return 'Il y a ' . implode(' et ', $output);
+}
+

@@ -1,0 +1,6 @@
+ddd_medias.medias_add:
+  route_name: ddd_medias.medias_add
+  title: 'Add Medias'
+  appears_on:
+    - entity.medias.collection
+    - entity.medias.canonical

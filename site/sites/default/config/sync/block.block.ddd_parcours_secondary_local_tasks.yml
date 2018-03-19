@@ -1,0 +1,22 @@
+uuid: b0d74979-7e4d-4ca3-b418-a8779e0376dc
+langcode: fr
+status: true
+dependencies:
+  theme:
+    - ddd_parcours
+_core:
+  default_config_hash: DJ7Om1C2xWr2GI8CjZaZtyWpP-0S3hRR3oROZl1oesc
+id: ddd_parcours_secondary_local_tasks
+theme: ddd_parcours
+region: header
+weight: -5
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Secondary tabs'
+  provider: core
+  label_display: '0'
+  primary: false
+  secondary: true
+visibility: {  }

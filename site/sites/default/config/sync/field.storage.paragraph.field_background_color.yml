@@ -1,0 +1,27 @@
+uuid: ab9ea5a3-647a-4f8f-8aa3-08df45d19d2d
+langcode: fr
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_background_color
+field_name: field_background_color
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 'article-focus article-focus-2'
+      label: Bleu
+    -
+      value: article-focus
+      label: Gris
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

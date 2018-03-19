@@ -1,0 +1,27 @@
+// Components: magnific-popup
+// =====================================================================================================================
+.mfp-iframe-holder {
+    padding-top: 0;
+}
+
+.mfp-iframe-scaler {
+    padding-top: 0;
+    height: 100vh;
+}
+
+.mfp-iframe-holder .mfp-content {
+    max-width: 100%;
+}
+
+.mfp-iframe-holder .mfp-close {
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: url('../images/btn-close-bg.svg');
+    padding: 0;
+    opacity: 1;
+    font-size: 40px;
+    color: $brand-primary;
+    text-align: center;
+}

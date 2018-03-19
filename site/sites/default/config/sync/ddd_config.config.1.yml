@@ -1,0 +1,13 @@
+uuid: 716c90c5-9311-48a5-a741-e3f8866f523b
+langcode: fr
+status: true
+dependencies: {  }
+id: 1
+label: Configurations
+header_ddd_logo: null
+footer_follow_title: null
+footer_facebook_link: null
+footer_twitter_link: null
+footer_ddd_link: null
+footer_ddd_logo: null
+footer_ddd_description: null

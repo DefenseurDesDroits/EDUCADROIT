@@ -1,0 +1,19 @@
+uuid: fa42ac2a-eaf9-44db-8580-1ae601540073
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_description
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+id: paragraph.spotlight_learning_tools.field_description
+field_name: field_description
+entity_type: paragraph
+bundle: spotlight_learning_tools
+label: Chapô
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

@@ -1,0 +1,31 @@
+<button id="navbar-toggle" type="button" class="navbar-toggle" aria-expanded="false" aria-controls="nav">
+    <span class="navbar-toggle-label">Menu</span>
+
+        <span class="icons-bar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </span>
+</button>
+
+<nav id="nav" role="navigation">
+    <ul class="nav-main">
+        <li{{#if page.content}} class="active"{{/if}}><a{{#if page.content}} title="À propos - rubrique active"{{/if}} href="page.html">À propos</a></li>
+        <li{{#if page.resource-center}} class="active"{{/if}}><a{{#if page.resource-center}} title="Centre de ressources - rubrique active"{{/if}} href="resource-center.html">Centre de ressources</a></li>
+        <li{{#if page.educational-tour}} class="active"{{/if}}><a{{#if page.educational-tour}} title="Parcours pédagogiques - rubrique active"{{/if}} href="educational-tour.html">Parcours pédagogiques</a></li>
+        <li{{#if page.contributor-search}} class="active"{{/if}}><a{{#if page.contributor-search}} title="Centre de ressources - rubrique active"{{/if}} href="contributor-search.html">Trouver un intervenant</a></li>
+        <li{{#if page.training}} class="active"{{/if}}><a{{#if page.training}} title="Se former en ligne - rubrique active"{{/if}} href="training.html">Se former en ligne</a></li>
+    </ul>
+
+    <ul class="nav-quick">
+        <li><a href=""><span class="icon-glossary"></span> Glossaire</a></li>
+        {{#if page.connected}}
+            <li{{#if page.forums}} class="active"{{/if}}><a href=""><span class="icon-forum"></span> Forum</a></li>
+            <li><a href=""><span class="icon-profil"></span> Mon profil</a></li>
+            <li><a href=""><span class="icon-disconnect"></span> <span>Se déconnecter</span></a></li>
+        {{else}}
+            <li><a href=""><span class="icon-private"></span> Espace réservé</a></li>
+        {{/if}}
+    </ul>
+</nav>

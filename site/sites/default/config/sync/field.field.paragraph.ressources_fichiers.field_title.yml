@@ -1,0 +1,19 @@
+uuid: 6d3097b9-bf18-4798-b14e-02d9fab2f46c
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_title
+    - paragraphs.paragraphs_type.ressources_fichiers
+id: paragraph.ressources_fichiers.field_title
+field_name: field_title
+entity_type: paragraph
+bundle: ressources_fichiers
+label: Titre
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

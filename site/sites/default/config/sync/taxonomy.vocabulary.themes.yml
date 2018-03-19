@@ -1,0 +1,9 @@
+uuid: e38e5491-ed08-4f10-9bd4-f99c7d1c25ae
+langcode: fr
+status: true
+dependencies: {  }
+name: Thèmes
+vid: themes
+description: 'Themes ressources'
+hierarchy: 0
+weight: -7

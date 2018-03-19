@@ -1,0 +1,20 @@
+uuid: aaa658fa-739e-4310-bb90-a517db823dc5
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd_parcours
+id: ddd_parcours_headernav
+theme: ddd_parcours
+region: primary_menu
+weight: -5
+provider: null
+plugin: HeaderNav
+settings:
+  id: HeaderNav
+  label: HeaderNav
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

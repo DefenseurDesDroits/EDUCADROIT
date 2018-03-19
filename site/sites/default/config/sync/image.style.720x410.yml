@@ -1,0 +1,14 @@
+uuid: ea8b27f4-ffdb-4586-8c97-ba91b78348e3
+langcode: fr
+status: true
+dependencies: {  }
+name: 720x410
+label: 720x410
+effects:
+  17fe63a5-231f-461f-a4f7-6bc3142b8bc0:
+    uuid: 17fe63a5-231f-461f-a4f7-6bc3142b8bc0
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 720
+      height: 410

@@ -1,0 +1,94 @@
+// Component: Buttons
+// =====================================================================================================================
+
+// Component: `.btn`
+// ---------------------------------------------------------------------------------------------------------------------
+.btn {
+    background-color: transparent;
+    border: none;
+    text-align: center;
+
+    .label {
+        display: block;
+        margin-top: 15px;
+        font-size: $font-size-base;
+        font-family: oswalddemibold;
+        text-transform: uppercase;
+    }
+
+    &,
+    &:active {
+        &:hover,
+        &:focus {
+            background-color: transparent;
+            box-shadow: none;
+            border: none;
+
+            .label {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    i {
+        display: inline-block;
+        font-size: 25px;
+    }
+}
+
+// Modifier: `.btn-primary`
+// ---------------------------------------------------------------------------------------------------------------------
+.btn-primary {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+
+    i {
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        background: url('../images/btn-primary-bg.svg') no-repeat;
+        text-align: center;
+    }
+
+    .icon-bar {
+        display: inline-block;
+        background-color: #fff;
+    }
+
+    .label {
+        color: $brand-primary;
+    }
+
+    &,
+    &:active {
+        &:hover,
+        &:focus {
+            background-color: transparent;
+            border: none;
+        }
+    }
+}
+
+// Modifier: `.btn-secondary`
+// ---------------------------------------------------------------------------------------------------------------------
+.btn-secondary {
+    i {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        background: url('../images/btn-secondary-bg.svg') no-repeat;
+        background-size: 80px 80px;
+        color: $brand-primary;
+    }
+}
+
+// Component: `.btn-inline`
+// ---------------------------------------------------------------------------------------------------------------------
+.btn-inline {
+    position: absolute;
+    bottom: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+}

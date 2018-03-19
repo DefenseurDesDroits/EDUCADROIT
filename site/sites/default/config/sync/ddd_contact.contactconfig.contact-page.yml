@@ -1,0 +1,8 @@
+uuid: da1e8b9e-c39a-4b34-98e0-adbcd620bb2f
+langcode: fr
+status: true
+dependencies: {  }
+id: contact-page
+label: Contactez-nous
+teaser: 'Contactez-nous à l''adresse suivante : educadroit@defenseurdesdroits.fr'
+email: educadroit@defenseurdesdroits.fr

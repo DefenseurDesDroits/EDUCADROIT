@@ -1,0 +1,19 @@
+{
+  "name": "ddd/defenseurdesdroits-static",
+  "type": "drupal-theme",
+  "description": "Static sources for defenseur des droits.",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "GAYA - La Nouvelle Agence",
+      "email": "tech@gaya.fr",
+      "homepage": "http://www.gaya.fr"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0"
+  },
+  "extra": {
+    "installer-name": "ddd/static"
+  }
+}

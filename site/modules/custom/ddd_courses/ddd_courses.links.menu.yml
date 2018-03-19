@@ -1,0 +1,22 @@
+entity.courses.collection:
+  title: 'Courses List'
+  route_name: entity.courses.collection
+  description: 'List Courses'
+  weight: 10
+courses.admin.structure.settings:
+  title: Courses Settings
+  description: 'Configure Courses entity'
+  route_name:  ddd_courses.courses_settings
+  parent: system.admin_structure
+
+
+entity.course.collection:
+  title: 'Course List'
+  route_name: entity.course.collection
+  description: 'List Course'
+  weight: 10
+course.admin.structure.settings:
+  title: Course Settings
+  description: 'Configure Course entity'
+  route_name:  ddd_courses.course_settings
+  parent: system.admin_structure

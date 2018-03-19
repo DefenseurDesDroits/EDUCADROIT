@@ -1,0 +1,42 @@
+speakers.settings_tab:
+  route_name: ddd_speakers.speakers_settings
+  title: Settings
+  base_route: ddd_speakers.speakers_settings
+
+speakers.view:
+  route_name: entity.speakers.canonical
+  base_route: entity.speakers.canonical
+  title: View
+
+speakers.page_edit:
+  route_name: entity.speakers.edit_form
+  base_route: entity.speakers.canonical
+  title: Edit
+
+speakers.delete_confirm:
+  route_name:  entity.speakers.delete_form
+  base_route:  entity.speakers.canonical
+  title: Delete
+  weight: 10
+
+
+referrer.settings_tab:
+  route_name: ddd_speakers.referrer_settings
+  title: Settings
+  base_route: ddd_speakers.referrer_settings
+
+referrer.view:
+  route_name: entity.referrer.canonical
+  base_route: entity.referrer.canonical
+  title: View
+
+referrer.page_edit:
+  route_name: entity.referrer.edit_form
+  base_route: entity.referrer.canonical
+  title: Edit
+
+referrer.delete_confirm:
+  route_name:  entity.referrer.delete_form
+  base_route:  entity.referrer.canonical
+  title: Delete
+  weight: 10

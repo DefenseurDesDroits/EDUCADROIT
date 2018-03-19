@@ -1,0 +1,84 @@
+uuid: e60a1d0e-8354-4d77-8609-49d595a28a70
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.course.field_episodes
+    - paragraphs.paragraphs_type.episode
+  module:
+    - ddd_courses
+    - entity_reference_revisions
+id: course.course.field_episodes
+field_name: field_episodes
+entity_type: course
+bundle: course
+label: Épisodes
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      episode: episode
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 20
+        enabled: false
+      episode:
+        enabled: true
+        weight: 21
+      focus:
+        weight: 22
+        enabled: false
+      image:
+        weight: 23
+        enabled: false
+      lexicon:
+        weight: 24
+        enabled: false
+      logo:
+        weight: 25
+        enabled: false
+      logos_list:
+        weight: 26
+        enabled: false
+      quizz:
+        weight: 27
+        enabled: false
+      referrer:
+        weight: 28
+        enabled: false
+      resources_video:
+        weight: 29
+        enabled: false
+      resource_images:
+        weight: 30
+        enabled: false
+      ressources_link:
+        weight: 31
+        enabled: false
+      spotlight_contact:
+        weight: 32
+        enabled: false
+      spotlight_content:
+        weight: 33
+        enabled: false
+      spotlight_document:
+        weight: 34
+        enabled: false
+      spotlight_learning_tools:
+        weight: 35
+        enabled: false
+      spotlight_newsletter:
+        weight: 36
+        enabled: false
+      spotlight_page:
+        weight: 37
+        enabled: false
+      text_content:
+        weight: 38
+        enabled: false
+field_type: entity_reference_revisions

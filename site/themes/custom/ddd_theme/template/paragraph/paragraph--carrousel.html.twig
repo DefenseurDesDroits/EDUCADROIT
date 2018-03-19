@@ -1,0 +1,29 @@
+
+<div class="gallery-item">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="text">
+                {% if paragraph.field_carrousel_title.value %}
+                <h2>{{paragraph.field_carrousel_title.value}}</h2>
+                {% endif %}
+                <p>{{paragraph.field_carrousel_description.value}}</p>
+                {% if elements['current_index'] == 1 %}
+                    <ul class="summary">
+                        {% for titre in elements['titles'] %}
+                            <li><a href="#">{{titre|raw}}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-6">
+            <figure>
+                <img src="{{elements['image']}}" alt="" />
+            </figure>
+        </div>
+    </div>
+    <div class="owl-pager">{{elements['current_index']}}/{{elements['last_index']}}</div>
+    {% if paragraph.field_carrousel_upload.value != null %}
+        <a class="btn icon-download-2" target="_blank" title="{{paragraph.field_carrousel_title.value}}" href="{{paragraph.field_carrousel_upload.value}}">Télécharger</a>
+    {% endif %}
+</div>

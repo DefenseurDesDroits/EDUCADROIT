@@ -1,0 +1,39 @@
+<section class="section-content">
+    <div class="container">
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{ title }}</h1>
+
+                <div class="standfirst">
+                    <p>{{ teaser }}</p>
+                </div>
+
+                <hr />
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <div class="glossary">
+
+                {% for key, paragraph in collection %}
+                    {% if not letter %}
+                        {% set letter = key|first %}
+                        <h2>{{ letter }}</h2>
+                        <dl>
+                    {% elseif letter != key|first %}
+                        {% set letter = key|first %}
+                        </dl>
+                        <hr />
+                        <h2>{{ letter }}</h2>
+                        <dl>
+                    {% endif %}
+                            {{ paragraph }}
+                {% endfor %}
+                        </dl>
+                </div>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

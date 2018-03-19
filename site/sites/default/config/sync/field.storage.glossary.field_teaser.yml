@@ -1,0 +1,19 @@
+uuid: a898b341-3109-474c-ae7c-c50c08904901
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_glossary
+id: glossary.field_teaser
+field_name: field_teaser
+entity_type: glossary
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

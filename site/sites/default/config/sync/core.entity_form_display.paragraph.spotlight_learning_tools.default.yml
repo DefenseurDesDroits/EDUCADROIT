@@ -1,0 +1,55 @@
+uuid: 619a2208-a475-435d-a596-989668345e47
+langcode: fr
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files_modal
+    - field.field.paragraph.spotlight_learning_tools.field_button_title
+    - field.field.paragraph.spotlight_learning_tools.field_description
+    - field.field.paragraph.spotlight_learning_tools.field_image
+    - field.field.paragraph.spotlight_learning_tools.field_title
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+  module:
+    - entity_browser
+id: paragraph.spotlight_learning_tools.default
+targetEntityType: paragraph
+bundle: spotlight_learning_tools
+mode: default
+content:
+  field_button_title:
+    weight: 3
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_description:
+    weight: 1
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+  field_image:
+    weight: 2
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_append
+      view_mode: thumbnail
+      open: false
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: entity_browser_file
+  field_title:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

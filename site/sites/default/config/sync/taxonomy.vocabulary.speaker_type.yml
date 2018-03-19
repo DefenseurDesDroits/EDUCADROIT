@@ -1,0 +1,9 @@
+uuid: a5fa7814-77d2-4708-a165-5f9a61e0ef17
+langcode: fr
+status: true
+dependencies: {  }
+name: 'Types d''intervenants'
+vid: speaker_type
+description: 'Type d''intervenants - Intervenant'
+hierarchy: 0
+weight: 0

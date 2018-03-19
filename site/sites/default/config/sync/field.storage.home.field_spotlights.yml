@@ -1,0 +1,21 @@
+uuid: 2f88127a-eac9-4cb2-aad6-6d50cc56ddef
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+    - entity_reference_revisions
+    - paragraphs
+id: home.field_spotlights
+field_name: field_spotlights
+entity_type: home
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: 2
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

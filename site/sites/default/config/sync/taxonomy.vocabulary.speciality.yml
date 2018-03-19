@@ -1,0 +1,9 @@
+uuid: 0adcf180-78e0-41cd-a913-e73a0e312b34
+langcode: fr
+status: true
+dependencies: {  }
+name: Spécialités
+vid: speciality
+description: 'Spécialité - Intervenant'
+hierarchy: 0
+weight: -4

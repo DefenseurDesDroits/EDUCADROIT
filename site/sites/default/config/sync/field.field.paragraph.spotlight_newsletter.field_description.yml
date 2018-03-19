@@ -1,0 +1,19 @@
+uuid: cf5592fb-0ab1-41c5-ab1a-6d884657216a
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_description
+    - paragraphs.paragraphs_type.spotlight_newsletter
+id: paragraph.spotlight_newsletter.field_description
+field_name: field_description
+entity_type: paragraph
+bundle: spotlight_newsletter
+label: Chapô
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

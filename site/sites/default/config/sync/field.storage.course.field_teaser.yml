@@ -1,0 +1,19 @@
+uuid: 4a800e64-ee40-425b-98f3-2632f16d69ac
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+id: course.field_teaser
+field_name: field_teaser
+entity_type: course
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

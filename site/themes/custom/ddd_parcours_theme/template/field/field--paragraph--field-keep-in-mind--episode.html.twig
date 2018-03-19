@@ -1,0 +1,9 @@
+
+<div class="sidebar-section-content">
+    <h2 class="sidebar-section-title">À retenir</h2>
+    <ul class="list">
+      {% for item in items %}
+        <li>{{ item.content }}</li>
+      {% endfor %}
+    </ul>
+</div>

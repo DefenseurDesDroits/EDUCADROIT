@@ -1,0 +1,6 @@
+uuid: 63f8d9ef-64c5-4be6-ba79-58a9d5a9fd48
+langcode: fr
+status: true
+dependencies: {  }
+id: spotlight_document
+label: 'Document à Télécharger'

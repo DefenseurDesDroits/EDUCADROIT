@@ -1,0 +1,19 @@
+uuid: 26604cde-a158-4136-a3fd-ebf4b0015099
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+id: home.field_teaser_about
+field_name: field_teaser_about
+entity_type: home
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

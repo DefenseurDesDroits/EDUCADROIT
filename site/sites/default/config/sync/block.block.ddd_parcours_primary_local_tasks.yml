@@ -1,0 +1,22 @@
+uuid: 4d461079-a774-40de-96e9-7ce4a55de687
+langcode: fr
+status: true
+dependencies:
+  theme:
+    - ddd_parcours
+_core:
+  default_config_hash: CyX_aDKAka2_eihevNLscCHDYrzDgIqwWzFVEFRKIww
+id: ddd_parcours_primary_local_tasks
+theme: ddd_parcours
+region: header
+weight: -6
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Primary tabs'
+  provider: core
+  label_display: '0'
+  primary: true
+  secondary: false
+visibility: {  }

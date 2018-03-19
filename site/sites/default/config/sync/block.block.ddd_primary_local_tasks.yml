@@ -1,0 +1,22 @@
+uuid: ee85d600-c866-4377-a67a-c5af3dbac6a5
+langcode: fr
+status: true
+dependencies:
+  theme:
+    - ddd
+_core:
+  default_config_hash: CyX_aDKAka2_eihevNLscCHDYrzDgIqwWzFVEFRKIww
+id: ddd_primary_local_tasks
+theme: ddd
+region: header
+weight: -6
+provider: null
+plugin: local_tasks_block
+settings:
+  id: local_tasks_block
+  label: 'Primary tabs'
+  provider: core
+  label_display: '0'
+  primary: true
+  secondary: false
+visibility: {  }

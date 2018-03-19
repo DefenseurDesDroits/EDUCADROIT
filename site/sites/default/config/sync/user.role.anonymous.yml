@@ -1,0 +1,18 @@
+uuid: 86a39547-17c0-491a-9b5f-947f41f4fa1e
+langcode: fr
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: j5zLMOdJBqC0bMvSdth5UebkprJB8g_2FXHqhfpJzow
+id: anonymous
+label: 'Utilisateur anonyme'
+weight: -10
+is_admin: false
+permissions:
+  - 'access content'
+  - 'view files'
+  - 'access site-wide contact form'
+  - 'view glossary entity'
+  - 'view courses entity'
+  - 'view course entity'
+  - 'view vocabulary entity'

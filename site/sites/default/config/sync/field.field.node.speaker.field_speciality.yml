@@ -1,0 +1,28 @@
+uuid: 37338364-deca-483a-823c-65c72d77ac5c
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_speciality
+    - node.type.speaker
+    - taxonomy.vocabulary.speciality
+id: node.speaker.field_speciality
+field_name: field_speciality
+entity_type: node
+bundle: speaker
+label: Spécialités
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      speciality: speciality
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

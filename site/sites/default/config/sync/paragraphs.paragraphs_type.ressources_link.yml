@@ -1,0 +1,6 @@
+uuid: 0ed283f2-ec5f-4736-8c22-c5e3847b250f
+langcode: fr
+status: true
+dependencies: {  }
+id: ressources_link
+label: 'Ressources Lien'

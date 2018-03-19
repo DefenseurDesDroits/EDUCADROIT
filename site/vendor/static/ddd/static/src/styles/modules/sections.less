@@ -1,0 +1,111 @@
+// Sections
+// --------------------------------------------------
+
+// Component: `.section`
+// --------------------------------------------------
+.section-default {
+  padding: 60px 0;
+
+  h2 {
+    margin: 0 0 10px;
+    color: #007bc9;
+    font-family: @font-family-alt-demibold;
+    font-size: 2.25em;
+    line-height: 125%;
+    text-transform: uppercase;
+  }
+
+  form {
+    margin: 30px 0 40px;
+
+    .form-group {
+      @media (min-width: @screen-sm-min) {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .text-center {
+    margin-bottom: 0;
+
+    .btn {
+      margin-top: 40px;
+    }
+  }
+}
+
+.section-header {
+  padding: 0;
+  min-height: 280px;
+  background: 50% 50% no-repeat;
+  background-size: cover;
+
+  .post {
+    @media (min-width: @screen-sm-min) {
+      margin-bottom: 0;
+      min-height: 400px;
+    }
+
+    .txt {
+      @media (min-width: @screen-sm-min) {
+        width: 470px;
+      }
+    }
+
+    .heading {
+      font-size: 36px;
+    }
+  }
+
+  figure {
+    @media (min-width: @screen-sm-min) {
+      display: none;
+    }
+  }
+
+  .container {
+    padding: 0;
+
+    @media (min-width: @screen-sm-min) {
+      padding: 0 15px;
+    }
+  }
+}
+
+.section-blue {
+  padding: 40px 0;
+  background: #007bc9;
+  
+  h2 {
+    color: #fff;
+  }
+
+  .standfirst {
+    color: #fff;
+  }
+
+  form {
+    margin: 20px 0;
+
+    .article & {
+      margin: 20px 0;
+      max-width: inherit;
+    }
+  }
+
+  .styled-select::after {
+    border-color: #fff;
+  }
+
+  .styled-select {
+    background-image: url(../images/styled-select-white.gif);
+  }
+}
+
+.section-gray {
+  background: #eaeef1;
+
+  .standfirst {
+
+  }
+}

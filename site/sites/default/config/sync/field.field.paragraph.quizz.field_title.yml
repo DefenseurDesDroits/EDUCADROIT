@@ -1,0 +1,19 @@
+uuid: 3e1f1e9c-525c-4ccb-9791-fd852667c6d0
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_title
+    - paragraphs.paragraphs_type.quizz
+id: paragraph.quizz.field_title
+field_name: field_title
+entity_type: paragraph
+bundle: quizz
+label: Titre
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

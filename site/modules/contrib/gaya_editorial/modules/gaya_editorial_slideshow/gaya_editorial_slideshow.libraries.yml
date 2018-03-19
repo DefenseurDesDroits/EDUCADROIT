@@ -1,0 +1,10 @@
+caroufredsel-default:
+  version: VERSION
+  css:
+    theme:
+      css/caroufredsel/caroufredsel-default.css: {}
+  js:
+    js/caroufredsel/jquery.caroufredsel.min.js: {}
+    js/caroufredsel/caroufredsel-default.js: {}
+  dependencies:
+      - core/jquery

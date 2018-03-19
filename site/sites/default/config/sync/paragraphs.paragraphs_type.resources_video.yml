@@ -1,0 +1,6 @@
+uuid: 72e8aa12-c694-4edf-bf75-9e35ae1d7792
+langcode: fr
+status: true
+dependencies: {  }
+id: resources_video
+label: 'Ressources Video'

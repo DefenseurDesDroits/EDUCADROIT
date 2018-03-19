@@ -1,0 +1,6 @@
+uuid: 4626a413-2c29-491e-abb0-ec2ffd397aad
+langcode: fr
+status: true
+dependencies: {  }
+id: logo
+label: Logo

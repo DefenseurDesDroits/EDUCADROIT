@@ -1,0 +1,39 @@
+---
+title: 404
+psd: 15-ddd-404
+
+order: 12
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"title": "Page"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">Erreur 404 : Page non trouvée…</h1>
+
+                <div class="standfirst">
+                    <p>Désolé, la page demandée n’existe pas sur le site.</p>
+                </div>
+
+                <hr />
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <h2>Vous souhaitez :</h2>
+
+                <p><a class="focus-link" href="#">Tout savoir sur l’éducation au(x) droit(s)</a></p>
+                <p><a class="focus-link" href="#">Des ressources pédagogiques pour comprendre le droit</a></p>
+                <p><a class="focus-link" href="#">Des intervenants à votre disposition pour parler de droit</a></p>
+                <p><a class="focus-link" href="#">Se former en ligne</a></p>
+
+                <p class="text-left"><a class="btn btn-back" href="#"><span class="icon-back"></span> Retour à l'accueil</a></p>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>

@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.gaya_editorial_entity.field_ge_video_autoplay
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_video
+id: gaya_editorial_entity.gaya_editorial_video.field_ge_video_autoplay
+field_name: field_ge_video_autoplay
+entity_type: gaya_editorial_entity
+bundle: gaya_editorial_video
+label: 'Autoplay'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Lancer la vidéo automatiquement'
+  off_label: 'Ne pas lancer la vidéo automatiquement'
+field_type: boolean

@@ -1,0 +1,20 @@
+uuid: 66d6da7b-7c2e-4ee0-94c3-32efa0624637
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+    - ddd_courses
+id: home.field_courses
+field_name: field_courses
+entity_type: home
+type: entity_reference
+settings:
+  target_type: course
+module: core
+locked: false
+cardinality: 2
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

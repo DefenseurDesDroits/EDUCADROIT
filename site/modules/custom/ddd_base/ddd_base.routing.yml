@@ -1,0 +1,90 @@
+ddd_base.home:
+  path: /home
+  defaults:
+    _content: '\Drupal\ddd_base\Controller\HomeController::homePage'
+    _controller: '\Drupal\ddd_base\Controller\HomeController::homePage'
+    _title: "Page d'accueil"
+  requirements:
+    _permission: 'access content'
+
+entity.home.canonical:
+  path: '/admin/content/home/{home}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the home entity
+    _entity_view: 'home'
+    _title: 'Home Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'home.view'
+
+entity.home.collection:
+  path: '/admin/content/home/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the home entity.
+    _entity_list: 'home'
+    _title: 'Home List'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view home entity'
+
+ddd_base.home_add:
+  path: '/admin/content/home/add'
+  defaults:
+  # Calls the form.add controller, defined in the home entity.
+    _entity_form: home.add
+    _title: 'Add Home'
+  requirements:
+    _entity_create_access: 'home'
+
+entity.home.edit_form:
+  path: '/admin/content/home/{home}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the home entity.
+    _entity_form: home.edit
+    _title: 'Edit Home'
+  requirements:
+    _entity_access: 'home.edit'
+
+entity.home.delete_form:
+  path: '/admin/content/home/{home}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the home entity.
+    _entity_form: home.delete
+    _title: 'Delete Home'
+  requirements:
+    _entity_access: 'home.delete'
+
+ddd_base.home_settings:
+  path: 'admin/structure/home'
+  defaults:
+    _form: '\Drupal\ddd_base\Form\HomeSettingsForm'
+    _title: 'Home Settings'
+  requirements:
+    _permission: 'administer home entity'
+
+ddd_base.user.profile:
+  path: 'user/profile'
+  defaults:
+    _content: '\Drupal\ddd_base\Controller\UserController::profilePage'
+    _controller: '\Drupal\ddd_base\Controller\UserController::profilePage'
+    _title: "Mon profil"
+  requirements:
+    _permission: 'access content'
+
+ddd_base.user.first:
+  path: 'user/first-connection'
+  defaults:
+    _content: '\Drupal\ddd_base\Controller\UserController::firstConnectionPage'
+    _controller: '\Drupal\ddd_base\Controller\UserController::firstConnectionPage'
+    _title: "Première connexion"
+  requirements:
+    _permission: 'access content'
+
+ddd_base.forgotten_password:
+  path: 'user/forgotten-password'
+  defaults:
+    _content: '\Drupal\ddd_base\Controller\UserController::ForgottenPasswordPage'
+    _controller: '\Drupal\ddd_base\Controller\UserController::ForgottenPasswordPage'
+    _title: "Mot de passe oublié"
+  requirements:
+    _permission: 'access content'

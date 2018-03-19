@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - gaya_editorial
+    - options
+id: gaya_editorial_entity.field_ge_storify_template
+field_name: field_ge_storify_template
+entity_type: gaya_editorial_entity
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: story
+      label: Story
+    -
+      value: grid
+      label: Grid
+    -
+      value: slideshow
+      label: Slideshow
+  allowed_values_function: ''
+module: options
+locked: true
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

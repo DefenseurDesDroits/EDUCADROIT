@@ -1,0 +1,9 @@
+uuid: 156884c3-75bd-4dcb-8cd5-21dd010686c6
+langcode: fr
+status: true
+dependencies: {  }
+name: Régions
+vid: regions
+description: 'Régions - intervenants'
+hierarchy: 0
+weight: -6

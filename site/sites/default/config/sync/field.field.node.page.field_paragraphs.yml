@@ -1,0 +1,48 @@
+uuid: 62096f01-872f-4e09-9926-73847680f1f2
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_paragraphs
+    - node.type.page
+    - paragraphs.paragraphs_type.document_focus
+    - paragraphs.paragraphs_type.focus
+    - paragraphs.paragraphs_type.logos_list
+    - paragraphs.paragraphs_type.text_content
+  module:
+    - entity_reference_revisions
+id: node.page.field_paragraphs
+field_name: field_paragraphs
+entity_type: node
+bundle: page
+label: Paragraphes
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      document_focus: document_focus
+      focus: focus
+      text_content: text_content
+      logos_list: logos_list
+    target_bundles_drag_drop:
+      document_focus:
+        enabled: true
+        weight: 5
+      focus:
+        enabled: true
+        weight: 6
+      lexicon:
+        weight: 7
+        enabled: false
+      text_content:
+        enabled: true
+        weight: 8
+      logos_list:
+        enabled: true
+        weight: 9
+field_type: entity_reference_revisions

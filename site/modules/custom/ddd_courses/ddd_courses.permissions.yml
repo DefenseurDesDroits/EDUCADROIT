@@ -1,0 +1,21 @@
+'delete courses entity':
+  title: Delete entity content.
+'add courses entity':
+  title: Add entity content
+'view courses entity':
+  title: View entity content
+'edit courses entity':
+  title: Edit entity content
+'administer courses entity':
+  title: Administer settings
+
+'delete course entity':
+  title: Delete entity content.
+'add course entity':
+  title: Add entity content
+'view course entity':
+  title: View entity content
+'edit course entity':
+  title: Edit entity content
+'administer course entity':
+  title: Administer settings

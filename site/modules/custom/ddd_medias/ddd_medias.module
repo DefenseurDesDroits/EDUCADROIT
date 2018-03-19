@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * @file
+ * Contains Drupal\ddd_medias\ddd_medias.module.
+ */
+
+function ddd_medias_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_medias_page' => [
+      'variables' => ['title' => NULL, 'teaser' => NULL, 'filter' => NULL, 'collection' => NULL, 'pager' => NULL, 'spotlight' => NULL],
+    ],
+    # Filter forms
+    'ddd_medias_filter_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}

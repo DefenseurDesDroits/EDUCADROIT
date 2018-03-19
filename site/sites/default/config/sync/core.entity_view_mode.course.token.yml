@@ -1,0 +1,10 @@
+uuid: 07b77e6f-7350-42e5-ae0e-8ce1bbee87b7
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+id: course.token
+label: 'Jeton (token)'
+targetEntityType: course
+cache: true

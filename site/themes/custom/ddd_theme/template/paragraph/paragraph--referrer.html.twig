@@ -1,0 +1,9 @@
+<div class="col-sm-6">
+    <div class="border">
+        <h4>{{ content.field_firstname }} {{ content.field_lastname }}</h4>
+        <p>{{ content.field_position }}<br />
+            Tél. : {{ content.field_phone }}</p>
+        <p><a class="mail" title="Envoyer un couriel à {{ content.field_firstname|render|striptags|trim|raw }} {{ content.field_lastname|render|striptags|trim|raw }}" href="mailto:{{email}}"
+          onclick="ga('send', {'hitType': 'event','eventCategory': 'Lui écrire','eventAction': 'click','eventLabel': '{{ name|replace({"'":"\\'"}) }} - {{ organisation|replace({"'":"\\'"}) }}', 'nonInteraction': 1 });">Lui écrire</a></p>
+    </div>
+</div>

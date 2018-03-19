@@ -1,0 +1,20 @@
+uuid: 5c0667db-096b-4710-92b2-18f1d565d8d6
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd
+id: footerbottom
+theme: ddd
+region: footer
+weight: -5
+provider: null
+plugin: FooterBottom
+settings:
+  id: FooterBottom
+  label: FooterBottom
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

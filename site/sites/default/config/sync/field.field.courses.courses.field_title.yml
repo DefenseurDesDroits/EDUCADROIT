@@ -1,0 +1,20 @@
+uuid: 3350b67d-db82-4291-a081-d5d176e189cb
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.courses.field_title
+  module:
+    - ddd_courses
+id: courses.courses.field_title
+field_name: field_title
+entity_type: courses
+bundle: courses
+label: 'Titre Points Clés'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

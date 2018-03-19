@@ -1,0 +1,77 @@
+{#
+/**
+ * @file gaya_editorial_storify.html.twig
+ * Default theme implementation to present Gaya Editorial Storify default.
+ *
+ * This template is used when viewing Gaya editorial entity.
+ *
+ * Available variables:
+ * - title: The title of the content
+ * - entity_bundle: The bundle of the content
+ * - entity_id: The entity_id of the content
+ * - field_ge_storify_border: The array values of the border
+ * - field_ge_storify_header: The array values of header
+ * - field_ge_storify_width: The array values of width
+ * - field_ge_storify_height: The array values of height
+ * - field_ge_storify_template: The array values of template
+ * - field_ge_storify_url: The array values of url
+
+ * Elements from field API:
+ * - elements.field_ge_title: The title of the content
+ * - elements.field_ge_storify_border: Value rendered of the border
+ * - elements.field_ge_storify_header: Value rendered of the header
+ * - elements.field_ge_storify_width: Value rendered of the width
+ * - elements.field_ge_storify_height: Value rendered of the height (px)
+ * - elements.field_ge_storify_template: Value rendered of the template. (story, grid, slideshow)
+ * - elements.field_ge_storify_url: Value rendered of the url of the storify
+ *
+ * @see template_preprocess_gaya_editorial_entity()
+ * @see template_entity()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{# Width settings #}
+{% if field_ge_storify_width[0].value == '' %}
+    {% set width = '100%' %}
+{% else %}
+    {% set  width = field_ge_storify_width[0].value %}
+{% endif %}
+
+{# Height Settings #}
+{% set height = field_ge_storify_height[0].value %}
+
+{# Header settings #}
+{% if field_ge_storify_header[0].value == 'full' %}
+    {% set field_ge_storify_header = 'true' %}
+{% else %}
+    {% set field_ge_storify_header = 'false' %}
+{% endif %}
+
+{# Border settings #}
+{% if field_ge_storify_border[0].value == '1' %}
+    {% set field_ge_storify_border = 'true' %}
+{% else %}
+    {% set field_ge_storify_border = 'false' %}
+{% endif %}
+
+{# Template settings #}
+{% if field_ge_storify_template[0].value == 'story' %}
+    {% set field_ge_storify_template = '' %}
+{% else %}
+    {% set field_ge_storify_template = field_ge_storify_template[0].value %}
+{% endif %}
+
+<section class="section section-storify">
+    {% if elements.field_ge_title|render %}
+        <{{ elements.field_ge_title_heading[0] }}>{{ elements.field_ge_title[0] }}</{{ elements.field_ge_title_heading[0] }}>
+    {% endif %}
+    <div class="storify">
+        <iframe src="//{{ field_ge_storify_url[0].value }}/embed?border={{ field_ge_storify_border }}&header={{ field_ge_storify_header }}&template={{ field_ge_storify_template }}" width="{{ width }}" height="{{ height }}" frameborder="no" allowtransparency="true"></iframe>
+        <script src="//{{ field_ge_storify_url[0].value }}.js?border={{ field_ge_storify_border }}&header={{ field_ge_storify_header }}&template={{ field_ge_storify_template }}"></script>
+        <noscript>
+            [<a href="//{{ field_ge_storify_url[0].value }}" target="_blank">{{ 'View the story on Storify'|t }}</a>]
+        </noscript>
+    </div>
+</section>

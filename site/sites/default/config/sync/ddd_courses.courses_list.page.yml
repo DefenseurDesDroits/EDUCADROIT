@@ -1,0 +1,7 @@
+uuid: e0b8ba8f-8261-4a14-8ac7-47b253a1f61d
+langcode: fr
+status: true
+dependencies: {  }
+id: page
+label: 'Parcours Pédagogique'
+teaser: null

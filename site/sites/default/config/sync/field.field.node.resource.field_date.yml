@@ -1,0 +1,24 @@
+uuid: 13e91fda-6ceb-408c-a498-983b8c7f385b
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_date
+    - node.type.resource
+  module:
+    - datetime
+id: node.resource.field_date
+field_name: field_date
+entity_type: node
+bundle: resource
+label: 'Date de publication'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    default_date_type: now
+    default_date: now
+default_value_callback: ''
+settings: {  }
+field_type: datetime

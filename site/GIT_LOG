@@ -1,0 +1,100 @@
+48dab4f Julien Liébert 2017-11-10 10:54:55 +0100 Merge pull request #8 in DDD/defenseurdesdroits from develop to master
+5d77767 Arnaud 2017-11-09 15:34:44 +0100 [TASK] static update
+fd52fb1 Arnaud 2017-11-09 15:26:57 +0100 [TASK] static update
+4e22829 Arnaud 2017-11-09 14:59:35 +0100 [TASK] static update
+32bc844 Julien Liébert 2017-10-11 11:39:14 +0200 Merge pull request #7 in DDD/defenseurdesdroits from develop to master
+28c8335 Arnaud 2017-10-04 12:10:24 +0200 [TASK] baseurls for mails DDD-69
+2a76b0f Arnaud 2017-10-04 12:06:19 +0200 [BUGFIX] champ cache en anon DDD-67
+9bbb496 Arnaud 2017-10-04 11:53:57 +0200 [BUGFIX] fix falate DDD-66
+4320828 Arnaud 2017-10-04 11:52:36 +0200 [TASK] Password confirm typo DDD-74
+5af9664 Arnaud 2017-10-04 11:40:32 +0200 [TASK] NL confirm typo DDD-73
+46dcb5b Arnaud 2017-10-04 11:39:37 +0200 [TASK] carrousel target _blank et test sur H2 DDD-71 DDD-72
+6db53d1 Arnaud 2017-10-03 16:24:28 +0200 [TASK] composer.lock update
+10b568b Arnaud 2017-10-03 14:34:29 +0200 [TASK] Static update
+ca4ea66 Arnaud 2017-10-02 18:52:20 +0200 [TASK] node template
+baee7d3 Arnaud 2017-10-02 10:53:05 +0200 [TASK] Test du champ carrousel
+e8957cd Arnaud 2017-10-02 10:52:46 +0200 [TASK] Mise à jour de la configuration carrousel
+201d380 Arnaud 2017-10-02 10:51:40 +0200 [TASK] Mise à jour de la configuration depuis la prod
+b53e282 Arnaud 2017-10-02 10:14:46 +0200 [TASK] Static update
+ca081c4 Arnaud 2017-09-29 17:05:20 +0200 [TASK] ajout acrrousel
+c70c920 Julien Liébert 2017-09-13 16:07:00 +0200 Merge pull request #6 in DDD/defenseurdesdroits from develop to master
+b54c3de slibbrecht 2017-09-13 15:55:28 +0200 [TASK] Mise en place de la restriction d'affichage au seul utilisateur identifié
+87a713f slibbrecht 2017-09-13 15:02:22 +0200 [TASK] Mise en place de la CSS du forum
+b204216 Julien Liébert 2017-08-04 13:10:43 +0200 Merge pull request #5 in DDD/defenseurdesdroits from develop to master
+c541fd3 Julien Liébert 2017-08-04 13:00:02 +0200 Merge pull request #4 in DDD/defenseurdesdroits from DDD-62 to develop
+3134413 slibbrecht 2017-08-04 12:55:07 +0200 [TASK] Mise en place des statics par un lien symbolique
+fdfc447 slibbrecht 2017-08-04 12:51:14 +0200 [TASK] Suppression des anciens statics, et ajout des customs dans un répertoire séparé. DDD-62 Mise en place du lien vers les statics
+0f6d3cf slibbrecht 2017-08-04 12:50:29 +0200 [TASK][PROVISIONING] Modification du provisioning - DDD-62 Mise en place du lien vers les statics Retrait du composer update dans le provisioning
+e2f2e16 slibbrecht 2017-08-04 12:49:47 +0200 [TASK] DDD-62 Mise en place du lien vers les statics Mise à jour du composer.json
+6d2cb37 Arnaud Brendel 2017-08-02 16:05:14 +0200 [TASK] fix wording
+2a7bd2e Arnaud Brendel 2017-07-27 14:07:06 +0200 [TASK] fix static css
+db3ef13 Rémy Daniel 2017-07-24 09:30:37 +0200 Merge pull request #3 in DDD/defenseurdesdroits from develop to master
+a961a7c Arnaud Brendel 2017-07-22 17:58:51 +0200 [TASK] update static 0.1.5
+08c454a Benoit Chenu 2017-07-18 10:16:45 +0200 [PROVISIONING] Augmentation de l'espace disque
+bc98709 Arnaud Brendel 2017-07-12 19:11:11 +0200 [TASK] link title
+9a77217 Arnaud Brendel 2017-07-12 19:07:47 +0200 [TASK] link title
+ab74e28 Arnaud Brendel 2017-07-12 15:32:44 +0200 [TASK] markup fix
+b604cbf Arnaud Brendel 2017-07-12 12:18:16 +0200 [TASK] fix video play detection
+4eed551 Arnaud 2017-07-06 11:37:20 +0200 [TASK] JS debug
+2aa6803 Arnaud 2017-07-06 11:22:13 +0200 [TASK] update static to v0.1.4
+5b414bf Arnaud 2017-07-06 11:17:05 +0200 [TASK] update static to v0.1.4
+776afbe Arnaud 2017-07-06 00:03:28 +0200 [TASK] update static to v0.1.4
+19cf553 Arnaud 2017-07-05 23:34:52 +0200 [TASK] alt wording DDD-52
+ddcc953 Arnaud 2017-07-05 23:33:10 +0200 [TASK] fix NL message DDD-55
+2a3063e Arnaud 2017-07-05 23:32:52 +0200 [TASK] fix pager DDD-51
+e96ca8e Arnaud 2017-06-22 22:20:31 +0200 [TASK] fix pager count
+4872606 Arnaud 2017-06-22 22:06:46 +0200 [TASK] text paragraph template
+bbccca9 Arnaud 2017-06-20 14:03:51 +0200 [TASK] cookie disclaimer config
+130a39f Arnaud 2017-06-20 13:26:17 +0200 [TASK] first connexion feature
+5eaec90 Arnaud 2017-06-20 13:24:44 +0200 add user import module
+7ad4e72 Julien Liébert 2017-06-19 11:43:44 +0200 Merge pull request #2 in DDD/defenseurdesdroits from develop to master
+26b959a Arnaud 2017-06-16 22:38:34 +0200 [TASK] files paragraphs
+5a6c32d Arnaud 2017-06-16 19:48:39 +0200 [TASK] cookie disclaimer
+d58fdfb Arnaud 2017-06-16 19:08:14 +0200 [TASK] pager count
+2e77cec Arnaud 2017-06-16 19:05:33 +0200 [TASK] pager count
+6bd7ad7 Arnaud 2017-06-16 18:28:50 +0200 [TASK] composer update
+52a45f9 Julien Liébert 2017-06-14 20:29:04 +0200 [PROVISIONING] Revue déploiement en test/production
+416d00e adrien-gontier 2017-06-09 18:06:00 +0200 pager resources
+ab66b1f adrien-gontier 2017-06-09 18:04:52 +0200 ressrouces debug
+4fb690e adrien-gontier 2017-06-09 18:03:23 +0200 resource debug
+3314efe adrien-gontier 2017-06-09 17:54:11 +0200 recettes
+8280f44 adrien-gontier 2017-05-29 16:45:13 +0200 rm contrib modules
+6b3cf0d adrien-gontier 2017-05-29 16:27:31 +0200 composer placing
+3ca8d8c adrien-gontier 2017-05-29 14:11:16 +0200 composer.json erratum
+6cce3b4 Julien Liébert 2017-05-29 12:13:54 +0200 [PROVISIONING] Augmentation de l'espace disque
+95b231f adrien-gontier 2017-05-26 15:50:28 +0200 [TASK] DDD-16
+e136d5d adrien-gontier 2017-05-26 14:26:15 +0200 [TASK] DDD-41
+7e424ab adrien-gontier 2017-05-26 12:20:06 +0200 composer
+774cf30 adrien-gontier 2017-05-25 16:52:34 +0200 [TASK] DDD-45
+e434208 adrien-gontier 2017-05-25 15:47:51 +0200 [TASK] DDD-44
+784a0a2 adrien-gontier 2017-05-25 12:55:04 +0200 [TASK] DDD-43
+4eb547e adrien-gontier 2017-05-25 12:51:30 +0200 [TASK] DDD-42
+59499f9 adrien-gontier 2017-05-25 12:27:35 +0200 [TASK[ DDD-41
+685f809 adrien-gontier 2017-05-25 12:11:03 +0200 [TASK] DDD-40
+7e5120f adrien-gontier 2017-05-25 11:21:34 +0200 [TASK] DDD-33 Message incorrect fiches intervenant
+de5d14e adrien-gontier 2017-04-20 10:35:16 +0200 integration glossary debug
+5c7ee0b adrien-gontier 2017-04-19 18:10:06 +0200 [TASK] DDD-39 Parcours élémentaire - Texte d'introduction
+0ada819 adrien-gontier 2017-04-19 17:40:40 +0200 [TASK] DDD-38 Fiche ressource - Affichage du diaporama d'images
+2dd2906 adrien-gontier 2017-04-19 16:11:01 +0200 [TASK] DDD-37 glossary sort
+5bbfddf adrien-gontier 2017-04-19 14:14:21 +0200 ddd-34
+2090ba3 adrien-gontier 2017-04-19 13:52:02 +0200 ddd-34
+8f597ba adrien-gontier 2017-04-19 13:41:59 +0200 [TASK] DDD-34 transfert label to name db field size
+f332f15 adrien-gontier 2017-04-19 11:33:47 +0200 composer configuration
+b45e9cb adrien-gontier 2017-04-19 11:19:09 +0200 debug composer
+ba635db adrien-gontier 2017-04-19 11:07:55 +0200 [TASK] composer debug
+35fc070 adrien-gontier 2017-04-19 11:03:28 +0200 [TASK] both composer iso
+1daf147 adrien-gontier 2017-04-19 10:35:47 +0200 [TASK] DDD-34 - Limite de caratères des termes du Glossaire
+02fee08 adrien-gontier 2017-04-03 18:54:08 +0200 dependancies version
+e3f6469 adrien-gontier 2017-04-03 18:52:37 +0200 composer dependance dropzonejs
+4ee5bcb adrien-gontier 2017-04-03 18:50:23 +0200 composer debug
+3375edf adrien-gontier 2017-04-03 18:49:24 +0200 composer debug
+aaa2091 adrien-gontier 2017-04-03 18:46:30 +0200 ckeditor full version
+31a644e adrien-gontier 2017-04-03 17:49:19 +0200 Debug questions reponses
+ce15d0b adrien-gontier 2017-04-03 13:22:32 +0200 composer new version
+5d02f75 adrien-gontier 2017-04-03 13:20:54 +0200 drupal composer new version
+9cedabc adrien-gontier 2017-04-03 11:43:28 +0200 Merge remote-tracking branch 'origin/master'
+024890c adrien-gontier 2017-04-03 11:43:15 +0200 [TASK] Parcours pedagogiques
+95b6414 Julien Liébert 2017-03-30 15:42:33 +0200 [PROVISIONING] le composer est joué par le provisioning pas par le deploy
+79935d0 adrien-gontier 2017-03-30 11:21:13 +0200 composer.lock
+ecc00c9 adrien-gontier 2017-03-29 18:17:29 +0200 Modification du glossaire
+98d0686 adrien-gontier 2017-03-29 18:07:57 +0200 composer installations des dependances

@@ -1,0 +1,86 @@
+<section class="section-default section-header" style="background-image: url({{about.image.url}});">
+    <div class="container">
+        <div class="post">
+            <div class="txt txt-button">
+                <div class="inner">
+                    <h2 class="heading">{{about.title}}</h2>
+                    <p>{{about.teaser}}</p>
+                </div>
+                <a class="btn icon-link " title="Découvrir : Tout savoir sur l’éducation au(x) droit(s)" href="{{about.link.url}}">{{about.link.title}}</a>
+            </div>
+        </div>
+        <figure>
+            <img src="{{about.image.url}}" alt="{{about.image.alt}}" title="{{about.image.title}}"/>
+        </figure>
+    </div>
+</section>
+
+{{file}}
+
+<section class="section-default">
+    <div class="container">
+        <h2>{{resources.title}}</h2>
+
+        <div class="standfirst">
+            <p>{{resources.teaser}}</p>
+        </div>
+        {{resources.form}}
+
+        <div class="row">
+            {% for course in courses %}
+            <div class="col-md-6">
+                {% if loop.index is divisibleby(2) %}
+                <div class="post post-color-4">
+                {% else %}
+                <div class="post post-color-3">
+                {% endif %}
+                {{ course }}
+                </div>
+            </div>
+            {% endfor %}
+        </div><!-- .row -->
+
+        <p class="text-center"><a class="btn" href="{{path('ddd_courses.courses')}}">Découvrir les parcours</a></p>
+    </div>
+</section>
+
+<section class="section-default section-blue">
+    <div class="container">
+        <h2>{{ speakers.title }}</h2>
+
+        <div class="standfirst">
+            <p>{{ speakers.teaser }}</p>
+        </div>
+        {{ speakers.form }}
+    </div>
+</section>
+
+<section class="section-default section-gray">
+    <div class="container">
+        <h2>{{resources_list.title}}</h2>
+
+        <div class="standfirst">
+            <p>{{resources_list.teaser}}</p>
+        </div>
+
+        <div class="row">
+            {{resources_list.collection}}
+        </div>
+    </div>
+</section>
+
+<section class="section-default">
+    <div class="container">
+        <h2 class="heading">Se former en ligne</h2>
+
+        <div class="standfirst">
+            <p>Préparez vos interventions en vous appuyant sur nos méthodes pédagogiques.</p>
+        </div>
+
+        <div class="row">
+            {% for paragraph in spotlight %}
+                {{ paragraph }}
+            {% endfor %}
+        </div>
+    </div>
+</section>

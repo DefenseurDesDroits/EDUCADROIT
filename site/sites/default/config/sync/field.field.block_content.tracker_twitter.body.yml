@@ -1,0 +1,22 @@
+uuid: ae8fbb5a-5427-4c84-9281-966da82392d0
+langcode: fr
+status: true
+dependencies:
+  config:
+    - block_content.type.tracker_twitter
+    - field.storage.block_content.body
+  module:
+    - text
+id: block_content.tracker_twitter.body
+field_name: body
+entity_type: block_content
+bundle: tracker_twitter
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: false
+field_type: text_with_summary

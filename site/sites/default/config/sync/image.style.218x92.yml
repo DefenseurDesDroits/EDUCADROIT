@@ -1,0 +1,14 @@
+uuid: 9b0684a3-a1a7-42a4-8539-da87f06f433f
+langcode: fr
+status: true
+dependencies: {  }
+name: 218x92
+label: 218x92
+effects:
+  aea719b8-9b07-46ce-91d9-47792292c1fa:
+    uuid: aea719b8-9b07-46ce-91d9-47792292c1fa
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 218
+      height: 92

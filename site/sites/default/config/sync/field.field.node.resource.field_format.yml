@@ -1,0 +1,28 @@
+uuid: 25279960-3036-44ac-bbb9-f7552413d2b9
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_format
+    - node.type.resource
+    - taxonomy.vocabulary.formats
+id: node.resource.field_format
+field_name: field_format
+entity_type: node
+bundle: resource
+label: Format
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      formats: formats
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

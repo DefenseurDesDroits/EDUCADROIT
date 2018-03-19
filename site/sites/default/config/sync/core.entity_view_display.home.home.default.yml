@@ -1,0 +1,140 @@
+uuid: bd72ac28-4876-485f-8d56-394077905adf
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.home.home.field_courses
+    - field.field.home.home.field_document_spotlight_bool
+    - field.field.home.home.field_file
+    - field.field.home.home.field_image_about
+    - field.field.home.home.field_link_about
+    - field.field.home.home.field_resources
+    - field.field.home.home.field_spotlights
+    - field.field.home.home.field_teaser_about
+    - field.field.home.home.field_teaser_resources
+    - field.field.home.home.field_teaser_resources_list
+    - field.field.home.home.field_teaser_speakers
+    - field.field.home.home.field_title_about
+    - field.field.home.home.field_title_resources
+    - field.field.home.home.field_title_resources_list
+    - field.field.home.home.field_title_speakers
+  module:
+    - ddd_base
+    - entity_reference_revisions
+    - image
+    - link
+id: home.home.default
+targetEntityType: home
+bundle: home
+mode: default
+content:
+  field_courses:
+    weight: 6
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: entity_reference_entity_id
+  field_document_spotlight_bool:
+    weight: 13
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+  field_file:
+    weight: 14
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_image_about:
+    weight: 2
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_link_about:
+    weight: 3
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    type: link
+  field_resources:
+    weight: 9
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_spotlights:
+    type: entity_reference_revisions_entity_view
+    weight: 12
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+  field_teaser_about:
+    weight: 1
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_teaser_resources:
+    weight: 5
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_teaser_resources_list:
+    weight: 11
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_teaser_speakers:
+    weight: 8
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_title_about:
+    weight: 0
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_title_resources:
+    weight: 4
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_title_resources_list:
+    weight: 10
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_title_speakers:
+    weight: 7
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  user_id: true

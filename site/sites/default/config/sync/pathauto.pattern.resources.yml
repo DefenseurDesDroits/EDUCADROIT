@@ -1,0 +1,22 @@
+uuid: f5edc248-d943-4fe3-8b32-4a4e4f4c2a65
+langcode: fr
+status: true
+dependencies:
+  module:
+    - node
+id: resources
+label: Ressources
+type: 'canonical_entities:node'
+pattern: '/centre-de-ressources/[node:title]'
+selection_criteria:
+  a67c3645-ee69-4e27-a9cb-12b769b28b87:
+    id: node_type
+    bundles:
+      resource: resource
+    negate: false
+    context_mapping:
+      node: node
+    uuid: a67c3645-ee69-4e27-a9cb-12b769b28b87
+selection_logic: and
+weight: -5
+relationships: {  }

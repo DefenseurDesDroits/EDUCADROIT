@@ -1,0 +1,9 @@
+uuid: a91ef758-5b82-45b3-8eb3-c6f855279a08
+langcode: fr
+status: true
+dependencies: {  }
+name: 'Sujets des messages'
+vid: contact_object
+description: ''
+hierarchy: 1
+weight: 0

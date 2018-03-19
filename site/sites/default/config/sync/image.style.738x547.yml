@@ -1,0 +1,14 @@
+uuid: 5e2e8f0a-e33d-4eee-8baa-aaaf8b0bb512
+langcode: fr
+status: true
+dependencies: {  }
+name: 738x547
+label: 738x547
+effects:
+  0986c948-1cb9-41db-9983-327097e3ab81:
+    uuid: 0986c948-1cb9-41db-9983-327097e3ab81
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 738
+      height: 547

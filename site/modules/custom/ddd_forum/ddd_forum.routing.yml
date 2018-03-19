@@ -1,0 +1,27 @@
+# Page Forum connexion
+ddd_forum.connection:
+  path: /espace-reserve/connexion
+  defaults:
+    _content: '\Drupal\ddd_forum\Controller\ForumController::connectionPage'
+    _controller: '\Drupal\ddd_forum\Controller\ForumController::connectionPage'
+    _title: 'Se connecter'
+  requirements:
+    _permission: 'access content'
+
+# Page Forum list
+ddd_forum.forum:
+  path: /forum
+  defaults:
+    _controller: '\Drupal\forum\Controller\ForumController::forumIndex'
+    _title: 'Forums'
+  requirements:
+    _permission: 'access ddd forums'
+
+# Page d'un forum
+ddd_forum.forum.page:
+  path: '/forum/{taxonomy_term}'
+  defaults:
+    _controller: '\Drupal\forum\Controller\ForumController::forumPage'
+    _title_callback: '\Drupal\taxonomy\Controller\TaxonomyController::termTitle'
+  requirements:
+    _permission: 'access ddd forums'

@@ -1,0 +1,55 @@
+// =Layout: Default
+// --------------------------------------------------
+
+// Component: `.page-container`
+// --------------------------------------------------
+.page-container {
+  position: relative;
+  height: 100%;
+  overflow: visible;
+  .backface-visibility(hidden);
+}
+
+// Component: `.page-content`
+// --------------------------------------------------
+.page-content {
+  position: relative;
+  background-color: @body-bg;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  .overflow-scrolling();
+  padding-top: 53px;
+
+  @media (min-width: @screen-md-min) {
+    padding-top: 121px;
+  }
+}
+
+// Component: `.page-overlay`
+// --------------------------------------------------
+.page-overlay {
+  @media (max-width: @screen-sm-min) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000;
+    cursor: pointer;
+    opacity: 0;
+    z-index: -1;
+    .backface-visibility(hidden);
+    perspective: 1000px;
+    transition: opacity .4s;
+
+    .open & {
+      opacity: .5;
+      z-index: 98;
+    }
+  }
+}
+
+aside {
+  margin: 60px 0;
+}

@@ -1,0 +1,6 @@
+uuid: 47be9068-1ec2-4185-9ea4-89056d834210
+langcode: fr
+status: true
+dependencies: {  }
+id: spotlight_newsletter
+label: Newsletter

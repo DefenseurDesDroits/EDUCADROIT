@@ -1,0 +1,11 @@
+name: DDD Config
+# core: 8.x
+description: Defenseur des droits Configuration generale du site
+package: DDD
+type: module
+dependencies:
+
+# Information added by Drupal.org packaging script on 2016-08-30
+version: '8.x'
+core: '8.x'
+project: 'ddd'

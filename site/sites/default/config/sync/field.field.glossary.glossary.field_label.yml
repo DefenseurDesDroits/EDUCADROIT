@@ -1,0 +1,20 @@
+uuid: d3e2d883-4929-412f-ae57-63e4f75b010b
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.glossary.field_label
+  module:
+    - ddd_glossary
+id: glossary.glossary.field_label
+field_name: field_label
+entity_type: glossary
+bundle: glossary
+label: Titre
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

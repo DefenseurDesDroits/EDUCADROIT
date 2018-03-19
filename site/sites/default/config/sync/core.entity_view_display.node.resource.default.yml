@@ -1,0 +1,136 @@
+uuid: ae770e34-987b-42ce-a05c-03939d2b8eff
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.node.resource.field_author
+    - field.field.node.resource.field_date
+    - field.field.node.resource.field_description
+    - field.field.node.resource.field_email
+    - field.field.node.resource.field_firstname
+    - field.field.node.resource.field_format
+    - field.field.node.resource.field_image
+    - field.field.node.resource.field_key_points
+    - field.field.node.resource.field_paragraphs
+    - field.field.node.resource.field_publics
+    - field.field.node.resource.field_status
+    - field.field.node.resource.field_surname
+    - field.field.node.resource.field_themes
+    - field.field.node.resource.field_year
+    - node.type.resource
+  module:
+    - datetime
+    - entity_reference_revisions
+    - image
+    - options
+    - text
+    - user
+id: node.resource.default
+targetEntityType: node
+bundle: resource
+mode: default
+content:
+  field_author:
+    weight: 5
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_date:
+    weight: 15
+    label: visually_hidden
+    settings:
+      timezone_override: ''
+      format_type: j_f_y
+    third_party_settings: {  }
+    type: datetime_default
+  field_description:
+    weight: 6
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: text_default
+  field_email:
+    weight: 11
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_firstname:
+    weight: 13
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_format:
+    weight: 2
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_image:
+    weight: 8
+    label: above
+    settings:
+      image_style: ''
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_key_points:
+    weight: 1
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_paragraphs:
+    weight: 9
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
+  field_publics:
+    weight: 4
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_status:
+    weight: 10
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_surname:
+    weight: 12
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_themes:
+    weight: 3
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_year:
+    weight: 14
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  links:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  langcode: true

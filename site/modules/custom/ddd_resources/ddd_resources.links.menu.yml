@@ -1,0 +1,10 @@
+entity.resources.collection:
+  title: 'Resources List'
+  route_name: entity.resources.collection
+  description: 'List Resources'
+  weight: 10
+resources.admin.structure.settings:
+  title: Resources Settings
+  description: 'Configure Resources entity'
+  route_name:  ddd_resources.resources_settings
+  parent: system.admin_structure

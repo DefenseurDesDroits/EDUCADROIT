@@ -1,0 +1,6 @@
+langcode: en
+status: true
+dependencies: {  }
+id: gaya_editorial_slideshow
+label: 'Gaya Editorial Slideshow'
+locked: true

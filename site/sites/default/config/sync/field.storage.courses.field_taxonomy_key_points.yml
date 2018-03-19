@@ -1,0 +1,20 @@
+uuid: 1cce2c07-45bf-4837-843d-77e15d3e8d15
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+    - taxonomy
+id: courses.field_taxonomy_key_points
+field_name: field_taxonomy_key_points
+entity_type: courses
+type: entity_reference
+settings:
+  target_type: taxonomy_term
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

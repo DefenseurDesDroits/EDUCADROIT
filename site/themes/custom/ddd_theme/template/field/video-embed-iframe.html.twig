@@ -1,0 +1,11 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="iframe">
+                    <iframe{{ attributes }}{% if url is not empty %} src="{{ url }}{% if query is not empty %}?{{ query | url_encode }}{% endif %}"{% endif %}></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

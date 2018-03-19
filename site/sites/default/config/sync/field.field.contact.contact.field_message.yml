@@ -1,0 +1,20 @@
+uuid: 4f9b8547-c97b-4654-ad1b-f3a258eba951
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.contact.field_message
+  module:
+    - ddd_contact
+id: contact.contact.field_message
+field_name: field_message
+entity_type: contact
+bundle: contact
+label: Message
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

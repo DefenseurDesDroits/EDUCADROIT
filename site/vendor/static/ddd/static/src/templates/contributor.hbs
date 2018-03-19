@@ -1,0 +1,71 @@
+---
+title: Intervenant détail
+psd: 05-ddd-fiche-intervenant
+
+order: 6
+contributor-search: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{#parseJSON '{"back": "yes", "title": "Page"}'}}
+            {{>breadcrumb}}
+        {{/parseJSON}}
+
+        <div class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{title}}</h1>
+            </header>
+            <!-- .article-header -->
+
+            <div class="article-focus article-focus-2">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h2>Description</h2>
+                        <p class="small">
+                            <strong>Région :</strong> île-de-France<br />
+                            <strong>Type d’intervenant :</strong> Juriste<br />
+                            <strong>Thématique :</strong> Quels sont mes droits ?<br />
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <p>Les jeunes ambassadeurs des droits de l'enfants sont des jeunes en service civique, âgés de 18 à 25 ans. Ils sont recrutés par le Défenseur des droits afin d’aller à la rencontre des jeunes pour les sensibiliser aux droits de l'enfant et à la lutte contre les discriminations.</p>
+
+            <p><strong>Cet intervenant est signataire de la charte du Défenseur des Droits.</strong></p>
+
+            <hr />
+
+            <h3 class="h4">Coordonnées :</h3>
+
+            <p>Jeunes Ambassadeurs des Droits de l’Enfant (JADE)<br />7, rue Saint Florentin<br />75008 Paris<br />Tél. : 01 53 29 37 00</p>
+
+            <h3 class="h4">Vos référents :</h3>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="border">
+                        <h4>Leslie Delau</h4>
+                        <p>Coordinateur du programme JADE<br />
+                            Tél. : 01 53 29 37 04</p>
+                        <p><a class="mail" title="Envoyer un couriel à Leslie Delau" href="#">Lui écrire</a> </p>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="border">
+                        <h4>Leslie Delau</h4>
+                        <p>Coordinateur du programme JADE<br />
+                            Tél. : 01 53 29 37 04</p>
+                        <p><a class="mail" title="Envoyer un couriel à Leslie Delau" href="#">Lui écrire</a> </p>
+                    </div>
+                </div>
+            </div>
+
+            {{#parseJSON '{"button": "Yes"}'}}
+                {{> share}}
+            {{/parseJSON}}
+        </div>
+    </div>
+</section>

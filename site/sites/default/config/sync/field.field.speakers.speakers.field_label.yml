@@ -1,0 +1,20 @@
+uuid: bd521b32-beb2-430f-9945-621294438c3d
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.speakers.field_label
+  module:
+    - ddd_speakers
+id: speakers.speakers.field_label
+field_name: field_label
+entity_type: speakers
+bundle: speakers
+label: Titre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

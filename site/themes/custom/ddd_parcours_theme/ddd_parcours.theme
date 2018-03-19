@@ -1,0 +1,55 @@
+<?php
+use  \Drupal\image\Entity\ImageStyle;
+use \Drupal\Core\Url;
+use \Drupal\Core\Form\FormStateInterface;
+use \Drupal\Core\Entity\EntityViewBuilderInterface;
+use Drupal\ddd_glossary\Entity\Vocabulary;
+
+function ddd_parcours_preprocess_page(&$variables){
+  $route_match = \Drupal::service('current_route_match');
+  if ($course = $route_match->getParameter('course')){
+    $variables['current_course'] = $course;
+  }
+}
+
+function ddd_parcours_preprocess_paragraph__episode(&$variables){
+  static $index = false;
+  if ($index !== false){
+    $index++;
+  }
+  else{
+    $index = 1;
+  }
+  $episode_array = $variables['paragraph']->toArray();
+  $course_id = \Drupal::request()->get('course');
+  $url = Url::fromRoute('ddd_courses.episode', ['course' => $course_id, 'episode' => $index]);
+
+  $variables['quizz_url'] = Url::fromRoute('ddd_courses.quizz', ['course' => $course_id, 'episode' => $index])->setAbsolute(true)->toString();
+  $variables['link'] = [
+    'uri' => $url->toString(),
+    'title' =>  $variables['paragraph']->label()
+  ];
+  $variables['video_url'] = (!empty($episode_array['field_video_embed']) ? $episode_array['field_video_embed'][0]['value'] : '');
+}
+
+function ddd_parcours_preprocess_course(&$variables){
+  if (!empty($variables['course']->field_episodes)){
+    $url = Url::fromRoute('ddd_courses.episode', ['course' => $variables['course']->id(), 'episode' => 1]);
+    $variables['link'] = [
+      'uri' => $url->toString(),
+      'title' =>  $variables['course']->label()
+    ];
+  }
+}
+
+function ddd_parcours_preprocess_field__paragraph__field_glossary_refs__episode(&$variables){
+  $paragraph = $variables['element']['#object'];
+  $vocabulary_ids = $paragraph->get('field_glossary_refs')->getValue();
+  $variables['vocabularies'] = [];
+  $view_builder = \Drupal::entityManager()->getViewBuilder('vocabulary');
+  foreach ($vocabulary_ids as $value){
+    $vocabulary = Vocabulary::load($value['target_id']);
+    $variables['vocabularies'][] = $view_builder->view($vocabulary);
+  }
+  // kpr($variables['vocabularies']);
+}

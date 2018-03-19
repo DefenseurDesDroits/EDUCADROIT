@@ -1,0 +1,42 @@
+uuid: 3914abe6-9a60-44b6-baca-965467367329
+langcode: fr
+status: true
+dependencies:
+  module:
+    - options
+    - paragraphs
+id: paragraph.field_page
+field_name: field_page
+entity_type: paragraph
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: '<front>'
+      label: 'Page d''accueil'
+    -
+      value: ddd_resources.resources
+      label: Ressources
+    -
+      value: ddd_courses.courses
+      label: 'Parcours Pédagogique'
+    -
+      value: ddd_medias.medias
+      label: 'Formations en ligne'
+    -
+      value: ddd_speakers.speakers
+      label: 'Trouver un Intervenant'
+    -
+      value: ddd_contact.contacts
+      label: Contact
+    -
+      value: ddd_glossary.glossaries
+      label: Glossaire
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

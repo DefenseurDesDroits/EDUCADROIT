@@ -1,0 +1,8 @@
+uuid: 39ac6ab9-8d56-4ad0-bd25-1492e1fa2485
+langcode: fr
+status: true
+dependencies: {  }
+id: site-content
+label: Contenus
+description: ''
+locked: false

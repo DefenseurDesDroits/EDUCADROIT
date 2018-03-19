@@ -1,0 +1,43 @@
+<section class="section-content">
+    <div class="container">
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{ title }}</h1>
+
+                <div class="standfirst">
+                    <p>{{ teaser }}</p>
+                </div>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+               <div class="article-focus">
+                   <div class="row">
+                       <div class="col-md-6">
+                           <h2>Vidéos de formation</h2>
+                       </div>
+
+                       <div class="col-md-6 text-right">
+                           <a class="next" href="{{path('ddd_medias.medias', {'result': 'all'})}}">Toutes les vidéos</a>
+                       </div>
+                   </div>
+
+                   <div class="row">
+                      {{ collection }}
+                   </div>
+               </div>
+            </div>
+            <!-- .article-content -->
+        </article>
+    </div>
+</section>
+
+<aside>
+    <div class="container">
+        <div class="row">
+          {% for paragraph in spotlight %}
+              {{ paragraph }}
+          {% endfor %}
+        </div>
+    </div>
+</aside>

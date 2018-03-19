@@ -1,0 +1,10 @@
+entity.newsletter.collection:
+  title: 'Newsletter Inscriptions'
+  route_name: entity.newsletter.collection
+  description: 'List Newsletter Inscriptions'
+  weight: 10
+newsletter.admin.structure.settings:
+  title: Newsletter Settings
+  description: 'Configure Newsletter entity'
+  route_name:  ddd_newsletter.newsletter_settings
+  parent: system.admin_structure

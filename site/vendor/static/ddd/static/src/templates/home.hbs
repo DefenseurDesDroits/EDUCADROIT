@@ -1,0 +1,231 @@
+---
+title: Accueil
+body_class: home
+psd: 01-ddd-accueil
+
+order: 1
+home: true
+---
+
+<section class="section-default section-header" style="background-image: url(http://pix.gaya.fr/1600/480/);">
+    <div class="container">
+        {{#parseJSON '{"heading": "Tout savoir sur l’éducation au(x) droit(s)", "text": "Vous êtes professeur, animateur, ou parent et souhaitez expliquer le(s) droit(s) à des enfants ou des adolescents. Ce site est fait pour vous.", "button": "Découvrir", "icon": "icon-link"}'}}
+            {{>post}}
+        {{/parseJSON}}
+
+        <figure>
+            <img src="http://pix.gaya.fr/738/557/" alt="" />
+        </figure>
+    </div>
+</section>
+
+<div class="stick-download">
+    <figure>
+        <img src="http://pix.gaya.fr/80/80/" alt="" />
+    </figure>
+
+    <h2>Manuel d'éducation au(x) droit(s)</h2>
+
+    <div class="actions">
+        <a title="Télécharger le Manuel d'éducation au(x) droit(s) - pdf - 100 ko" href="#">Télécharger</a>
+
+        <button class="btn" type="button">Fermer</button>
+    </div>
+
+</div>
+
+<section class="section-default">
+    <div class="container">
+        <h2>Des ressources pédagogiques pour comprendre le droit</h2>
+
+        <div class="standfirst">
+            <p>Trouvez les outils pour animer une intervention sur le droit en sélectionnant un ou plusieurs des critères ci-dessous.</p>
+        </div>
+
+        <form action="#">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="f01" class="control-label hide">Points clés :</label>
+                                <select  id="f01"  class="form-select form-control">
+                                    <option value="1">Points clés</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="f02" class="control-label hide">Thématique :</label>
+                                <select  id="f02"  class="form-select form-control">
+                                    <option value="1">Thématique</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="f03" class="control-label hide">Public :</label>
+                                <select  id="f03"  class="form-select form-control">
+                                    <option value="1">Public</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="f04" class="control-label hide">Format :</label>
+                                <select  id="f04"  class="form-select form-control">
+                                    <option value="1">Format</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 sm-text-center">
+                    <div>
+                        <button title="Rechercher une ressources" type="submit" class="btn">Rechercher</button>
+                    </div>
+                </div>
+            </div><!-- .row -->
+        </form>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Parcours pédagogique élémentaire", "text": "Le droit expliqué aux 6-11 ans", "figure": "yes", "color": "post-color-3"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Parcours pédagogique secondaire", "text": "Le droit expliqué aux 12-15 ans", "sticker": "Parcours<br />prochainement<br />disponible", "figure": "yes", "color": "post-color-4"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+        </div><!-- .row -->
+
+        <p class="text-center"><a class="btn" href="#">Découvrir les parcours</a></p>
+    </div>
+</section>
+
+<section class="section-default section-blue">
+    <div class="container">
+        <h2>Des intervenants à votre disposition pour parler de droit</h2>
+
+        <div class="standfirst">
+            <p>Faites intervenir un(e) spécialiste auprès des enfants et des jeunes.</p>
+        </div>
+
+        <form action="#">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="f05" class="control-label hide">Région :</label>
+                                <select  id="f05"  class="form-select form-control">
+                                    <option value="1">Région</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="f06" class="control-label hide">Type d'intervenant :</label>
+                                <select  id="f06"  class="form-select form-control">
+                                    <option value="1">Type d'intervenant</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="f07" class="control-label hide">Spécialité :</label>
+                                <select  id="f07"  class="form-select form-control">
+                                    <option value="1">Spécialité</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 sm-text-center">
+                    <div>
+                        <button title="Rechercher un intervenant" type="submit" class="btn">Rechercher</button>
+                    </div>
+                </div>
+            </div><!-- .row -->
+        </form>
+    </div>
+</section>
+
+<section class="section-default section-gray">
+    <div class="container">
+        <h2>Le droit vu par...</h2>
+
+        <div class="standfirst">
+            <p>Découvrez les initiatives de nos partenaires.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <a class="post" href="#">
+                    <figure>
+                        <img src="http://pix.gaya.fr/738/555/" alt="" />
+                    </figure>
+
+                    <h2 class="heading">Cartooning for Peace</h2>
+
+                    <p class="small"><strong>Auteur</strong> : Cartooning for Peace</p>
+                </a>
+            </div>
+
+            <div class="col-sm-4">
+                <a class="post" href="#">
+                    <figure>
+                        <img src="http://pix.gaya.fr/738/555/" alt="" />
+                    </figure>
+
+                    <h2 class="heading">Flagrants délits</h2>
+
+                    <p class="small"><strong>Auteur</strong> : France Télévision</p>
+                </a>
+            </div>
+
+            <div class="col-sm-4">
+                <a class="post" href="#">
+                    <figure>
+                        <img src="http://pix.gaya.fr/738/555/" alt="" />
+                    </figure>
+
+                    <h2 class="heading">Les 10 meilleurs dessins animés pour les droits de l’enfant</h2>
+
+                    <p class="small"><strong>Auteur</strong> : Red Kite Productions Ltd</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-default">
+    <div class="container">
+        <h2 class="heading">Se former en ligne</h2>
+
+        <div class="standfirst">
+            <p>Préparez vos interventions en vous appuyant sur nos méthodes pédagogiques.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Manuel D’éducation au(x) droit(s)", "text": "Ce manuel décrit les objectifs pédagogiques et propose des contenus et des éléments pour faciliter vos interventions.", "figure": "yes", "button": "Télécharger", "icon": "icon-download-2"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Vidéos de formation", "text": "Formez-vous en ligne à l\'éducation au(x) droits(s)", "figure": "yes", "button": "Découvrir", "icon": "icon-link"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+        </div>
+    </div>
+</section>

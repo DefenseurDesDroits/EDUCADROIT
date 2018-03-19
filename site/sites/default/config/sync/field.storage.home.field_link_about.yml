@@ -1,0 +1,19 @@
+uuid: 6195cdad-6baa-4e83-ad94-872d32e11695
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+    - link
+id: home.field_link_about
+field_name: field_link_about
+entity_type: home
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

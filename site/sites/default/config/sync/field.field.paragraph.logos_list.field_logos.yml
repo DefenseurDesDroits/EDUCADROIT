@@ -1,0 +1,45 @@
+uuid: f98fa0ca-879b-43ae-9033-aa462bb2fca2
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_logos
+    - paragraphs.paragraphs_type.logo
+    - paragraphs.paragraphs_type.logos_list
+  module:
+    - entity_reference_revisions
+id: paragraph.logos_list.field_logos
+field_name: field_logos
+entity_type: paragraph
+bundle: logos_list
+label: Logos
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      logo: logo
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 6
+        enabled: false
+      logo:
+        enabled: true
+        weight: 7
+      focus:
+        weight: 7
+        enabled: false
+      lexicon:
+        weight: 8
+        enabled: false
+      logos_list:
+        weight: 9
+        enabled: false
+      text_content:
+        weight: 10
+        enabled: false
+field_type: entity_reference_revisions

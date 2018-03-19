@@ -1,0 +1,9 @@
+uuid: bc40249f-855d-4abb-94ca-07b21bf82a19
+langcode: fr
+status: true
+dependencies: {  }
+name: 'Point clé'
+vid: key_points
+description: 'Point clé ressource'
+hierarchy: 0
+weight: -9

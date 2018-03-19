@@ -1,0 +1,18 @@
+uuid: 52253891-171e-40c8-9de0-368613f312ea
+langcode: fr
+status: true
+dependencies:
+  config:
+    - node.type.resource
+id: node.resource.title
+field_name: title
+entity_type: node
+bundle: resource
+label: Titre
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

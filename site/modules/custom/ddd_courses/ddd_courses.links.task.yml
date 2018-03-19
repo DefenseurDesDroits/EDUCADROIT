@@ -1,0 +1,42 @@
+courses.settings_tab:
+  route_name: ddd_courses.courses_settings
+  title: Settings
+  base_route: ddd_courses.courses_settings
+
+courses.view:
+  route_name: entity.courses.canonical
+  base_route: entity.courses.canonical
+  title: View
+
+courses.page_edit:
+  route_name: entity.courses.edit_form
+  base_route: entity.courses.canonical
+  title: Edit
+
+courses.delete_confirm:
+  route_name:  entity.courses.delete_form
+  base_route:  entity.courses.canonical
+  title: Delete
+  weight: 10
+
+
+course.settings_tab:
+  route_name: ddd_courses.course_settings
+  title: Settings
+  base_route: ddd_courses.course_settings
+
+course.view:
+  route_name: entity.course.canonical
+  base_route: entity.course.canonical
+  title: View
+
+course.page_edit:
+  route_name: entity.course.edit_form
+  base_route: entity.course.canonical
+  title: Edit
+
+course.delete_confirm:
+  route_name:  entity.course.delete_form
+  base_route:  entity.course.canonical
+  title: Delete
+  weight: 10

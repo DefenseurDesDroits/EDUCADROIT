@@ -1,0 +1,19 @@
+uuid: 7dabbb14-3e57-49e4-9329-478deca8091c
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_courses
+    - text
+id: courses.field_description
+field_name: field_description
+entity_type: courses
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,22 @@
+uuid: 15a1bc1a-7fc6-442c-bdfb-ffbc7edddbe2
+langcode: fr
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - ddd_parcours
+_core:
+  default_config_hash: 8by5KRsb7ZpmjHj0ms1d7xAG_xH54AWsOX6spDLJ59U
+id: ddd_parcours_breadcrumbs
+theme: ddd_parcours
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  provider: system
+  label_display: '0'
+visibility: {  }

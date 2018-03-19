@@ -1,0 +1,21 @@
+uuid: 0830a6f5-24e9-4ad8-830e-9a08551dbbf9
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_address
+    - node.type.speaker
+  module:
+    - text
+id: node.speaker.field_address
+field_name: field_address
+entity_type: node
+bundle: speaker
+label: Adresse
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

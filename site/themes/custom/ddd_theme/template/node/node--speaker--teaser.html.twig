@@ -1,0 +1,58 @@
+<hr />
+
+            <div class="item">
+
+                    <h2><a href="{{ url }}">{{ label }}</a></h2>
+
+<div class="row">
+
+    <div class="col-sm-12">
+
+        <p class="small">
+            {% if content.field_region|render %}
+              <strong>Région :</strong>
+              {% for i in 0..content.field_region|length %}
+                {% if content.field_region[i]|render %}
+                  {% if content.field_region[i + 1]|render %}
+                    {{ content.field_region[i] }},
+                  {% else %}
+                    {{ content.field_region[i] }}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              <br />
+            {% endif %}
+
+            {% if content.field_speaker_type|render %}
+              <strong>Type d'intervenant :</strong>
+              {% for i in 0..content.field_speaker_type|length %}
+                {% if content.field_speaker_type[i]|render %}
+                  {% if content.field_speaker_type[i + 1]|render %}
+                    {{ content.field_speaker_type[i] }},
+                  {% else %}
+                    {{ content.field_speaker_type[i] }}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              <br />
+            {% endif %}
+
+            {% if content.field_speciality|render %}
+              <strong>Spécialités :</strong>
+              {% for i in 0..content.field_speciality|length %}
+                {% if content.field_speciality[i]|render %}
+                  {% if content.field_speciality[i + 1]|render %}
+                    {{ content.field_speciality[i] }},
+                  {% else %}
+                    {{ content.field_speciality[i] }}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+              <br />
+            {% endif %}
+        </p>
+
+</div>
+</div>
+
+            </div>

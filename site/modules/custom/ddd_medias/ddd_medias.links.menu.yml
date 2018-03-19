@@ -1,0 +1,10 @@
+entity.medias.collection:
+  title: 'Medias List'
+  route_name: entity.medias.collection
+  description: 'List Medias'
+  weight: 10
+medias.admin.structure.settings:
+  title: Medias Settings
+  description: 'Configure Medias entity'
+  route_name:  ddd_medias.medias_settings
+  parent: system.admin_structure

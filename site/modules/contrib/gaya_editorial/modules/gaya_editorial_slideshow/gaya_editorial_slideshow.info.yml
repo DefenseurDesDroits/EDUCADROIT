@@ -1,0 +1,10 @@
+name: Gaya Editorial Slideshow
+type: module
+description: Provide a widget multiple field used for generate a slideshow of picture on content page
+core: 8.x
+package: Gaya
+dependencies:
+  - gaya_editorial
+  - gaya_editorial_picture
+isGayaEditorial: yes
+version: '1.0'

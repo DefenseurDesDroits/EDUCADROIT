@@ -1,0 +1,110 @@
+uuid: 32292d34-d87d-4b18-898a-5ae3e5fb10ea
+langcode: fr
+status: true
+dependencies:
+  config:
+    - entity_browser.browser.browse_files_modal
+    - field.field.paragraph.episode.field_glossary_refs
+    - field.field.paragraph.episode.field_image
+    - field.field.paragraph.episode.field_image_left
+    - field.field.paragraph.episode.field_image_right
+    - field.field.paragraph.episode.field_keep_in_mind
+    - field.field.paragraph.episode.field_quizz
+    - field.field.paragraph.episode.field_ressource_refs
+    - field.field.paragraph.episode.field_title
+    - field.field.paragraph.episode.field_video_embed
+    - paragraphs.paragraphs_type.episode
+  module:
+    - entity_browser
+    - paragraphs
+    - video_embed_field
+id: paragraph.episode.default
+targetEntityType: paragraph
+bundle: episode
+mode: default
+content:
+  field_glossary_refs:
+    weight: 6
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+  field_image:
+    weight: 4
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_append
+      view_mode: thumbnail
+      open: false
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: entity_browser_file
+  field_image_left:
+    weight: 3
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_append
+      view_mode: thumbnail
+      open: false
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: entity_browser_file
+  field_image_right:
+    weight: 2
+    settings:
+      entity_browser: browse_files_modal
+      field_widget_edit: true
+      field_widget_remove: true
+      selection_mode: selection_append
+      view_mode: thumbnail
+      open: false
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+    type: entity_browser_file
+  field_keep_in_mind:
+    weight: 5
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_quizz:
+    type: entity_reference_paragraphs
+    weight: 8
+    settings:
+      title: Paragraphe
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+    third_party_settings: {  }
+  field_ressource_refs:
+    weight: 7
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+  field_title:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  field_video_embed:
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    type: video_embed_field_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

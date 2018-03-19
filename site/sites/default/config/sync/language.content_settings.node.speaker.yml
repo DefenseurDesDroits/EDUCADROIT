@@ -1,0 +1,11 @@
+uuid: 3b5dd1e4-389b-4c82-a7ed-bf33b9d3bc57
+langcode: fr
+status: true
+dependencies:
+  config:
+    - node.type.speaker
+id: node.speaker
+target_entity_type_id: node
+target_bundle: speaker
+default_langcode: site_default
+language_alterable: false

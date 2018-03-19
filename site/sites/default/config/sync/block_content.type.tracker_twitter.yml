@@ -1,0 +1,8 @@
+uuid: 198ee7f7-c80f-4d35-8d50-91726cae4830
+langcode: fr
+status: true
+dependencies: {  }
+id: tracker_twitter
+label: 'Tracker Twitter'
+revision: 0
+description: ''

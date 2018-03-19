@@ -1,0 +1,7 @@
+services:
+  ddd_base.parcours:
+    class: Drupal\ddd_base\Theme\ParcoursServiceThemeNegociator
+    arguments: []
+    tags:
+      - { name: theme_negotiator, priority: 10 }
+

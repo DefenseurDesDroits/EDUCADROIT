@@ -1,0 +1,10 @@
+uuid: 44610d84-d6af-438b-a00c-cef7622cda92
+langcode: fr
+status: true
+dependencies:
+  module:
+    - file
+id: file.spotlight
+label: Spotlight
+targetEntityType: file
+cache: true

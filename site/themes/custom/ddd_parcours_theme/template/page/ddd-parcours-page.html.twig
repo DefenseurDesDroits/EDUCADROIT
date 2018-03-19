@@ -1,0 +1,104 @@
+<div class="container">
+    <div class="valign">
+        {{ course }}
+    </div><!-- .valign -->
+    <div class="figures">
+        {% if image_left %}
+            <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+        {% endif %}
+        {% if image_right %}
+            <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+        {% endif %}
+    </div><!-- .figures -->
+</div><!-- .container -->
+
+    </div>
+
+
+    <div class="page-container page-container-tablet">
+        <div class="container">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Merci de tourner votre tablette pour une meilleur expérience <i class="icon-rotate"></i></h2>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-tablet -->
+
+
+    <div class="page-container page-container-mobile">
+        <div class="container container-mobile">
+            <div class="valign">
+                <div class="valign-top">
+                    <h2>Ce programme n'est pas adapté à votre mobile</h2>
+                    <p class="lead">Consultez le site depuis votre ordinateur ou votre tablette en mode paysage.</p>
+                </div>
+                <div class="figures">
+                    {% if image_left %}
+                        <div class="figure figure-left animated fadeInLeft">{{ image_left }}</div>
+                    {% endif %}
+                    {% if image_right %}
+                        <div class="figure figure-right animated fadeInRight">{{ image_right }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div><!-- .page-container.page-container-mobile -->
+</main><!-- .main -->
+
+<div id="sidebar-ressources" class="sidebar collapse">
+    <h2 class="sidebar-title">Ressources</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-ressources" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+    <section class="sidebar-section section-focus">
+        <div class="sidebar-section-content">
+            <h2 class="sidebar-section-title">À retenir</h2>
+            <ul class="list">
+                <li>Le droit est une série d’interdits mais surtout de libertés d’où résultent des responsabilités</li>
+                <li>Le droit permet d’organiser la vie en société et de préserver l’ordre public</li>
+            </ul>
+        </div>
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        <div class="sidebar-section-content">
+            <h2 class="sidebar-section-title">Définitions</h2>
+
+            <h3 class="sidebar-section-subtitle">Droit</h3>
+            <p>Le droit est l’ensemble des règles qui ont pour but d’organiser la vie en société, c’est-à-dire de définir le statut des personnes et de réglementer les relations entre les personnes.</p>
+
+            <h3 class="sidebar-section-subtitle">Loi</h3>
+            <p>La loi est une règle qui s’applique à tous et qui définit les droits, les devoirs et les libertés de chacun.</p>
+
+            <h3 class="sidebar-section-subtitle">Contrat</h3>
+            <p>Un contrat est un accord entre plusieurs personnes qui est encadré par le droit.</p>
+        </div>
+    </section><!-- .section -->
+    <section class="sidebar-section">
+        <div class="sidebar-section-content">
+            <h2 class="sidebar-section-title">Ressources pédagogiques</h2>
+            <div class="link"><a href="quiz.html">Album thématique “Comprendre pour agir : les droits de l’enfant”</a> <i class="icon-external-link"></i></div>
+            <div class="link"><a href="quiz.html">Album thématique “Comprendre pour agir : les droits de l’enfant”</a> <i class="icon-external-link"></i></div>
+            <div class="link"><a href="quiz.html">Album thématique “Comprendre pour agir : les droits de l’enfant”</a> <i class="icon-external-link"></i></div>
+        </div>
+    </section><!-- .section -->
+</div>
+<div id="sidebar-nav-episodes" class="sidebar collapse">
+    <h2 class="sidebar-title">Épisodes</h2>
+    <button class="navbar-toggle btn btn-primary" data-target="#sidebar-nav-episodes" data-toggle="collapse"><i class="icon-close"></i><span class="label">Fermer</span></button><!-- .navbar-toggle -->
+
+    <nav class="nav-episodes">
+        <ul class="list-unstyled list-episodes">
+            {% for episode in episodes %}
+                {{ episode }}
+            {% endfor %}
+        </ul>
+    </nav><!-- .nav-episodes -->
+</div>
+

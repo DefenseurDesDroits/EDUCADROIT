@@ -1,0 +1,45 @@
+uuid: aa14dcbb-ab3e-4552-a24f-08feffe4cb99
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.spotlight_newsletter.field_button_title
+    - field.field.paragraph.spotlight_newsletter.field_description
+    - field.field.paragraph.spotlight_newsletter.field_email_title
+    - field.field.paragraph.spotlight_newsletter.field_title
+    - paragraphs.paragraphs_type.spotlight_newsletter
+id: paragraph.spotlight_newsletter.default
+targetEntityType: paragraph
+bundle: spotlight_newsletter
+mode: default
+content:
+  field_button_title:
+    type: string
+    weight: 3
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_description:
+    type: basic_string
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  field_email_title:
+    type: string
+    weight: 2
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_title:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

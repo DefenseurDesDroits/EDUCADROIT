@@ -1,0 +1,11 @@
+uuid: c869764e-6ad2-4161-9b14-f0fdff21fb9e
+langcode: fr
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.speaker_type
+id: taxonomy_term.speaker_type
+target_entity_type_id: taxonomy_term
+target_bundle: speaker_type
+default_langcode: site_default
+language_alterable: false

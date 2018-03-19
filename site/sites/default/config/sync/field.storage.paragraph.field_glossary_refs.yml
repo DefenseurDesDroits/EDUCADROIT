@@ -1,0 +1,20 @@
+uuid: fa57a163-39ed-4a95-ad8f-733a3f3eae8d
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_glossary
+    - paragraphs
+id: paragraph.field_glossary_refs
+field_name: field_glossary_refs
+entity_type: paragraph
+type: entity_reference
+settings:
+  target_type: vocabulary
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

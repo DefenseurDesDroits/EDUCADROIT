@@ -1,0 +1,24 @@
+uuid: 957da647-f25c-4c9d-a83d-57d8b7d0992e
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_document_spotlight_bool
+  module:
+    - ddd_base
+id: home.home.field_document_spotlight_bool
+field_name: field_document_spotlight_bool
+entity_type: home
+bundle: home
+label: 'Mettre en avant un document'
+description: ''
+required: false
+translatable: false
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: Oui
+  off_label: Non
+field_type: boolean

@@ -1,0 +1,56 @@
+{#
+/**
+ * @file
+ * Theme override to display a pager.
+ *
+ * Available variables:
+ * - items: List of pager items.
+ *   The list is keyed by the following elements:
+ *   - first: Item for the first page; not present on the first page of results.
+ *   - previous: Item for the previous page; not present on the first page
+ *     of results.
+ *   - next: Item for the next page; not present on the last page of results.
+ *   - last: Item for the last page; not present on the last page of results.
+ *   - pages: List of pages, keyed by page number.
+ *   Sub-sub elements:
+ *   items.first, items.previous, items.next, items.last, and each item inside
+ *   items.pages contain the following elements:
+ *   - href: URL with appropriate query parameters for the item.
+ *   - attributes: A keyed list of HTML attributes for the item.
+ *   - text: The visible text used for the item link, such as "‹ Previous"
+ *     or "Next ›".
+ * - current: The page number of the current page.
+ * - ellipses: If there are more pages than the quantity allows, then an
+ *   ellipsis before or after the listed pages may be present.
+ *   - previous: Present if the currently visible list of pages does not start
+ *     at the first page.
+ *   - next: Present if the visible list of pages ends before the last page.
+ *
+ * @see template_preprocess_pager()
+ */
+#}
+{% if items %}
+  <div class="nav-pagination">
+    <form action="" method="get" id="pagerForm">
+      {% if items.count %}
+      <p>Page
+        <input id="page" type="text" name="page" value="{{ current ? current : 1 }}"/> / {{ items.count }}
+      </p>
+      {% endif %}
+    </form>
+    <ul class="pagination">
+      {% if items.first %}
+        <li><a href="{{ items.first.href }}" aria-label="Première page"><span aria-hidden="true"><span class="icon-nav-first"></span></span></a></li>
+      {% endif %}
+      {% if items.previous %}
+        <li><a href="{{ items.previous.href }}" aria-label="Page précédente"><span aria-hidden="true"><span class="icon-nav-prev"></span></span></a></li>
+      {% endif %}
+      {% if items.next %}
+        <li><a href="{{ items.next.href }}" aria-label="Page suivante"><span aria-hidden="true"><span class="icon-nav-next"></span></span></a></li>
+      {% endif %}
+      {% if items.last %}
+        <li><a href="{{ items.last.href }}" aria-label="Dernière page"><span aria-hidden="true"><span class="icon-nav-last"></span></span></a></li>
+      {% endif %}
+    </ul>
+  </div>
+{% endif %}

@@ -1,0 +1,152 @@
+<div class="row">
+  <div class="col-sm-6">
+      {% if form.surname['#errors'] %}
+        {% set error = form.surname['#errors'] %}
+      <div class="form-group has-error">
+          <label for="edit-surname" class="control-label">{{ form.surname['#title'] }}</label>
+          <p id="message-error-surname" class="form-message">{{ error|striptags }}</p>
+      {% else %}
+      <div class="form-group">
+          <label for="edit-surname" class="control-label">{{ form.surname['#title'] }}</label>
+      {% endif %}
+          {{ form.surname }}
+      </div>
+  </div>
+
+  <div class="col-sm-6">
+    {% if form.firstname['#errors'] %}
+      {% set error = form.firstname['#errors'] %}
+    <div class="form-group has-error">
+        <label for="edit-firstname" class="control-label">{{ form.firstname['#title'] }}</label>
+        <p id="message-error-firstname" class="form-message">{{ error|striptags }}</p>
+    {% else %}
+    <div class="form-group">
+        <label for="edit-firstname" class="control-label">{{ form.firstname['#title'] }}</label>
+    {% endif %}
+        {{ form.firstname }}
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-6">
+    {% if form.email['#errors'] %}
+      {% set error = form.email['#errors'] %}
+    <div class="form-group has-error">
+        <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+        <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+    {% else %}
+    <div class="form-group">
+        <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+    {% endif %}
+        {{ form.email }}
+    </div>
+  </div>
+</div>
+
+<div class="article-focus">
+  <fieldset>
+      <legend class="h4">Votre ressource</legend>
+
+      <div class="row">
+          <div class="col-sm-6">
+              {% if form.label['#errors'] %}
+                {% set error = form.label['#errors'] %}
+              <div class="form-group has-error">
+                  <label for="edit-label" class="control-label">{{ form.label['#title'] }}</label>
+                  <p id="message-error-label" class="form-message">{{ error|striptags }}</p>
+              {% else %}
+              <div class="form-group">
+                  <label for="edit-label" class="control-label">{{ form.label['#title'] }}</label>
+              {% endif %}
+                  {{ form.label }}
+              </div>
+          </div>
+
+          <div class="col-sm-6">
+              {% if form.author['#errors'] %}
+                {% set error = form.author['#errors'] %}
+              <div class="form-group has-error">
+                  <label for="edit-author" class="control-label">{{ form.author['#title'] }}</label>
+                  <p id="message-error-author" class="form-message">{{ error|striptags }}</p>
+              {% else %}
+              <div class="form-group">
+                  <label for="edit-author" class="control-label">{{ form.author['#title'] }}</label>
+              {% endif %}
+                  {{ form.author }}
+              </div>
+          </div>
+      </div>
+
+      <div class="row">
+          <div class="col-sm-6">
+              {% if form.year['#errors'] %}
+                {% set error = form.year['#errors'] %}
+              <div class="form-group has-error">
+                  <label for="edit-year" class="control-label">{{ form.year['#title'] }}</label>
+                  <p id="message-error-year" class="form-message">{{ error|striptags }}</p>
+              {% else %}
+              <div class="form-group">
+                  <label for="edit-year" class="control-label">{{ form.year['#title'] }}</label>
+              {% endif %}
+                  {{ form.year }}
+              </div>
+          </div>
+      </div>
+      {% if form.description['#errors'] %}
+        {% set error = form.description['#errors'] %}
+      <div class="form-group has-error">
+          <label for="edit-description" class="control-label">{{ form.description['#title'] }}</label>
+          <p id="message-error-description" class="form-message">{{ error|striptags }}</p>
+      {% else %}
+      <div class="form-group">
+          <label for="edit-description" class="control-label">{{ form.description['#title'] }}</label>
+      {% endif %}
+          {{ form.description }}
+      </div>
+
+      <div class="form-group form-chosen">
+          <fieldset>
+              <legend>{{ form.resource_type['#title'] }}</legend>
+                {{ form.resource_type }}
+
+              {% if form.url['#errors'] %}
+                {% set error = form.url['#errors'] %}
+              <div class="form-group has-error form-url">
+                  <label for="edit-url" class="control-label hide">{{ form.url['#title'] }}</label>
+                  <p id="message-error-url" class="form-message">{{ error|striptags }}</p>
+              {% else %}
+              <div class="form-group form-url">
+                  <label for="edit-url" class="control-label hide">{{ form.url['#title'] }}</label>
+              {% endif %}
+                  {{ form.url }}
+              </div>
+
+              {% if form.file['#errors'] %}
+                {% set error = form.file['#errors'] %}
+              <div class="form-group has-error form-download">
+                  <p id="message-error-file" class="form-message">{{ error|striptags }}</p>
+              {% else %}
+              <div class="form-group form-download">
+              {% endif %}
+                  <p class="input-file">
+                      {{ form.file }}
+                  </p>
+              </div>
+          </fieldset>
+      </div>
+  </fieldset>
+
+  <div class="row">
+      <div class="col-sm-6">
+          <p class="small">* Champs obligatoires</p>
+      </div>
+
+      <div class="col-sm-6 text-right">
+          {{ form.submit }}
+      </div>
+    {{ form.form_token }}
+    {{ form.form_build_id }}
+    {{ form.form_id }}
+  </div>
+</div>

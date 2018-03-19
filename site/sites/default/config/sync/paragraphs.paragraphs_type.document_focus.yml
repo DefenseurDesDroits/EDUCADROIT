@@ -1,0 +1,6 @@
+uuid: 1aeae262-a6ce-40da-b8fc-eee10e282335
+langcode: fr
+status: true
+dependencies: {  }
+id: document_focus
+label: 'Focus Document'

@@ -1,0 +1,19 @@
+uuid: b7793026-22eb-4282-ae2c-070c94d4aa11
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_button_title
+    - paragraphs.paragraphs_type.spotlight_newsletter
+id: paragraph.spotlight_newsletter.field_button_title
+field_name: field_button_title
+entity_type: paragraph
+bundle: spotlight_newsletter
+label: 'Titre du Bouton'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,116 @@
+<?php
+
+/**
+ * @file
+ * Contains gaya_editorial.module.
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ * @param $route_name
+ * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+ * @return string
+ */
+function gaya_editorial_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the gaya_editorial module.
+    case 'help.page.gaya_editorial':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Gaya Editorial Module') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_theme() {
+  $theme = [];
+  $theme['gaya_editorial_entity'] = [
+    'render element' => 'elements',
+    'file' => 'gaya_editorial_entity.page.inc',
+    'template' => 'gaya_editorial_entity',
+  ];
+  $theme['gaya_editorial_entity_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'gaya_editorial_entity.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+ * Implements ge module field storage callback().
+ * - form_node_form
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function _gaya_editorial_ge_module_field_storage() {
+  $return = _gaya_editorial_get_all_ge_modules();
+  $return['_none'] = t('No modules founds');
+  return $return;
+}
+
+/**
+ * Get couple of function callback => name of all module implement the hook_ge_module_api()
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function _gaya_editorial_get_all_ge_modules() {
+  $config = Drupal::config('gaya_editorial.settings');
+  $hook = $config->get('hook_ge_module');
+  $modules = array();
+  $modules_founds = Drupal::moduleHandler()->getImplementations($hook);
+  foreach ($modules_founds as $module) {
+    $module_information = Drupal::moduleHandler()->invoke($module, $hook);
+    foreach ($module_information as $func => $name) {
+      if (function_exists($func)) {
+        $modules[$func] = $name;
+      }
+    }
+  }
+  return $modules;
+}
+
+
+/**
+ *
+ * On ajoute des CSS / JS
+ *
+ * @implements HOOK_preprocess_page
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+
+/**
+ * Implements hook_preprocess_HOOK().
+ * Attach a library on the admin page
+ *
+ * @author Sébastien Libbrecht <slibbrecht@gaya.fr>
+ */
+function gaya_editorial_preprocess_page(&$variables) {
+  $is_admin = \Drupal::service('router.admin_context')->isAdminRoute();
+  if ($is_admin) {
+    $variables['#attached']['library'][] = 'gaya_editorial/admin';
+  }
+}
+
+/**
+ * Auto expend all menu on the presave menu item...
+ * @param \MenuLinkContentInterface $entity
+ */
+function gaya_editorial_menu_link_content_presave(MenuLinkContentInterface $entity) {
+  /*if ($entity->get('menu_name')->value == 'main') {
+    $entity->get('expanded')->set(0, TRUE);
+  }*/
+}

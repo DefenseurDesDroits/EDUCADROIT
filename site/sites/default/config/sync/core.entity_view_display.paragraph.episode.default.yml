@@ -1,0 +1,98 @@
+uuid: b0f2a8d2-a8a1-4f45-81cf-aebe675cb4d8
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.episode.field_glossary_refs
+    - field.field.paragraph.episode.field_image
+    - field.field.paragraph.episode.field_image_left
+    - field.field.paragraph.episode.field_image_right
+    - field.field.paragraph.episode.field_keep_in_mind
+    - field.field.paragraph.episode.field_quizz
+    - field.field.paragraph.episode.field_ressource_refs
+    - field.field.paragraph.episode.field_title
+    - field.field.paragraph.episode.field_video_embed
+    - image.style.480x480
+    - paragraphs.paragraphs_type.episode
+  module:
+    - entity_reference_revisions
+    - image
+    - video_embed_field
+id: paragraph.episode.default
+targetEntityType: paragraph
+bundle: episode
+mode: default
+content:
+  field_glossary_refs:
+    weight: 1
+    label: visually_hidden
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_image:
+    weight: 4
+    label: visually_hidden
+    settings:
+      image_style: 160x100
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_image_left:
+    weight: 3
+    label: visually_hidden
+    settings:
+      image_style: 480x480
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_image_right:
+    weight: 2
+    label: visually_hidden
+    settings:
+      image_style: 480x480
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_keep_in_mind:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_quizz:
+    type: entity_reference_revisions_entity_view
+    weight: 8
+    label: visually_hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+  field_ressource_refs:
+    weight: 6
+    label: visually_hidden
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+  field_title:
+    weight: 5
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_video_embed:
+    weight: 7
+    label: visually_hidden
+    settings:
+      responsive: true
+      width: 854
+      height: 480
+      autoplay: true
+    third_party_settings: {  }
+    type: video_embed_field_video
+hidden:
+  created: true
+  uid: true

@@ -1,0 +1,93 @@
+uuid: 9ead6223-4d51-491b-aeb6-4ed58ef9f0b5
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_paragraphs
+    - node.type.resource
+    - paragraphs.paragraphs_type.resource_images
+    - paragraphs.paragraphs_type.resources_video
+    - paragraphs.paragraphs_type.ressources_fichiers
+    - paragraphs.paragraphs_type.ressources_link
+  module:
+    - entity_reference_revisions
+id: node.resource.field_paragraphs
+field_name: field_paragraphs
+entity_type: node
+bundle: resource
+label: Ressouces
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      ressources_link: ressources_link
+      resource_images: resource_images
+      resources_video: resources_video
+      ressources_fichiers: ressources_fichiers
+    target_bundles_drag_drop:
+      ressources_link:
+        enabled: true
+        weight: 10
+      document_focus:
+        weight: 11
+        enabled: false
+      focus:
+        weight: 12
+        enabled: false
+      lexicon:
+        weight: 13
+        enabled: false
+      logo:
+        weight: 14
+        enabled: false
+      logos_list:
+        weight: 15
+        enabled: false
+      resource_images:
+        enabled: true
+        weight: 16
+      resources_video:
+        enabled: true
+        weight: 17
+      text_content:
+        weight: 18
+        enabled: false
+      ressources_fichiers:
+        enabled: true
+        weight: 21
+      episode:
+        weight: 23
+        enabled: false
+      image:
+        weight: 25
+        enabled: false
+      quizz:
+        weight: 29
+        enabled: false
+      referrer:
+        weight: 30
+        enabled: false
+      spotlight_contact:
+        weight: 34
+        enabled: false
+      spotlight_content:
+        weight: 35
+        enabled: false
+      spotlight_document:
+        weight: 36
+        enabled: false
+      spotlight_learning_tools:
+        weight: 37
+        enabled: false
+      spotlight_newsletter:
+        weight: 38
+        enabled: false
+      spotlight_page:
+        weight: 39
+        enabled: false
+field_type: entity_reference_revisions

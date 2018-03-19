@@ -1,0 +1,20 @@
+uuid: 258b2df1-9a5f-40cd-80a6-e0eee1f2835f
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.contact.field_surname
+  module:
+    - ddd_contact
+id: contact.contact.field_surname
+field_name: field_surname
+entity_type: contact
+bundle: contact
+label: Nom
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

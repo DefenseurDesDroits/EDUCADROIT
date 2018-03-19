@@ -1,0 +1,71 @@
+// Components: Episode
+// =====================================================================================================================
+
+// Component: `.episode`
+// ---------------------------------------------------------------------------------------------------------------------
+.episode {
+    display: block;
+    position: relative;
+    background-color: #fff;
+    border-top: 5px solid #eaeef1;
+    padding: 20px;
+
+    &:first-child {
+        border-top: 0;
+    }
+}
+
+// Component: `.episode-thumb`
+// ---------------------------------------------------------------------------------------------------------------------
+.episode .episode-thumb {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    z-index: 1;
+
+    &:before {
+        position: absolute;
+        counter-increment: episode;
+        content: "0"counter(episode);
+        left: 10px;
+        top: 10px;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        background: url('../images/episode-counter-bg.svg');
+        background-size: 40px 40px;
+        text-align: center;
+        color: #fff;
+        font-family: oswalddemibold;
+        z-index: 2;
+    }
+}
+
+// Component: `.episode-content`
+// ---------------------------------------------------------------------------------------------------------------------
+.episode .episode-content {
+    margin-left: 180px;
+    height: 100px;
+    line-height: 100px;
+}
+
+// Component: `.episode-title`
+// ---------------------------------------------------------------------------------------------------------------------
+.episode .episode-title {
+    display: inline-block;
+    margin-top: 0;
+    vertical-align: middle;
+    font-size: 20px;
+    font-family: oswalddemibold;
+    line-height: 26px;
+    text-transform: uppercase;
+
+    a {
+        text-decoration: none;
+
+        &:hover,
+        &:focus {
+            text-decoration: underline;
+        }
+    }
+}

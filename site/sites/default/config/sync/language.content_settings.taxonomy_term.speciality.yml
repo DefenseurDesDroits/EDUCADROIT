@@ -1,0 +1,11 @@
+uuid: 08669dd9-9c38-4f2d-af2e-0e82dabf38be
+langcode: fr
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.speciality
+id: taxonomy_term.speciality
+target_entity_type_id: taxonomy_term
+target_bundle: speciality
+default_langcode: site_default
+language_alterable: false

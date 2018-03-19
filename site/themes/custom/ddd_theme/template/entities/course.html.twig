@@ -1,0 +1,15 @@
+<div class="txt txt-button">
+  <div class="inner">
+    <h2 class="heading">{{ course.label[0].value }}</h2>
+    <p>{{ content.field_teaser }}</p>
+  </div>
+  {% if link %}
+    <a class="btn icon-link" title="Lancer : {{ link.title }}" target="_blank" href="{{link.uri}}">Lancer</a>
+  {% else %}
+    <p class="sticker">Parcours<br>prochainement<br>disponible</p>
+  {% endif %}
+</div>
+<figure>
+  {{ content.field_image }}
+</figure>
+

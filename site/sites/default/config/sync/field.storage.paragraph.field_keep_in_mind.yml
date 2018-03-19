@@ -1,0 +1,21 @@
+uuid: 7ed5677a-8e2d-4d43-8f39-fd869b9eb9ab
+langcode: fr
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_keep_in_mind
+field_name: field_keep_in_mind
+entity_type: paragraph
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

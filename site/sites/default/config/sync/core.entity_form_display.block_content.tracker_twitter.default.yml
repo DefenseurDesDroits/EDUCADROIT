@@ -1,0 +1,35 @@
+uuid: 7f1c206e-8d3a-43f6-8d6c-fdbf9a3970b3
+langcode: fr
+status: true
+dependencies:
+  config:
+    - block_content.type.tracker_twitter
+    - field.field.block_content.tracker_twitter.body
+  module:
+    - text
+id: block_content.tracker_twitter.default
+targetEntityType: block_content
+bundle: tracker_twitter
+mode: default
+content:
+  body:
+    type: text_textarea_with_summary
+    weight: 3
+    settings:
+      rows: 9
+      summary_rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  info:
+    type: string_textfield
+    weight: -5
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

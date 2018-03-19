@@ -1,0 +1,29 @@
+uuid: 02ade292-ddf0-4229-a4bc-ac33dc5958b1
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_file
+    - file_entity.type.document
+  module:
+    - ddd_base
+id: home.home.field_file
+field_name: field_file
+entity_type: home
+bundle: home
+label: Document
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings:
+    target_bundles:
+      document: document
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

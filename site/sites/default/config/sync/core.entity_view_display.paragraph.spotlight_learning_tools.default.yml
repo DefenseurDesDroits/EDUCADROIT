@@ -1,0 +1,49 @@
+uuid: 44f2973d-4b56-4345-9956-dd1db2943753
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.spotlight_learning_tools.field_button_title
+    - field.field.paragraph.spotlight_learning_tools.field_description
+    - field.field.paragraph.spotlight_learning_tools.field_image
+    - field.field.paragraph.spotlight_learning_tools.field_title
+    - image.style.738x547
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+  module:
+    - image
+id: paragraph.spotlight_learning_tools.default
+targetEntityType: paragraph
+bundle: spotlight_learning_tools
+mode: default
+content:
+  field_button_title:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_description:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_image:
+    weight: 2
+    label: visually_hidden
+    settings:
+      image_style: 738x547
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_title:
+    weight: 3
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

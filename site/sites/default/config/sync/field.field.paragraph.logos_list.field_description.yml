@@ -1,0 +1,19 @@
+uuid: ddd34eac-812b-4084-b637-c12a135772b1
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_description
+    - paragraphs.paragraphs_type.logos_list
+id: paragraph.logos_list.field_description
+field_name: field_description
+entity_type: paragraph
+bundle: logos_list
+label: Description
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

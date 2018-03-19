@@ -1,0 +1,79 @@
+# French translation of Gaya Editorial (1.0)
+# Copyright (c) 2016 by Sébastien Libbrecht
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Gaya Editorial module (1.0)\n"
+"POT-Creation-Date: 2016-01-26 14:58+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Language-Team: French\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+msgid "This field may add a small description text. Depending on the template, it can be used or not"
+msgstr "Ce champ permet d'ajouter éventuellement, un petit texte de description. En fonction du template, il peut être utilisé ou non"
+
+msgid "Formated text for the second column"
+msgstr "Texte formaté pour la deuxième colonne"
+
+msgid "Formated text for the first column"
+msgstr "Texte formaté pour la première colonne"
+
+msgid "Gaya editorial module perform and Provide all content block type. Enable or disable a submodule for add a new custom block type."
+msgstr "Ce module de rédaction Gaya effectue et fournit tous les types de bloc de contenu. Activer ou désactiver un sous-module pour ajouter un nouveau type de bloc personnalisé."
+
+msgid "No modules founds."
+msgstr "Aucun module valide trouvé."
+
+msgid "Gaya Editorial Module"
+msgstr "Module Gaya Editorial"
+
+msgid "Title backoffice"
+msgstr "Titre dans le backoffice"
+
+msgid "This <strong><em>Title</em></strong> is only showed in the backoffice."
+msgstr "Ce <strong><em>Titre</em></strong> n'est affiché que dans le backoffice."
+
+msgid "Title of the content"
+msgstr "Titre du contenu"
+
+msgid "The <strong><em>title</em></strong> of this field is displayed, in contrast of the <strong><em>title field in the backoffice</em></strong> of the object, which serves only the back office part."
+msgstr "Le <strong><em>titre</em></strong> de ce champ est affiché, à contrario du champ <strong><em>titre dans le backoffice</em></strong> de l'objet, qui ne sert que dans le backoffice."
+
+msgid "The user ID of author of the Gaya editorial entity entity."
+msgstr "L'ID utilisateur de l'auteur de l'entité de l'entité éditoriale Gaya."
+
+msgid "Title Heading Balise"
+msgstr "Niveau de titre à afficher"
+
+msgid "Select the title heading balise"
+msgstr "Sélectionner le niveau de titre à appliquer."
+
+msgid "Configuration of the slideshow"
+msgstr "Configuration du diaporama"
+
+msgid "This configuration is only valid for the current slideshow. You can add more 1 slideshow by content with a different slideshow configuration."
+msgstr "Cette configuration est valable uniquement pour le diaporama en cours. Vous pouvez ajouter plus d'un diaporama par contenu avec une configuration de diaporama différente."
+
+msgid "Select the style name of the large picture"
+msgstr "Sélectionnez le style à appliquer pour la grande image"
+
+msgid "Which version you want for the slideshow?"
+msgstr "Quel version souhaitez-vous utiliser ?"
+
+msgid "Do you want show the little picture list?"
+msgstr "Souhaitez-vous avoir des petites vignettes ?"
+
+msgid "Select the style name of the little picture"
+msgstr "Sélectionnez le style à appliquer pour la petite image"
+
+msgid "Do you want autostart the slideshow?"
+msgstr "Souhaitez-vous démarrer automatiquement le diaporama ?"
+
+msgid "Link to an internal page or website (external page)"
+msgstr "Lien vers une page interne ou site web (page externe)"
+
+msgid "Enter the path to an internal web page: node/[node-id], or to a website: http://domaine.tld"
+msgstr "Entrer le chemin vers la page sous la forme : node/[node-id], or sur un site web : http://domaine.tld/page..."

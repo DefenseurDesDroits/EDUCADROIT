@@ -1,0 +1,86 @@
+{#
+/**
+ * @file
+ * Theme override to display a list of forums and containers.
+ *
+ * Available variables:
+ * - forums: A collection of forums and containers to display. It is keyed to
+ *   the numeric IDs of all child forums and containers. Each forum in forums
+ *   contains:
+ *   - is_container: A flag indicating if the forum can contain other
+ *     forums. Otherwise, the forum can only contain topics.
+ *   - depth: How deep the forum is in the current hierarchy.
+ *   - zebra: 'even' or 'odd', used for row class.
+ *   - icon_class: 'default' or 'new', used for forum icon class.
+ *   - icon_title: Text alternative for the forum icon.
+ *   - name: The name of the forum.
+ *   - link: The URL to link to this forum.
+ *   - description: The description field for the forum, containing:
+ *     - value: The descriptive text for the forum.
+ *   - new_topics: A flag indicating if the forum contains unread posts.
+ *   - new_url: A URL to the forum's unread posts.
+ *   - new_text: Text for the above URL, which tells how many new posts.
+ *   - old_topics: A count of posts that have already been read.
+ *   - num_posts: The total number of posts in the forum.
+ *   - last_reply: Text representing the last time a forum was posted or
+ *     commented in.
+ * - forum_id: Forum ID for the current forum. Parent to all items within the
+ *   forums array.
+ *
+ * @see template_preprocess_table__forum_topic_list()
+ */
+#}
+<section class="section-content">
+    <div class="container">
+
+        <article class="article">
+            <header class="article-header">
+                <h1 class="article-title">Discussion générale</h1>
+            </header>
+            <!-- .post-header -->
+
+            <div class="article-content">
+                <div id="forum-topic-list">
+
+                  <table class="forum-table forum-table-topics forum-table forum-table-topics sticky-enabled cols-4 tableheader-processed sticky-table">
+                    <thead>
+                      <tr>
+                        <th class="views-field views-field-title" style="width: 519px; display: table-cell;">
+                          <a href="#" title="trier par Sujet / Début du sujet" class="active">{{ 'Sujet'|t }}</a>
+                        </th>
+                        <th class="views-field views-field-comment-count">
+                          <a href="#" title="trier par Sujet / Début du sujet" class="active">{{ 'Reponses'|t }}</a>
+                        </th>
+                        <th class="views-field views-field-last-updated active">
+                          <a href="#" title="trier par Sujet / Début du sujet" class="active">{{ 'Dernier Message'|t }}</a>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for topic in rows %}
+                      <tr class="odd views-row-first">
+                        {% for key, cell in topic.cells %}
+                          {% if key == 0 %}
+                          <td class="views-field views-field-title">
+                          {% elseif key == 1 %}
+                          <td class="views-field views-field-comment-count">
+                          {% else %}
+                          <td class="views-field views-field-last-updated active">
+                          {% endif %}
+                            {{ cell.content }}
+                          </td>
+                        {% endfor %}
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+
+                </div>
+                {% set id = attributes.id|replace({'forum-topic-': ''}) %}
+                <p><a class="btn btn-thin" href="{{ path('node.add', {'node_type': 'forum', 'forum_id': id}) }}">Ajouter un topic {{ forum_id }}</a> </p>
+            </div>
+            <!-- .article-content -->
+        </article>
+
+    </div>
+</div>

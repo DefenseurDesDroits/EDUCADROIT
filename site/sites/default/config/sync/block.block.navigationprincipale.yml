@@ -1,0 +1,24 @@
+uuid: b6296956-c1c5-4c75-9c6d-e7abce4c77cc
+langcode: fr
+status: false
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - system
+  theme:
+    - ddd
+id: navigationprincipale
+theme: ddd
+region: '-1'
+weight: -6
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Navigation principale'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility: {  }

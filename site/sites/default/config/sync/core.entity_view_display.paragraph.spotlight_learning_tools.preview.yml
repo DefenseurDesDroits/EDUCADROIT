@@ -1,0 +1,39 @@
+uuid: a99ef86d-9032-42e1-a70c-86483c266b40
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.paragraph.preview
+    - field.field.paragraph.spotlight_learning_tools.field_button_title
+    - field.field.paragraph.spotlight_learning_tools.field_description
+    - field.field.paragraph.spotlight_learning_tools.field_image
+    - field.field.paragraph.spotlight_learning_tools.field_title
+    - image.style.thumbnail
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+  module:
+    - image
+id: paragraph.spotlight_learning_tools.preview
+targetEntityType: paragraph
+bundle: spotlight_learning_tools
+mode: preview
+content:
+  field_image:
+    weight: 1
+    label: visually_hidden
+    settings:
+      image_style: thumbnail
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_title:
+    weight: 0
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  field_button_title: true
+  field_description: true
+  uid: true

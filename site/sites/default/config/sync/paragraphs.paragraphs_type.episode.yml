@@ -1,0 +1,6 @@
+uuid: dcea7b3d-9829-45d8-a0db-9a60b98677df
+langcode: fr
+status: true
+dependencies: {  }
+id: episode
+label: Épisode

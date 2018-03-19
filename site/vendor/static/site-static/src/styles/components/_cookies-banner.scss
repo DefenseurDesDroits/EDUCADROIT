@@ -1,0 +1,68 @@
+// Component: Cookies EU Banner
+// =====================================================================================================================
+
+.cookies-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: $brand-primary;
+    font-size: $font-size-small;
+    color: #fff;
+    z-index: ($zindex-navbar-fixed + 1);
+
+    a {
+        font-weight: 700;
+        text-decoration: underline;
+        color: inherit;
+    }
+
+    p:last-of-type {
+        margin-bottom: 0;
+    }
+
+    > .container {
+        position: relative;
+        padding-right: 55px;
+    }
+
+    .btn.close {
+        position: absolute;
+        top: 0;
+        right: 15px;
+        background-color: rgba(0, 0, 0, .15);
+        width: 40px;
+        height: 40px;
+        border: 1px solid;
+        border-radius: 50%;
+        font-weight: normal;
+        font-size: 30px;
+        color: #fff;
+        opacity: .5;
+        transition: opacity .35s;
+
+        &:before,
+        &:after {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-top: 1px solid;
+            width: 20px;
+            height: 1px;
+            content: '';
+            display: inline-block;
+        }
+
+        &:before { transform: translate(-50%, -50%) rotateZ(45deg); }
+        &:after  { transform: translate(-50%, -50%) rotateZ(-45deg); }
+
+        &:hover,
+        &:focus  { opacity: 1; }
+    }
+
+    .buttons {
+        display: none;
+    }
+}

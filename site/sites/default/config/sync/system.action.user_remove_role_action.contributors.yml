@@ -1,0 +1,14 @@
+uuid: 50de5622-2fbc-4e60-9d1a-5517eb68f761
+langcode: fr
+status: true
+dependencies:
+  config:
+    - user.role.contributors
+  module:
+    - user
+id: user_remove_role_action.contributors
+label: 'Retirer le rôle Partenaires et Intervenants aux utilisateurs sélectionnés'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: contributors

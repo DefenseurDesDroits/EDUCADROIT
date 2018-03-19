@@ -1,0 +1,9 @@
+name: Gaya Editorial Video
+type: module
+description: Provide a video from Youtube or Dailymotion
+core: 8.x
+package: Gaya
+dependencies:
+  - gaya_editorial
+isGayaEditorial: yes
+version: '1.0'

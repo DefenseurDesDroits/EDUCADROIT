@@ -1,0 +1,6 @@
+uuid: a4e7b416-c220-4c36-9371-042966cefe6e
+langcode: fr
+status: true
+dependencies: {  }
+id: ressources_fichiers
+label: 'Ressources Fichiers'

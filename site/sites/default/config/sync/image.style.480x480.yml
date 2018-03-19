@@ -1,0 +1,14 @@
+uuid: f8fc3268-e47a-4d6d-b9a1-23cb14ccd182
+langcode: fr
+status: true
+dependencies: {  }
+name: 480x480
+label: 480x480
+effects:
+  af677f8c-86b9-446a-8780-5c9a3ae00f31:
+    uuid: af677f8c-86b9-446a-8780-5c9a3ae00f31
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 480
+      height: 480

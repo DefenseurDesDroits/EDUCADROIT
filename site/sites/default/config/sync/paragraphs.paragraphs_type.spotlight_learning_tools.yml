@@ -1,0 +1,6 @@
+uuid: 050323d7-b914-4f4d-96f6-21aa24279ca0
+langcode: fr
+status: true
+dependencies: {  }
+id: spotlight_learning_tools
+label: 'Formulaire Outils Pédagogique'

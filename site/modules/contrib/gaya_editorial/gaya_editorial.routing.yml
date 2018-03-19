@@ -1,0 +1,7 @@
+gaya_editorial.admin_config_page:
+  path: '/admin/config/gaya/editorial'
+  defaults:
+    _controller: '\Drupal\gaya_editorial\Controller\GayaEditorialController::adminConfigPage'
+    _title: 'Gaya Editorial  - Admininistration page'
+  requirements:
+    _permission: 'access gaya editorial config'

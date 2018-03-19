@@ -1,0 +1,20 @@
+uuid: 67c3457c-4db0-45e9-8041-26e742ccb513
+langcode: fr
+status: true
+dependencies:
+  theme:
+    - ddd
+_core:
+  default_config_hash: Z3nlZUh2mSJP3apMrJWt-duS-aLyP79rcfu_0wpPmDs
+id: ddd_page_title
+theme: ddd
+region: header
+weight: -7
+provider: null
+plugin: page_title_block
+settings:
+  id: page_title_block
+  label: 'Page title'
+  provider: core
+  label_display: '0'
+visibility: {  }

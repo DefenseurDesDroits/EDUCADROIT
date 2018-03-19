@@ -1,0 +1,12 @@
+{
+  "name": "ddd-parcours",
+  "version": "0.1.5",
+  "devDependencies": {
+    "jquery": "2.2.4",
+    "bootstrap-sass": "3.3.7",
+    "matchheight": "^0.7.0",
+    "cookies-eu-banner": "^1.2.7",
+    "animate.css": "^3.5.2",
+    "magnific-popup": "^1.1.0"
+  }
+}

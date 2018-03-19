@@ -1,0 +1,11 @@
+uuid: fb4b2caa-965d-49a1-8471-1acfbe6921a7
+langcode: fr
+status: true
+dependencies:
+  config:
+    - block_content.type.tracker_twitter
+id: block_content.tracker_twitter
+target_entity_type_id: block_content
+target_bundle: tracker_twitter
+default_langcode: site_default
+language_alterable: false

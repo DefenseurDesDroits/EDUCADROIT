@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Contains Drupal\ddd_glossary\ddd_glossary.module.
+ */
+
+function ddd_glossary_theme($existing, $type, $theme, $path) {
+  return [
+    'ddd_glossary_page' => [
+      'variables' => [
+        'title' => NULL,
+        'teaser' => NULL,
+        'collection' => NULL,
+        'share' => NULL
+      ],
+    ],
+  ];
+}

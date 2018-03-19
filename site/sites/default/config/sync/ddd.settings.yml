@@ -1,0 +1,12 @@
+features:
+  node_user_picture: false
+  comment_user_picture: true
+  comment_user_verification: 1
+  favicon: 1
+logo:
+  use_default: 0
+  path: 'public://Logo-EducaDroit-RVB-SansFond.png'
+favicon:
+  use_default: 0
+  path: 'public://Logo-EducaDroit-RVB-FondBlanc.jpg'
+  mimetype: image/jpeg

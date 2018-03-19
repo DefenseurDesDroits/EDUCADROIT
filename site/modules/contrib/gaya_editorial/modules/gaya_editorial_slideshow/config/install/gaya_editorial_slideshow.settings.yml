@@ -1,0 +1,2 @@
+hook_ge_slideshow_theme: ge_slideshow_theme_api
+langcode: en

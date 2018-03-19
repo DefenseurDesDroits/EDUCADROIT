@@ -1,0 +1,19 @@
+uuid: d1e03b0c-e7a6-409b-9076-28e626c8c388
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_firstname
+    - node.type.resource
+id: node.resource.field_firstname
+field_name: field_firstname
+entity_type: node
+bundle: resource
+label: Prénom
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

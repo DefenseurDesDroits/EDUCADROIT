@@ -1,0 +1,22 @@
+uuid: 02ebb95a-c2f2-4fbb-957b-6ec7629d381a
+langcode: fr
+status: false
+dependencies:
+  module:
+    - user
+  theme:
+    - ddd
+_core:
+  default_config_hash: 862sIulDdHmF0vBU1s2j2_a_CwkxursrL0pIrMDzzOg
+id: ddd_login
+theme: ddd
+region: '-1'
+weight: -5
+provider: null
+plugin: user_login_block
+settings:
+  id: user_login_block
+  label: 'User login'
+  provider: user
+  label_display: visible
+visibility: {  }

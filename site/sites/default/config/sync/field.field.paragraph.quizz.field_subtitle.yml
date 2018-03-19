@@ -1,0 +1,19 @@
+uuid: aea60800-3edc-441c-8a7c-4e8c33a066f7
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_subtitle
+    - paragraphs.paragraphs_type.quizz
+id: paragraph.quizz.field_subtitle
+field_name: field_subtitle
+entity_type: paragraph
+bundle: quizz
+label: Sous-titre
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

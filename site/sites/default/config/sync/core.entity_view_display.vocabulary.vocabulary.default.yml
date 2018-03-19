@@ -1,0 +1,28 @@
+uuid: 0bdad983-c934-417b-a0f4-ee7bd95f8ec6
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.vocabulary.vocabulary.field_definition
+  module:
+    - ddd_glossary
+id: vocabulary.vocabulary.default
+targetEntityType: vocabulary
+bundle: vocabulary
+mode: default
+content:
+  field_definition:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  label:
+    label: visually_hidden
+    type: string
+    weight: 0
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden:
+  user_id: true

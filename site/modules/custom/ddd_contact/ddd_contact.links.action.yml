@@ -1,0 +1,19 @@
+contactconfig.add:
+  route_name: entity.contactconfig.add_form
+  title: 'Ajouter une page contact'
+  appears_on:
+    - entity.contactconfig.collection
+ddd_contact.contact_add:
+  route_name: ddd_contact.contact_add
+  title: 'Ajouter un contact'
+  appears_on:
+    - entity.contact.collection
+    - entity.contact.canonical
+entity.contactconfig.edit:
+  route_name: entity.contactconfig.edit
+  route_parameters:
+    contactconfig: 'contact-page'
+  title: 'Paramètres des contacts'
+  appears_on:
+    - entity.contact.collection
+    - entity.contact.canonical

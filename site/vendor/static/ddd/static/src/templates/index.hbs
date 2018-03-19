@@ -1,0 +1,20 @@
+---
+title: Index des pages HTML
+body_class: home
+
+order: -1
+home: true
+---
+
+<section class="section-content">
+    <div class="container">
+        <h1>
+            {{title}}
+        </h1>
+        <ul>
+            {{#withSort pages "data.order"}}
+                {{#gt data.order 0}}<li><a href="{{filename}}">{{{data.title}}} {{#if data.psd}} ({{{data.psd}}}){{/if}}</a></li>{{/gt}}
+            {{/withSort}}
+        </ul>
+    </div>
+</section>

@@ -1,0 +1,58 @@
+<div class="form-group">
+    <label for="edit-surname" class="control-label">{{form.surname['#title']}}</label>
+    {{ form.surname }}
+</div>
+
+<div class="form-group">
+    <label for="edit-firstname" class="control-label">{{form.firstname['#title']}}</label>
+    {{ form.firstname }}
+</div>
+
+{% if form.email['#errors'] %}
+    {% set error = form.email['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+    <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+{% endif %}
+    {{ form.email }}
+</div>
+
+{% if form.subject['#errors'] %}
+    {% set error = form.subject['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-subject" class="control-label">{{form.subject['#title']}}</label>
+    <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-subject" class="control-label">{{form.subject['#title']}}</label>
+{% endif %}
+    {{ form.subject }}
+</div>
+
+{% if form.message['#errors'] %}
+    {% set error = form.message['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-message" class="control-label">{{form.message['#title']}}</label>
+    <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-message" class="control-label">{{form.message['#title']}}</label>
+{% endif %}
+    {{ form.message }}
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <p class="small">* Champs obligatoires</p>
+    </div>
+
+    <div class="col-sm-6 text-right">
+        {{ form.submit }}
+    </div>
+    {{ form.form_token }}
+    {{ form.form_build_id }}
+    {{ form.form_id }}
+</div>

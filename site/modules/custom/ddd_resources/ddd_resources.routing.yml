@@ -1,0 +1,76 @@
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+entity.resources.canonical:
+  path: '/admin/content/resources/{resources}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the resources entity
+    _entity_view: 'resources'
+    _title: 'Resources Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'resources.view'
+
+entity.resources.collection:
+  path: '/admin/content/resources/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the resources entity.
+    _entity_list: 'resources'
+    _title: 'Resources List'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view resources entity'
+
+ddd_resources.resources_add:
+  path: '/admin/content/resources/add'
+  defaults:
+  # Calls the form.add controller, defined in the resources entity.
+    _entity_form: resources.add
+    _title: 'Add Resources'
+  requirements:
+    _entity_create_access: 'resources'
+
+entity.resources.edit_form:
+  path: '/admin/content/resources/{resources}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the resources entity.
+    _entity_form: resources.edit
+    _title: 'Edit Resources'
+  requirements:
+    _entity_access: 'resources.edit'
+
+entity.resources.delete_form:
+  path: '/admin/content/resources/{resources}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the resources entity.
+    _entity_form: resources.delete
+    _title: 'Delete Resources'
+  requirements:
+    _entity_access: 'resources.delete'
+
+ddd_resources.resources_settings:
+  path: 'admin/structure/resources'
+  defaults:
+    _form: '\Drupal\ddd_resources\Form\ResourcesSettingsForm'
+    _title: 'Resources Settings'
+  requirements:
+    _permission: 'administer resources entity'
+
+ddd_resources.resources:
+  path: /centre-de-ressources
+  defaults:
+    _content: '\Drupal\ddd_resources\Controller\ResourcesController::resourcesPage'
+    _controller: '\Drupal\ddd_resources\Controller\ResourcesController::resourcesPage'
+    _title: 'Ressources'
+  requirements:
+    _permission: 'access content'
+
+ddd_resources.offline_resource:
+  path: /centre-de-ressources/offline
+  defaults:
+    _content: '\Drupal\ddd_resources\Controller\ResourcesController::offlinePage'
+    _controller: '\Drupal\ddd_resources\Controller\ResourcesController::offlinePage'
+    _title: 'Offline Ressource'
+  requirements:
+    _permission: 'access content'

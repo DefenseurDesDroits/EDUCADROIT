@@ -1,0 +1,13 @@
+entity.gaya_editorial_entity.add_form:
+  route_name: 'gaya_editorial_entity.add_page'
+  title: 'Add Gaya editorial entity'
+  appears_on:
+    - entity.gaya_editorial_entity.collection
+    - entity.gaya_editorial_entity.canonical
+
+entity.gaya_editorial_entity_type.add_form:
+  route_name: 'entity.gaya_editorial_entity_type.add_form'
+  title: 'Add Gaya editorial entity type'
+  appears_on:
+    - entity.gaya_editorial_entity_type.collection
+

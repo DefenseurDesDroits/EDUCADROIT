@@ -1,0 +1,14 @@
+uuid: 1de50856-c0fc-414d-9450-f3133eaf2dcf
+langcode: fr
+status: true
+dependencies:
+  config:
+    - user.role.contributors
+  module:
+    - user
+id: user_add_role_action.contributors
+label: 'Ajouter le rôle Partenaires et Intervenants aux utilisateurs sélectionnés'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: contributors

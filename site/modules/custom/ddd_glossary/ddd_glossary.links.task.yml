@@ -1,0 +1,20 @@
+glossary.settings_tab:
+  route_name: ddd_glossary.glossary_settings
+  title: Settings
+  base_route: ddd_glossary.glossary_settings
+
+glossary.view:
+  route_name: entity.glossary.canonical
+  base_route: entity.glossary.canonical
+  title: View
+
+glossary.page_edit:
+  route_name: entity.glossary.edit_form
+  base_route: entity.glossary.canonical
+  title: Edit
+
+glossary.delete_confirm:
+  route_name:  entity.glossary.delete_form
+  base_route:  entity.glossary.canonical
+  title: Delete
+  weight: 10

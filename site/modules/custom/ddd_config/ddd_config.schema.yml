@@ -1,0 +1,13 @@
+ddd_config.config.*:
+  type: config_entity
+  label: 'Configuration'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'Label'
+    teaser:
+      type: text
+      label: 'Text'

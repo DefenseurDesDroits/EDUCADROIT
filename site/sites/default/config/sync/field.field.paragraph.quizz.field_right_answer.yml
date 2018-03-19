@@ -1,0 +1,21 @@
+uuid: 355e7f3b-d978-47b3-9b93-4b465162caec
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_right_answer
+    - paragraphs.paragraphs_type.quizz
+  module:
+    - options
+id: paragraph.quizz.field_right_answer
+field_name: field_right_answer
+entity_type: paragraph
+bundle: quizz
+label: 'Bonne Réponse'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

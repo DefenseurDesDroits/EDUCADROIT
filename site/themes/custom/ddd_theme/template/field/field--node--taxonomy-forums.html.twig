@@ -1,0 +1,8 @@
+<header class="article-header">
+  <h1 class="article-title">
+    {% for item in items %}
+      {# {{kpr(item.content)}} #}
+      {{ item.content['#title'] }}
+    {% endfor %}
+  </h1>
+</header>

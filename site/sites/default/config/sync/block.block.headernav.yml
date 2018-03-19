@@ -1,0 +1,20 @@
+uuid: b1417c5f-4ce0-4c6a-afcd-f7236f61ebff
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+  theme:
+    - ddd
+id: headernav
+theme: ddd
+region: primary_menu
+weight: -4
+provider: null
+plugin: HeaderNav
+settings:
+  id: HeaderNav
+  label: HeaderNav
+  provider: ddd_base
+  label_display: '0'
+visibility: {  }

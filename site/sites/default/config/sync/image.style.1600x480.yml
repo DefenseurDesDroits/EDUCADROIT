@@ -1,0 +1,14 @@
+uuid: 99398b02-848b-4b62-ae16-df707799e397
+langcode: fr
+status: true
+dependencies: {  }
+name: 1600x480
+label: 1600x480
+effects:
+  64b44d86-40bf-4772-8eb3-586f4d86c440:
+    uuid: 64b44d86-40bf-4772-8eb3-586f4d86c440
+    id: image_scale_and_crop
+    weight: 1
+    data:
+      width: 1600
+      height: 480

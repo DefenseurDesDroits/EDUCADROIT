@@ -1,0 +1,20 @@
+'delete glossary entity':
+  title: Delete entity content.
+'add glossary entity':
+  title: Add entity content
+'view glossary entity':
+  title: View entity content
+'edit glossary entity':
+  title: Edit entity content
+'administer glossary entity':
+  title: Administer settings
+'delete vocabulary entity':
+  title: Delete entity content.
+'add vocabulary entity':
+  title: Add entity content
+'view vocabulary entity':
+  title: View entity content
+'edit vocabulary entity':
+  title: Edit entity content
+'administer vocabulary entity':
+  title: Administer settings

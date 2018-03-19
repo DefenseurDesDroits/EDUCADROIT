@@ -1,0 +1,75 @@
+uuid: 988c2c25-3d3b-4941-b084-e4c789882d5d
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_paragraphs
+    - node.type.speaker
+    - paragraphs.paragraphs_type.referrer
+  module:
+    - entity_reference_revisions
+id: node.speaker.field_paragraphs
+field_name: field_paragraphs
+entity_type: node
+bundle: speaker
+label: Référents
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      referrer: referrer
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 11
+        enabled: false
+      focus:
+        weight: 12
+        enabled: false
+      lexicon:
+        weight: 13
+        enabled: false
+      logo:
+        weight: 14
+        enabled: false
+      logos_list:
+        weight: 15
+        enabled: false
+      referrer:
+        enabled: true
+        weight: 16
+      resource_images:
+        weight: 17
+        enabled: false
+      resources_video:
+        weight: 18
+        enabled: false
+      image:
+        weight: 19
+        enabled: false
+      ressources_link:
+        weight: 19
+        enabled: false
+      text_content:
+        weight: 20
+        enabled: false
+      spotlight_contact:
+        weight: 27
+        enabled: false
+      spotlight_document:
+        weight: 28
+        enabled: false
+      spotlight_learning_tools:
+        weight: 29
+        enabled: false
+      spotlight_newsletter:
+        weight: 30
+        enabled: false
+      spotlight_page:
+        weight: 31
+        enabled: false
+field_type: entity_reference_revisions

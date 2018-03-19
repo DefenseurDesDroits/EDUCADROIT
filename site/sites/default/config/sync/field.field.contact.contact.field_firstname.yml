@@ -1,0 +1,20 @@
+uuid: ddf41601-032c-4752-bd15-d0b975ead408
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.contact.field_firstname
+  module:
+    - ddd_contact
+id: contact.contact.field_firstname
+field_name: field_firstname
+entity_type: contact
+bundle: contact
+label: Prénom
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

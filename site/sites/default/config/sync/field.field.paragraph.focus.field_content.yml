@@ -1,0 +1,21 @@
+uuid: 2106f3be-c060-4d80-9b12-6aea13a9ca73
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_content
+    - paragraphs.paragraphs_type.focus
+  module:
+    - text
+id: paragraph.focus.field_content
+field_name: field_content
+entity_type: paragraph
+bundle: focus
+label: Contenu
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

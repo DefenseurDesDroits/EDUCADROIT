@@ -1,0 +1,11 @@
+uuid: b359e20f-de82-4ad6-8cbe-d072bedcd075
+langcode: fr
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.key_points
+id: taxonomy_term.key_points
+target_entity_type_id: taxonomy_term
+target_bundle: key_points
+default_langcode: site_default
+language_alterable: false

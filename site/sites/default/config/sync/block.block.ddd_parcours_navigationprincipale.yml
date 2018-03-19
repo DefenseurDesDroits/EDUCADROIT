@@ -1,0 +1,24 @@
+uuid: fdd5b393-e239-4946-9b0a-7ccb5158b2b4
+langcode: fr
+status: false
+dependencies:
+  config:
+    - system.menu.main
+  module:
+    - system
+  theme:
+    - ddd_parcours
+id: ddd_parcours_navigationprincipale
+theme: ddd_parcours
+region: '-1'
+weight: -5
+provider: null
+plugin: 'system_menu_block:main'
+settings:
+  id: 'system_menu_block:main'
+  label: 'Navigation principale'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility: {  }

@@ -1,0 +1,88 @@
+uuid: 84cf2847-52bc-410e-bf33-551e704f560d
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_spotlights
+    - node.type.page
+    - paragraphs.paragraphs_type.spotlight_contact
+    - paragraphs.paragraphs_type.spotlight_content
+    - paragraphs.paragraphs_type.spotlight_document
+    - paragraphs.paragraphs_type.spotlight_learning_tools
+    - paragraphs.paragraphs_type.spotlight_newsletter
+    - paragraphs.paragraphs_type.spotlight_page
+  module:
+    - entity_reference_revisions
+id: node.page.field_spotlights
+field_name: field_spotlights
+entity_type: node
+bundle: page
+label: 'Mise en Avant'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      spotlight_content: spotlight_content
+      spotlight_contact: spotlight_contact
+      spotlight_document: spotlight_document
+      spotlight_learning_tools: spotlight_learning_tools
+      spotlight_newsletter: spotlight_newsletter
+      spotlight_page: spotlight_page
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 16
+        enabled: false
+      focus:
+        weight: 17
+        enabled: false
+      spotlight_content:
+        enabled: true
+        weight: 18
+      lexicon:
+        weight: 18
+        enabled: false
+      logo:
+        weight: 19
+        enabled: false
+      logos_list:
+        weight: 20
+        enabled: false
+      image:
+        weight: 21
+        enabled: false
+      referrer:
+        weight: 21
+        enabled: false
+      resources_video:
+        weight: 22
+        enabled: false
+      resource_images:
+        weight: 23
+        enabled: false
+      ressources_link:
+        weight: 24
+        enabled: false
+      spotlight_contact:
+        enabled: true
+        weight: 25
+      spotlight_document:
+        enabled: true
+        weight: 26
+      spotlight_learning_tools:
+        enabled: true
+        weight: 27
+      spotlight_newsletter:
+        enabled: true
+        weight: 28
+      spotlight_page:
+        enabled: true
+        weight: 29
+      text_content:
+        weight: 30
+        enabled: false
+field_type: entity_reference_revisions

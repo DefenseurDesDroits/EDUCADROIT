@@ -1,0 +1,21 @@
+uuid: 6410e525-57cc-4069-bb76-3bf3f14e9661
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+id: home.field_title_resources
+field_name: field_title_resources
+entity_type: home
+type: string
+settings:
+  max_length: 255
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,28 @@
+uuid: 7562d94e-6b6f-4f77-965c-66ee56b6c878
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_region
+    - node.type.speaker
+    - taxonomy.vocabulary.regions
+id: node.speaker.field_region
+field_name: field_region
+entity_type: node
+bundle: speaker
+label: Région
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      regions: regions
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

@@ -1,0 +1,25 @@
+uuid: 358b921a-1c02-4a4f-b830-f946ac405c62
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.resource_images.field_paragraph_images
+    - paragraphs.paragraphs_type.resource_images
+  module:
+    - entity_reference_revisions
+id: paragraph.resource_images.default
+targetEntityType: paragraph
+bundle: resource_images
+mode: default
+content:
+  field_paragraph_images:
+    type: entity_reference_revisions_entity_view
+    weight: 1
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  uid: true

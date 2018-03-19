@@ -1,0 +1,20 @@
+uuid: 85c7356a-afd0-434a-aa58-fb4cb5c236fc
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.home.field_title_resources_list
+  module:
+    - ddd_base
+id: home.home.field_title_resources_list
+field_name: field_title_resources_list
+entity_type: home
+bundle: home
+label: 'Ressources Liste : Titre'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

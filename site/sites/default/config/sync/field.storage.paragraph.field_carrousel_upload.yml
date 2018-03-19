@@ -1,0 +1,21 @@
+uuid: ba361bd2-871c-4892-846b-a50b04be2228
+langcode: fr
+status: true
+dependencies:
+  module:
+    - paragraphs
+id: paragraph.field_carrousel_upload
+field_name: field_carrousel_upload
+entity_type: paragraph
+type: string
+settings:
+  max_length: 300
+  is_ascii: false
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

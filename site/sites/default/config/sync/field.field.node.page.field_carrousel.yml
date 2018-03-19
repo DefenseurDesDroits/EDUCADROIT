@@ -1,0 +1,90 @@
+uuid: 02ae43a1-86ef-43b3-a85c-9ecd0d784df0
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_carrousel
+    - node.type.page
+    - paragraphs.paragraphs_type.carrousel
+  module:
+    - entity_reference_revisions
+id: node.page.field_carrousel
+field_name: field_carrousel
+entity_type: node
+bundle: page
+label: Carrousel
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    target_bundles:
+      carrousel: carrousel
+    target_bundles_drag_drop:
+      document_focus:
+        weight: 21
+        enabled: false
+      carrousel:
+        enabled: true
+        weight: 22
+      episode:
+        weight: 22
+        enabled: false
+      focus:
+        weight: 23
+        enabled: false
+      image:
+        weight: 24
+        enabled: false
+      lexicon:
+        weight: 25
+        enabled: false
+      logo:
+        weight: 26
+        enabled: false
+      logos_list:
+        weight: 27
+        enabled: false
+      quizz:
+        weight: 28
+        enabled: false
+      referrer:
+        weight: 29
+        enabled: false
+      resources_video:
+        weight: 30
+        enabled: false
+      resource_images:
+        weight: 31
+        enabled: false
+      ressources_fichiers:
+        weight: 32
+        enabled: false
+      ressources_link:
+        weight: 33
+        enabled: false
+      spotlight_contact:
+        weight: 34
+        enabled: false
+      spotlight_content:
+        weight: 35
+        enabled: false
+      spotlight_document:
+        weight: 36
+        enabled: false
+      spotlight_learning_tools:
+        weight: 37
+        enabled: false
+      spotlight_newsletter:
+        weight: 38
+        enabled: false
+      spotlight_page:
+        weight: 39
+        enabled: false
+      text_content:
+        weight: 40
+        enabled: false
+field_type: entity_reference_revisions

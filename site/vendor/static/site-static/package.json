@@ -1,0 +1,36 @@
+{
+  "name": "ddd-parcours",
+  "version": "0.1.5",
+  "private": true,
+  "scripts": {
+    "build": "grunt build",
+    "start": "grunt serve",
+    "postinstall": "bower install"
+  },
+  "devDependencies": {
+    "autoprefixer": "latest",
+    "bower": "latest",
+    "grunt": "^1.0.1",
+    "grunt-assemble": "^0.5.0",
+    "grunt-browser-sync": "^2.2.0",
+    "grunt-browserify": "^5.0.0",
+    "grunt-bump": "^0.8.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-concurrent": "^2.3.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^1.0.2",
+    "grunt-contrib-imagemin": "^1.0.1",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-exorcise": "^2.1.1",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "^1.2.1",
+    "grunt-usemin": "^3.1.1",
+    "grunt-wiredep": "^3.0.1",
+    "jit-grunt": "^0.10.0",
+    "jshint-stylish": "^2.2.1"
+  }
+}

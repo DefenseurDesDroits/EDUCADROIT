@@ -1,0 +1,44 @@
+uuid: 4d18f000-5d51-4335-a46c-30dbeb90e161
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.logos_list.field_description
+    - field.field.paragraph.logos_list.field_logos
+    - field.field.paragraph.logos_list.field_title
+    - paragraphs.paragraphs_type.logos_list
+  module:
+    - paragraphs
+id: paragraph.logos_list.default
+targetEntityType: paragraph
+bundle: logos_list
+mode: default
+content:
+  field_description:
+    weight: 1
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+  field_logos:
+    type: entity_reference_paragraphs
+    weight: 2
+    settings:
+      title: Paragraphe
+      title_plural: Paragraphs
+      edit_mode: open
+      add_mode: dropdown
+      form_display_mode: default
+    third_party_settings: {  }
+  field_title:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+hidden:
+  created: true
+  status: true
+  uid: true

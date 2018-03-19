@@ -1,0 +1,42 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.gaya_editorial_entity.gaya_editorial_index.field_ge_description
+    - field.field.gaya_editorial_entity.gaya_editorial_index.field_ge_title
+    - gaya_editorial.gaya_editorial_entity_type.gaya_editorial_index
+_core:
+  default_config_hash: uNIznW3CeEZt1SDbG8woCHqsAdLtc3aJayjWN4LH4xc
+id: gaya_editorial_entity.gaya_editorial_index.default
+targetEntityType: gaya_editorial_entity
+bundle: gaya_editorial_index
+mode: default
+content:
+  field_ge_description:
+    weight: 12
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textarea
+  field_ge_title:
+    weight: -3
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+  langcode:
+    type: language_select
+    weight: 10
+    settings: {  }
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -4
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  user_id: true

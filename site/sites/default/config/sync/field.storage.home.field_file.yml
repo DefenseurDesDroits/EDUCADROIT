@@ -1,0 +1,20 @@
+uuid: 45f7e680-4edb-42b3-a3ef-7b2943dfc854
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_base
+    - file
+id: home.field_file
+field_name: field_file
+entity_type: home
+type: entity_reference
+settings:
+  target_type: file
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

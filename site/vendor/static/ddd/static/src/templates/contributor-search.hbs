@@ -1,0 +1,99 @@
+---
+title: Trouver un intervenant
+psd: 04-ddd-trouver-un-intervenant
+
+order: 5
+contributor-search: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{>breadcrumb}}
+
+        <div class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{title}}</h1>
+
+                <div class="standfirst">
+                    <p>Restabat ut caesar post haec properaret accitus et abstergendae causa suspicionis sororem. (chapo)</p>
+                </div>
+            </header>
+            <!-- .article-header -->
+
+            <div class="section-default section-blue">
+                <form action="#">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for="f05" class="control-label hide">Région :</label>
+                                        <div class="styled-select"><select id="f05" class="form-select form-control">
+                                            <option value="1">Région</option>
+                                        </select></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for="f06" class="control-label hide">Type d'intervenant :</label>
+                                        <div class="styled-select"><select id="f06" class="form-select form-control">
+                                            <option value="1">Type d'intervenant</option>
+                                        </select></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label for="f07" class="control-label hide">Spécialité :</label>
+                                        <div class="styled-select"><select id="f07" class="form-select form-control">
+                                            <option value="1">Spécialité</option>
+                                        </select></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 sm-text-center">
+                            <div>
+                                <button title="Filtrer les intervenants" type="submit" class="btn">Filtrer</button>
+                            </div>
+                        </div>
+                    </div><!-- .row -->
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="nb-result"><strong>15 résultats</strong> pour les critères sélectionnés</p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="item">
+                {{#parseJSON '{"link": "contributor"}'}}
+                    {{>item}}
+                {{/parseJSON}}
+            </div>
+
+            <hr />
+
+            <div class="item">
+                {{#parseJSON '{"link": "contributor"}'}}
+                    {{>item}}
+                {{/parseJSON}}
+            </div>
+
+            <hr />
+
+            <div class="item">
+                {{#parseJSON '{"link": "contributor"}'}}
+                    {{>item}}
+                {{/parseJSON}}
+            </div>
+
+            <hr />
+        </div>
+    </div>
+</section>

@@ -1,0 +1,76 @@
+uuid: df7471ca-45e5-4bd6-ae2e-f3f1d2167611
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.file.spotlight
+    - field.field.file.document.field_description
+    - field.field.file.document.field_image
+    - field.field.file.document.field_title
+    - file_entity.type.document
+    - image.style.80x80
+  module:
+    - file_entity
+    - image
+    - user
+id: file.document.spotlight
+targetEntityType: file
+bundle: document
+mode: spotlight
+content:
+  field_description:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_image:
+    weight: 7
+    label: visually_hidden
+    settings:
+      image_style: 80x80
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_title:
+    type: string
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  filemime:
+    type: string
+    weight: 5
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  filename:
+    type: string
+    label: visually_hidden
+    weight: 3
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  filesize:
+    type: file_size
+    weight: 6
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  uid:
+    type: author
+    weight: 4
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  uri:
+    type: string
+    label: visually_hidden
+    weight: 2
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden:
+  langcode: true

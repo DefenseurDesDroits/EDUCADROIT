@@ -1,0 +1,10 @@
+uuid: cd0bc361-dd13-4f38-8cf5-a339f47146f0
+langcode: fr
+status: true
+dependencies:
+  module:
+    - node
+id: node.small_teaser
+label: 'Accroche Small'
+targetEntityType: node
+cache: true

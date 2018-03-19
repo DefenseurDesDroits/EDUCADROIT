@@ -1,0 +1,22 @@
+entity.speakers.collection:
+  title: 'Speakers List'
+  route_name: entity.speakers.collection
+  description: 'List Speakers'
+  weight: 10
+speakers.admin.structure.settings:
+  title: Speakers Settings
+  description: 'Configure Speakers entity'
+  route_name:  ddd_speakers.speakers_settings
+  parent: system.admin_structure
+
+
+entity.referrer.collection:
+  title: 'Referrer List'
+  route_name: entity.referrer.collection
+  description: 'List Referrer'
+  weight: 10
+referrer.admin.structure.settings:
+  title: Referrer Settings
+  description: 'Configure Referrer entity'
+  route_name:  ddd_speakers.referrer_settings
+  parent: system.admin_structure

@@ -1,0 +1,40 @@
+uuid: 28e2769e-3446-483c-b4c3-6cda81ffce2a
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.logos_list.field_description
+    - field.field.paragraph.logos_list.field_logos
+    - field.field.paragraph.logos_list.field_title
+    - paragraphs.paragraphs_type.logos_list
+  module:
+    - entity_reference_revisions
+id: paragraph.logos_list.default
+targetEntityType: paragraph
+bundle: logos_list
+mode: default
+content:
+  field_description:
+    weight: 1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_logos:
+    type: entity_reference_revisions_entity_view
+    weight: 2
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+  field_title:
+    weight: 0
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+hidden:
+  created: true
+  uid: true

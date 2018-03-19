@@ -1,0 +1,19 @@
+uuid: afe3462c-16f1-4b92-a2d7-7dc7a177ca9d
+langcode: fr
+status: true
+dependencies:
+  module:
+    - ddd_contact
+id: contact.field_message
+field_name: field_message
+entity_type: contact
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

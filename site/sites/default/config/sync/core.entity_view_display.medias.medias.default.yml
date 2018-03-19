@@ -1,0 +1,45 @@
+uuid: c890ef80-66fb-4fe2-aaba-7886383912b6
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.medias.medias.field_label
+    - field.field.medias.medias.field_spotlights
+    - field.field.medias.medias.field_teaser
+  module:
+    - ddd_medias
+    - entity_reference_revisions
+    - user
+id: medias.medias.default
+targetEntityType: medias
+bundle: medias
+mode: default
+content:
+  field_label:
+    weight: -2
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+  field_spotlights:
+    type: entity_reference_revisions_entity_view
+    weight: 0
+    label: visually_hidden
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+  field_teaser:
+    weight: -1
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  user_id:
+    label: visually_hidden
+    type: author
+    weight: -3
+    settings: {  }
+    third_party_settings: {  }
+hidden: {  }

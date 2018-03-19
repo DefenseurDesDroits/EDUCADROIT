@@ -1,0 +1,22 @@
+uuid: 42b75661-4125-47c9-921f-639c6e9b046e
+langcode: fr
+status: true
+dependencies:
+  module:
+    - node
+id: medias
+label: Médias
+type: 'canonical_entities:node'
+pattern: '/se-former-en-ligne/[node:title]'
+selection_criteria:
+  778f33f9-7c89-4d99-8c09-ad2fa1313eb5:
+    id: node_type
+    bundles:
+      media: media
+    negate: false
+    context_mapping:
+      node: node
+    uuid: 778f33f9-7c89-4d99-8c09-ad2fa1313eb5
+selection_logic: and
+weight: -5
+relationships: {  }

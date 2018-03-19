@@ -1,0 +1,6 @@
+ddd_resources.resources_add:
+  route_name: ddd_resources.resources_add
+  title: 'Add Resources'
+  appears_on:
+    - entity.resources.collection
+    - entity.resources.canonical

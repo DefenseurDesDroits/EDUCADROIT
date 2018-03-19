@@ -1,0 +1,27 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="follow">
+                        <strong>{{ content.config.follow_title }}</strong>
+                        <a class="icon-facebook" href="{{ content.config.facebook_link }}" target="_blank"><span>Facebook</span></a>
+                        <a class="icon-twitter" href="{{ content.config.twitter_link }}" target="_blank"><span>Twitter</span></a>
+                    </p>
+                    <p>
+                        <a class="external" title="Visiter le site du Défenseur des droits - ouverture dans une nouvelle fenêtre" target="_blank" href="{{ content.config.ddd_link }}">Visiter le site du Défenseur des droits</a>
+                    </p>
+                </div>
+
+                <div class="col-sm-6 text-center">
+
+                    <img src="{{ content.config.ddd_logo }}" alt="Défenseur des droits" width="218" height="92"/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <p>{{ content.config.ddd_description }}</p>
+        </div>
+    </div>
+</div>

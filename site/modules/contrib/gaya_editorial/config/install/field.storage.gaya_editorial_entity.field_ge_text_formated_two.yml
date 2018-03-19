@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - gaya_editorial
+    - text
+id: gaya_editorial_entity.field_ge_text_formated_two
+field_name: field_ge_text_formated_two
+entity_type: gaya_editorial_entity
+type: text_long
+settings: {  }
+module: text
+locked: true
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

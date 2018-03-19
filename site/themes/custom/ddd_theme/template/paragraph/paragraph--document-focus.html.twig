@@ -1,0 +1,15 @@
+<div class="post">
+  <div class="txt txt-button">
+    <div class="inner">
+      <h2 class="heading">{{document.title}}</h2>
+      <div class="standfirst">
+        <p>{{ document.description }}</p>
+      </div>
+      <p>{{content.field_description}}</p>
+    </div>
+    <a class="btn icon-download-2" title="Télécharger : {{document.title}}" target="_blank" href="{{document.url}}">Télécharger</a>
+  </div>
+  <figure>
+    <img src="{{ document.image.url }}" alt="" />
+  </figure>
+</div>

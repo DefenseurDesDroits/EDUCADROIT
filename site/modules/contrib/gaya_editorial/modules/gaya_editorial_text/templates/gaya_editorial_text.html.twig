@@ -1,0 +1,28 @@
+{#
+/**
+ * @file gaya_editorial_text.html.twig
+ * Default theme implementation to present Gaya Editorial Text default.
+ *
+ * This template is used when viewing Gaya editorial entity.
+ *
+ * Available variables:
+ * - title: The title of the content
+ * - entity_bundle: The bundle of the content
+ * - entity_id: The entity_id of the content
+ *
+ * Elements from fields API:
+ * - elements.field_ge_title: The title of the content
+ * - elements.field_ge_text_formated: The title of the content
+ *
+ * @see template_preprocess_gaya_editorial_entity()
+ * @see template_entity()
+ *
+ * @ingroup themeable
+ */
+#}
+<section class="section section-text">
+    {% if elements.field_ge_title|render %}
+        <{{ elements.field_ge_title_heading[0] }}>{{ elements.field_ge_title[0] }}</{{ elements.field_ge_title_heading[0] }}>
+    {% endif %}
+    {{ elements.field_ge_text_formated[0]|render }}
+</section>

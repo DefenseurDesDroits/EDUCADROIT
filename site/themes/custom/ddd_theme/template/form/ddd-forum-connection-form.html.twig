@@ -1,0 +1,38 @@
+{% if form.email['#errors'] %}
+    {% set error = form.email['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+    <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-email" class="control-label">{{ form.email['#title'] }}</label>
+{% endif %}
+    {{ form.email }}
+</div>
+
+{% if form.password['#errors'] %}
+    {% set error = form.password['#errors'] %}
+<div class="form-group has-error">
+    <label for="edit-email" class="control-label">{{ form.password['#title'] }}</label>
+    <p id="message-error-email" class="form-message">{{ error|striptags }}</p>
+{% else %}
+<div class="form-group">
+    <label for="edit-email" class="control-label">{{ form.password['#title'] }}</label>
+{% endif %}
+    {{ form.password }}
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <p class="small">* Champs obligatoires</p>
+        <p class="small"><a href="{{ path('ddd_base.forgotten_password') }}">Mot de passe oublié ?</a></p>
+        <p class="small"><a href="{{ path('ddd_base.user.first') }}">Première connexion</a></p>
+    </div>
+
+    <div class="col-sm-6 text-right">
+        {{ form.submit }}
+    </div>
+    {{ form.form_token }}
+    {{ form.form_build_id }}
+    {{ form.form_id }}
+</div>

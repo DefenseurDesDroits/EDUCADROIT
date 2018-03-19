@@ -1,0 +1,5 @@
+config_list.add:
+  route_name: entity.config_list.add_form
+  title: 'Ajouter une Configuration'
+  appears_on:
+    - entity.config_list.collection

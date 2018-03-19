@@ -1,0 +1,11 @@
+uuid: bd021f12-5cb1-4679-9ccb-76d77d151a1e
+langcode: fr
+status: true
+dependencies:
+  config:
+    - taxonomy.vocabulary.contact_object
+id: taxonomy_term.contact_object
+target_entity_type_id: taxonomy_term
+target_bundle: contact_object
+default_langcode: site_default
+language_alterable: false

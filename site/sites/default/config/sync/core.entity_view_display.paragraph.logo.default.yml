@@ -1,0 +1,39 @@
+uuid: d67571ce-f0df-460c-ae8e-25646a904867
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.logo.field_image
+    - field.field.paragraph.logo.field_link
+    - image.style.250x190
+    - paragraphs.paragraphs_type.logo
+  module:
+    - image
+    - link
+id: paragraph.logo.default
+targetEntityType: paragraph
+bundle: logo
+mode: default
+content:
+  field_image:
+    weight: 1
+    label: visually_hidden
+    settings:
+      image_style: 250x190
+      image_link: ''
+    third_party_settings: {  }
+    type: image
+  field_link:
+    weight: 0
+    label: visually_hidden
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: '0'
+      target: '0'
+    third_party_settings: {  }
+    type: link
+hidden:
+  created: true
+  uid: true

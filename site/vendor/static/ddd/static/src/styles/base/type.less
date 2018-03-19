@@ -1,0 +1,384 @@
+// =Type
+// ----------------------------------------
+
+// Components:
+// ----------------------------------------
+#breadcrumb {
+  .clearfix;
+}
+.breadcrumb {
+  display: none;
+  position: relative;
+  z-index: 1;
+  min-height: 50px;
+  padding: 14px 0;
+  background: #eaeef1;
+  color: @color-primary;
+  font-size: 1em;
+
+  @media (min-width: @screen-sm-min) {
+    display: block;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -9999px;
+    bottom: 0;
+    left: -9999px;
+    z-index: -1;
+    background: #eaeef1;
+  }
+
+  & > li + li::before {
+    content: '>';
+    padding: 0 10px;
+    color: @color-primary
+  }
+
+  & > .active, a {
+    color: @color-primary;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+.standfirst {
+  margin-bottom: 30px;
+  color: #494b61;
+  font-size: 1.125em;
+}
+
+h1, .h1 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 2.5em;
+  line-height: 125%;
+  text-transform: uppercase;
+}
+
+h2, .h2 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 1.75em;
+  line-height: 125%;
+
+  a {
+    color: @color-secondary;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+
+h3, .h3 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 1.375em;
+  line-height: 125%;
+
+  a {
+    color: @color-secondary;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+
+h4, .h4 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 1.25em;
+  line-height: 125%;
+  text-transform: uppercase;
+}
+
+h5, .h5 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 125%;
+  text-transform: uppercase;
+}
+
+h6, .h6 {
+  margin: 30px 0 10px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-weight: 400;
+  font-size: 1em;
+  line-height: 125%;
+}
+
+strong {
+  font-family: @font-family-base;
+  font-weight: 600;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+ol {
+  padding-left: 25px;
+}
+
+ul li, ol li {
+  font-size: 0.875em;
+}
+
+dl dt {
+  margin-bottom: 14px;
+  color: @color-secondary;
+  font-family: @font-family-alt-demibold;
+  font-size: 1.75em;
+}
+
+dl dd {
+  margin-bottom: 30px;
+}
+
+.sm-text-center {
+  @media (min-width: @screen-sm-min) {
+    text-align: center;
+  }
+
+  @media (min-width: @screen-md-min) {
+    text-align: left;
+  }
+}
+
+.small {
+  font-size: 0.875em;
+}
+
+.external, .download, .focus-link {
+  color: @color-primary;
+  font-family: @font-family-alt-demibold;
+  text-decoration: underline;
+  transition: color .4s ease;
+  
+  &:hover, &:focus {
+    color: @color-secondary;
+  }
+
+  &::after {
+    .icon-ion("\e905");
+    margin-left: 10px;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  .footer & {
+    font-size: 1.142em;
+  }
+}
+
+.download {
+  font-family: @font-family-alt;
+  font-size: 0.875em;
+
+  &::after {
+    content: '\e904';
+  }
+
+  .article & {
+    text-decoration: none;
+
+    span {
+      font-size: 1.142em;
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    font-family: @font-family-alt-demibold;
+  }
+}
+
+.focus-link {
+  &::after {
+    .icon-ion("\e900");
+  }
+}
+
+.mail {
+  display: inline-block;
+  margin-top: 15px;
+  font-family: @font-family-alt-2;
+  font-size: 1em;
+  font-weight: 700;
+  transition: color .4s ease;
+
+  &::after {
+    .icon-ion("\e90a");
+    margin-left: 10px;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+
+  &:hover, &:focus {
+    color: @color-secondary;
+  }
+}
+
+.next {
+  display: inline-block;
+  margin-top: 5px;
+  font-family: @font-family-alt-2;
+  font-size: 1em;
+  font-weight: 700;
+
+  &::after {
+    .icon-ion("\e900");
+    margin-left: 10px;
+    font-size: 16px;
+    vertical-align: middle;
+  }
+  
+  &:hover, &:focus {
+    text-decoration: none;
+  }
+}
+
+hr {
+  position: relative;
+  z-index: 1;
+  margin: 30px 0;
+  height: 4px;
+  background: #eaeef1;
+  border-top: none;
+
+  .article-header &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -9999px;
+    bottom: 0;
+    left: -9999px;
+    z-index: -1;
+    background: #eaeef1;
+  }
+}
+
+.list-inline {
+  margin: 30px 0;
+  text-align: center;
+
+  @media (min-width: @screen-md-min) {
+    text-align: left;
+  }
+
+  li {
+    margin: 0 0 20px;
+    padding: 0;
+    vertical-align: middle;
+
+    @media (min-width: @screen-sm-min) {
+      margin: 0 10px 20px;
+    }
+
+    @media (min-width: @screen-md-min) {
+      margin: 5px 0 5px 30px;
+
+      &:first-child {
+        margin-left: 0;
+      }
+    }
+  }
+  a {
+    display: table-cell;
+    padding: 0 30px;
+    min-width: 250px;
+    height: 190px;
+    border: solid 1px #eaeef1;
+    text-align: center;
+    vertical-align: middle;
+  }
+}
+
+.share {
+  position: relative;
+  margin: 60px 0;
+  padding: 10px;
+  background: #eaeef1;
+
+  p {
+    margin-bottom: 0;
+  }
+
+  strong, a {
+    display: inline-block;
+    margin: 0 5px;
+    color: #494b61;
+    vertical-align: middle;
+  }
+
+  strong {
+    font-family: @font-family-alt-demibold;
+    font-weight: 400;
+    font-size: 0.875em;
+    line-height: 100%;
+    text-transform: uppercase;
+  }
+
+  a {
+    font-size: 2.5em;
+    transition: color .4s ease;
+
+    .article & {
+      text-decoration: none;
+    }
+
+    span {
+      position: absolute; left: -9999px;
+    }
+
+    &.icon-facebook:hover, &.icon-facebook:focus {
+      color: #3a5898;
+    }
+
+    &.icon-twitter:hover, &.icon-twitter:focus {
+      color: #1da1f2;
+    }
+  }
+
+  .warning {
+    color: @color-primary;
+    font-family: @font-family-alt-demibold;
+    font-size: 1em;
+    transition: color .4s ease;
+
+    @media (min-width: @screen-sm-min) {
+      position: absolute;
+      top: 17px;
+      left: 15px;
+    }
+
+    &::before {
+      .icon-ion("\e912");
+      margin-right: 10px;
+      font-size: 24px;
+      vertical-align: middle;
+    }
+  }
+
+  a.warning:hover, a.warning:focus {
+    color: @color-secondary;
+  }
+}

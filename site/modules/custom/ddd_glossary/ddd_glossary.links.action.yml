@@ -1,0 +1,6 @@
+ddd_glossary.glossary_add:
+  route_name: ddd_glossary.glossary_add
+  title: 'Add Glossary'
+  appears_on:
+    - entity.glossary.collection
+    - entity.glossary.canonical

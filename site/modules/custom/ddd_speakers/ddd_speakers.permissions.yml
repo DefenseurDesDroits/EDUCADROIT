@@ -1,0 +1,21 @@
+'delete speakers entity':
+  title: Delete entity content.
+'add speakers entity':
+  title: Add entity content
+'view speakers entity':
+  title: View entity content
+'edit speakers entity':
+  title: Edit entity content
+'administer speakers entity':
+  title: Administer settings
+
+'delete referrer entity':
+  title: Delete entity content.
+'add referrer entity':
+  title: Add entity content
+'view referrer entity':
+  title: View entity content
+'edit referrer entity':
+  title: Edit entity content
+'administer referrer entity':
+  title: Administer settings

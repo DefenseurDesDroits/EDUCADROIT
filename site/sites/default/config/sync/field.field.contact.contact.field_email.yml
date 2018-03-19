@@ -1,0 +1,20 @@
+uuid: 10eef58f-b93f-4ca7-be04-a4e64bea5899
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.storage.contact.field_email
+  module:
+    - ddd_contact
+id: contact.contact.field_email
+field_name: field_email
+entity_type: contact
+bundle: contact
+label: Courriel
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

@@ -1,0 +1,107 @@
+uuid: cea8d656-23df-428b-ae87-387beb6481e8
+langcode: fr
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.teaser
+    - field.field.node.resource.field_author
+    - field.field.node.resource.field_date
+    - field.field.node.resource.field_description
+    - field.field.node.resource.field_email
+    - field.field.node.resource.field_firstname
+    - field.field.node.resource.field_format
+    - field.field.node.resource.field_image
+    - field.field.node.resource.field_key_points
+    - field.field.node.resource.field_paragraphs
+    - field.field.node.resource.field_publics
+    - field.field.node.resource.field_status
+    - field.field.node.resource.field_surname
+    - field.field.node.resource.field_themes
+    - field.field.node.resource.field_year
+    - image.style.164x231
+    - node.type.resource
+  module:
+    - datetime
+    - image
+    - text
+    - user
+id: node.resource.teaser
+targetEntityType: node
+bundle: resource
+mode: teaser
+content:
+  field_author:
+    type: string
+    weight: 4
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  field_date:
+    type: datetime_default
+    weight: 7
+    label: visually_hidden
+    settings:
+      timezone_override: ''
+      format_type: j_f_y
+    third_party_settings: {  }
+  field_description:
+    type: text_default
+    weight: 6
+    label: visually_hidden
+    settings: {  }
+    third_party_settings: {  }
+  field_format:
+    type: entity_reference_label
+    weight: 5
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+  field_image:
+    type: image
+    weight: 9
+    label: visually_hidden
+    settings:
+      image_style: 164x231
+      image_link: ''
+    third_party_settings: {  }
+  field_key_points:
+    type: entity_reference_label
+    weight: 3
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+  field_publics:
+    type: entity_reference_label
+    weight: 1
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+  field_themes:
+    type: entity_reference_label
+    weight: 2
+    label: visually_hidden
+    settings:
+      link: false
+    third_party_settings: {  }
+  field_year:
+    type: string
+    weight: 8
+    label: visually_hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  links:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_email: true
+  field_firstname: true
+  field_paragraphs: true
+  field_status: true
+  field_surname: true
+  langcode: true

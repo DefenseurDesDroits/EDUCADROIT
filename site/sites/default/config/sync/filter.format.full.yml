@@ -1,0 +1,8 @@
+uuid: d242ca3d-9e37-49d9-9018-aea2597b467b
+langcode: fr
+status: true
+dependencies: {  }
+name: Full
+format: full
+weight: 0
+filters: {  }

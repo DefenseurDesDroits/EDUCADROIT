@@ -1,0 +1,67 @@
+# This file brings everything together. Very nifty!
+
+# Route name can be used in several places; e.g. links, redirects, and local
+# actions.
+entity.medias.canonical:
+  path: '/admin/content/medias/{medias}'
+  defaults:
+  # Calls the view controller, defined in the annotation of the medias entity
+    _entity_view: 'medias'
+    _title: 'Medias Content'
+  requirements:
+  # Calls the access controller of the entity, $operation 'view'
+    _entity_access: 'medias.view'
+
+entity.medias.collection:
+  path: '/admin/content/medias/list'
+  defaults:
+  # Calls the list controller, defined in the annotation of the medias entity.
+    _entity_list: 'medias'
+    _title: 'Medias List'
+  requirements:
+  # Checks for permission directly.
+    _permission: 'view medias entity'
+
+ddd_medias.medias_add:
+  path: '/admin/content/medias/add'
+  defaults:
+  # Calls the form.add controller, defined in the medias entity.
+    _entity_form: medias.add
+    _title: 'Add Medias'
+  requirements:
+    _entity_create_access: 'medias'
+
+entity.medias.edit_form:
+  path: '/admin/content/medias/{medias}/edit'
+  defaults:
+  # Calls the form.edit controller, defined in the medias entity.
+    _entity_form: medias.edit
+    _title: 'Edit Medias'
+  requirements:
+    _entity_access: 'medias.edit'
+
+entity.medias.delete_form:
+  path: '/admin/content/medias/{medias}/delete'
+  defaults:
+    # Calls the form.delete controller, defined in the medias entity.
+    _entity_form: medias.delete
+    _title: 'Delete Medias'
+  requirements:
+    _entity_access: 'medias.delete'
+
+ddd_medias.medias_settings:
+  path: 'admin/structure/medias'
+  defaults:
+    _form: '\Drupal\ddd_medias\Form\MediasSettingsForm'
+    _title: 'Medias Settings'
+  requirements:
+    _permission: 'administer medias entity'
+
+ddd_medias.medias:
+  path: /se-former-en-ligne
+  defaults:
+    _content: '\Drupal\ddd_medias\Controller\MediasController::mediasPage'
+    _controller: '\Drupal\ddd_medias\Controller\MediasController::mediasPage'
+    _title: 'Formations en ligne'
+  requirements:
+    _permission: 'access content'

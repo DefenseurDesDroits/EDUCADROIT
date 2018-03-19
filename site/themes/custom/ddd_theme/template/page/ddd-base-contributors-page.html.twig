@@ -1,0 +1,75 @@
+<section class="section-content">
+  <div class="container">
+    <div class="article">
+      <header class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+
+        <div class="standfirst">
+          <p>{{ teaser }}</p>
+        </div>
+      </header>
+      <!-- .article-header -->
+      <div class="section-default section-blue">
+        {{ filter }}
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>15 résultats</strong> pour les critères sélectionnés</p>
+        </div>
+
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      {% for resource in resources %}
+        {{ resource }}
+      {% endfor %}
+
+      <div class="row">
+        <div class="col-sm-12">
+          {{ pager }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<aside>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="post">
+                    <div class="txt txt-button">
+                        <div class="inner">
+                            <h2 class="heading">Manuel D’éducation au(x) droit(s)</h2>
+                            <p>Ce manuel décrit les objectifs pédagogiques et propose des contenus et des éléments pour faciliter vos interventions.</p>
+                        </div>
+                        <a class="btn icon-download-2" title="Télécharger : Manuel D’éducation au(x) droit(s)" href="#">Télécharger</a>
+                    </div>
+                    <figure>
+                        <img src="http://pix.gaya.fr/540/400/" alt="" />
+                    </figure>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="post">
+
+                    <div class="txt txt-button">
+                        <div class="inner">
+                            <h2 class="heading">proposer un outil pédagogique</h2>
+                            <p>Lorem ipsum dolor sit amet, conse ctetur adi piscing elit. Cras hendrerit massa non congue ulla mcorper. Pellentesque sollicitudin.</p>
+                        </div>
+                        <a class="btn icon-link" title="Soumettre : proposer un outil pédagogique" href="#">Soumettre</a>
+                    </div>
+                    <figure>
+                        <img src="http://pix.gaya.fr/540/400/" alt="" />
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+
+
+

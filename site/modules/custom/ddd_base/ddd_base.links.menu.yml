@@ -1,0 +1,10 @@
+entity.home.collection:
+  title: 'Home List'
+  route_name: entity.home.collection
+  description: 'List Glossaries'
+  weight: 10
+home.admin.structure.settings:
+  title: Home Settings
+  description: 'Configure Home entity'
+  route_name:  ddd_base.home_settings
+  parent: system.admin_structure

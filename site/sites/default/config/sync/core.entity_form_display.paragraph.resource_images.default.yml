@@ -1,0 +1,28 @@
+uuid: faa7daf1-3a3f-4fb0-b3d7-a5e435ec7187
+langcode: fr
+status: true
+dependencies:
+  config:
+    - field.field.paragraph.resource_images.field_paragraph_images
+    - paragraphs.paragraphs_type.resource_images
+  module:
+    - paragraphs
+id: paragraph.resource_images.default
+targetEntityType: paragraph
+bundle: resource_images
+mode: default
+content:
+  field_paragraph_images:
+    type: entity_reference_paragraphs
+    weight: 1
+    settings:
+      title: Paragraphe
+      title_plural: Paragraphs
+      edit_mode: preview
+      add_mode: button
+      form_display_mode: default
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
+  uid: true

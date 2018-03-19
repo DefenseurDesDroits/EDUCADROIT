@@ -1,0 +1,83 @@
+// Components: Figures
+// =====================================================================================================================
+
+// Components: Figures
+// =====================================================================================================================
+.figures {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+// Component: `.figure`
+// ---------------------------------------------------------------------------------------------------------------------
+.figure {
+    position: absolute;
+    animation-duration: 5s;
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 1;
+        transform: translate3d(-30%, 0, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 1;
+        transform: translate3d(20%, 0, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+// Component: `.figure-left`
+// ---------------------------------------------------------------------------------------------------------------------
+.figure-left {
+    bottom: -125px;
+
+    @media (max-width: $screen-md-max) {
+        max-width: 350px;
+    }
+
+    @media (min-width: $screen-sm-min) {
+        bottom: 0;
+        left: -50%;
+    }
+
+    @media (min-width: $screen-lg-min) {
+        left: -100%;
+        margin-left: 70px;
+    }
+}
+
+// Component: `.figure-right`
+// ---------------------------------------------------------------------------------------------------------------------
+.figure-right {
+    display: none;
+
+    @media (max-width: $screen-md-max) {
+        max-width: 350px;
+    }
+
+    @media (min-width: $screen-sm-min) {
+        display: block;
+        right: -50%;
+        bottom: 0;
+    }
+
+    @media (min-width: $screen-lg-min) {
+        right: -100%;
+        margin-right: 70px;
+    }
+}

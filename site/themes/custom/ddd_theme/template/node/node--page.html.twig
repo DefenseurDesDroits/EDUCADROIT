@@ -1,0 +1,39 @@
+
+<div class="container">
+    <article class="article">
+        <header class="article-header">
+            <h1 class="article-title">{{ label }}</h1>
+            <div class="standfirst">
+                {{ content.field_teaser }}
+            </div>
+        </header>
+        <!-- .post-header -->
+        {{ content.field_paragraphs }}
+
+        <!-- Carrousel -->
+        {% if elements['field_carrousel']['#object'] != null %}
+            <div class="article-focus article-focus-2">
+                <div class="manual-gallery">
+                    <div id="carousel-gallery" class="article-gallery owl-carousel owl-theme">
+                        {{elements['field_carrousel']}}
+                    </div>
+                        <div class="show-summary">
+                            <button type="button" class="btn icon-summary">Sommaire</button>
+                            <ul class="summary">
+                                {% for titre in elements.field_carrousel if titre['#paragraph'].field_carrousel_title.value != null %}
+                                    <li><a href="#">{{titre['#paragraph'].field_carrousel_title.value}}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                </div>
+            </div>
+        {% endif %}
+        <!-- end Carrousel -->
+
+        <div class="row">
+            {{ content.field_spotlights }}
+        </div>
+            {{share}}
+        <!-- .article-content -->
+    </article>
+</div>
