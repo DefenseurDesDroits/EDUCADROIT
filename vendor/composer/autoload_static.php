@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
+class ComposerStaticInit0b851a69b7619785c34a3259c5c172f2
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -19,6 +19,7 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         'd9d39f82a605ebe5918f683dd402334c' => __DIR__ . '/..' . '/padraic/humbug_get_contents/src/function.php',
+        '3a50d90d85c7fe889a94ae1114b921ce' => __DIR__ . '/..' . '/padraic/humbug_get_contents/src/functions.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         'e7223560d890eab89cda23685e711e2c' => __DIR__ . '/..' . '/psy/psysh/src/Psy/functions.php',
     );
@@ -58,6 +59,7 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
             'Symfony\\Polyfill\\Php54\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Iconv\\' => 23,
+            'Symfony\\Polyfill\\Apcu\\' => 22,
             'Symfony\\Component\\Yaml\\' => 23,
             'Symfony\\Component\\VarDumper\\' => 28,
             'Symfony\\Component\\Validator\\' => 28,
@@ -117,7 +119,9 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
             'Drupal\\Core\\' => 12,
             'Drupal\\Console\\' => 15,
             'Drupal\\Component\\' => 17,
+            'Doctrine\\Common\\Inflector\\' => 26,
             'Doctrine\\Common\\Cache\\' => 22,
+            'Doctrine\\Common\\' => 16,
         ),
         'C' => 
         array (
@@ -125,6 +129,7 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
             'Consolidation\\AnnotatedCommand\\' => 31,
             'Composer\\Semver\\' => 16,
             'Composer\\Installers\\' => 20,
+            'Composer\\CaBundle\\' => 18,
         ),
         'B' => 
         array (
@@ -194,6 +199,10 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
         'Symfony\\Polyfill\\Iconv\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-iconv',
+        ),
+        'Symfony\\Polyfill\\Apcu\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-apcu',
         ),
         'Symfony\\Component\\Yaml\\' => 
         array (
@@ -317,7 +326,7 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
         ),
         'Humbug\\' => 
         array (
-            0 => __DIR__ . '/..' . '/padraic/humbug_get_contents/src/Humbug',
+            0 => __DIR__ . '/..' . '/padraic/humbug_get_contents/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -347,9 +356,17 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
         array (
             0 => __DIR__ . '/../..' . '/site/core/lib/Drupal/Component',
         ),
+        'Doctrine\\Common\\Inflector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Common/Inflector',
+        ),
         'Doctrine\\Common\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
+        ),
+        'Doctrine\\Common\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/common/lib/Doctrine/Common',
         ),
         'Consolidation\\OutputFormatters\\' => 
         array (
@@ -366,6 +383,10 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
         'Composer\\Installers\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/installers/src/Composer/Installers',
+        ),
+        'Composer\\CaBundle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
         'BackupMigrate\\Drupal\\' => 
         array (
@@ -387,13 +408,6 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
     );
 
     public static $prefixesPsr0 = array (
-        'p' => 
-        array (
-            'phpDocumentor' => 
-            array (
-                0 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
-            ),
-        ),
         'T' => 
         array (
             'Twig_' => 
@@ -444,10 +458,6 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
             array (
                 0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
             ),
-            'Doctrine\\Common\\Inflector\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
-            ),
             'Doctrine\\Common\\Collections\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/collections/lib',
@@ -455,10 +465,6 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
             'Doctrine\\Common\\Annotations\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
-            ),
-            'Doctrine\\Common\\' => 
-            array (
-                0 => __DIR__ . '/..' . '/doctrine/common/lib',
             ),
         ),
         'C' => 
@@ -487,10 +493,10 @@ class ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInite57f62c4b2998fd7f530d2a967a12a59::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0b851a69b7619785c34a3259c5c172f2::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0b851a69b7619785c34a3259c5c172f2::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit0b851a69b7619785c34a3259c5c172f2::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit0b851a69b7619785c34a3259c5c172f2::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -67,9 +67,6 @@ class Finder implements \IteratorAggregate, \Countable
 
     private static $vcsPatterns = array('.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr', '.git', '.hg');
 
-    /**
-     * Constructor.
-     */
     public function __construct()
     {
         $this->ignore = static::IGNORE_VCS_FILES | static::IGNORE_DOT_FILES;
@@ -97,7 +94,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function addAdapter(AdapterInterface $adapter, $priority = 0)
     {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
 
         $this->initDefaultAdapters();
 
@@ -119,7 +116,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function useBestAdapter()
     {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
 
         $this->initDefaultAdapters();
 
@@ -141,7 +138,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function setAdapter($name)
     {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
 
         $this->initDefaultAdapters();
 
@@ -164,7 +161,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function removeAdapters()
     {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
 
         $this->adapters = array();
 
@@ -180,7 +177,7 @@ class Finder implements \IteratorAggregate, \Countable
      */
     public function getAdapters()
     {
-        @trigger_error('The '.__METHOD__.' method is deprecated since version 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
+        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.8 and will be removed in 3.0.', E_USER_DEPRECATED);
 
         $this->initDefaultAdapters();
 
@@ -410,6 +407,10 @@ class Finder implements \IteratorAggregate, \Countable
     /**
      * Excludes directories.
      *
+     * Directories passed as argument must be relative to the ones defined with the `in()` method. For example:
+     *
+     *     $finder->in(__DIR__)->exclude('ruby');
+     *
      * @param string|array $dirs A directory path or an array of directories
      *
      * @return $this
@@ -425,6 +426,8 @@ class Finder implements \IteratorAggregate, \Countable
 
     /**
      * Excludes "hidden" directories and files (starting with a dot).
+     *
+     * This option is enabled by default.
      *
      * @param bool $ignoreDotFiles Whether to exclude "hidden" files or not
      *
@@ -445,6 +448,8 @@ class Finder implements \IteratorAggregate, \Countable
 
     /**
      * Forces the finder to ignore version control directories.
+     *
+     * This option is enabled by default.
      *
      * @param bool $ignoreVCS Whether to exclude VCS files or not
      *
@@ -485,8 +490,6 @@ class Finder implements \IteratorAggregate, \Countable
      * The anonymous function receives two \SplFileInfo instances to compare.
      *
      * This can be slow as all the matching files and directories must be retrieved for comparison.
-     *
-     * @param \Closure $closure An anonymous function
      *
      * @return $this
      *
@@ -592,8 +595,6 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * The anonymous function receives a \SplFileInfo and must return false
      * to remove files.
-     *
-     * @param \Closure $closure An anonymous function
      *
      * @return $this
      *
@@ -702,7 +703,7 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * @return $this
      *
-     * @throws \InvalidArgumentException When the given argument is not iterable.
+     * @throws \InvalidArgumentException when the given argument is not iterable
      */
     public function append($iterator)
     {
@@ -854,8 +855,6 @@ class Finder implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @param AdapterInterface $adapter
-     *
      * @return AdapterInterface
      */
     private function buildAdapter(AdapterInterface $adapter)

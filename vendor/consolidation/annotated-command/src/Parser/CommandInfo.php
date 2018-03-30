@@ -388,6 +388,27 @@ class CommandInfo
     }
 
     /**
+     * Get hidden status for the command.
+     * @return bool
+     */
+    public function getHidden()
+    {
+        $this->parseDocBlock();
+        return $this->hasAnnotation('hidden');
+    }
+
+    /**
+     * Set hidden status. List command omits hidden commands.
+     *
+     * @param bool $hidden
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+        return $this;
+    }
+
+    /**
      * Return the examples for this command. This is @usage instead of
      * @example because the later is defined by the phpdoc standard to
      * be example method calls.
@@ -610,7 +631,7 @@ class CommandInfo
         $result = new DefaultsWithDescriptions();
         $params = $this->reflection->getParameters();
         $optionsFromParameters = $this->determineOptionsFromParameters();
-        if (!empty($optionsFromParameters)) {
+        if ($this->lastParameterIsOptionsArray()) {
             array_pop($params);
         }
         foreach ($params as $param) {
@@ -662,6 +683,28 @@ class CommandInfo
             return [];
         }
         return $param->getDefaultValue();
+    }
+
+    /**
+     * Determine if the last argument contains $options.
+     *
+     * Two forms indicate options:
+     * - $options = []
+     * - $options = ['flag' => 'default-value']
+     *
+     * Any other form, including `array $foo`, is not options.
+     */
+    protected function lastParameterIsOptionsArray()
+    {
+        $params = $this->reflection->getParameters();
+        if (empty($params)) {
+            return [];
+        }
+        $param = end($params);
+        if (!$param->isDefaultValueAvailable()) {
+            return [];
+        }
+        return is_array($param->getDefaultValue());
     }
 
     /**
