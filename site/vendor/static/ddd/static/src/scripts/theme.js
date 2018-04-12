@@ -212,7 +212,7 @@ Theme = {
             });
         });
     },
-    
+
     formChosen: function(){
         var $formChosen = $('.form-chosen');
         var $url = $formChosen.find('.form-url');
@@ -253,7 +253,7 @@ Theme = {
             animateOut: 'fadeOut',
 			autoHeight: true,
             loop:true,
-            afterInit : function() { 
+            afterInit : function() {
                 // make individual items focusable
                 $element.find('.owl-item').attr('aria-selected','false').attr('tabindex','0');
                 $element.attr('tabindex','0');
@@ -313,7 +313,7 @@ Theme = {
 				$button.on('click', function(e){
 					e.preventDefault();
 					var $this = $(this);
-					var $index = $this.closest('li').index() + 1;
+					var $index = $this.closest('li').index();
 					$element.trigger("to.owl.carousel", [$index, 500, true])
 					$('.show-summary .summary').hide();
 				});

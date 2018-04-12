@@ -9,7 +9,10 @@ use RedBeanPHP\RedException\SQL as SQLException;
 
 /**
  * Association Manager.
- * Manages simple bean associations.
+ * The association manager can be used to create and manage
+ * many-to-many relations (for example sharedLists). In a many-to-many relation,
+ * one bean can be associated with many other beans, while each of those beans
+ * can also be related to multiple beans.
  *
  * @file    RedBeanPHP/AssociationManager.php
  * @author  Gabor de Mooij and the RedBeanPHP Community
@@ -38,9 +41,21 @@ class AssociationManager extends Observable
 	protected $writer;
 
 	/**
-	 * Handles exceptions. Suppresses exceptions caused by missing structures.
+	 * Exception handler.
+	 * Fluid and Frozen mode have different ways of handling
+	 * exceptions. Fluid mode (using the fluid repository) ignores
+	 * exceptions caused by the following:
 	 *
-	 * @param \Exception $exception exception to handle
+	 * - missing tables
+	 * - missing column
+	 *
+	 * In these situations, the repository will behave as if
+	 * no beans could be found. This is because in fluid mode
+	 * it might happen to query a table or column that has not been
+	 * created yet. In frozen mode, this is not supposed to happen
+	 * and the corresponding exceptions will be thrown.
+	 *
+	 * @param \Exception $exception exception
 	 *
 	 * @return void
 	 */
@@ -131,9 +146,14 @@ class AssociationManager extends Observable
 	}
 
 	/**
-	 * Constructor
+	 * Constructor, creates a new instance of the Association Manager.
+	 * The association manager can be used to create and manage
+	 * many-to-many relations (for example sharedLists). In a many-to-many relation,
+	 * one bean can be associated with many other beans, while each of those beans
+	 * can also be related to multiple beans. To create an Association Manager
+	 * instance you'll need to pass a ToolBox object.
 	 *
-	 * @param ToolBox $tools toolbox
+	 * @param ToolBox $tools toolbox supplying core RedBeanPHP objects
 	 */
 	public function __construct( ToolBox $tools )
 	{

@@ -25,6 +25,39 @@ use RedBeanPHP\RedException\SQL as SQL;
  */
 class Batch extends Base
 {
+	/**
+	 * Can we delete beans by find-query?
+	 *
+	 * @return void
+	 */
+	public function testHunt()
+	{
+		R::nuke();
+		$books = R::dispenseAll( 'book*3' );
+		R::storeAll( $books[0] );
+		pass();
+		asrt( ( R::count( 'book' ) === 3 ), TRUE );
+		$ids = R::getCol( 'SELECT id FROM book' );
+		R::hunt( 'book', ' id IN ( '. R::genSlots( $ids ) .' ) ', $ids );
+		asrt( ( R::count( 'book' ) === 0 ), TRUE );
+	}
+
+	/**
+	 * Tests batch trashing. Can we trash beans using
+	 * IDs only?
+	 *
+	 * @return void
+	 */
+	public function testBatchTrash()
+	{
+		R::nuke();
+		$books = R::dispenseAll( 'book*3' );
+		R::storeAll( $books[0] );
+		pass();
+		asrt( ( R::count( 'book' ) === 3 ), TRUE );
+		R::trashBatch( 'book', R::getCol( 'SELECT id FROM book' ) );
+		asrt( ( R::count( 'book' ) === 0 ), TRUE );
+	}
 
 	/**
 	 * Begin testing.
@@ -136,8 +169,8 @@ class Batch extends Base
 	{
 		$ids = R::storeAll( R::dispense( 'page', 2 ) );
 		$pages = R::loadAll( 'page', $ids );
-		asrt( is_array( $pages ), true );
+		asrt( is_array( $pages ), TRUE );
 		asrt( count( $pages ), 2 );
-		asrt( ( $pages[$ids[0]] instanceof OODBBean ), true );
+		asrt( ( $pages[$ids[0]] instanceof OODBBean ), TRUE );
 	}
 }

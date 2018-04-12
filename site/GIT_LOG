@@ -1,3 +1,5 @@
+8469e45 Julien Liébert 2018-04-12 20:38:39 +0200 Merge pull request #11 in DDD/defenseurdesdroits from develop to master
+66a938c Julien Liébert 2018-04-12 20:06:46 +0200 [TASK] Mise à jours composer.lock et simplification des dépendances
 9d61599 Julien Liébert 2018-03-30 14:26:12 +0200 Merge pull request #10 in DDD/defenseurdesdroits from develop to master
 4c222a2 Sébastien Libbrecht 2018-03-29 15:30:41 +0200 Merge pull request #9 in DDD/defenseurdesdroits from core-to-8.3.9 to develop
 105a284 sebastien 2018-03-29 15:29:31 +0200 [TASK] Mise à jour du core 8.3.9 intégrant également le patch de sécurité PSA-2018-001
@@ -96,5 +98,3 @@ aaa2091 adrien-gontier 2017-04-03 18:46:30 +0200 ckeditor full version
 ce15d0b adrien-gontier 2017-04-03 13:22:32 +0200 composer new version
 5d02f75 adrien-gontier 2017-04-03 13:20:54 +0200 drupal composer new version
 9cedabc adrien-gontier 2017-04-03 11:43:28 +0200 Merge remote-tracking branch 'origin/master'
-024890c adrien-gontier 2017-04-03 11:43:15 +0200 [TASK] Parcours pedagogiques
-95b6414 Julien Liébert 2017-03-30 15:42:33 +0200 [PROVISIONING] le composer est joué par le provisioning pas par le deploy

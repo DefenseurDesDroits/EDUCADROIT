@@ -41,12 +41,12 @@ abstract class AQueryWriter
 	/**
 	 * @var boolean
 	 */
-	private static $flagSQLFilterSafeMode = false;
+	private static $flagSQLFilterSafeMode = FALSE;
 
 	/**
 	 * @var boolean
 	 */
-	private static $flagNarrowFieldMode = true;
+	private static $flagNarrowFieldMode = TRUE;
 
 	/**
 	 * @var boolean
@@ -193,6 +193,7 @@ abstract class AQueryWriter
 	 * more flexibility (for instance joins). However if you need
 	 * the wide selector for backward compatibility; use this method
 	 * to turn OFF Narrow Field Mode by passing FALSE.
+	 * Default is TRUE.
 	 *
 	 * @param boolean $narrowField TRUE = Narrow Field FALSE = Wide Field
 	 *
@@ -238,7 +239,7 @@ abstract class AQueryWriter
 	 *
 	 * @return void
 	 */
-	public static function setSQLFilters( $sqlFilters, $safeMode = false )
+	public static function setSQLFilters( $sqlFilters, $safeMode = FALSE )
 	{
 		self::$flagSQLFilterSafeMode = (boolean) $safeMode;
 		self::$sqlFilters = $sqlFilters;
@@ -368,12 +369,16 @@ abstract class AQueryWriter
 
 		$sqlConditions = array();
 		foreach ( $conditions as $column => $values ) {
-			if ( !count( $values ) ) continue;
+			if ( $values === NULL ) continue;
+
+			if ( is_array( $values ) ) {
+				if ( empty( $values ) ) continue;
+			} else {
+				$values = array( $values );
+			}
 
 			$sql = $this->esc( $column );
 			$sql .= ' IN ( ';
-
-			if ( !is_array( $values ) ) $values = array( $values );
 
 			if ( $paramTypeIsNum ) {
 				$sql .= implode( ',', array_fill( 0, count( $values ), '?' ) ) . ' ) ';
@@ -401,7 +406,8 @@ abstract class AQueryWriter
 		}
 
 		$sql = '';
-		if ( is_array( $sqlConditions ) && count( $sqlConditions ) > 0 ) {
+		$addSql = $this->glueSQLCondition( $addSql, !empty( $sqlConditions ) ? QueryWriter::C_GLUE_AND : NULL );
+		if ( !empty( $sqlConditions ) ) {
 			$sql = implode( ' AND ', $sqlConditions );
 			$sql = " WHERE ( $sql ) ";
 
@@ -880,8 +886,6 @@ abstract class AQueryWriter
 	 */
 	public function queryRecord( $type, $conditions = array(), $addSql = NULL, $bindings = array() )
 	{
-		$addSql = $this->glueSQLCondition( $addSql, ( count($conditions) > 0) ? QueryWriter::C_GLUE_AND : NULL );
-
 		$key = NULL;
 		if ( $this->flagUseCache ) {
 			$key = $this->getCacheKey( array( $conditions, "$addSql {$this->sqlSelectSnippet}", $bindings, 'select' ) );
@@ -897,7 +901,13 @@ abstract class AQueryWriter
 		if ( count( self::$sqlFilters ) ) {
 			$sqlFilterStr = $this->getSQLFilterSnippet( $type );
 		}
-		$sql   = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		
+		if ( is_array ( $conditions ) && !empty ( $conditions ) ) {
+			$sql = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		} else {
+			$sql = $this->glueSQLCondition( $addSql );
+		}
+
 		$fieldSelection = ( self::$flagNarrowFieldMode ) ? "{$table}.*" : '*';
 		$sql   = "SELECT {$fieldSelection} {$sqlFilterStr} FROM {$table} {$sql} {$this->sqlSelectSnippet} -- keep-cache";
 		$this->sqlSelectSnippet = '';
@@ -1026,7 +1036,7 @@ abstract class AQueryWriter
 		$score = ( $all ) ? count( $tagList ) : 1;
 
 		$sql = "
-			SELECT {$table}.*, count({$table}.id) FROM {$table}
+			SELECT {$table}.* FROM {$table}
 			INNER JOIN {$assocTable} ON {$assocField} = {$table}.id
 			INNER JOIN tag ON {$assocTable}.tag_id = tag.id
 			WHERE tag.title IN ({$slots})
@@ -1045,13 +1055,16 @@ abstract class AQueryWriter
 	 */
 	public function queryRecordCount( $type, $conditions = array(), $addSql = NULL, $bindings = array() )
 	{
-		$addSql = $this->glueSQLCondition( $addSql );
-
 		$table  = $this->esc( $type );
 
 		$this->updateCache(); //check if cache chain has been broken
 
-		$sql    = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		if ( is_array ( $conditions ) && !empty ( $conditions ) ) {
+			$sql = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		} else {
+			$sql = $this->glueSQLCondition( $addSql );
+		}
+		
 		$sql    = "SELECT COUNT(*) FROM {$table} {$sql} -- keep-cache";
 
 		return (int) $this->adapter->getCell( $sql, $bindings );
@@ -1095,11 +1108,14 @@ abstract class AQueryWriter
 	 */
 	public function deleteRecord( $type, $conditions = array(), $addSql = NULL, $bindings = array() )
 	{
-		$addSql = $this->glueSQLCondition( $addSql );
-
 		$table  = $this->esc( $type );
 
-		$sql    = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		if ( is_array ( $conditions ) && !empty ( $conditions ) ) {
+			$sql = $this->makeSQLFromConditions( $conditions, $bindings, $addSql );
+		} else {
+			$sql = $this->glueSQLCondition( $addSql );
+		}
+		
 		$sql    = "DELETE FROM {$table} {$sql}";
 
 		$this->adapter->exec( $sql, $bindings );

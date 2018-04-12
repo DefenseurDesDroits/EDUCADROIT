@@ -1,7 +1,7 @@
 RedBeanPHP 5
 ============
 
-![Build Status](https://travis-ci.org/gabordemooij/redbean.svg?branch=master)
+[![Build Status](https://travis-ci.org/gabordemooij/redbean.svg?branch=master)](https://travis-ci.org/gabordemooij/redbean)
 
 RedBeanPHP is an easy to use ORM tool for PHP.
 
@@ -28,8 +28,18 @@ You will find many examples on the RedBean website make use of RedBean's `R` cla
 ```php
 use \RedBeanPHP\R as R;
 ```
+**NOTE:**
+It is important to note that when using RedBeanPHP with Composer, there are some extra precautions needed when working with [Models](https://redbeanphp.com/index.php?p=/models). Due to the namespace requirements of Composer, when creating Models we need to use the `SimpleModel` to extend, not `RedBean_SimpleModel`. Furthermore, we need to specify the namespace of the `SimpleModel`, so a full example of using a Model with RedBean with Composer is as follows:
 
-If you are not using [Composer](https://getcomposer.org/) then [try it.](http://redbeanphp.com/install)
+```php
+use \RedBeanPHP\R;
+
+class Model_User extends \RedBeanPHP\SimpleModel
+{
+    ...
+}
+```
+Notice that we also need to add the `use \RedBeanPHP\R` statement so that we can use the `R::` shortcut within the Model.
 
 
 Quick Example
@@ -52,4 +62,4 @@ More information
 For more information about RedBeanPHP please consult
 the RedBeanPHP website:
 
-http://www.redbeanphp.com/
+https://www.redbeanphp.com/

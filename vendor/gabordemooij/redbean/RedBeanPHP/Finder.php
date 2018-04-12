@@ -103,7 +103,7 @@ class Finder
 	 * @param string $sql      sql    SQL query to find the desired bean, starting right after WHERE clause
 	 * @param array  $bindings values array of values to be bound to parameters in query
 	 *
-	 * @return OODBBean
+	 * @return OODBBean|NULL
 	 */
 	public function findOne( $type, $sql = NULL, $bindings = array() )
 	{
@@ -129,7 +129,7 @@ class Finder
 	 * @param string $sql      SQL query to find the desired bean, starting right after WHERE clause
 	 * @param array  $bindings values array of values to be bound to parameters in query
 	 *
-	 * @return OODBBean
+	 * @return OODBBean|NULL
 	 */
 	public function findLast( $type, $sql = NULL, $bindings = array() )
 	{
@@ -200,9 +200,10 @@ class Finder
 	 *
 	 * @return OODBBean
 	 */
-	public function findOrCreate( $type, $like = array() )
+	public function findOrCreate( $type, $like = array(), $sql = '' )
 	{
-			$beans = $this->findLike( $type, $like );
+			$sql = $this->toolbox->getWriter()->glueLimitOne( $sql );
+			$beans = $this->findLike( $type, $like, $sql );
 			if ( count( $beans ) ) {
 				$bean = reset( $beans );
 				return $bean;
@@ -237,12 +238,6 @@ class Finder
 	 */
 	public function findLike( $type, $conditions = array(), $sql = '' )
 	{
-		if ( count( $conditions ) > 0 ) {
-			foreach( $conditions as $key => $condition ) {
-				if ( !count( $condition ) ) unset( $conditions[$key] );
-			}
-		}
-
 		return $this->redbean->find( $type, $conditions, $sql );
 	}
 
