@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621
+class ComposerStaticInit549eb5be6c74a59248f36dfe07cedfd6
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -21,7 +21,7 @@ class ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621
         'd9d39f82a605ebe5918f683dd402334c' => __DIR__ . '/..' . '/padraic/humbug_get_contents/src/function.php',
         '3a50d90d85c7fe889a94ae1114b921ce' => __DIR__ . '/..' . '/padraic/humbug_get_contents/src/functions.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
-        'e7223560d890eab89cda23685e711e2c' => __DIR__ . '/..' . '/psy/psysh/src/Psy/functions.php',
+        '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -82,6 +82,7 @@ class ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621
             'Symfony\\Cmf\\Component\\Routing\\' => 30,
             'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
             'Stecman\\Component\\Symfony\\Console\\BashCompletion\\' => 49,
+            'SlowProg\\CopyFile\\' => 18,
         ),
         'R' => 
         array (
@@ -292,13 +293,17 @@ class ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621
         array (
             0 => __DIR__ . '/..' . '/stecman/symfony-console-completion/src',
         ),
+        'SlowProg\\CopyFile\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/slowprog/composer-copy-file',
+        ),
         'RedBeanPHP\\' => 
         array (
             0 => __DIR__ . '/..' . '/gabordemooij/redbean/RedBeanPHP',
         ),
         'Psy\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psy/psysh/src/Psy',
+            0 => __DIR__ . '/..' . '/psy/psysh/src',
         ),
         'Psr\\Log\\' => 
         array (
@@ -493,10 +498,10 @@ class ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit469dd2eedc2b965c088e1e62b0a95621::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit549eb5be6c74a59248f36dfe07cedfd6::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit549eb5be6c74a59248f36dfe07cedfd6::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit549eb5be6c74a59248f36dfe07cedfd6::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit549eb5be6c74a59248f36dfe07cedfd6::$classMap;
 
         }, null, ClassLoader::class);
     }

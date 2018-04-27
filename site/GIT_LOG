@@ -1,3 +1,8 @@
+61431a3 Julien Liébert 2018-04-27 17:38:40 +0200 Merge pull request #13 in DDD/defenseurdesdroits from develop to master
+152d936 Julien Liébert 2018-04-27 17:10:10 +0200 [TASK] Revue du mécanisme de déploiement composer des static GAYA et des thèmes contrib
+6372020 Julien Liébert 2018-04-27 17:06:38 +0200 [PROVISIONING] Compatbilité plugins vagrant + optimisation montge NFS + de mémoire pour jouer composer
+3f15c2a Julien Liébert 2018-04-27 13:07:10 +0200 Merge pull request #12 in DDD/defenseurdesdroits from PSA-2018-003 to develop
+b3f682e sebastien 2018-04-26 19:54:25 +0200 [SECURITY][PATCH] PSA-2018-003 - Drupal core patch.
 8469e45 Julien Liébert 2018-04-12 20:38:39 +0200 Merge pull request #11 in DDD/defenseurdesdroits from develop to master
 66a938c Julien Liébert 2018-04-12 20:06:46 +0200 [TASK] Mise à jours composer.lock et simplification des dépendances
 9d61599 Julien Liébert 2018-03-30 14:26:12 +0200 Merge pull request #10 in DDD/defenseurdesdroits from develop to master
@@ -93,8 +98,3 @@ ba635db adrien-gontier 2017-04-19 11:07:55 +0200 [TASK] composer debug
 e3f6469 adrien-gontier 2017-04-03 18:52:37 +0200 composer dependance dropzonejs
 4ee5bcb adrien-gontier 2017-04-03 18:50:23 +0200 composer debug
 3375edf adrien-gontier 2017-04-03 18:49:24 +0200 composer debug
-aaa2091 adrien-gontier 2017-04-03 18:46:30 +0200 ckeditor full version
-31a644e adrien-gontier 2017-04-03 17:49:19 +0200 Debug questions reponses
-ce15d0b adrien-gontier 2017-04-03 13:22:32 +0200 composer new version
-5d02f75 adrien-gontier 2017-04-03 13:20:54 +0200 drupal composer new version
-9cedabc adrien-gontier 2017-04-03 11:43:28 +0200 Merge remote-tracking branch 'origin/master'

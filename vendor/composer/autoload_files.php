@@ -20,5 +20,5 @@ return array(
     'd9d39f82a605ebe5918f683dd402334c' => $vendorDir . '/padraic/humbug_get_contents/src/function.php',
     '3a50d90d85c7fe889a94ae1114b921ce' => $vendorDir . '/padraic/humbug_get_contents/src/functions.php',
     'decc78cc4436b1292c6c0d151b19445c' => $vendorDir . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
-    'e7223560d890eab89cda23685e711e2c' => $vendorDir . '/psy/psysh/src/Psy/functions.php',
+    '801c31d8ed748cfa537fa45402288c95' => $vendorDir . '/psy/psysh/src/functions.php',
 );
