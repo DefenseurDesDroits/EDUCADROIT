@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\comment\Functional;
 
-
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\node\Entity\NodeType;
 use Drupal\Tests\BrowserTestBase;
@@ -20,6 +19,11 @@ class CommentStatusFieldAccessTest extends BrowserTestBase {
    * {@inheritdoc}
    */
   public $profile = 'testing';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Comment admin.
@@ -86,14 +90,14 @@ class CommentStatusFieldAccessTest extends BrowserTestBase {
     $assert->fieldNotExists('comment[0][status]');
     $this->submitForm([
       'title[0][value]' => 'Node 1',
-    ], t('Save and publish'));
+    ], t('Save'));
     $assert->fieldExists('subject[0][value]');
     $this->drupalLogin($this->commentAdmin);
     $this->drupalGet('node/add/article');
     $assert->fieldExists('comment[0][status]');
     $this->submitForm([
       'title[0][value]' => 'Node 2',
-    ], t('Save and publish'));
+    ], t('Save'));
     $assert->fieldExists('subject[0][value]');
   }
 

@@ -2,11 +2,10 @@
 
 namespace Drupal\Tests\field\Functional\EntityReference;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\node\Entity\Node;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -20,7 +19,12 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
 
   use EntityReferenceTestTrait;
 
-  public static $modules = ['node', 'taxonomy'];
+  public static $modules = ['node', 'taxonomy', 'entity_test'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * The name of a content type that will reference $referencedType.
@@ -76,16 +80,22 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
       ],
     ])->save();
 
-    entity_get_display('node', $referencing->id(), 'default')
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+    $display_repository = \Drupal::service('entity_display.repository');
+
+    $display_repository->getViewDisplay('node', $referencing->id())
       ->setComponent('test_field')
       ->save();
-    entity_get_form_display('node', $referencing->id(), 'default')
+    $display_repository->getFormDisplay('node', $referencing->id(), 'default')
       ->setComponent('test_field', [
         'type' => 'entity_reference_autocomplete',
       ])
       ->save();
 
-    $account = $this->drupalCreateUser(['access content', "create $this->referencingType content"]);
+    $account = $this->drupalCreateUser([
+      'access content',
+      "create $this->referencingType content",
+    ]);
     $this->drupalLogin($account);
   }
 
@@ -107,7 +117,7 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
 
     $query = clone $base_query;
     $result = $query->execute();
-    $this->assertFalse($result, 'Referenced node does not exist yet.');
+    $this->assertEmpty($result, 'Referenced node does not exist yet.');
 
     $edit = [
       'title[0][value]' => $this->randomMachineName(),
@@ -118,7 +128,7 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
     // Assert referenced node was created.
     $query = clone $base_query;
     $result = $query->execute();
-    $this->assertTrue($result, 'Referenced node was created.');
+    $this->assertNotEmpty($result, 'Referenced node was created.');
     $referenced_nid = key($result);
     $referenced_node = Node::load($referenced_nid);
 
@@ -145,7 +155,7 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
     /** @var \Drupal\taxonomy\Entity\Vocabulary[] $vocabularies */
     $vocabularies = [];
     for ($i = 0; $i < 2; $i++) {
-      $vid = Unicode::strtolower($this->randomMachineName());
+      $vid = mb_strtolower($this->randomMachineName());
       $vocabularies[$i] = Vocabulary::create([
         'name' => $this->randomMachineName(),
         'vid' => $vid,
@@ -156,7 +166,7 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
     // Create a taxonomy term entity reference field that saves the auto-created
     // taxonomy terms in the second vocabulary from the two that were configured
     // as targets.
-    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_name = mb_strtolower($this->randomMachineName());
     $handler_settings = [
       'target_bundles' => [
         $vocabularies[0]->id() => $vocabularies[0]->id(),
@@ -167,7 +177,8 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
     ];
     $this->createEntityReferenceField('node', $this->referencingType, $field_name, $this->randomString(), 'taxonomy_term', 'default', $handler_settings);
     /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $fd */
-    entity_get_form_display('node', $this->referencingType, 'default')
+    \Drupal::service('entity_display.repository')
+      ->getFormDisplay('node', $this->referencingType)
       ->setComponent($field_name, ['type' => 'entity_reference_autocomplete'])
       ->save();
 
@@ -213,17 +224,64 @@ class EntityReferenceAutoCreateTest extends BrowserTestBase {
     //   a way to catch and assert user-triggered errors.
 
     // Test the case when the field config settings are inconsistent.
-    //unset($handler_settings['auto_create_bundle']);
-    //$field_config->setSetting('handler_settings', $handler_settings);
-    //$field_config->save();
+    // unset($handler_settings['auto_create_bundle']);
+    // $field_config->setSetting('handler_settings', $handler_settings);
+    // $field_config->save();
     //
-    //$this->drupalGet('node/add/' . $this->referencingType);
-    //$error_message = sprintf(
+    // $this->drupalGet('node/add/' . $this->referencingType);
+    // $error_message = sprintf(
     //  "Create referenced entities if they don't already exist option is enabled but a specific destination bundle is not set. You should re-visit and fix the settings of the '%s' (%s) field.",
     //  $field_config->getLabel(),
     //  $field_config->getName()
-    //);
-    //$this->assertErrorLogged($error_message);
+    // );
+    // $this->assertErrorLogged($error_message);
+  }
+
+  /**
+   * Tests autocreation for an entity that has no bundles.
+   */
+  public function testNoBundles() {
+    $account = $this->drupalCreateUser([
+      'access content',
+      "create $this->referencingType content",
+      'administer entity_test content',
+    ]);
+    $this->drupalLogin($account);
+
+    $field_name = mb_strtolower($this->randomMachineName());
+    $handler_settings = [
+      'auto_create' => TRUE,
+    ];
+    $this->createEntityReferenceField('node', $this->referencingType, $field_name, $this->randomString(), 'entity_test_no_bundle_with_label', 'default', $handler_settings);
+    \Drupal::service('entity_display.repository')
+      ->getFormDisplay('node', $this->referencingType)
+      ->setComponent($field_name, ['type' => 'entity_reference_autocomplete'])
+      ->save();
+
+    $node_title = $this->randomMachineName();
+    $name = $this->randomMachineName();
+    $edit = [
+      $field_name . '[0][target_id]' => $name,
+      'title[0][value]' => $node_title,
+    ];
+
+    $this->drupalPostForm('node/add/' . $this->referencingType, $edit, 'Save');
+
+    // Assert referenced entity was created.
+    $result = \Drupal::entityQuery('entity_test_no_bundle_with_label')
+      ->condition('name', $name)
+      ->execute();
+    $this->assertNotEmpty($result, 'Referenced entity was created.');
+    $referenced_id = key($result);
+
+    // Assert the referenced entity is associated with referencing node.
+    $result = \Drupal::entityQuery('node')
+      ->condition('type', $this->referencingType)
+      ->execute();
+    $this->assertCount(1, $result);
+    $referencing_nid = key($result);
+    $referencing_node = Node::load($referencing_nid);
+    $this->assertEqual($referenced_id, $referencing_node->$field_name->target_id, 'Newly created node is referenced from the referencing entity.');
   }
 
 }

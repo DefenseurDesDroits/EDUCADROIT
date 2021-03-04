@@ -11,6 +11,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
+use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\entity_test\EntityTestListBuilder;
 use Drupal\Tests\UnitTestCase;
 
@@ -23,14 +24,14 @@ class EntityListBuilderTest extends UnitTestCase {
   /**
    * The entity type used for testing.
    *
-   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $entityType;
 
   /**
    * The module handler used for testing.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $moduleHandler;
 
@@ -44,7 +45,7 @@ class EntityListBuilderTest extends UnitTestCase {
   /**
    * The role storage used for testing.
    *
-   * @var \Drupal\user\RoleStorageInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\user\RoleStorageInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $roleStorage;
 
@@ -58,9 +59,16 @@ class EntityListBuilderTest extends UnitTestCase {
   /**
    * The entity used to construct the EntityListBuilder.
    *
-   * @var \Drupal\user\RoleInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\user\RoleInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $role;
+
+  /**
+   * The redirect destination service.
+   *
+   * @var \Drupal\Core\Routing\RedirectDestinationInterface|\PHPUnit\Framework\MockObject\MockObject
+   */
+  protected $redirectDestination;
 
   /**
    * The EntityListBuilder object to test.
@@ -75,12 +83,13 @@ class EntityListBuilderTest extends UnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->role = $this->getMock('Drupal\user\RoleInterface');
-    $this->roleStorage = $this->getMock('\Drupal\user\RoleStorageInterface');
-    $this->moduleHandler = $this->getMock('\Drupal\Core\Extension\ModuleHandlerInterface');
-    $this->entityType = $this->getMock('\Drupal\Core\Entity\EntityTypeInterface');
-    $this->translationManager = $this->getMock('\Drupal\Core\StringTranslation\TranslationInterface');
-    $this->entityListBuilder = new TestEntityListBuilder($this->entityType, $this->roleStorage, $this->moduleHandler);
+    $this->role = $this->createMock('Drupal\user\RoleInterface');
+    $this->roleStorage = $this->createMock('\Drupal\user\RoleStorageInterface');
+    $this->moduleHandler = $this->createMock('\Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->entityType = $this->createMock('\Drupal\Core\Entity\EntityTypeInterface');
+    $this->translationManager = $this->createMock('\Drupal\Core\StringTranslation\TranslationInterface');
+    $this->entityListBuilder = new TestEntityListBuilder($this->entityType, $this->roleStorage);
+    $this->redirectDestination = $this->createMock(RedirectDestinationInterface::class);
     $this->container = new ContainerBuilder();
     \Drupal::setContainer($this->container);
   }
@@ -114,32 +123,38 @@ class EntityListBuilderTest extends UnitTestCase {
     $url = $this->getMockBuilder('\Drupal\Core\Url')
       ->disableOriginalConstructor()
       ->getMock();
-    $url->expects($this->any())
-      ->method('toArray')
-      ->will($this->returnValue([]));
+    $url->expects($this->atLeastOnce())
+      ->method('mergeOptions')
+      ->with(['query' => ['destination' => '/foo/bar']]);
     $this->role->expects($this->any())
-      ->method('urlInfo')
+      ->method('toUrl')
       ->will($this->returnValue($url));
 
-    $list = new EntityListBuilder($this->entityType, $this->roleStorage, $this->moduleHandler);
+    $this->redirectDestination->expects($this->atLeastOnce())
+      ->method('getAsArray')
+      ->willReturn(['destination' => '/foo/bar']);
+
+    $list = new EntityListBuilder($this->entityType, $this->roleStorage);
     $list->setStringTranslation($this->translationManager);
+    $list->setRedirectDestination($this->redirectDestination);
 
     $operations = $list->getOperations($this->role);
-    $this->assertInternalType('array', $operations);
+    $this->assertIsArray($operations);
     $this->assertArrayHasKey('edit', $operations);
-    $this->assertInternalType('array', $operations['edit']);
+    $this->assertIsArray($operations['edit']);
     $this->assertArrayHasKey('title', $operations['edit']);
     $this->assertArrayHasKey('delete', $operations);
-    $this->assertInternalType('array', $operations['delete']);
+    $this->assertIsArray($operations['delete']);
     $this->assertArrayHasKey('title', $operations['delete']);
     $this->assertArrayHasKey($operation_name, $operations);
-    $this->assertInternalType('array', $operations[$operation_name]);
+    $this->assertIsArray($operations[$operation_name]);
     $this->assertArrayHasKey('title', $operations[$operation_name]);
   }
 
 }
 
 class TestEntityListBuilder extends EntityTestListBuilder {
+
   public function buildOperations(EntityInterface $entity) {
     return [];
   }

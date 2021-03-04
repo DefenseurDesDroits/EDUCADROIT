@@ -8,12 +8,44 @@ paragraphs.paragraphs_type.*:
     label:
       type: label
       label: 'Label'
+    icon_uuid:
+      type: string
+      label: 'Icon uuid'
+    icon_default:
+      type: string
+      label: 'Default icon'
+    description:
+      type: text
+      label: 'Description'
+    behavior_plugins:
+      type: sequence
+      label: 'Plugins'
+      orderby: key
+      sequence:
+        type: paragraphs.behavior.settings.[%key]
+        label: 'Behavior plugins'
+
+paragraphs.behavior.settings_base:
+  type: mapping
+  label: 'Settings for base paragraphs behavior plugin'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+
+# The plugins which extend the base behavior plugin and don't provide
+# any configuration form will validate on this entry.
+paragraphs.behavior.settings.*:
+  type: paragraphs.behavior.settings_base
 
 entity_reference_selection.default:paragraph:
-  type: entity_reference_selection
+  type: entity_reference_selection.default
   mapping:
+    negate:
+      type: integer
     target_bundles_drag_drop:
       type: sequence
+      orderby: key
       sequence:
         type: mapping
         mapping:
@@ -26,20 +58,51 @@ entity_reference_selection.default:paragraph:
     edit_mode:
       type: string
     title:
-      type: string
+      type: label
     title_plural:
+      type: label
+    default_paragraph_type:
       type: string
 
 field.widget.settings.entity_reference_paragraphs:
   type: mapping
   mapping:
     title:
-      type: string
+      type: label
     title_plural:
-      type: string
+      type: label
     edit_mode:
       type: string
     add_mode:
       type: string
     form_display_mode:
       type: string
+    default_paragraph_type:
+      type: string
+
+field.widget.settings.paragraphs:
+  type: mapping
+  mapping:
+    title:
+      type: label
+    title_plural:
+      type: label
+    edit_mode:
+      type: string
+    closed_mode:
+      type: string
+    autocollapse:
+      type: string
+    closed_mode_threshold:
+      type: integer
+    add_mode:
+      type: string
+    form_display_mode:
+      type: string
+    default_paragraph_type:
+      type: string
+    features:
+      type: sequence
+      orderby: key
+      sequence:
+        type: string

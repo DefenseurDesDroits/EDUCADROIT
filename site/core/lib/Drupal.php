@@ -6,8 +6,9 @@
  */
 
 use Drupal\Core\DependencyInjection\ContainerNotInitializedException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Messenger\LegacyMessenger;
 use Drupal\Core\Url;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Static Service Container wrapper.
@@ -81,7 +82,7 @@ class Drupal {
   /**
    * The current system version.
    */
-  const VERSION = '8.3.9';
+  const VERSION = '8.9.11';
 
   /**
    * Core API compatibility.
@@ -120,7 +121,7 @@ class Drupal {
   /**
    * Returns the currently active global container.
    *
-   * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface
    *
    * @throws \Drupal\Core\DependencyInjection\ContainerNotInitializedException
    */
@@ -139,7 +140,6 @@ class Drupal {
   public static function hasContainer() {
     return static::$container !== NULL;
   }
-
 
   /**
    * Retrieves a service from the container.
@@ -229,7 +229,7 @@ class Drupal {
   }
 
   /**
-   * Retrives the request stack.
+   * Retrieves the request stack.
    *
    * @return \Symfony\Component\HttpFoundation\RequestStack
    *   The request stack
@@ -251,6 +251,13 @@ class Drupal {
   /**
    * Gets the current active user.
    *
+   * This method will return the \Drupal\Core\Session\AccountProxy object of the
+   * current user. You can use the \Drupal\user\Entity\User::load() method to
+   * load the full user entity object. For example:
+   * @code
+   *   $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+   * @endcode
+   *
    * @return \Drupal\Core\Session\AccountProxyInterface
    */
   public static function currentUser() {
@@ -263,13 +270,14 @@ class Drupal {
    * @return \Drupal\Core\Entity\EntityManagerInterface
    *   The entity manager service.
    *
-   * @deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
    *   Use \Drupal::entityTypeManager() instead in most cases. If the needed
    *   method is not on \Drupal\Core\Entity\EntityTypeManagerInterface, see the
    *   deprecated \Drupal\Core\Entity\EntityManager to find the
    *   correct interface or service.
    */
   public static function entityManager() {
+    @trigger_error("\Drupal::entityManager() is deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0. Use \Drupal::entityTypeManager() instead in most cases. If the needed method is not on \Drupal\Core\Entity\EntityTypeManagerInterface, see the deprecated \Drupal\Core\Entity\EntityManager to find the correct interface or service. See https://www.drupal.org/node/2549139", E_USER_DEPRECATED);
     return static::getContainer()->get('entity.manager');
   }
 
@@ -319,10 +327,20 @@ class Drupal {
    * One common usecase is to provide a class which contains the actual code
    * of a hook implementation, without having to create a service.
    *
-   * @return \Drupal\Core\DependencyInjection\ClassResolverInterface
-   *   The class resolver.
+   * @param string $class
+   *   (optional) A class name to instantiate.
+   *
+   * @return \Drupal\Core\DependencyInjection\ClassResolverInterface|object
+   *   The class resolver or if $class is provided, a class instance with a
+   *   given class definition.
+   *
+   * @throws \InvalidArgumentException
+   *   If $class does not exist.
    */
-  public static function classResolver() {
+  public static function classResolver($class = NULL) {
+    if ($class) {
+      return static::getContainer()->get('class_resolver')->getInstanceFromDefinition($class);
+    }
     return static::getContainer()->get('class_resolver');
   }
 
@@ -355,12 +373,14 @@ class Drupal {
    *
    * This is the main entry point to the configuration API. Calling
    * @code \Drupal::config('book.admin') @endcode will return a configuration
-   * object in which the book module can store its administrative settings.
+   * object the Book module can use to read its administrative settings.
    *
    * @param string $name
-   *   The name of the configuration object to retrieve. The name corresponds to
-   *   a configuration file. For @code \Drupal::config('book.admin') @endcode, the config
-   *   object returned will contain the contents of book.admin configuration file.
+   *   The name of the configuration object to retrieve, which typically
+   *   corresponds to a configuration file. For
+   *   @code \Drupal::config('book.admin') @endcode, the configuration
+   *   object returned will contain the content of the book.admin
+   *   configuration file.
    *
    * @return \Drupal\Core\Config\ImmutableConfig
    *   An immutable configuration object.
@@ -562,11 +582,12 @@ class Drupal {
    * @see \Drupal\Core\Url::fromRoute()
    * @see \Drupal\Core\Url::fromUri()
    *
-   * @deprecated as of Drupal 8.0.x, will be removed before Drupal 9.0.0.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
    *   Instead create a \Drupal\Core\Url object directly, for example using
    *   Url::fromRoute().
    */
   public static function url($route_name, $route_parameters = [], $options = [], $collect_bubbleable_metadata = FALSE) {
+    @trigger_error('Drupal::url() is deprecated as of Drupal 8.0.x, will be removed before Drupal 9.0.0. Instead create a \Drupal\Core\Url object directly, for example using Url::fromRoute()', E_USER_DEPRECATED);
     return static::getContainer()->get('url_generator')->generateFromRoute($route_name, $route_parameters, $options, $collect_bubbleable_metadata);
   }
 
@@ -585,8 +606,8 @@ class Drupal {
    * This method is a convenience wrapper for the link generator service's
    * generate() method.
    *
-   * @param string $text
-   *   The link text for the anchor tag.
+   * @param string|array|\Drupal\Component\Render\MarkupInterface $text
+   *   The link text for the anchor tag as a translated string or render array.
    * @param \Drupal\Core\Url $url
    *   The URL object used for the link.
    *
@@ -594,17 +615,15 @@ class Drupal {
    *   A GeneratedLink object containing a link to the given route and
    *   parameters and bubbleable metadata.
    *
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+   * \Drupal\Core\Link::fromTextAndUrl() instead.
+   *
+   * @see https://www.drupal.org/node/2614344
    * @see \Drupal\Core\Utility\LinkGeneratorInterface::generate()
    * @see \Drupal\Core\Url
-   *
-   * @deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0.
-   *   Use \Drupal\Core\Link instead.
-   *   Example:
-   *   @code
-   *     $link = Link::fromTextAndUrl($text, $url);
-   *   @endcode
    */
   public static function l($text, Url $url) {
+    @trigger_error('\Drupal::l() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use \Drupal\Core\Link::fromTextAndUrl() instead. See https://www.drupal.org/node/2614344', E_USER_DEPRECATED);
     return static::getContainer()->get('link_generator')->generate($text, $url);
   }
 
@@ -755,6 +774,18 @@ class Drupal {
    */
   public static function time() {
     return static::getContainer()->get('datetime.time');
+  }
+
+  /**
+   * Returns the messenger.
+   *
+   * @return \Drupal\Core\Messenger\MessengerInterface
+   *   The messenger.
+   */
+  public static function messenger() {
+    // @todo Replace with service once LegacyMessenger is removed in 9.0.0.
+    // @see https://www.drupal.org/node/2928994
+    return new LegacyMessenger();
   }
 
 }

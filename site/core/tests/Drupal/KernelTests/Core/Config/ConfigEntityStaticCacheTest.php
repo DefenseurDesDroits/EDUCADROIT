@@ -57,7 +57,7 @@ class ConfigEntityStaticCacheTest extends KernelTestBase {
     // config_entity_static_cache_test_config_test_load() sets _loadStamp to a
     // random string. If they match, it means $entity_2 was retrieved from the
     // static cache rather than going through a separate load sequence.
-    $this->assertIdentical($entity_1->_loadStamp, $entity_2->_loadStamp);
+    $this->assertSame($entity_1->_loadStamp, $entity_2->_loadStamp);
   }
 
   /**
@@ -86,7 +86,7 @@ class ConfigEntityStaticCacheTest extends KernelTestBase {
    */
   public function testConfigOverride() {
     /** @var \Drupal\Core\Config\Entity\ConfigEntityStorage $storage */
-    $storage = \Drupal::entityManager()->getStorage($this->entityTypeId);
+    $storage = \Drupal::entityTypeManager()->getStorage($this->entityTypeId);
     // Prime the cache prior to adding a config override.
     $storage->load($this->entityId);
 

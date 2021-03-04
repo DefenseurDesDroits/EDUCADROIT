@@ -39,6 +39,9 @@ class FilterStringTest extends ViewsKernelTestBase {
     return $data;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function schemaDefinition() {
     $schema = parent::schemaDefinition();
     $schema['views_test_data']['fields']['description'] = [
@@ -219,7 +222,6 @@ class FilterStringTest extends ViewsKernelTestBase {
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
 
-
   public function testFilterStringGroupedExposedContains() {
     $filters = $this->getGroupedExposedFilters();
     $view = $this->getBasicPageView();
@@ -241,7 +243,6 @@ class FilterStringTest extends ViewsKernelTestBase {
 
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
-
 
   public function testFilterStringWord() {
     $view = Views::getView('test_view');
@@ -330,7 +331,6 @@ class FilterStringTest extends ViewsKernelTestBase {
     ];
     $this->assertIdenticalResultset($view, $resultset);
   }
-
 
   public function testFilterStringGroupedExposedWord() {
     $filters = $this->getGroupedExposedFilters();
@@ -447,7 +447,7 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
@@ -475,7 +475,7 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
@@ -556,7 +556,7 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
@@ -581,7 +581,7 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
@@ -610,11 +610,10 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
-
 
   public function testFilterStringGroupedExposedNot() {
     $filters = $this->getGroupedExposedFilters();
@@ -636,7 +635,7 @@ class FilterStringTest extends ViewsKernelTestBase {
       [
         'name' => 'Paul',
       ],
-      // There is no Meredith returned because his description is empty
+      // There is no Meredith returned because their description is empty
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
 
@@ -737,7 +736,6 @@ class FilterStringTest extends ViewsKernelTestBase {
     ];
     $this->assertIdenticalResultset($view, $resultset, $this->columnMap);
   }
-
 
   public function testFilterStringEmpty() {
     $view = Views::getView('test_view');

@@ -32,7 +32,7 @@ class MigrateImageStylesTest extends MigrateDrupal7TestBase {
    * Test the image styles migration.
    */
   public function testImageStylesMigration() {
-    $this->assertEntity('custom_image_style_1', "Custom image style 1", ['image_scale_and_crop', 'image_desaturate'], [['width' => 55, 'height' => 55], []]);
+    $this->assertEntity('custom_image_style_1', "Custom image style 1", ['image_scale_and_crop', 'image_desaturate'], [['width' => 55, 'height' => 55, 'anchor' => 'center-center'], []]);
     $this->assertEntity('custom_image_style_2', "Custom image style 2", ['image_resize', 'image_rotate'], [['width' => 55, 'height' => 100], ['degrees' => 45, 'bgcolor' => '#FFFFFF', 'random' => FALSE]]);
     $this->assertEntity('custom_image_style_3', "Custom image style 3", ['image_scale', 'image_crop'], [['width' => 150, 'height' => NULL, 'upscale' => FALSE], ['width' => 50, 'height' => 50, 'anchor' => 'left-top']]);
   }
@@ -51,7 +51,7 @@ class MigrateImageStylesTest extends MigrateDrupal7TestBase {
    */
   protected function assertEntity($id, $label, array $expected_effect_plugins, array $expected_effect_config) {
     $style = ImageStyle::load($id);
-    $this->assertTrue($style instanceof ImageStyleInterface);
+    $this->assertInstanceOf(ImageStyleInterface::class, $style);
     /** @var \Drupal\image\ImageStyleInterface $style */
     $this->assertIdentical($id, $style->id());
     $this->assertIdentical($label, $style->label());
@@ -62,7 +62,7 @@ class MigrateImageStylesTest extends MigrateDrupal7TestBase {
 
     $index = 0;
     foreach ($effects as $effect) {
-      $this->assertTrue($effect instanceof ImageEffectBase);
+      $this->assertInstanceOf(ImageEffectBase::class, $effect);
       $this->assertIdentical($expected_effect_plugins[$index], $effect->getPluginId());
       $config = $effect->getConfiguration();
       $this->assertIdentical($expected_effect_config[$index], $config['data']);

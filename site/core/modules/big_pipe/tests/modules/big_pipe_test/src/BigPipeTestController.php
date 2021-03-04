@@ -3,10 +3,10 @@
 namespace Drupal\big_pipe_test;
 
 use Drupal\big_pipe\Render\BigPipeMarkup;
-use Drupal\big_pipe\Tests\BigPipePlaceholderTestCases;
 use Drupal\big_pipe_test\EventSubscriber\BigPipeTestSubscriber;
+use Drupal\Core\Security\TrustedCallbackInterface;
 
-class BigPipeTestController {
+class BigPipeTestController implements TrustedCallbackInterface {
 
   /**
    * Returns a all BigPipe placeholder test case render arrays.
@@ -25,7 +25,7 @@ class BigPipeTestController {
     if ($has_session) {
       // Only set a message if a session already exists, otherwise we always
       // trigger a session, which means we can't test no-session requests.
-      drupal_set_message('Hello from BigPipe!');
+      \Drupal::messenger()->addStatus('Hello from BigPipe!');
     }
     $build['html'] = $cases['html']->renderArray;
 
@@ -61,7 +61,7 @@ class BigPipeTestController {
   /**
    * A page with multiple occurrences of the same placeholder.
    *
-   * @see \Drupal\big_pipe\Tests\BigPipeTest::testBigPipeMultipleOccurrencePlaceholders()
+   * @see \Drupal\Tests\big_pipe\Functional\BigPipeTest::testBigPipeMultiOccurrencePlaceholders()
    *
    * @return array
    */
@@ -92,7 +92,7 @@ class BigPipeTestController {
   public static function currentTime() {
     return [
       '#markup' => '<time datetime="' . date('Y-m-d', 668948400) . '"></time>',
-      '#cache' => ['max-age' => 0]
+      '#cache' => ['max-age' => 0],
     ];
   }
 
@@ -134,7 +134,7 @@ class BigPipeTestController {
   /**
    * #lazy_builder callback; returns the current count.
    *
-   * @see \Drupal\big_pipe\Tests\BigPipeTest::testBigPipeMultipleOccurrencePlaceholders()
+   * @see \Drupal\Tests\big_pipe\Functional\BigPipeTest::testBigPipeMultiOccurrencePlaceholders()
    *
    * @return array
    *   The render array.
@@ -156,6 +156,13 @@ class BigPipeTestController {
       '#markup' => BigPipeMarkup::create("<p>The count is $count.</p>"),
       '#cache' => ['max-age' => 0],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['currentTime', 'counter'];
   }
 
 }

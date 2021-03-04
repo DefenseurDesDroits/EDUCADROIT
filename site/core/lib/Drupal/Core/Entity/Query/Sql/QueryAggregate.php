@@ -65,11 +65,10 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $this->conditionAggregate->notExists($field, $function, $langcode);
   }
 
-
   /**
    * Adds the aggregations to the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addAggregate() {
@@ -85,7 +84,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Builds the aggregation conditions part of the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function compileAggregate() {
@@ -96,7 +95,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Adds the groupby values to the actual query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addGroupBy() {
@@ -114,7 +113,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Builds the aggregation sort part of the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addSortAggregate() {
@@ -125,7 +124,6 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     }
     return $this;
   }
-
 
   /**
    * Overrides \Drupal\Core\Entity\Query\Sql\Query::finish().
@@ -146,6 +144,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
    *   The field as passed in by the caller.
    * @param string $sql_field
    *   The sql field as returned by getSqlField.
+   *
    * @return string
    *   The SQL alias expected in the return value. The dots in $sql_field are
    *   replaced with underscores and if a default fallback to .value happened,
@@ -172,7 +171,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     }
     $return = [];
     foreach ($this->sqlQuery->execute() as $row) {
-      $return[] = (array)$row;
+      $return[] = (array) $row;
     }
     return $return;
   }

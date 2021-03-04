@@ -17,7 +17,7 @@ use Drupal\migrate\Plugin\migrate\destination\EntityFieldStorageConfig as BaseEn
  *   id = "md_entity:field_storage_config"
  * )
  *
- * @deprecated in Drupal 8.2.x and will be removed in Drupal 9.0.x. Use
+ * @deprecated in drupal:8.2.0 and is removed from drupal:9.0.0. Use
  *   \Drupal\migrate\Plugin\migrate\destination\EntityFieldStorageConfig
  *   instead.
  *
@@ -43,16 +43,16 @@ class EntityFieldStorageConfig extends BaseEntityFieldStorageConfig {
    *   The plugin implementation definition.
    * @param \Drupal\migrate\Plugin\MigrationInterface $migration
    *   The migration.
-   * @param EntityStorageInterface $storage
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    *   The storage for this entity type.
    * @param array $bundles
    *   The list of bundles this entity type has.
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
-   *   The field type plugin manager.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
+   *   The field type plugin manager.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityStorageInterface $storage, array $bundles, LanguageManagerInterface $language_manager, ConfigFactoryInterface $config_factory, FieldTypePluginManagerInterface $field_type_plugin_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $storage, $bundles, $language_manager, $config_factory, $field_type_plugin_manager);
@@ -71,8 +71,8 @@ class EntityFieldStorageConfig extends BaseEntityFieldStorageConfig {
       $plugin_id,
       $plugin_definition,
       $migration,
-      $container->get('entity.manager')->getStorage($entity_type_id),
-      array_keys($container->get('entity.manager')->getBundleInfo($entity_type_id)),
+      $container->get('entity_type.manager')->getStorage($entity_type_id),
+      array_keys($container->get('entity_type.bundle.info')->getBundleInfo($entity_type_id)),
       $container->get('language_manager'),
       $container->get('config.factory'),
       $container->get('plugin.manager.field.field_type')

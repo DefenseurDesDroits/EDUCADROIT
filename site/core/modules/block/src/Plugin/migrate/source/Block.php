@@ -10,7 +10,7 @@ use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
  *
  * @MigrateSource(
  *   id = "block",
- *   source_provider = "block"
+ *   source_module = "block"
  * )
  */
 class Block extends DrupalSqlBase {
@@ -84,7 +84,7 @@ class Block extends DrupalSqlBase {
     return [
       'bid' => $this->t('The block numeric identifier.'),
       'module' => $this->t('The module providing the block.'),
-      'delta' => $this->t('The block\'s delta.'),
+      'delta' => $this->t("The block's delta."),
       'theme' => $this->t('Which theme the block is placed in.'),
       'status' => $this->t('Whether or not the block is enabled.'),
       'weight' => $this->t('Weight of the block for ordering within regions.'),
@@ -145,23 +145,28 @@ class Block extends DrupalSqlBase {
         }
         $settings['aggregator']['item_count'] = $item_count;
         break;
+
       case 'book':
         $settings['book']['block_mode'] = $this->variableGet('book_block_mode', 'all pages');
         break;
+
       case 'forum':
         $settings['forum']['block_num'] = $this->variableGet('forum_block_num_' . $delta, 5);
         break;
+
       case 'statistics':
         foreach (['statistics_block_top_day_num', 'statistics_block_top_all_num', 'statistics_block_top_last_num'] as $name) {
           $settings['statistics'][$name] = $this->variableGet($name, 0);
         }
         break;
+
       case 'user':
         switch ($delta) {
           case 2:
           case 'new':
             $settings['user']['block_whois_new_count'] = $this->variableGet('user_block_whois_new_count', 5);
             break;
+
           case 3:
           case 'online':
             $settings['user']['block_seconds_online'] = $this->variableGet('user_block_seconds_online', 900);

@@ -84,6 +84,9 @@ final class Settings {
    *   The value of the setting, the provided default if not set.
    */
   public static function get($name, $default = NULL) {
+    if ($name === 'install_profile' && isset(self::$instance->storage[$name])) {
+      @trigger_error('To access the install profile in Drupal 8 use \Drupal::installProfile() or inject the install_profile container parameter into your service. See https://www.drupal.org/node/2538996', E_USER_DEPRECATED);
+    }
     return isset(self::$instance->storage[$name]) ? self::$instance->storage[$name] : $default;
   }
 
@@ -122,8 +125,31 @@ final class Settings {
       require $app_root . '/' . $site_path . '/settings.php';
     }
 
-    // Initialize Database.
-    Database::setMultipleConnectionInfo($databases);
+    // Initialize databases.
+    foreach ($databases as $key => $targets) {
+      foreach ($targets as $target => $info) {
+        Database::addConnectionInfo($key, $target, $info);
+        // If the database driver is provided by a module, then its code may
+        // need to be instantiated prior to when the module's root namespace
+        // is added to the autoloader, because that happens during service
+        // container initialization but the container definition is likely in
+        // the database. Therefore, allow the connection info to specify an
+        // autoload directory for the driver.
+        if (isset($info['autoload'])) {
+          $class_loader->addPsr4($info['namespace'] . '\\', $info['autoload']);
+        }
+      }
+    }
+
+    // For BC ensure the $config_directories global is set both in the global
+    // and settings.
+    if (!isset($settings['config_sync_directory']) && !empty($config_directories['sync'])) {
+      @trigger_error('$config_directories[\'sync\'] has moved to $settings[\'config_sync_directory\']. See https://www.drupal.org/node/3018145.', E_USER_DEPRECATED);
+      $settings['config_sync_directory'] = $config_directories['sync'];
+    }
+    elseif (isset($settings['config_sync_directory'])) {
+      $config_directories['sync'] = $settings['config_sync_directory'];
+    }
 
     // Initialize Settings.
     new Settings($settings);
@@ -156,8 +182,8 @@ final class Settings {
    * cache. By default, this method will produce a unique prefix per site using
    * the hash salt. If the setting 'apcu_ensure_unique_prefix' is set to FALSE
    * then if the caller does not provide a $site_path only the Drupal root will
-   * be used. This allows WebTestBase to use the same prefix ensuring that the
-   * number of APCu items created during a full test run is kept to a minimum.
+   * be used. This allows tests to use the same prefix ensuring that the number
+   * of APCu items created during a full test run is kept to a minimum.
    * Additionally, if a multi site implementation does not use site specific
    * module directories setting apcu_ensure_unique_prefix would allow the sites
    * to share APCu cache items.
@@ -168,6 +194,8 @@ final class Settings {
    *
    * @return string
    *   The prefix for APCu user cache keys.
+   *
+   * @see https://www.drupal.org/project/drupal/issues/2926309
    */
   public static function getApcuPrefix($identifier, $root, $site_path = '') {
     if (static::get('apcu_ensure_unique_prefix', TRUE)) {

@@ -19,12 +19,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_description:
     weight: 1
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   field_title:
     weight: 0
     label: visually_hidden
@@ -32,6 +34,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
 hidden:
   created: true
   uid: true

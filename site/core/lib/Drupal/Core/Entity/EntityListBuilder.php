@@ -2,6 +2,9 @@
 
 namespace Drupal\Core\Entity;
 
+use Drupal\Core\Messenger\MessengerTrait;
+use Drupal\Core\Routing\RedirectDestinationTrait;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -10,6 +13,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * @ingroup entity_api
  */
 class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderInterface, EntityHandlerInterface {
+
+  use MessengerTrait;
+  use RedirectDestinationTrait;
 
   /**
    * The entity storage class.
@@ -48,7 +54,7 @@ class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderIn
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id())
+      $container->get('entity_type.manager')->getStorage($entity_type->id())
     );
   }
 
@@ -107,7 +113,7 @@ class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderIn
    * @return string
    *   The entity label.
    *
-   * @deprecated in Drupal 8.0.x, will be removed before Drupal 9.0.0
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
    *   Use $entity->label() instead. This method used to escape the entity
    *   label. The render system's autoescape is now relied upon.
    */
@@ -143,14 +149,14 @@ class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderIn
       $operations['edit'] = [
         'title' => $this->t('Edit'),
         'weight' => 10,
-        'url' => $entity->urlInfo('edit-form'),
+        'url' => $this->ensureDestination($entity->toUrl('edit-form')),
       ];
     }
     if ($entity->access('delete') && $entity->hasLinkTemplate('delete-form')) {
       $operations['delete'] = [
         'title' => $this->t('Delete'),
         'weight' => 100,
-        'url' => $entity->urlInfo('delete-form'),
+        'url' => $this->ensureDestination($entity->toUrl('delete-form')),
       ];
     }
 
@@ -219,7 +225,7 @@ class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderIn
       '#header' => $this->buildHeader(),
       '#title' => $this->getTitle(),
       '#rows' => [],
-      '#empty' => $this->t('There is no @label yet.', ['@label' => $this->entityType->getLabel()]),
+      '#empty' => $this->t('There are no @label yet.', ['@label' => $this->entityType->getPluralLabel()]),
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
         'tags' => $this->entityType->getListCacheTags(),
@@ -242,12 +248,20 @@ class EntityListBuilder extends EntityHandlerBase implements EntityListBuilderIn
 
   /**
    * Gets the title of the page.
-   *
-   * @return string
-   *   A string title of the page.
    */
-  protected function getTitle() {
-    return;
+  protected function getTitle() {}
+
+  /**
+   * Ensures that a destination is present on the given URL.
+   *
+   * @param \Drupal\Core\Url $url
+   *   The URL object to which the destination should be added.
+   *
+   * @return \Drupal\Core\Url
+   *   The updated URL object.
+   */
+  protected function ensureDestination(Url $url) {
+    return $url->mergeOptions(['query' => $this->getRedirectDestination()->getAsArray()]);
   }
 
 }

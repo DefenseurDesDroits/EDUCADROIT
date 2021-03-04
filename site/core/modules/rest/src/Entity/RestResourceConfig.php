@@ -13,6 +13,13 @@ use Drupal\rest\RestResourceConfigInterface;
  * @ConfigEntityType(
  *   id = "rest_resource_config",
  *   label = @Translation("REST resource configuration"),
+ *   label_collection = @Translation("REST resource configurations"),
+ *   label_singular = @Translation("REST resource configuration"),
+ *   label_plural = @Translation("REST resource configurations"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count REST resource configuration",
+ *     plural = "@count REST resource configurations",
+ *   ),
  *   config_prefix = "resource",
  *   admin_permission = "administer rest resources",
  *   label_callback = "getLabelFromPlugin",
@@ -118,8 +125,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getMethodsForMethodGranularity();
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['methods'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -143,8 +152,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getAuthenticationProvidersForMethodGranularity($method);
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['authentication'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -174,8 +185,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getFormatsForMethodGranularity($method);
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['formats'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -203,12 +216,12 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
    */
   public function getPluginCollections() {
     return [
-      'resource' => new DefaultSingleLazyPluginCollection($this->getResourcePluginManager(), $this->plugin_id, [])
+      'resource' => new DefaultSingleLazyPluginCollection($this->getResourcePluginManager(), $this->plugin_id, []),
     ];
   }
 
   /**
-   * (@inheritdoc)
+   * {@inheritdoc}
    */
   public function calculateDependencies() {
     parent::calculateDependencies();

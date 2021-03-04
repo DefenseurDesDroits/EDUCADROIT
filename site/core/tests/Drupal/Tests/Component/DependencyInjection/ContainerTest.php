@@ -8,6 +8,7 @@
 namespace Drupal\Tests\Component\DependencyInjection;
 
 use Drupal\Component\Utility\Crypt;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Exception\LogicException;
@@ -21,7 +22,7 @@ use Prophecy\Argument;
  * @coversDefaultClass \Drupal\Component\DependencyInjection\Container
  * @group DependencyInjection
  */
-class ContainerTest extends \PHPUnit_Framework_TestCase {
+class ContainerTest extends TestCase {
 
   /**
    * The tested container.
@@ -69,7 +70,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
   public function testConstruct() {
     $container_definition = $this->getMockContainerDefinition();
     $container_definition['machine_format'] = !$this->machineFormat;
-    $this->setExpectedException(InvalidArgumentException::class);
+    $this->expectException(InvalidArgumentException::class);
     $container = new $this->containerClass($container_definition);
   }
 
@@ -92,7 +93,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::getAlternatives
    */
   public function testGetParameterIfNotFound() {
-    $this->setExpectedException(ParameterNotFoundException::class);
+    $this->expectException(ParameterNotFoundException::class);
     $this->container->getParameter('parameter_that_does_not_exist');
   }
 
@@ -102,7 +103,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::getParameter
    */
   public function testGetParameterIfNotFoundBecauseNull() {
-    $this->setExpectedException(ParameterNotFoundException::class);
+    $this->expectException(ParameterNotFoundException::class);
     $this->container->getParameter(NULL);
   }
 
@@ -136,7 +137,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    */
   public function testSetParameterWithFrozenContainer() {
     $this->container = new $this->containerClass($this->containerDefinition);
-    $this->setExpectedException(LogicException::class);
+    $this->expectException(LogicException::class);
     $this->container->setParameter('some_config', 'new_value');
   }
 
@@ -153,7 +154,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     // Retrieve services of the container.
     $other_service_class = $this->containerDefinition['services']['other.service']['class'];
     $other_service = $this->container->get('other.service');
-    $this->assertInstanceOf($other_service_class, $other_service, 'other.service has the right class.');
+    $this->assertInstanceOf($other_service_class, $other_service);
 
     $some_parameter = $this->containerDefinition['parameters']['some_config'];
     $some_other_parameter = $this->containerDefinition['parameters']['some_other_config'];
@@ -193,7 +194,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 
     $other_service_class = $this->containerDefinition['parameters']['some_parameter_class'];
     $other_service = $container->get('other.service_class_from_parameter');
-    $this->assertInstanceOf($other_service_class, $other_service, 'other.service_class_from_parameter has the right class.');
+    $this->assertInstanceOf($other_service_class, $other_service);
   }
 
   /**
@@ -241,7 +242,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    */
   public function testGetForCircularServices() {
-    $this->setExpectedException(ServiceCircularReferenceException::class);
+    $this->expectException(ServiceCircularReferenceException::class);
     $this->container->get('circular_dependency');
   }
 
@@ -253,8 +254,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::getAlternatives
    * @covers ::getServiceAlternatives
    */
-  public function testGetForNonExistantService() {
-    $this->setExpectedException(ServiceNotFoundException::class);
+  public function testGetForNonExistentService() {
+    $this->expectException(ServiceNotFoundException::class);
     $this->container->get('service_not_exists');
   }
 
@@ -272,7 +273,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     // Retrieve services of the container.
     $other_service_class = $this->containerDefinition['services']['other.service']['class'];
     $other_service = $container->get('other.service');
-    $this->assertInstanceOf($other_service_class, $other_service, 'other.service has the right class.');
+    $this->assertInstanceOf($other_service_class, $other_service);
 
     $service = $container->get('service.provider');
     $this->assertEquals($other_service, $service->getSomeOtherService(), '@other.service was injected via constructor.');
@@ -285,7 +286,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    * @covers ::resolveServicesAndParameters
    */
-  public function testGetForNonExistantParameterDependency() {
+  public function testGetForNonExistentParameterDependency() {
     $service = $this->container->get('service_parameter_not_exists', ContainerInterface::NULL_ON_INVALID_REFERENCE);
     $this->assertNull($service, 'Service is NULL.');
   }
@@ -303,7 +304,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
 
     // Reset the service.
     $this->container->set('service_parameter_not_exists', NULL);
-    $this->setExpectedException(InvalidArgumentException::class);
+    $this->expectException(InvalidArgumentException::class);
     $this->container->get('service_parameter_not_exists');
   }
 
@@ -314,8 +315,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    * @covers ::resolveServicesAndParameters
    */
-  public function testGetForNonExistantParameterDependencyWithException() {
-    $this->setExpectedException(InvalidArgumentException::class);
+  public function testGetForNonExistentParameterDependencyWithException() {
+    $this->expectException(InvalidArgumentException::class);
     $this->container->get('service_parameter_not_exists');
   }
 
@@ -326,7 +327,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    * @covers ::resolveServicesAndParameters
    */
-  public function testGetForNonExistantServiceDependency() {
+  public function testGetForNonExistentServiceDependency() {
     $service = $this->container->get('service_dependency_not_exists', ContainerInterface::NULL_ON_INVALID_REFERENCE);
     $this->assertNull($service, 'Service is NULL.');
   }
@@ -339,8 +340,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::resolveServicesAndParameters
    * @covers ::getAlternatives
    */
-  public function testGetForNonExistantServiceDependencyWithException() {
-    $this->setExpectedException(ServiceNotFoundException::class);
+  public function testGetForNonExistentServiceDependencyWithException() {
+    $this->expectException(ServiceNotFoundException::class);
     $this->container->get('service_dependency_not_exists');
   }
 
@@ -350,7 +351,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::get
    * @covers ::createService
    */
-  public function testGetForNonExistantServiceWhenUsingNull() {
+  public function testGetForNonExistentServiceWhenUsingNull() {
     $this->assertNull($this->container->get('service_not_exists', ContainerInterface::NULL_ON_INVALID_REFERENCE), 'Not found service does not throw exception.');
   }
 
@@ -359,8 +360,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::get
    * @covers ::createService
    */
-  public function testGetForNonExistantNULLService() {
-    $this->setExpectedException(ServiceNotFoundException::class);
+  public function testGetForNonExistentNULLService() {
+    $this->expectException(ServiceNotFoundException::class);
     $this->container->get(NULL);
   }
 
@@ -370,7 +371,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::get
    * @covers ::createService
    */
-  public function testGetForNonExistantServiceMultipleTimes() {
+  public function testGetForNonExistentServiceMultipleTimes() {
     $container = new $this->containerClass();
 
     $this->assertNull($container->get('service_not_exists', ContainerInterface::NULL_ON_INVALID_REFERENCE), 'Not found service does not throw exception.');
@@ -384,9 +385,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    * @covers ::getAlternatives
    */
-  public function testGetForNonExistantServiceWithExceptionOnSecondCall() {
+  public function testGetForNonExistentServiceWithExceptionOnSecondCall() {
     $this->assertNull($this->container->get('service_not_exists', ContainerInterface::NULL_ON_INVALID_REFERENCE), 'Not found service does nto throw exception.');
-    $this->setExpectedException(ServiceNotFoundException::class);
+    $this->expectException(ServiceNotFoundException::class);
     $this->container->get('service_not_exists');
   }
 
@@ -422,7 +423,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    */
   public function testGetForSyntheticServiceWithException() {
-    $this->setExpectedException(RuntimeException::class);
+    $this->expectException(RuntimeException::class);
     $this->container->get('synthetic');
   }
 
@@ -461,7 +462,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    */
   public function testGetForWrongFactory() {
-    $this->setExpectedException(RuntimeException::class);
+    $this->expectException(RuntimeException::class);
     $this->container->get('wrong_factory');
   }
 
@@ -499,7 +500,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::createService
    */
   public function testGetForConfiguratorWithException() {
-    $this->setExpectedException(InvalidArgumentException::class);
+    $this->expectException(InvalidArgumentException::class);
     $this->container->get('configurable_service_exception');
   }
 
@@ -516,7 +517,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     $configurator = $this->prophesize('\Drupal\Tests\Component\DependencyInjection\MockConfiguratorInterface');
     $configurator->configureService(Argument::type('object'))
       ->shouldBeCalled(1)
-      ->will(function($args) use ($container) {
+      ->will(function ($args) use ($container) {
         $args[0]->setContainer($container);
       });
     $container->set('configurator', $configurator->reveal());
@@ -597,7 +598,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
    * @covers ::resolveServicesAndParameters
    */
   public function testResolveServicesAndParametersForInvalidArgument() {
-    $this->setExpectedException(InvalidArgumentException::class);
+    $this->expectException(InvalidArgumentException::class);
     $this->container->get('invalid_argument_service');
   }
 
@@ -611,7 +612,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
   public function testResolveServicesAndParametersForInvalidArguments() {
     // In case the machine-optimized format is not used, we need to simulate the
     // test failure.
-    $this->setExpectedException(InvalidArgumentException::class);
+    $this->expectException(InvalidArgumentException::class);
     if (!$this->machineFormat) {
       throw new InvalidArgumentException('Simulating the test failure.');
     }
@@ -654,46 +655,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * Tests that unsupported methods throw an Exception.
-   *
-   * @covers ::enterScope
-   * @covers ::leaveScope
-   * @covers ::addScope
-   * @covers ::hasScope
-   * @covers ::isScopeActive
-   *
-   * @dataProvider scopeExceptionTestProvider
-   */
-  public function testScopeFunctionsWithException($method, $argument) {
-    $callable = [
-      $this->container,
-      $method,
-    ];
-
-    $this->setExpectedException(\BadMethodCallException::class);
-    $callable($argument);
-  }
-
-  /**
-   * Data provider for scopeExceptionTestProvider().
-   *
-   * @return array[]
-   *   Returns per data set an array with:
-   *     - method name to call
-   *     - argument to pass
-   */
-  public function scopeExceptionTestProvider() {
-    $scope = $this->prophesize('\Symfony\Component\DependencyInjection\ScopeInterface')->reveal();
-    return [
-      ['enterScope', 'test_scope'],
-      ['leaveScope', 'test_scope'],
-      ['hasScope', 'test_scope'],
-      ['isScopeActive', 'test_scope'],
-      ['addScope', $scope],
-    ];
-  }
-
-  /**
    * Tests that Container::getServiceIds() works properly.
    *
    * @covers ::getServiceIds
@@ -708,6 +669,17 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     $service_definition_keys[] = 'bar';
 
     $this->assertEquals($service_definition_keys, $this->container->getServiceIds(), 'Retrieved service IDs match definition after setting new services.');
+  }
+
+  /**
+   * Tests that raw type services arguments are resolved correctly.
+   *
+   * @covers ::get
+   * @covers ::createService
+   * @covers ::resolveServicesAndParameters
+   */
+  public function testResolveServicesAndParametersForRawArgument() {
+    $this->assertEquals(['ccc'], $this->container->get('service_with_raw_argument')->getArguments());
   }
 
   /**
@@ -754,12 +726,18 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
       ]),
       'properties' => $this->getCollection(['_someProperty' => 'foo']),
       'calls' => [
-        ['setContainer', $this->getCollection([
-          $this->getServiceCall('service_container'),
-        ])],
-        ['setOtherConfigParameter', $this->getCollection([
-          $this->getParameterCall('some_other_config'),
-        ])],
+        [
+          'setContainer',
+          $this->getCollection([
+            $this->getServiceCall('service_container'),
+          ]),
+        ],
+        [
+          'setOtherConfigParameter',
+          $this->getCollection([
+            $this->getParameterCall('some_other_config'),
+          ]),
+        ],
       ],
       'priority' => 0,
     ];
@@ -811,7 +789,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
     $services['invalid_argument_service'] = [
       'class' => '\Drupal\Tests\Component\DependencyInjection\MockService',
       'arguments' => $this->getCollection([
-        1, // Test passing non-strings, too.
+        // Test passing non-strings, too.
+        1,
         (object) [
           'type' => 'invalid',
         ],
@@ -863,9 +842,12 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
         [NULL, 'bar'],
       ],
       'calls' => [
-        ['setContainer', $this->getCollection([
-          $this->getServiceCall('service_container'),
-        ])],
+        [
+          'setContainer',
+          $this->getCollection([
+            $this->getServiceCall('service_container'),
+          ]),
+        ],
       ],
     ];
 
@@ -942,13 +924,19 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
       'arguments' => [],
       'configurator' => [
         $this->getServiceCall('configurator'),
-        'configureService'
+        'configureService',
       ],
     ];
     $services['configurable_service_exception'] = [
       'class' => '\Drupal\Tests\Component\DependencyInjection\MockService',
       'arguments' => [],
       'configurator' => 'configurator_service_test_does_not_exist',
+    ];
+
+    // Raw argument
+    $services['service_with_raw_argument'] = [
+      'class' => '\Drupal\Tests\Component\DependencyInjection\MockInstantiationService',
+      'arguments' => $this->getCollection([$this->getRaw('ccc')]),
     ];
 
     $aliases = [];
@@ -976,7 +964,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
-   * Helper function to return a service definition.
+   * Helper function to return a parameter definition.
    */
   protected function getParameterCall($name) {
     return (object) [
@@ -1009,6 +997,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase {
       'type' => 'collection',
       'value' => $collection,
       'resolve' => $resolve,
+    ];
+  }
+
+  /**
+   * Helper function to return a raw value definition.
+   */
+  protected function getRaw($value) {
+    return (object) [
+      'type' => 'raw',
+      'value' => $value,
     ];
   }
 
@@ -1072,7 +1070,7 @@ class MockInstantiationService {
 class MockService {
 
   /**
-   * @var ContainerInterface
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
 
@@ -1110,7 +1108,7 @@ class MockService {
   /**
    * Sets the container object.
    *
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The container to inject via setter injection.
    */
   public function setContainer(ContainerInterface $container) {
@@ -1120,7 +1118,7 @@ class MockService {
   /**
    * Gets the container object.
    *
-   * @return ContainerInterface
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface
    *   The internally set container.
    */
   public function getContainer() {

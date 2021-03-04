@@ -28,8 +28,7 @@ class YamlDirectoryDiscoveryTest extends UnitTestCase {
         'subdir2' => [
           'plugin3.yml' => "id: plugin3\ntest_provider: module_a",
         ],
-        'subdir3' => [
-        ]
+        'subdir3' => [],
       ],
       'module_b' => [
         'subdir1' => [
@@ -52,7 +51,7 @@ class YamlDirectoryDiscoveryTest extends UnitTestCase {
 
     $definitions = $discovery->getDefinitions();
 
-    $this->assertInternalType('array', $definitions);
+    $this->assertIsArray($definitions);
     $this->assertCount(4, $definitions);
 
     foreach ($definitions as $id => $definition) {

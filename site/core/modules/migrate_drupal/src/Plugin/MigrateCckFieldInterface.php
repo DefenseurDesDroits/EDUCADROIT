@@ -2,17 +2,17 @@
 
 namespace Drupal\migrate_drupal\Plugin;
 
-@trigger_error('MigrateCckFieldInterface is deprecated in Drupal 8.3.x and will
-be removed before Drupal 9.0.x. Use \Drupal\migrate_drupal\Annotation\MigrateField
-instead.', E_USER_DEPRECATED);
+@trigger_error('MigrateCckFieldInterface is deprecated in Drupal 8.3.x and will be removed before Drupal 9.0.x. Use \Drupal\migrate_drupal\Annotation\MigrateField instead.', E_USER_DEPRECATED);
 
 use Drupal\migrate\Plugin\MigrationInterface;
 
 /**
  * Provides an interface for all CCK field type plugins.
  *
- * @deprecated in Drupal 8.3.x, to be removed before Drupal 9.0.x. Use
+ * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0. Use
  *   \Drupal\migrate_drupal\Annotation\MigrateField instead.
+ *
+ * @see https://www.drupal.org/node/2751897
  */
 interface MigrateCckFieldInterface extends MigrateFieldInterface {
 

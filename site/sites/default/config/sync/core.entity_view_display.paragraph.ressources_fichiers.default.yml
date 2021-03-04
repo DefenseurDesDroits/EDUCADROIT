@@ -16,9 +16,11 @@ content:
   field_fichier:
     weight: 0
     label: hidden
-    settings: {  }
+    settings:
+      use_description_as_link_text: true
     third_party_settings: {  }
     type: file_default
+    region: content
   field_title:
     weight: 1
     label: hidden
@@ -26,6 +28,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
 hidden:
   created: true
   uid: true

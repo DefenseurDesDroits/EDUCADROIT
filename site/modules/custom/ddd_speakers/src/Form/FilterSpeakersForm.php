@@ -18,6 +18,15 @@
 
       $q = \Drupal::request()->query->all();
 
+      $form['search'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Recherche'),
+        '#title_display' => 'invisible',
+        '#default_value' => (!empty($q['search'])?$q['search']:''),
+        '#attributes' => ['class' => ['form-control']],
+        '#placeholder' => t('Recherche libre')
+      );
+
       // Vocabulary Regions
       $query = \Drupal::entityQuery('taxonomy_term');
       $query->condition('vid', "regions");
@@ -91,6 +100,9 @@
     public function submitForm(array &$form,  FormStateInterface $form_state) {
       $values = $form_state->getValues();
       $query = [];
+      if (!empty($values['search'])){
+        $query['search'] = $values['search'];
+      }
       if (!empty($values['regions'])){
         $query['region'] = $values['regions'];
       }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2020 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,61 +25,63 @@ class ExecutionClosure
      */
     public function __construct(Shell $__psysh__)
     {
-        $exec = function () use ($__psysh__) {
+        $this->setClosure($__psysh__, function () use ($__psysh__) {
             try {
                 // Restore execution scope variables
-                extract($__psysh__->getScopeVariables(false));
+                \extract($__psysh__->getScopeVariables(false));
 
                 // Buffer stdout; we'll need it later
-                ob_start([$__psysh__, 'writeStdout'], 1);
+                \ob_start([$__psysh__, 'writeStdout'], 1);
 
                 // Convert all errors to exceptions
-                set_error_handler([$__psysh__, 'handleError']);
+                \set_error_handler([$__psysh__, 'handleError']);
 
                 // Evaluate the current code buffer
-                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: ExecutionClosure::NOOP_INPUT));
+                $_ = eval($__psysh__->onExecute($__psysh__->flushCode() ?: self::NOOP_INPUT));
             } catch (\Throwable $_e) {
                 // Clean up on our way out.
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
+                if (\ob_get_level() > 0) {
+                    \ob_end_clean();
                 }
 
                 throw $_e;
             } catch (\Exception $_e) {
                 // Clean up on our way out.
-                restore_error_handler();
-                if (ob_get_level() > 0) {
-                    ob_end_clean();
+                if (\ob_get_level() > 0) {
+                    \ob_end_clean();
                 }
 
                 throw $_e;
+            } finally {
+                // Won't be needing this anymore
+                \restore_error_handler();
             }
-
-            // Won't be needing this anymore
-            restore_error_handler();
 
             // Flush stdout (write to shell output, plus save to magic variable)
-            ob_end_flush();
+            \ob_end_flush();
 
             // Save execution scope variables for next time
-            $__psysh__->setScopeVariables(get_defined_vars());
+            $__psysh__->setScopeVariables(\get_defined_vars());
 
             return $_;
-        };
+        });
+    }
 
-        if (self::shouldBindClosure()) {
-            $that = $__psysh__->getBoundObject();
-            if (is_object($that)) {
-                $this->closure = $exec->bindTo($that, get_class($that));
-            } else {
-                $this->closure = $exec->bindTo(null, null);
-            }
+    /**
+     * Set the closure instance.
+     *
+     * @param Shell    $shell
+     * @param \Closure $closure
+     */
+    protected function setClosure(Shell $shell, \Closure $closure)
+    {
+        $that = $shell->getBoundObject();
 
-            return;
+        if (\is_object($that)) {
+            $this->closure = $closure->bindTo($that, \get_class($that));
+        } else {
+            $this->closure = $closure->bindTo(null, $shell->getBoundClass());
         }
-
-        $this->closure = $exec;
     }
 
     /**
@@ -92,21 +94,5 @@ class ExecutionClosure
         $closure = $this->closure;
 
         return $closure();
-    }
-
-    /**
-     * Decide whether to bind the execution closure.
-     *
-     * @return bool
-     */
-    protected static function shouldBindClosure()
-    {
-        // skip binding on HHVM < 3.5.0
-        // see https://github.com/facebook/hhvm/issues/1203
-        if (defined('HHVM_VERSION')) {
-            return version_compare(HHVM_VERSION, '3.5.0', '>=');
-        }
-
-        return true;
     }
 }

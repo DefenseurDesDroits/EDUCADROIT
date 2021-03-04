@@ -1,8 +1,8 @@
 <?php
 
 namespace Drupal\Tests\migrate\Unit\process;
-use Drupal\migrate\Plugin\migrate\process\Flatten;
 
+use Drupal\migrate\Plugin\migrate\process\Flatten;
 
 /**
  * Tests the flatten plugin.
@@ -16,8 +16,8 @@ class FlattenTest extends MigrateProcessTestCase {
    */
   public function testFlatten() {
     $plugin = new Flatten([], 'flatten', []);
-    $flattened = $plugin->transform([1, 2, [3, 4, [5]], [], [7, 8]], $this->migrateExecutable, $this->row, 'destinationproperty');
-    $this->assertSame($flattened, [1, 2, 3, 4, 5, 7, 8]);
+    $flattened = $plugin->transform([1, 2, [3, 4, [5]], [], [7, 8]], $this->migrateExecutable, $this->row, 'destination_property');
+    $this->assertSame([1, 2, 3, 4, 5, 7, 8], $flattened);
   }
 
 }

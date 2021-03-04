@@ -3,10 +3,10 @@
 namespace Drupal\Tests\views\FunctionalJavascript;
 
 use Drupal\Core\Url;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\simpletest\ContentTypeCreationTrait;
-use Drupal\simpletest\NodeCreationTrait;
+use Drupal\Tests\node\Traits\ContentTypeCreationTrait;
+use Drupal\Tests\node\Traits\NodeCreationTrait;
 use Drupal\views\Tests\ViewTestData;
 
 /**
@@ -14,7 +14,7 @@ use Drupal\views\Tests\ViewTestData;
  *
  * @group node
  */
-class GlossaryViewTest extends JavascriptTestBase {
+class GlossaryViewTest extends WebDriverTestBase {
 
   use ContentTypeCreationTrait;
   use NodeCreationTrait;
@@ -25,16 +25,15 @@ class GlossaryViewTest extends JavascriptTestBase {
   public static $modules = ['language', 'node', 'views', 'views_test_config'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * @var array
    * The test Views to enable.
    */
   public static $testViews = ['test_glossary'];
-
-  /**
-   * @var
-   * The additional language to use.
-   */
-  protected $language;
 
   /**
    * {@inheritdoc}
@@ -99,7 +98,7 @@ class GlossaryViewTest extends JavascriptTestBase {
    * Test that the glossary also works on a language prefixed URL.
    */
   public function testGlossaryLanguagePrefix() {
-    $this->language = ConfigurableLanguage::createFromLangcode('nl')->save();
+    ConfigurableLanguage::createFromLangcode('nl')->save();
 
     $config = $this->config('language.negotiation');
     $config->set('url.prefixes', ['en' => 'en', 'nl' => 'nl'])

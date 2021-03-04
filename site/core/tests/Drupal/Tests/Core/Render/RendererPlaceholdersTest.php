@@ -11,6 +11,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Render\RenderContext;
 
 /**
@@ -35,7 +36,7 @@ class RendererPlaceholdersTest extends RendererTestBase {
   /**
    * Provides the two classes of placeholders: cacheable and uncacheable.
    *
-   * i.e. with or without #cache[keys].
+   * I.e. with or without #cache[keys].
    *
    * Also, different types:
    * - A) automatically generated placeholder
@@ -65,7 +66,7 @@ class RendererPlaceholdersTest extends RendererTestBase {
   public function providerPlaceholders() {
     $args = [$this->randomContextValue()];
 
-    $generate_placeholder_markup = function($cache_keys = NULL) use ($args) {
+    $generate_placeholder_markup = function ($cache_keys = NULL) use ($args) {
       $token_render_array = [
         '#lazy_builder' => ['Drupal\Tests\Core\Render\PlaceholdersTest::callback', $args],
       ];
@@ -547,12 +548,11 @@ class RendererPlaceholdersTest extends RendererTestBase {
 
   /**
    * @param false|array $cid_parts
-   * @param array $expected_data
-   *   FALSE if no render cache item is expected, a render array with the
-   *   expected values if a render cache item is expected.
    * @param string[] $bubbled_cache_contexts
    *   Additional cache contexts that were bubbled when the placeholder was
    *   rendered.
+   * @param array $expected_data
+   *   A render array with the expected values.
    */
   protected function assertPlaceholderRenderCache($cid_parts, array $bubbled_cache_contexts, array $expected_data) {
     if ($cid_parts !== FALSE) {
@@ -575,6 +575,7 @@ class RendererPlaceholdersTest extends RendererTestBase {
       $this->assertEquals($expected_data, $cached_element, 'The correct data is cached: the stored #markup and #attached properties are not affected by the placeholder being replaced.');
     }
   }
+
   /**
    * @covers ::render
    * @covers ::doRender
@@ -852,7 +853,8 @@ class RendererPlaceholdersTest extends RendererTestBase {
     $element = [];
     $element['#lazy_builder'] = '\Drupal\Tests\Core\Render\PlaceholdersTest::callback';
 
-    $this->setExpectedException(\DomainException::class, 'The #lazy_builder property must have an array as a value.');
+    $this->expectException(\DomainException::class);
+    $this->expectExceptionMessage('The #lazy_builder property must have an array as a value.');
     $this->renderer->renderRoot($element);
   }
 
@@ -864,7 +866,8 @@ class RendererPlaceholdersTest extends RendererTestBase {
     $element = [];
     $element['#lazy_builder'] = ['\Drupal\Tests\Core\Render\PlaceholdersTest::callback', 'arg1', 'arg2'];
 
-    $this->setExpectedException(\DomainException::class, 'The #lazy_builder property must have an array as a value, containing two values: the callback, and the arguments for the callback.');
+    $this->expectException(\DomainException::class);
+    $this->expectExceptionMessage('The #lazy_builder property must have an array as a value, containing two values: the callback, and the arguments for the callback.');
     $this->renderer->renderRoot($element);
   }
 
@@ -876,13 +879,16 @@ class RendererPlaceholdersTest extends RendererTestBase {
    */
   public function testScalarLazybuilderCallbackContext() {
     $element = [];
-    $element['#lazy_builder'] = ['\Drupal\Tests\Core\Render\PlaceholdersTest::callback', [
-      'string' => 'foo',
-      'bool' => TRUE,
-      'int' => 1337,
-      'float' => 3.14,
-      'null' => NULL,
-    ]];
+    $element['#lazy_builder'] = [
+      '\Drupal\Tests\Core\Render\PlaceholdersTest::callback',
+      [
+        'string' => 'foo',
+        'bool' => TRUE,
+        'int' => 1337,
+        'float' => 3.14,
+        'null' => NULL,
+      ],
+    ];
 
     $result = $this->renderer->renderRoot($element);
     $this->assertInstanceOf('\Drupal\Core\Render\Markup', $result);
@@ -895,17 +901,21 @@ class RendererPlaceholdersTest extends RendererTestBase {
    */
   public function testNonScalarLazybuilderCallbackContext() {
     $element = [];
-    $element['#lazy_builder'] = ['\Drupal\Tests\Core\Render\PlaceholdersTest::callback', [
-      'string' => 'foo',
-      'bool' => TRUE,
-      'int' => 1337,
-      'float' => 3.14,
-      'null' => NULL,
-      // array is not one of the scalar types.
-      'array' => ['hi!'],
-    ]];
+    $element['#lazy_builder'] = [
+      '\Drupal\Tests\Core\Render\PlaceholdersTest::callback',
+      [
+        'string' => 'foo',
+        'bool' => TRUE,
+        'int' => 1337,
+        'float' => 3.14,
+        'null' => NULL,
+        // array is not one of the scalar types.
+        'array' => ['hi!'],
+      ],
+    ];
 
-    $this->setExpectedException(\DomainException::class, "A #lazy_builder callback's context may only contain scalar values or NULL.");
+    $this->expectException(\DomainException::class);
+    $this->expectExceptionMessage("A #lazy_builder callback's context may only contain scalar values or NULL.");
     $this->renderer->renderRoot($element);
   }
 
@@ -919,7 +929,8 @@ class RendererPlaceholdersTest extends RendererTestBase {
     $element['child_a']['#markup'] = 'Oh hai!';
     $element['child_b']['#markup'] = 'kthxbai';
 
-    $this->setExpectedException(\DomainException::class, 'When a #lazy_builder callback is specified, no children can exist; all children must be generated by the #lazy_builder callback. You specified the following children: child_a, child_b.');
+    $this->expectException(\DomainException::class);
+    $this->expectExceptionMessage('When a #lazy_builder callback is specified, no children can exist; all children must be generated by the #lazy_builder callback. You specified the following children: child_a, child_b.');
     $this->renderer->renderRoot($element);
   }
 
@@ -933,7 +944,8 @@ class RendererPlaceholdersTest extends RendererTestBase {
     $element['#llama'] = '#awesome';
     $element['#piglet'] = '#cute';
 
-    $this->setExpectedException(\DomainException::class, 'When a #lazy_builder callback is specified, no properties can exist; all properties must be generated by the #lazy_builder callback. You specified the following properties: #llama, #piglet.');
+    $this->expectException(\DomainException::class);
+    $this->expectExceptionMessage('When a #lazy_builder callback is specified, no properties can exist; all properties must be generated by the #lazy_builder callback. You specified the following properties: #llama, #piglet.');
     $this->renderer->renderRoot($element);
   }
 
@@ -945,7 +957,8 @@ class RendererPlaceholdersTest extends RendererTestBase {
     $element = [];
     $element['#create_placeholder'] = TRUE;
 
-    $this->setExpectedException(\LogicException::class, 'When #create_placeholder is set, a #lazy_builder callback must be present as well.');
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('When #create_placeholder is set, a #lazy_builder callback must be present as well.');
     $this->renderer->renderRoot($element);
   }
 
@@ -996,7 +1009,7 @@ HTML;
     $this->assertSame($element['#attached']['drupalSettings'], $expected_js_settings, '#attached is modified; both the original JavaScript setting and the ones added by each placeholder #lazy_builder callback exist.');
 
     // GET request: validate cached data.
-    $cached_element = $this->memoryCache->get('simpletest:drupal_render:children_placeholders')->data;
+    $cached_element = $this->memoryCache->get('simpletest:renderer:children_placeholders')->data;
     $expected_element = [
       '#attached' => [
         'drupalSettings' => [
@@ -1066,7 +1079,7 @@ HTML;
     $test_element = [
       '#type' => 'details',
       '#cache' => [
-        'keys' => ['simpletest', 'drupal_render', 'children_placeholders'],
+        'keys' => ['simpletest', 'renderer', 'children_placeholders'],
       ],
       '#title' => 'Parent',
       '#attached' => [
@@ -1075,7 +1088,7 @@ HTML;
         ],
         'placeholders' => [
           'parent-x-parent' => [
-            '#lazy_builder' => [ __NAMESPACE__ . '\\PlaceholdersTest::callback', $args_1],
+            '#lazy_builder' => [__NAMESPACE__ . '\\PlaceholdersTest::callback', $args_1],
           ],
         ],
       ],
@@ -1105,7 +1118,7 @@ HTML;
   }
 
   /**
-   * @return \Drupal\Core\Theme\ThemeManagerInterface|\PHPUnit_Framework_MockObject_Builder_InvocationMocker
+   * @return \Drupal\Core\Theme\ThemeManagerInterface|\PHPUnit\Framework\MockObject\Builder\InvocationMocker
    */
   protected function setupThemeManagerForDetails() {
     return $this->themeManager->expects($this->any())
@@ -1119,7 +1132,7 @@ HTML;
 EOS;
         $output = str_replace([
           '{{ title }}',
-          '{{ children }}'
+          '{{ children }}',
         ], [$vars['#title'], $vars['#children']], $output);
         return $output;
       });
@@ -1130,7 +1143,7 @@ EOS;
 /**
  * @see \Drupal\Tests\Core\Render\RendererPlaceholdersTest::testRecursivePlaceholder()
  */
-class RecursivePlaceholdersTest {
+class RecursivePlaceholdersTest implements TrustedCallbackInterface {
 
   /**
    * #lazy_builder callback; bubbles another placeholder.
@@ -1148,6 +1161,13 @@ class RecursivePlaceholdersTest {
         '#lazy_builder' => ['Drupal\Tests\Core\Render\PlaceholdersTest::callback', [$animal]],
       ],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['callback'];
   }
 
 }

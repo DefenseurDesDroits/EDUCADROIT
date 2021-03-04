@@ -4,7 +4,7 @@ namespace Drupal\Tests\options\Functional;
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\field\Tests\FieldTestBase;
+use Drupal\Tests\field\Functional\FieldTestBase;
 
 /**
  * Tests option fields can be updated and created through config synchronization.
@@ -18,13 +18,34 @@ class OptionsFloatFieldImportTest extends FieldTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'options', 'field_ui', 'config', 'options_config_install_test'];
+  public static $modules = [
+    'node',
+    'options',
+    'field_ui',
+    'config',
+    'options_config_install_test',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   protected function setUp() {
     parent::setUp();
 
     // Create test user.
-    $admin_user = $this->drupalCreateUser(['synchronize configuration', 'access content', 'access administration pages', 'administer site configuration', 'administer content types', 'administer nodes', 'bypass node access', 'administer node fields', 'administer node display']);
+    $admin_user = $this->drupalCreateUser([
+      'synchronize configuration',
+      'access content',
+      'access administration pages',
+      'administer site configuration',
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+      'administer node fields',
+      'administer node display',
+    ]);
     $this->drupalLogin($admin_user);
   }
 

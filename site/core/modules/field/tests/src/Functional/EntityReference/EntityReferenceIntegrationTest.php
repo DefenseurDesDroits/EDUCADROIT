@@ -2,12 +2,12 @@
 
 namespace Drupal\Tests\field\Functional\EntityReference;
 
-use Drupal\Component\Utility\SafeMarkup;
-use Drupal\config\Tests\AssertConfigEntityImportTrait;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\entity_test\Entity\EntityTest;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\Tests\config\Traits\AssertConfigEntityImportTrait;
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 
 /**
  * Tests various Entity reference UI components.
@@ -50,11 +50,20 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
 
     // Create a test user.
-    $web_user = $this->drupalCreateUser(['administer entity_test content', 'administer entity_test fields', 'view test entity']);
+    $web_user = $this->drupalCreateUser([
+      'administer entity_test content',
+      'administer entity_test fields',
+      'view test entity',
+    ]);
     $this->drupalLogin($web_user);
   }
 
@@ -68,8 +77,13 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
       // Create an Entity reference field.
       $this->createEntityReferenceField($this->entityType, $this->bundle, $this->fieldName, $this->fieldName, $referenced_entities[0]->getEntityTypeId(), 'default', [], 2);
 
+      /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+      $display_repository = \Drupal::service('entity_display.repository');
+
       // Test the default 'entity_reference_autocomplete' widget.
-      entity_get_form_display($this->entityType, $this->bundle, 'default')->setComponent($this->fieldName)->save();
+      $display_repository->getFormDisplay($this->entityType, $this->bundle)
+        ->setComponent($this->fieldName)
+        ->save();
 
       $entity_name = $this->randomMachineName();
       $edit = [
@@ -94,9 +108,10 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
       $this->assertFieldValues($entity_name, $referenced_entities);
 
       // Test the 'entity_reference_autocomplete_tags' widget.
-      entity_get_form_display($this->entityType, $this->bundle, 'default')->setComponent($this->fieldName, [
-        'type' => 'entity_reference_autocomplete_tags',
-      ])->save();
+      $display_repository->getFormDisplay($this->entityType, $this->bundle)
+        ->setComponent($this->fieldName, [
+          'type' => 'entity_reference_autocomplete_tags',
+        ])->save();
 
       $entity_name = $this->randomMachineName();
       $target_id = $referenced_entities[0]->label() . ' (' . $referenced_entities[0]->id() . ')';
@@ -127,16 +142,19 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
       $supported_widget_types = array_diff(array_keys($supported_widgets), $exclude);
 
       foreach ($supported_widget_types as $widget_type) {
-        entity_get_form_display($this->entityType, $this->bundle, 'default')->setComponent($this->fieldName, [
-          'type' => $widget_type,
-        ])->save();
+        $display_repository->getFormDisplay($this->entityType, $this->bundle)
+          ->setComponent($this->fieldName, [
+            'type' => $widget_type,
+          ])->save();
 
         $this->drupalPostForm($this->entityType . '/manage/' . $entity->id() . '/edit', [], t('Save'));
         $this->assertFieldValues($entity_name, $referenced_entities);
       }
 
       // Reset to the default 'entity_reference_autocomplete' widget.
-      entity_get_form_display($this->entityType, $this->bundle, 'default')->setComponent($this->fieldName)->save();
+      $display_repository->getFormDisplay($this->entityType, $this->bundle)
+        ->setComponent($this->fieldName)
+        ->save();
 
       // Set first entity as the default_value.
       $field_edit = [
@@ -149,12 +167,12 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
       // Ensure the configuration has the expected dependency on the entity that
       // is being used a default value.
       $field = FieldConfig::loadByName($this->entityType, $this->bundle, $this->fieldName);
-      $this->assertTrue(in_array($referenced_entities[0]->getConfigDependencyName(), $field->getDependencies()[$key]), SafeMarkup::format('Expected @type dependency @name found', ['@type' => $key, '@name' => $referenced_entities[0]->getConfigDependencyName()]));
+      $this->assertContains($referenced_entities[0]->getConfigDependencyName(), $field->getDependencies()[$key], new FormattableMarkup('Expected @type dependency @name found', ['@type' => $key, '@name' => $referenced_entities[0]->getConfigDependencyName()]));
       // Ensure that the field can be imported without change even after the
       // default value deleted.
       $referenced_entities[0]->delete();
       // Reload the field since deleting the default value can change the field.
-      \Drupal::entityManager()->getStorage($field->getEntityTypeId())->resetCache([$field->id()]);
+      \Drupal::entityTypeManager()->getStorage($field->getEntityTypeId())->resetCache([$field->id()]);
       $field = FieldConfig::loadByName($this->entityType, $this->bundle, $this->fieldName);
       $this->assertConfigEntityImport($field);
 
@@ -163,7 +181,7 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
       $field = FieldConfig::loadByName($this->entityType, $this->bundle, $this->fieldName);
       $field->save();
       $dependencies = $field->getDependencies();
-      $this->assertFalse(isset($dependencies[$key]) && in_array($referenced_entities[0]->getConfigDependencyName(), $dependencies[$key]), SafeMarkup::format('@type dependency @name does not exist.', ['@type' => $key, '@name' => $referenced_entities[0]->getConfigDependencyName()]));
+      $this->assertFalse(isset($dependencies[$key]) && in_array($referenced_entities[0]->getConfigDependencyName(), $dependencies[$key]), new FormattableMarkup('@type dependency @name does not exist.', ['@type' => $key, '@name' => $referenced_entities[0]->getConfigDependencyName()]));
     }
   }
 
@@ -179,7 +197,7 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
     $entity = current($this->container->get('entity_type.manager')->getStorage(
     $this->entityType)->loadByProperties(['name' => $entity_name]));
 
-    $this->assertTrue($entity, format_string('%entity_type: Entity found in the database.', ['%entity_type' => $this->entityType]));
+    $this->assertNotEmpty($entity, new FormattableMarkup('%entity_type: Entity found in the database.', ['%entity_type' => $this->entityType]));
 
     $this->assertEqual($entity->{$this->fieldName}->target_id, $referenced_entities[0]->id());
     $this->assertEqual($entity->{$this->fieldName}->entity->id(), $referenced_entities[0]->id());
@@ -197,9 +215,10 @@ class EntityReferenceIntegrationTest extends BrowserTestBase {
    *   An array of entity objects.
    */
   protected function getTestEntities() {
-    $config_entity_1 = entity_create('config_test', ['id' => $this->randomMachineName(), 'label' => $this->randomMachineName()]);
+    $storage = \Drupal::entityTypeManager()->getStorage('config_test');
+    $config_entity_1 = $storage->create(['id' => $this->randomMachineName(), 'label' => $this->randomMachineName()]);
     $config_entity_1->save();
-    $config_entity_2 = entity_create('config_test', ['id' => $this->randomMachineName(), 'label' => $this->randomMachineName()]);
+    $config_entity_2 = $storage->create(['id' => $this->randomMachineName(), 'label' => $this->randomMachineName()]);
     $config_entity_2->save();
 
     $content_entity_1 = EntityTest::create(['name' => $this->randomMachineName()]);

@@ -9,6 +9,7 @@ namespace Drupal\Tests\views\Unit\Plugin\pager;
 
 use Drupal\Tests\UnitTestCase;
 use Drupal\Core\Database\StatementInterface;
+use Drupal\Core\Database\Query\Select;
 
 /**
  * @coversDefaultClass \Drupal\views\Plugin\views\pager\PagerPluginBase
@@ -19,7 +20,7 @@ class PagerPluginBaseTest extends UnitTestCase {
   /**
    * The mock pager plugin instance.
    *
-   * @var \Drupal\views\Plugin\views\pager\PagerPluginBase|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\views\Plugin\views\pager\PagerPluginBase|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $pager;
 
@@ -195,7 +196,7 @@ class PagerPluginBaseTest extends UnitTestCase {
       // Now we are on the second page, which has just a single one left.
       [5, 6, 1, FALSE],
       // Increase the total items, so we have some available on the third page.
-      [5, 12, 1, TRUE]
+      [5, 12, 1, TRUE],
     ];
   }
 
@@ -205,7 +206,7 @@ class PagerPluginBaseTest extends UnitTestCase {
    * @see \Drupal\views\Plugin\views\pager\PagerPluginBase::executeCountQuery()
    */
   public function testExecuteCountQueryWithoutOffset() {
-    $statement = $this->getMock('\Drupal\Tests\views\Unit\Plugin\pager\TestStatementInterface');
+    $statement = $this->createMock('\Drupal\Tests\views\Unit\Plugin\pager\TestStatementInterface');
 
     $statement->expects($this->once())
       ->method('fetchField')
@@ -229,7 +230,7 @@ class PagerPluginBaseTest extends UnitTestCase {
    * @see \Drupal\views\Plugin\views\pager\PagerPluginBase::executeCountQuery()
    */
   public function testExecuteCountQueryWithOffset() {
-    $statement = $this->getMock('\Drupal\Tests\views\Unit\Plugin\pager\TestStatementInterface');
+    $statement = $this->createMock('\Drupal\Tests\views\Unit\Plugin\pager\TestStatementInterface');
 
     $statement->expects($this->once())
       ->method('fetchField')
@@ -245,6 +246,30 @@ class PagerPluginBaseTest extends UnitTestCase {
 
     $this->pager->setOffset(2);
     $this->assertEquals(1, $this->pager->executeCountQuery($query));
+  }
+
+  /**
+   * Tests the executeCountQuery method with an offset larger than result count.
+   *
+   * @see \Drupal\views\Plugin\views\pager\PagerPluginBase::executeCountQuery()
+   */
+  public function testExecuteCountQueryWithOffsetLargerThanResult() {
+    $statement = $this->createMock(TestStatementInterface::class);
+
+    $statement->expects($this->once())
+      ->method('fetchField')
+      ->will($this->returnValue(2));
+
+    $query = $this->getMockBuilder(Select::class)
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $query->expects($this->once())
+      ->method('execute')
+      ->will($this->returnValue($statement));
+
+    $this->pager->setOffset(3);
+    $this->assertEquals(0, $this->pager->executeCountQuery($query));
   }
 
 }

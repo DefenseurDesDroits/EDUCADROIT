@@ -2,7 +2,6 @@
 
 namespace Drupal\inline_entity_form\Plugin\Field\FieldWidget;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -58,7 +57,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
   /**
    * Constructs an InlineEntityFormBase object.
    *
-   * @param array $plugin_id
+   * @param string $plugin_id
    *   The plugin_id for the widget.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
@@ -72,7 +71,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
    *   The entity type bundle info.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
-   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
    *   The entity display repository.
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings, EntityTypeBundleInfoInterface $entity_type_bundle_info, EntityTypeManagerInterface $entity_type_manager, EntityDisplayRepositoryInterface $entity_display_repository) {
@@ -191,9 +190,12 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
   public static function defaultSettings() {
     return [
       'form_mode' => 'default',
+      'revision' => FALSE,
       'override_labels' => FALSE,
       'label_singular' => '',
       'label_plural' => '',
+      'collapsible' => FALSE,
+      'collapsed' => FALSE,
     ];
   }
 
@@ -210,6 +212,11 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
       '#default_value' => $this->getSetting('form_mode'),
       '#options' => $this->entityDisplayRepository->getFormModeOptions($entity_type_id),
       '#required' => TRUE,
+    ];
+    $element['revision'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Create new revision'),
+      '#default_value' => $this->getSetting('revision'),
     ];
     $element['override_labels'] = [
       '#type' => 'checkbox',
@@ -236,6 +243,21 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
         ],
       ],
     ];
+    $element['collapsible'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Collapsible'),
+      '#default_value' => $this->getSetting('collapsible'),
+    ];
+    $element['collapsed'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Collapsed by default'),
+      '#default_value' => $this->getSetting('collapsed'),
+      '#states' => [
+        'visible' => [
+          ':input[name="' . $states_prefix . '[collapsible]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
 
     return $element;
   }
@@ -251,7 +273,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
     else {
       $form_mode_label = $this->t('Default');
     }
-    $summary[] = t('Form mode: @mode', ['@mode' => $form_mode_label]);
+    $summary[] = $this->t('Form mode: @mode', ['@mode' => $form_mode_label]);
     if ($this->getSetting('override_labels')) {
       $summary[] = $this->t(
         'Overriden labels are used: %singular and %plural',
@@ -260,6 +282,14 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
     }
     else {
       $summary[] = $this->t('Default labels are used.');
+    }
+
+    if ($this->getSetting('revision')) {
+      $summary[] = $this->t('Create new revision');
+    }
+
+    if ($this->getSetting('collapsible')) {
+      $summary[] = $this->t($this->getSetting('collapsed') ? 'Collapsible, collapsed by default' : 'Collapsible');
     }
 
     return $summary;
@@ -291,7 +321,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
    * - Is IEF handler loaded?
    * - Are we on a "real" entity form and not on default value widget?
    *
-   * @param FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state.
    *
    * @return bool
@@ -375,6 +405,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
       '#default_value' => $entity,
       '#op' => $operation,
       '#form_mode' => $this->getSetting('form_mode'),
+      '#revision' => $this->getSetting('revision'),
       '#save_entity' => FALSE,
       '#ief_row_delta' => $delta,
       // Used by Field API and controller methods to find the relevant
@@ -404,7 +435,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
    * @return bool
    *   TRUE if translating is in progress, FALSE otherwise.
    *
-   * @see \Drupal\inline_entity_form\TranslationHelper::initFormLangcodes().
+   * @see \Drupal\inline_entity_form\TranslationHelper::initFormLangcodes()
    */
   protected function isTranslating(FormStateInterface $form_state) {
     if (TranslationHelper::isTranslating($form_state)) {
@@ -453,8 +484,8 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
    * still decide to cancel the parent form.
    *
    * @param $entity_form
-   *  The form of the entity being managed inline.
-   * @param $form_state
+   *   The form of the entity being managed inline.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state of the parent form.
    */
   public static function submitSaveEntity($entity_form, FormStateInterface $form_state) {
@@ -462,7 +493,7 @@ abstract class InlineEntityFormBase extends WidgetBase implements ContainerFacto
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $entity_form['#entity'];
 
-    if ($entity_form['#op'] == 'add') {
+    if (in_array($entity_form['#op'], ['add', 'duplicate'])) {
       // Determine the correct weight of the new element.
       $weight = 0;
       $entities = $form_state->get(['inline_entity_form', $ief_id, 'entities']);

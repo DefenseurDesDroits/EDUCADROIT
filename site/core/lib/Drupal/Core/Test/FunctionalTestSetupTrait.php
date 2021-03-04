@@ -3,22 +3,34 @@
 namespace Drupal\Core\Test;
 
 use Drupal\Component\FileCache\FileCacheFactory;
-use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Core\Cache\Cache;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Utility\Environment;
 use Drupal\Core\Config\Development\ConfigSchemaChecker;
+use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Config\InstallStorage;
+use Drupal\Core\Config\StorageInterface;
+use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Extension\MissingDependencyException;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Session\UserSession;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Drupal\Tests\SessionTestTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Yaml\Yaml as SymfonyYaml;
+use Symfony\Cmf\Component\Routing\RouteObjectInterface;
+use Symfony\Component\Routing\Route;
 
 /**
  * Defines a trait for shared functional test setup functionality.
  */
 trait FunctionalTestSetupTrait {
+
+  use SessionTestTrait;
+  use RefreshVariablesTrait;
 
   /**
    * The "#1" admin user.
@@ -36,8 +48,25 @@ trait FunctionalTestSetupTrait {
 
   /**
    * The config directories used in this test.
+   *
+   * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use
+   *   \Drupal\Core\Site\Settings::get('config_sync_directory') instead.
+   *
+   * @see https://www.drupal.org/node/3018145
    */
   protected $configDirectories = [];
+
+  /**
+   * The flag to set 'apcu_ensure_unique_prefix' setting.
+   *
+   * Wide use of a unique prefix can lead to problems with memory, if tests are
+   * run with a concurrency higher than 1. Therefore, FALSE by default.
+   *
+   * @var bool
+   *
+   * @see \Drupal\Core\Site\Settings::getApcuPrefix().
+   */
+  protected $apcuEnsureUniquePrefix = FALSE;
 
   /**
    * Prepares site settings and services before installation.
@@ -67,6 +96,10 @@ trait FunctionalTestSetupTrait {
       'value' => $this->privateFilesDirectory,
       'required' => TRUE,
     ];
+    $settings['settings']['file_temp_path'] = (object) [
+      'value' => $this->tempFilesDirectory,
+      'required' => TRUE,
+    ];
     // Save the original site directory path, so that extensions in the
     // site-specific directory can still be discovered in the test site
     // environment.
@@ -75,10 +108,8 @@ trait FunctionalTestSetupTrait {
       'value' => $this->originalSite,
       'required' => TRUE,
     ];
-    // Add the parent profile's search path to the child site's search paths.
-    // @see \Drupal\Core\Extension\ExtensionDiscovery::getProfileDirectories()
-    $settings['conf']['simpletest.settings']['parent_profile'] = (object) [
-      'value' => $this->originalProfile,
+    $settings['settings']['apcu_ensure_unique_prefix'] = (object) [
+      'value' => $this->apcuEnsureUniquePrefix,
       'required' => TRUE,
     ];
     $this->writeSettings($settings);
@@ -103,7 +134,7 @@ trait FunctionalTestSetupTrait {
       $yaml = new SymfonyYaml();
       $content = file_get_contents($directory . '/services.yml');
       $services = $yaml->parse($content);
-      $services['services']['simpletest.config_schema_checker'] = [
+      $services['services']['testing.config_schema_checker'] = [
         'class' => ConfigSchemaChecker::class,
         'arguments' => ['@config.typed', $this->getConfigSchemaExclusions()],
         'tags' => [['name' => 'event_subscriber']],
@@ -202,32 +233,6 @@ trait FunctionalTestSetupTrait {
   }
 
   /**
-   * Refreshes in-memory configuration and state information.
-   *
-   * Useful after a page request is made that changes configuration or state in
-   * a different thread.
-   *
-   * In other words calling a settings page with $this->drupalPostForm() with a
-   * changed value would update configuration to reflect that change, but in the
-   * thread that made the call (thread running the test) the changed values
-   * would not be picked up.
-   *
-   * This method clears the cache and loads a fresh copy.
-   */
-  protected function refreshVariables() {
-    // Clear the tag cache.
-    \Drupal::service('cache_tags.invalidator')->resetChecksums();
-    foreach (Cache::getBins() as $backend) {
-      if (is_callable([$backend, 'reset'])) {
-        $backend->reset();
-      }
-    }
-
-    $this->container->get('config.factory')->reset();
-    $this->container->get('state')->resetCache();
-  }
-
-  /**
    * Creates a mock request and sets it on the generator.
    *
    * This is used to manipulate how the generator generates paths during tests.
@@ -296,9 +301,7 @@ trait FunctionalTestSetupTrait {
    */
   protected function initSettings() {
     Settings::initialize(DRUPAL_ROOT, $this->siteDirectory, $this->classLoader);
-    foreach ($GLOBALS['config_directories'] as $type => $path) {
-      $this->configDirectories[$type] = $path;
-    }
+    $this->configDirectories['sync'] = Settings::get('config_sync_directory');
 
     // After writing settings.php, the installer removes write permissions
     // from the site directory. To allow drupal_generate_test_ua() to write
@@ -323,7 +326,7 @@ trait FunctionalTestSetupTrait {
     $config = $container->get('config.factory');
 
     // Manually create the private directory.
-    file_prepare_directory($this->privateFilesDirectory, FILE_CREATE_DIRECTORY);
+    \Drupal::service('file_system')->prepareDirectory($this->privateFilesDirectory, FileSystemInterface::CREATE_DIRECTORY);
 
     // Manually configure the test mail collector implementation to prevent
     // tests from sending out emails and collect them in state instead.
@@ -386,10 +389,64 @@ trait FunctionalTestSetupTrait {
    */
   protected function initKernel(Request $request) {
     $this->kernel = DrupalKernel::createFromRequest($request, $this->classLoader, 'prod', TRUE);
-    $this->kernel->prepareLegacyRequest($request);
     // Force the container to be built from scratch instead of loaded from the
     // disk. This forces us to not accidentally load the parent site.
-    return $this->kernel->rebuildContainer();
+    $this->kernel->invalidateContainer();
+    $this->kernel->boot();
+    // Add our request to the stack and route context.
+    $request->attributes->set(RouteObjectInterface::ROUTE_OBJECT, new Route('<none>'));
+    $request->attributes->set(RouteObjectInterface::ROUTE_NAME, '<none>');
+    $this->kernel->preHandle($request);
+    return $this->kernel->getContainer();
+  }
+
+  /**
+   * Installs the default theme defined by `static::$defaultTheme` when needed.
+   *
+   * To install a test theme outside of the testing environment, add
+   * @code
+   * $settings['extension_discovery_scan_tests'] = TRUE;
+   * @endcode
+   * to your settings.php.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The container.
+   */
+  protected function installDefaultThemeFromClassProperty(ContainerInterface $container) {
+    // Use the install profile to determine the default theme if configured and
+    // not already specified.
+    $profile = $container->getParameter('install_profile');
+
+    $default_sync_path = drupal_get_path('profile', $profile) . '/config/sync';
+    $profile_config_storage = new FileStorage($default_sync_path, StorageInterface::DEFAULT_COLLECTION);
+    if (!isset($this->defaultTheme) && $profile_config_storage->exists('system.theme')) {
+      $this->defaultTheme = $profile_config_storage->read('system.theme')['default'];
+    }
+
+    $default_install_path = drupal_get_path('profile', $profile) . '/' . InstallStorage::CONFIG_INSTALL_DIRECTORY;
+    $profile_config_storage = new FileStorage($default_install_path, StorageInterface::DEFAULT_COLLECTION);
+    if (!isset($this->defaultTheme) && $profile_config_storage->exists('system.theme')) {
+      $this->defaultTheme = $profile_config_storage->read('system.theme')['default'];
+    }
+
+    // Require a default theme to be specified at this point.
+    if (!isset($this->defaultTheme)) {
+      // For backwards compatibility, tests using the 'testing' install profile
+      // on Drupal 8 automatically get 'classy' set, and other profiles use
+      // 'stark'.
+      @trigger_error('Drupal\Tests\BrowserTestBase::$defaultTheme is required in drupal:9.0.0 when using an install profile that does not set a default theme. See https://www.drupal.org/node/3083055, which includes recommendations on which theme to use.', E_USER_DEPRECATED);
+      $this->defaultTheme = $profile === 'testing' ? 'classy' : 'stark';
+    }
+
+    // Ensure the default theme is installed.
+    $container->get('theme_installer')->install([$this->defaultTheme], TRUE);
+
+    $system_theme_config = $container->get('config.factory')->getEditable('system.theme');
+    if ($system_theme_config->get('default') !== $this->defaultTheme) {
+      $system_theme_config
+        ->set('default', $this->defaultTheme)
+        ->save();
+    }
   }
 
   /**
@@ -417,14 +474,14 @@ trait FunctionalTestSetupTrait {
       $modules = array_unique($modules);
       try {
         $success = $container->get('module_installer')->install($modules, TRUE);
-        $this->assertTrue($success, SafeMarkup::format('Enabled modules: %modules', ['%modules' => implode(', ', $modules)]));
+        $this->assertTrue($success, new FormattableMarkup('Enabled modules: %modules', ['%modules' => implode(', ', $modules)]));
       }
       catch (MissingDependencyException $e) {
         // The exception message has all the details.
         $this->fail($e->getMessage());
       }
-
-      $this->rebuildContainer();
+      // The container was already rebuilt by the ModuleInstaller.
+      $this->container = \Drupal::getContainer();
     }
   }
 
@@ -439,13 +496,219 @@ trait FunctionalTestSetupTrait {
     // @todo Test-specific setUp() methods may set up further fixtures; find a
     //   way to execute this after setUp() is done, or to eliminate it entirely.
     $this->resetAll();
-    $this->kernel->prepareLegacyRequest(\Drupal::request());
 
     // Explicitly call register() again on the container registered in \Drupal.
     // @todo This should already be called through
     //   DrupalKernel::prepareLegacyRequest() -> DrupalKernel::boot() but that
     //   appears to be calling a different container.
     $this->container->get('stream_wrapper_manager')->register();
+  }
+
+  /**
+   * Returns the parameters that will be used when Simpletest installs Drupal.
+   *
+   * @see install_drupal()
+   * @see install_state_defaults()
+   *
+   * @return array
+   *   Array of parameters for use in install_drupal().
+   */
+  protected function installParameters() {
+    $connection_info = Database::getConnectionInfo();
+    $driver = $connection_info['default']['driver'];
+    $connection_info['default']['prefix'] = $connection_info['default']['prefix']['default'];
+    unset($connection_info['default']['driver']);
+    unset($connection_info['default']['namespace']);
+    unset($connection_info['default']['pdo']);
+    unset($connection_info['default']['init_commands']);
+    // Remove database connection info that is not used by SQLite.
+    if ($driver === 'sqlite') {
+      unset($connection_info['default']['username']);
+      unset($connection_info['default']['password']);
+      unset($connection_info['default']['host']);
+      unset($connection_info['default']['port']);
+    }
+    $parameters = [
+      'interactive' => FALSE,
+      'parameters' => [
+        'profile' => $this->profile,
+        'langcode' => 'en',
+      ],
+      'forms' => [
+        'install_settings_form' => [
+          'driver' => $driver,
+          $driver => $connection_info['default'],
+        ],
+        'install_configure_form' => [
+          'site_name' => 'Drupal',
+          'site_mail' => 'simpletest@example.com',
+          'account' => [
+            'name' => $this->rootUser->name,
+            'mail' => $this->rootUser->getEmail(),
+            'pass' => [
+              'pass1' => isset($this->rootUser->pass_raw) ? $this->rootUser->pass_raw : $this->rootUser->passRaw,
+              'pass2' => isset($this->rootUser->pass_raw) ? $this->rootUser->pass_raw : $this->rootUser->passRaw,
+            ],
+          ],
+          // form_type_checkboxes_value() requires NULL instead of FALSE values
+          // for programmatic form submissions to disable a checkbox.
+          'enable_update_status_module' => NULL,
+          'enable_update_status_emails' => NULL,
+        ],
+      ],
+    ];
+
+    // If we only have one db driver available, we cannot set the driver.
+    include_once DRUPAL_ROOT . '/core/includes/install.inc';
+    if (count($this->getDatabaseTypes()) == 1) {
+      unset($parameters['forms']['install_settings_form']['driver']);
+    }
+    return $parameters;
+  }
+
+  /**
+   * Sets up the base URL based upon the environment variable.
+   *
+   * @throws \Exception
+   *   Thrown when no SIMPLETEST_BASE_URL environment variable is provided.
+   */
+  protected function setupBaseUrl() {
+    global $base_url;
+
+    // Get and set the domain of the environment we are running our test
+    // coverage against.
+    $base_url = getenv('SIMPLETEST_BASE_URL');
+    if (!$base_url) {
+      throw new \Exception(
+        'You must provide a SIMPLETEST_BASE_URL environment variable to run some PHPUnit based functional tests.'
+      );
+    }
+
+    // Setup $_SERVER variable.
+    $parsed_url = parse_url($base_url);
+    $host = $parsed_url['host'] . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '');
+    $path = isset($parsed_url['path']) ? rtrim(rtrim($parsed_url['path']), '/') : '';
+    $port = isset($parsed_url['port']) ? $parsed_url['port'] : 80;
+
+    $this->baseUrl = $base_url;
+
+    // If the passed URL schema is 'https' then setup the $_SERVER variables
+    // properly so that testing will run under HTTPS.
+    if ($parsed_url['scheme'] === 'https') {
+      $_SERVER['HTTPS'] = 'on';
+    }
+    $_SERVER['HTTP_HOST'] = $host;
+    $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+    $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+    $_SERVER['SERVER_PORT'] = $port;
+    $_SERVER['SERVER_SOFTWARE'] = NULL;
+    $_SERVER['SERVER_NAME'] = 'localhost';
+    $_SERVER['REQUEST_URI'] = $path . '/';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['SCRIPT_NAME'] = $path . '/index.php';
+    $_SERVER['SCRIPT_FILENAME'] = $path . '/index.php';
+    $_SERVER['PHP_SELF'] = $path . '/index.php';
+    $_SERVER['HTTP_USER_AGENT'] = 'Drupal command line';
+  }
+
+  /**
+   * Prepares the current environment for running the test.
+   *
+   * Also sets up new resources for the testing environment, such as the public
+   * filesystem and configuration directories.
+   *
+   * This method is private as it must only be called once by
+   * BrowserTestBase::setUp() (multiple invocations for the same test would have
+   * unpredictable consequences) and it must not be callable or overridable by
+   * test classes.
+   */
+  protected function prepareEnvironment() {
+    // Bootstrap Drupal so we can use Drupal's built in functions.
+    $this->classLoader = require __DIR__ . '/../../../../../autoload.php';
+    $request = Request::createFromGlobals();
+    $kernel = TestRunnerKernel::createFromRequest($request, $this->classLoader);
+    // TestRunnerKernel expects the working directory to be DRUPAL_ROOT.
+    chdir(DRUPAL_ROOT);
+    $kernel->boot();
+    $kernel->preHandle($request);
+    $this->prepareDatabasePrefix();
+
+    $this->originalSite = $kernel->findSitePath($request);
+
+    // Create test directory ahead of installation so fatal errors and debug
+    // information can be logged during installation process.
+    \Drupal::service('file_system')->prepareDirectory($this->siteDirectory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+
+    // Prepare filesystem directory paths.
+    $this->publicFilesDirectory = $this->siteDirectory . '/files';
+    $this->privateFilesDirectory = $this->siteDirectory . '/private';
+    $this->tempFilesDirectory = $this->siteDirectory . '/temp';
+    $this->translationFilesDirectory = $this->siteDirectory . '/translations';
+
+    // Ensure the configImporter is refreshed for each test.
+    $this->configImporter = NULL;
+
+    // Unregister all custom stream wrappers of the parent site.
+    $wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::ALL);
+    foreach ($wrappers as $scheme => $info) {
+      stream_wrapper_unregister($scheme);
+    }
+
+    // Reset statics.
+    drupal_static_reset();
+
+    $this->container = NULL;
+
+    // Unset globals.
+    unset($GLOBALS['config_directories']);
+    unset($GLOBALS['config']);
+    unset($GLOBALS['conf']);
+
+    // Log fatal errors.
+    ini_set('log_errors', 1);
+    ini_set('error_log', DRUPAL_ROOT . '/' . $this->siteDirectory . '/error.log');
+
+    // Change the database prefix.
+    $this->changeDatabasePrefix();
+
+    // After preparing the environment and changing the database prefix, we are
+    // in a valid test environment.
+    drupal_valid_test_ua($this->databasePrefix);
+
+    // Reset settings.
+    new Settings([
+      // For performance, simply use the database prefix as hash salt.
+      'hash_salt' => $this->databasePrefix,
+    ]);
+
+    Environment::setTimeLimit($this->timeLimit);
+
+    // Save and clean the shutdown callbacks array because it is static cached
+    // and will be changed by the test run. Otherwise it will contain callbacks
+    // from both environments and the testing environment will try to call the
+    // handlers defined by the original one.
+    $callbacks = &drupal_register_shutdown_function();
+    $this->originalShutdownCallbacks = $callbacks;
+    $callbacks = [];
+  }
+
+  /**
+   * Returns all supported database driver installer objects.
+   *
+   * This wraps drupal_get_database_types() for use without a current container.
+   *
+   * @return \Drupal\Core\Database\Install\Tasks[]
+   *   An array of available database driver installer objects.
+   */
+  protected function getDatabaseTypes() {
+    if (isset($this->originalContainer) && $this->originalContainer) {
+      \Drupal::setContainer($this->originalContainer);
+    }
+    $database_types = drupal_get_database_types();
+    if (isset($this->originalContainer) && $this->originalContainer) {
+      \Drupal::unsetContainer();
+    }
+    return $database_types;
   }
 
 }

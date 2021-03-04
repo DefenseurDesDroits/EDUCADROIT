@@ -3,8 +3,8 @@
 namespace Drupal\Tests\field\Kernel\EntityReference;
 
 use Drupal\comment\Entity\Comment;
+use Drupal\comment\Entity\CommentType;
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -14,15 +14,16 @@ use Drupal\entity_test\Entity\EntityTest;
 use Drupal\entity_test\Entity\EntityTestStringId;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
+use Drupal\taxonomy\TermInterface;
 use Drupal\Tests\field\Kernel\FieldKernelTestBase;
 use Drupal\file\Entity\File;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\user\Entity\User;
-
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 
 /**
  * Tests the new entity API for the entity reference field type.
@@ -38,7 +39,16 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'comment', 'file', 'taxonomy', 'text', 'filter', 'views', 'field'];
+  public static $modules = [
+    'node',
+    'comment',
+    'file',
+    'taxonomy',
+    'text',
+    'filter',
+    'views',
+    'field',
+  ];
 
   /**
    * The taxonomy vocabulary to test with.
@@ -78,7 +88,7 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
 
     $this->vocabulary = Vocabulary::create([
       'name' => $this->randomMachineName(),
-      'vid' => Unicode::strtolower($this->randomMachineName()),
+      'vid' => mb_strtolower($this->randomMachineName()),
       'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
     ]);
     $this->vocabulary->save();
@@ -89,6 +99,14 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
       'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
     ]);
     $this->term->save();
+
+    NodeType::create([
+      'type' => $this->randomMachineName(),
+    ])->save();
+    CommentType::create([
+      'id' => $this->randomMachineName(),
+      'target_entity_type_id' => 'node',
+    ])->save();
 
     $this->entityStringId = EntityTestStringId::create([
       'id' => $this->randomMachineName(),
@@ -103,6 +121,7 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_user', 'Test user entity reference', 'user');
     $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_comment', 'Test comment entity reference', 'comment');
     $this->createEntityReferenceField('entity_test', 'entity_test', 'field_test_file', 'Test file entity reference', 'file');
+    $this->createEntityReferenceField('entity_test_string_id', 'entity_test_string_id', 'field_test_entity_test', 'Test content entity reference with string ID', 'entity_test');
   }
 
   /**
@@ -118,15 +137,15 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     $entity->save();
 
     $entity = EntityTest::load($entity->id());
-    $this->assertTrue($entity->field_test_taxonomy_term instanceof FieldItemListInterface, 'Field implements interface.');
-    $this->assertTrue($entity->field_test_taxonomy_term[0] instanceof FieldItemInterface, 'Field item implements interface.');
+    $this->assertInstanceOf(FieldItemListInterface::class, $entity->field_test_taxonomy_term);
+    $this->assertInstanceOf(FieldItemInterface::class, $entity->field_test_taxonomy_term[0]);
     $this->assertEqual($entity->field_test_taxonomy_term->target_id, $tid);
     $this->assertEqual($entity->field_test_taxonomy_term->entity->getName(), $this->term->getName());
     $this->assertEqual($entity->field_test_taxonomy_term->entity->id(), $tid);
     $this->assertEqual($entity->field_test_taxonomy_term->entity->uuid(), $this->term->uuid());
     // Verify that the label for the target ID property definition is correct.
     $label = $entity->field_test_taxonomy_term->getFieldDefinition()->getFieldStorageDefinition()->getPropertyDefinition('target_id')->getLabel();
-    $this->assertTrue($label instanceof TranslatableMarkup);
+    $this->assertInstanceOf(TranslatableMarkup::class, $label);
     $this->assertEqual($label->render(), 'Taxonomy term ID');
 
     // Change the name of the term via the reference.
@@ -168,8 +187,8 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
       $entity->field_test_taxonomy_term = ['target_id' => 'invalid', 'entity' => $term2];
       $this->fail('Assigning an invalid item throws an exception.');
     }
-    catch (\InvalidArgumentException $e) {
-      $this->pass('Assigning an invalid item throws an exception.');
+    catch (\Exception $e) {
+      $this->assertInstanceOf(\InvalidArgumentException::class, $e);
     }
 
     // Delete terms so we have nothing to reference and try again
@@ -195,18 +214,49 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
   }
 
   /**
+   * Tests the ::generateSampleValue() method.
+   */
+  public function testGenerateSampleValue() {
+    $entity = EntityTest::create();
+
+    // Test while a term exists.
+    $entity->field_test_taxonomy_term->generateSampleItems();
+    $this->assertInstanceOf(TermInterface::class, $entity->field_test_taxonomy_term->entity);
+    $this->entityValidateAndSave($entity);
+
+    // Delete the term and test again.
+    $this->term->delete();
+    $entity->field_test_taxonomy_term->generateSampleItems();
+    $this->assertInstanceOf(TermInterface::class, $entity->field_test_taxonomy_term->entity);
+    $this->entityValidateAndSave($entity);
+  }
+
+  /**
+   * Tests the ::generateSampleValue() method when it has a circular reference.
+   */
+  public function testGenerateSampleValueCircularReference() {
+    // Delete the existing entity.
+    $this->entityStringId->delete();
+
+    $entity_storage = \Drupal::entityTypeManager()->getStorage('entity_test');
+    $entity = $entity_storage->createWithSampleValues('entity_test');
+    $this->assertInstanceOf(EntityTestStringId::class, $entity->field_test_entity_test_string_id->entity);
+    $this->assertInstanceOf(EntityTest::class, $entity->field_test_entity_test_string_id->entity->field_test_entity_test->entity);
+  }
+
+  /**
    * Tests referencing content entities with string IDs.
    */
   public function testContentEntityReferenceItemWithStringId() {
     $entity = EntityTest::create();
     $entity->field_test_entity_test_string_id->target_id = $this->entityStringId->id();
     $entity->save();
-    $storage = \Drupal::entityManager()->getStorage('entity_test');
+    $storage = \Drupal::entityTypeManager()->getStorage('entity_test');
     $storage->resetCache();
     $this->assertEqual($this->entityStringId->id(), $storage->load($entity->id())->field_test_entity_test_string_id->target_id);
     // Verify that the label for the target ID property definition is correct.
     $label = $entity->field_test_taxonomy_term->getFieldDefinition()->getFieldStorageDefinition()->getPropertyDefinition('target_id')->getLabel();
-    $this->assertTrue($label instanceof TranslatableMarkup);
+    $this->assertInstanceOf(TranslatableMarkup::class, $label);
     $this->assertEqual($label->render(), 'Taxonomy term ID');
   }
 
@@ -223,8 +273,8 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     $entity->save();
 
     $entity = EntityTest::load($entity->id());
-    $this->assertTrue($entity->field_test_taxonomy_vocabulary instanceof FieldItemListInterface, 'Field implements interface.');
-    $this->assertTrue($entity->field_test_taxonomy_vocabulary[0] instanceof FieldItemInterface, 'Field item implements interface.');
+    $this->assertInstanceOf(FieldItemListInterface::class, $entity->field_test_taxonomy_vocabulary);
+    $this->assertInstanceOf(FieldItemInterface::class, $entity->field_test_taxonomy_vocabulary[0]);
     $this->assertEqual($entity->field_test_taxonomy_vocabulary->target_id, $referenced_entity_id);
     $this->assertEqual($entity->field_test_taxonomy_vocabulary->entity->label(), $this->vocabulary->label());
     $this->assertEqual($entity->field_test_taxonomy_vocabulary->entity->id(), $referenced_entity_id);
@@ -241,7 +291,7 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     // Make sure the computed term reflects updates to the term id.
     $vocabulary2 = $vocabulary = Vocabulary::create([
       'name' => $this->randomMachineName(),
-      'vid' => Unicode::strtolower($this->randomMachineName()),
+      'vid' => mb_strtolower($this->randomMachineName()),
       'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
     ]);
     $vocabulary2->save();
@@ -277,7 +327,7 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     $entity = unserialize($entity);
     // And then the entity.
     $entity->save();
-    $term = \Drupal::entityManager()->loadEntityByUuid($term->getEntityTypeId(), $term->uuid());
+    $term = \Drupal::service('entity.repository')->loadEntityByUuid($term->getEntityTypeId(), $term->uuid());
     $this->assertEqual($entity->field_test_taxonomy_term->entity->id(), $term->id());
   }
 
@@ -312,13 +362,13 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
    * Tests that the 'handler' field setting stores the proper plugin ID.
    */
   public function testSelectionHandlerSettings() {
-    $field_name = Unicode::strtolower($this->randomMachineName());
+    $field_name = mb_strtolower($this->randomMachineName());
     $field_storage = FieldStorageConfig::create([
       'field_name' => $field_name,
       'entity_type' => 'entity_test',
       'type' => 'entity_reference',
       'settings' => [
-        'target_type' => 'entity_test'
+        'target_type' => 'entity_test',
       ],
     ]);
     $field_storage->save();
@@ -372,7 +422,7 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
     $errors = $entity->validate();
     // Using target_id of NULL is valid with an unsaved entity.
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
     // Using target_id of NULL is not valid with a saved entity.
     $term->save();
     $entity = EntityTest::create([
@@ -382,13 +432,13 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
       ],
     ]);
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), 'This value should not be null.');
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_taxonomy_term.0');
     // This should rectify the issue, favoring the entity over the target_id.
     $entity->save();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
 
     // Test with an unpublished and unsaved node.
     $title = $this->randomString();
@@ -405,14 +455,14 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
 
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'node', '%label' => $title]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_node.0.entity');
 
     // Publish the node and try again.
-    $node->setPublished(TRUE);
+    $node->setPublished();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
 
     // Test with a mix of valid and invalid nodes.
     $unsaved_unpublished_node_title = $this->randomString();
@@ -453,24 +503,24 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
 
     $errors = $entity->validate();
-    $this->assertEqual(2, count($errors));
+    $this->assertCount(2, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'node', '%label' => $unsaved_unpublished_node_title]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_node.0.entity');
     $this->assertEqual($errors[1]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'node', '%label' => $saved_unpublished_node->id()]));
     $this->assertEqual($errors[1]->getPropertyPath(), 'field_test_node.1.target_id');
 
     // Publish one of the nodes and try again.
-    $saved_unpublished_node->setPublished(TRUE);
+    $saved_unpublished_node->setPublished();
     $saved_unpublished_node->save();
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'node', '%label' => $unsaved_unpublished_node_title]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_node.0.entity');
 
     // Publish the last invalid node and try again.
-    $unsaved_unpublished_node->setPublished(TRUE);
+    $unsaved_unpublished_node->setPublished();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
 
     // Test with an unpublished and unsaved comment.
     $title = $this->randomString();
@@ -487,14 +537,14 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
 
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'comment', '%label' => $title]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_comment.0.entity');
 
     // Publish the comment and try again.
-    $comment->setPublished(TRUE);
+    $comment->setPublished();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
 
     // Test with an inactive and unsaved user.
     $name = $this->randomString();
@@ -510,14 +560,14 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
 
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'user', '%label' => $name]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_user.0.entity');
 
     // Activate the user and try again.
     $user->activate();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
 
     // Test with a temporary and unsaved file.
     $filename = $this->randomMachineName() . '.txt';
@@ -533,14 +583,14 @@ class EntityReferenceItemTest extends FieldKernelTestBase {
     ]);
 
     $errors = $entity->validate();
-    $this->assertEqual(1, count($errors));
+    $this->assertCount(1, $errors);
     $this->assertEqual($errors[0]->getMessage(), new FormattableMarkup('This entity (%type: %label) cannot be referenced.', ['%type' => 'file', '%label' => $filename]));
     $this->assertEqual($errors[0]->getPropertyPath(), 'field_test_file.0.entity');
 
     // Set the file as permanent and try again.
     $file->setPermanent();
     $errors = $entity->validate();
-    $this->assertEqual(0, count($errors));
+    $this->assertCount(0, $errors);
   }
 
 }

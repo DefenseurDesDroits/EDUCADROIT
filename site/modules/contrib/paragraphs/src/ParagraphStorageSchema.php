@@ -17,7 +17,10 @@ class ParagraphStorageSchema extends SqlContentEntityStorageSchema {
   protected function getEntitySchema(ContentEntityTypeInterface $entity_type, $reset = FALSE) {
     $schema = parent::getEntitySchema($entity_type, $reset);
 
-    $schema['paragraphs_item_field_data']['indexes'] += array(
+    $schema[$this->storage->getDataTable()]['indexes'] += array(
+      'paragraphs__parent_fields' => array('parent_type', 'parent_id', 'parent_field_name'),
+    );
+    $schema[$this->storage->getRevisionDataTable()]['indexes'] += array(
       'paragraphs__parent_fields' => array('parent_type', 'parent_id', 'parent_field_name'),
     );
 
@@ -33,6 +36,10 @@ class ParagraphStorageSchema extends SqlContentEntityStorageSchema {
     $schema = parent::getSharedTableFieldSchema($storage_definition, $table_name, $column_mapping);
     if ($storage_definition->getName() == 'status') {
       $schema['fields']['status']['initial'] = 1;
+    }
+
+    if ($storage_definition->getName() == 'behavior_settings') {
+      $schema['fields']['behavior_settings']['initial'] = serialize([]);
     }
     return $schema;
   }

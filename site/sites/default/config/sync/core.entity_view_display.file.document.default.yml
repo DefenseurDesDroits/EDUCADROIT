@@ -23,6 +23,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   field_image:
     weight: 7
     label: visually_hidden
@@ -31,6 +32,7 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: image
+    region: content
   field_title:
     type: string
     weight: 0
@@ -38,6 +40,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   filemime:
     type: string
     weight: 5
@@ -45,6 +48,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   filename:
     type: string
     label: visually_hidden
@@ -52,18 +56,21 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   filesize:
     type: file_size
     weight: 6
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   uid:
     type: author
     weight: 4
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   uri:
     type: string
     label: visually_hidden
@@ -71,5 +78,6 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
 hidden:
   langcode: true

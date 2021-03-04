@@ -3,17 +3,14 @@
 namespace Drupal\Core\Layout;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginBase;
+use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
  * Provides a default class for Layout plugins.
- *
- * @internal
- *   The layout system is currently experimental and should only be leveraged by
- *   experimental modules and development releases of contributed modules.
- *   See https://www.drupal.org/core/experimental for more information.
  */
-class LayoutDefault extends PluginBase implements LayoutInterface {
+class LayoutDefault extends PluginBase implements LayoutInterface, PluginFormInterface {
 
   /**
    * The layout definition.
@@ -68,7 +65,9 @@ class LayoutDefault extends PluginBase implements LayoutInterface {
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
-    return [];
+    return [
+      'label' => '',
+    ];
   }
 
   /**
@@ -85,6 +84,31 @@ class LayoutDefault extends PluginBase implements LayoutInterface {
    */
   public function getPluginDefinition() {
     return parent::getPluginDefinition();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Administrative label'),
+      '#default_value' => $this->configuration['label'],
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $this->configuration['label'] = $form_state->getValue('label');
   }
 
 }

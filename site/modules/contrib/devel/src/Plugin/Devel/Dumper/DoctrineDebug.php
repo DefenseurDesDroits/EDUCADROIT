@@ -3,6 +3,7 @@
 namespace Drupal\devel\Plugin\Devel\Dumper;
 
 use Doctrine\Common\Util\Debug;
+use Drupal\Component\Utility\Xss;
 use Drupal\devel\DevelDumperBase;
 
 /**
@@ -11,17 +12,10 @@ use Drupal\devel\DevelDumperBase;
  * @DevelDumper(
  *   id = "default",
  *   label = @Translation("Default"),
- *   description = @Translation("Wrapper for <a href='http://www.doctrine-project.org/api/common/2.3/class-Doctrine.Common.Util.Debug.html'>Doctrine</a> debugging tool.")
+ *   description = @Translation("Wrapper for <a href='https://www.doctrine-project.org/api/common/latest/Doctrine/Common/Util/Debug.html'>Doctrine</a> debugging tool.")
  * )
  */
 class DoctrineDebug extends DevelDumperBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function dump($input, $name = NULL) {
-    echo (string) $this->export($input, $name);
-  }
 
   /**
    * {@inheritdoc}
@@ -35,6 +29,10 @@ class DoctrineDebug extends DevelDumperBase {
     $dump = ob_get_contents();
     ob_end_clean();
 
+    // Run Xss::filterAdmin on the resulting string to prevent
+    // cross-site-scripting (XSS) vulnerabilities.
+    $dump = Xss::filterAdmin($dump);
+
     $dump = '<pre>' . $name . $dump . '</pre>';
 
     return $this->setSafeMarkup($dump);
@@ -46,9 +44,9 @@ class DoctrineDebug extends DevelDumperBase {
   public function exportAsRenderable($input, $name = NULL) {
     $output['container'] = [
       '#type' => 'details',
-      '#title' => $name ? : $this->t('Variable'),
+      '#title' => $name ?: $this->t('Variable'),
       '#attached' => [
-        'library' => ['devel/devel']
+        'library' => ['devel/devel'],
       ],
       '#attributes' => [
         'class' => ['container-inline', 'devel-dumper', 'devel-selectable'],

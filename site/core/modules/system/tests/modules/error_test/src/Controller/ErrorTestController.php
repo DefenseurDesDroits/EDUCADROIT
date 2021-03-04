@@ -14,7 +14,7 @@ class ErrorTestController extends ControllerBase {
   /**
    * The database connection.
    *
-   * @var \Drupal\Core\Database\Connection;
+   * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
@@ -56,7 +56,7 @@ class ErrorTestController extends ControllerBase {
    * Generate fatals to test the error handler.
    */
   public function generateFatals() {
-    $function = function(array $test) {
+    $function = function (array $test) {
     };
 
     $function("test-string");
@@ -76,7 +76,9 @@ class ErrorTestController extends ControllerBase {
    */
   public function triggerPDOException() {
     define('SIMPLETEST_COLLECT_ERRORS', FALSE);
-    $this->database->query('SELECT * FROM bananas_are_awesome');
+    $this->database->select('bananas_are_awesome', 'b')
+      ->fields('b')
+      ->execute();
   }
 
   /**
@@ -88,7 +90,7 @@ class ErrorTestController extends ControllerBase {
       '#post_render' => [
         function () {
           throw new \Exception('This is an exception that occurs during rendering');
-        }
+        },
       ],
     ];
   }

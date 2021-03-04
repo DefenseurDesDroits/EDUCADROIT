@@ -33,7 +33,7 @@ abstract class Tasks {
     ],
     [
       'arguments'   => [
-        'CREATE TABLE {drupal_install_test} (id int NULL)',
+        'CREATE TABLE {drupal_install_test} (id int NOT NULL PRIMARY KEY)',
         'Drupal can use CREATE TABLE database commands.',
         'Failed to <strong>CREATE</strong> a test table on your database server with the command %query. The server reports the following message: %error.<p>Are you sure the configured username has the necessary permissions to create tables in the database?</p>',
         TRUE,
@@ -151,18 +151,31 @@ abstract class Tasks {
   }
 
   /**
+   * Checks engine version requirements for the status report.
+   *
+   * This method is called during runtime and update requirements checks.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup[]
+   *   A list of error messages.
+   */
+  final public function engineVersionRequirementsCheck() {
+    $this->checkEngineVersion();
+    return $this->results['fail'];
+  }
+
+  /**
    * Check if we can connect to the database.
    */
   protected function connect() {
     try {
       // This doesn't actually test the connection.
-      db_set_active();
+      Database::setActiveConnection();
       // Now actually do a check.
       Database::getConnection();
       $this->pass('Drupal can CONNECT to the database ok.');
     }
     catch (\Exception $e) {
-      $this->fail(t('Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>', ['%error' => $e->getMessage()]));
+      $this->fail(t('Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname and port number?</li></ul>', ['%error' => $e->getMessage()]));
       return FALSE;
     }
     return TRUE;
@@ -202,6 +215,13 @@ abstract class Tasks {
    *   The options form array.
    */
   public function getFormOptions(array $database) {
+    // Use reflection to determine the driver name.
+    // @todo https:///www.drupal.org/node/3123240 Provide a better way to get
+    //   the driver name.
+    $reflection = new \ReflectionClass($this);
+    $dir_parts = explode(DIRECTORY_SEPARATOR, dirname(dirname($reflection->getFileName())));
+    $driver = array_pop($dir_parts);
+
     $form['database'] = [
       '#type' => 'textfield',
       '#title' => t('Database name'),
@@ -210,7 +230,7 @@ abstract class Tasks {
       '#required' => TRUE,
       '#states' => [
         'required' => [
-          ':input[name=driver]' => ['value' => $this->pdoDriver],
+          ':input[name=driver]' => ['value' => $driver],
         ],
       ],
     ];
@@ -223,7 +243,7 @@ abstract class Tasks {
       '#required' => TRUE,
       '#states' => [
         'required' => [
-          ':input[name=driver]' => ['value' => $this->pdoDriver],
+          ':input[name=driver]' => ['value' => $driver],
         ],
       ],
     ];
@@ -242,7 +262,10 @@ abstract class Tasks {
       '#weight' => 10,
     ];
 
-    $profile = drupal_get_profile();
+    global $install_state;
+    // @todo https://www.drupal.org/project/drupal/issues/3110839 remove PHP 7.4
+    //   work around and add a better message for the migrate UI.
+    $profile = $install_state['parameters']['profile'] ?? NULL;
     $db_prefix = ($profile == 'standard') ? 'drupal_' : $profile . '_';
     $form['advanced_options']['prefix'] = [
       '#type' => 'textfield',

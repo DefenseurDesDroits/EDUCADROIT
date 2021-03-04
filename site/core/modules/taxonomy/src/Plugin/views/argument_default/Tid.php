@@ -34,7 +34,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
   /**
    * The vocabulary storage.
    *
-   * @var \Drupal\taxonomy\VocabularyStorageInterface.
+   * @var \Drupal\taxonomy\VocabularyStorageInterface
    */
   protected $vocabularyStorage;
 
@@ -68,7 +68,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
       $plugin_id,
       $plugin_definition,
       $container->get('current_route_match'),
-      $container->get('entity.manager')->getStorage('taxonomy_vocabulary')
+      $container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')
     );
   }
 
@@ -116,7 +116,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
     ];
     $form['node'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Load default filter from node page, that\'s good for related taxonomy blocks'),
+      '#title' => $this->t("Load default filter from node page, that's good for related taxonomy blocks"),
       '#default_value' => $this->options['node'],
     ];
 
@@ -194,7 +194,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
             $taxonomy_terms = $node->{$field->getName()}->referencedEntities();
             /** @var \Drupal\taxonomy\TermInterface $taxonomy_term */
             foreach ($taxonomy_terms as $taxonomy_term) {
-              $taxonomy[$taxonomy_term->id()] = $taxonomy_term->getVocabularyId();
+              $taxonomy[$taxonomy_term->id()] = $taxonomy_term->bundle();
             }
           }
         }

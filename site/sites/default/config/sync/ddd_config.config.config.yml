@@ -5,12 +5,12 @@ dependencies: {  }
 id: config
 label: test
 header_ddd_logo:
-  - '322'
+  - '973'
 footer_follow_title: "SUIVRE \r\nLE DÉFENSEUR \r\nDES DROITS"
 footer_facebook_link: 'https://www.facebook.com/Defenseurdesdroits/'
 footer_twitter_link: 'https://twitter.com/Defenseurdroits'
 footer_ddd_link: 'https://www.defenseurdesdroits.fr/'
 footer_ddd_logo:
-  - '240'
+  - '970'
 footer_ddd_description: 'Le Défenseur des droits est une autorité administrative indépendante chargée de défendre les droits et les libertés individuelles. Son action s’articule autour de deux volets complémentaires que sont la protection des droits et des libertés et la promotion de l’égalité et de l’accès aux droits.'
 ddd_cookie_disclaimer: "Le site utilise des cookies pour le fonctionnement des boutons de partage sur les réseaux sociaux et la mesure d'audience des vidéos et des pages<br />\r\nde ce site. En poursuivant votre navigation sur ce site, vous acceptez leur utilisation. En savoir plus et gérer ses paramètres <a href=\"/mentions-legales\">ici</a>."

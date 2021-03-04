@@ -1,0 +1,82 @@
+<section class="section-content">
+  <div class="container">
+    <div class="article">
+      <header class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+
+        <div class="standfirst">
+          <p>{{ teaser }}</p>
+        </div>
+      </header>
+      <!-- .article-header -->
+
+      <!-- Section blue -->
+      <div class="section-default section-blue">
+        <h3>{{ "Recherche texte dans les ressources"|t }}</h3>
+        <div class="row">
+          {{ exposed }}
+        </div>
+      </div>
+
+      <!-- Pager of the top -->
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>{{ total_results }} résultats</strong> pour les critères sélectionnés</p>
+        </div>
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      <hr/>
+
+      <!-- Result of the search -->
+      <div class="row">
+
+        <!-- Facet column -->
+        <div class="col-lg-3 col-md-3 col-sm-12">
+          {{ drupal_region('facets') }}
+          {% if empty -%}
+            <p>{{ "Aucun filtre disponible pour votre recherche."|t }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Results column -->
+        <div class="col-lg-9 col-md-9 col-sm-12">
+          {% if rows -%}
+            <h3>{{ "Liste des résultats"|t }}</h3>
+            {{ rows }}
+          {% elseif empty -%}
+            {{ empty }}
+          {% endif %}
+        </div>
+      </div>
+      <hr/>
+
+      <!-- Pager of the bottom -->
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>{{ total_results }} résultats</strong> pour les critères sélectionnés</p>
+        </div>
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      <hr/>
+    </div>
+  </div>
+</section>
+
+<!-- Spotlight -->
+<aside>
+  <div class="container">
+    <div class="row">
+      {% for paragraph in spotlight %}
+        {{ paragraph }}
+      {% endfor %}
+    </div>
+  </div>
+</aside>
+
+
+
+

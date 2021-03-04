@@ -2,14 +2,17 @@
 
 namespace Drupal\views_ui\Form\Ajax;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\views\ViewEntityInterface;
 use Drupal\views\ViewExecutable;
 
 /**
  * Provides a rearrange form for Views handlers.
+ *
+ * @internal
  */
 class Rearrange extends ViewsFormBase {
 
@@ -83,7 +86,7 @@ class Rearrange extends ViewsFormBase {
           'action' => 'order',
           'relationship' => 'sibling',
           'group' => 'weight',
-        ]
+        ],
       ],
       '#tree' => TRUE,
       '#prefix' => '<div class="scroll" data-drupal-views-scroll>',
@@ -124,14 +127,16 @@ class Rearrange extends ViewsFormBase {
         '#id' => 'views-removed-' . $id,
         '#attributes' => ['class' => ['views-remove-checkbox']],
         '#default_value' => 0,
-        '#suffix' => \Drupal::l(SafeMarkup::format('<span>@text</span>', ['@text' => $this->t('Remove')]),
-          Url::fromRoute('<none>', [], ['attributes' => [
-            'id' => 'views-remove-link-' . $id,
-            'class' => ['views-hidden', 'views-button-remove', 'views-remove-link'],
-            'alt' => $this->t('Remove this item'),
-            'title' => $this->t('Remove this item')],
+        '#suffix' => Link::fromTextAndUrl(new FormattableMarkup('<span>@text</span>', ['@text' => $this->t('Remove')]),
+          Url::fromRoute('<none>', [], [
+            'attributes' => [
+              'id' => 'views-remove-link-' . $id,
+              'class' => ['views-hidden', 'views-button-remove', 'views-remove-link'],
+              'alt' => $this->t('Remove this item'),
+              'title' => $this->t('Remove this item'),
+            ],
           ])
-        ),
+        )->toString(),
       ];
     }
 

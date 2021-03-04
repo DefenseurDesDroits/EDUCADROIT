@@ -23,6 +23,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_answers:
     weight: 2
     label: visually_hidden
@@ -30,12 +31,14 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_right_answer:
     weight: 3
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
     type: list_default
+    region: content
   field_subtitle:
     weight: 1
     label: visually_hidden
@@ -43,6 +46,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_title:
     weight: 0
     label: visually_hidden
@@ -50,6 +54,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
 hidden:
   created: true
   uid: true

@@ -189,7 +189,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $class = $this->getMockClass(EntityInterface::class);
     foreach ($definitions as $key => $entity_type) {
       // \Drupal\Core\Entity\EntityTypeInterface::getLinkTemplates() is called
-      // by \Drupal\Core\Entity\EntityManager::processDefinition() so it must
+      // by \Drupal\Core\Entity\EntityTypeManager::processDefinition() so it must
       // always be mocked.
       $entity_type->getLinkTemplates()->willReturn([]);
 
@@ -281,7 +281,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $field_definition = $this->prophesize()->willImplement(FieldDefinitionInterface::class)->willImplement(FieldStorageDefinitionInterface::class);
     $field_definition->isTranslatable()->willReturn(TRUE);
 
-    $entity_class = EntityManagerTestEntity::class;
+    $entity_class = EntityTypeManagerTestEntity::class;
     $entity_class::$baseFieldDefinitions += ['langcode' => $field_definition];
 
     $this->entityType->isTranslatable()->willReturn(TRUE);
@@ -323,14 +323,15 @@ class EntityFieldManagerTest extends UnitTestCase {
         $field_definition->setTranslatable(!$translatable)->shouldBeCalled();
       }
 
-      $entity_class = EntityManagerTestEntity::class;
+      $entity_class = EntityTypeManagerTestEntity::class;
       $entity_class::$baseFieldDefinitions += ['langcode' => $field_definition->reveal()];
     }
 
     $this->entityType->isTranslatable()->willReturn(TRUE);
     $this->entityType->getLabel()->willReturn('Test');
 
-    $this->setExpectedException(\LogicException::class, 'The Test entity type cannot be translatable as it does not define a translatable "langcode" field.');
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('The Test entity type cannot be translatable as it does not define a translatable "langcode" field.');
     $this->entityFieldManager->getBaseFieldDefinitions('test_entity_type');
   }
 
@@ -439,7 +440,6 @@ class EntityFieldManagerTest extends UnitTestCase {
       })
       ->shouldBeCalled();
 
-
     $this->assertSame($expected, $this->entityFieldManager->getFieldStorageDefinitions('test_entity_type'));
     $this->entityFieldManager->testClearEntityFieldInfo();
     $this->assertSame($expected, $this->entityFieldManager->getFieldStorageDefinitions('test_entity_type'));
@@ -457,7 +457,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $this->entityType->isTranslatable()->willReturn(TRUE);
     $this->entityType->getLabel()->willReturn('the_label');
 
-    $this->setExpectedException(\LogicException::class);
+    $this->expectException(\LogicException::class);
     $this->entityFieldManager->getBaseFieldDefinitions('test_entity_type');
   }
 
@@ -516,7 +516,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $string_translation = $this->prophesize(TranslationInterface::class);
     $this->container->get('string_translation')->willReturn($string_translation->reveal());
 
-    $entity_class = EntityManagerTestEntity::class;
+    $entity_class = EntityTypeManagerTestEntity::class;
 
     $field_definition = $this->prophesize()->willImplement(FieldDefinitionInterface::class)->willImplement(FieldStorageDefinitionInterface::class);
     $entity_class::$baseFieldDefinitions = [
@@ -542,6 +542,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $this->entityType->getKeys()->willReturn($entity_keys + ['default_langcode' => 'default_langcode']);
     $this->entityType->entityClassImplements(FieldableEntityInterface::class)->willReturn(TRUE);
     $this->entityType->isTranslatable()->willReturn(FALSE);
+    $this->entityType->isRevisionable()->willReturn(FALSE);
     $this->entityType->getProvider()->willReturn('the_provider');
     $this->entityType->id()->willReturn('the_entity_id');
 
@@ -613,7 +614,7 @@ class EntityFieldManagerTest extends UnitTestCase {
 
     // Set up a content entity type.
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
-    $entity_class = EntityManagerTestEntity::class;
+    $entity_class = EntityTypeManagerTestEntity::class;
 
     // Define an ID field definition as a base field.
     $id_definition = $this->prophesize(FieldDefinitionInterface::class);
@@ -651,6 +652,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $entity_type->getKeys()->willReturn(['default_langcode' => 'default_langcode']);
     $entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(TRUE);
     $entity_type->isTranslatable()->shouldBeCalled();
+    $entity_type->isRevisionable()->shouldBeCalled();
     $entity_type->getProvider()->shouldBeCalled();
 
     $non_content_entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(FALSE);
@@ -675,7 +677,7 @@ class EntityFieldManagerTest extends UnitTestCase {
           'type' => 'string',
           'bundles' => ['second_bundle' => 'second_bundle'],
         ],
-      ]
+      ],
     ];
     $this->assertEquals($expected, $this->entityFieldManager->getFieldMap());
   }
@@ -694,7 +696,7 @@ class EntityFieldManagerTest extends UnitTestCase {
           'type' => 'string',
           'bundles' => ['second_bundle' => 'second_bundle'],
         ],
-      ]
+      ],
     ];
     $this->setUpEntityTypeDefinitions();
     $this->cacheBackend->get('entity_field_map')->willReturn((object) ['data' => $expected]);
@@ -710,7 +712,7 @@ class EntityFieldManagerTest extends UnitTestCase {
   public function testGetFieldMapByFieldType() {
     // Set up a content entity type.
     $entity_type = $this->prophesize(ContentEntityTypeInterface::class);
-    $entity_class = EntityManagerTestEntity::class;
+    $entity_class = EntityTypeManagerTestEntity::class;
 
     // Set up the entity type bundle info to return two bundles for the
     // fieldable entity type.
@@ -752,6 +754,7 @@ class EntityFieldManagerTest extends UnitTestCase {
     $entity_type->getKeys()->willReturn(['default_langcode' => 'default_langcode'])->shouldBeCalled();
     $entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(TRUE)->shouldBeCalled();
     $entity_type->isTranslatable()->shouldBeCalled();
+    $entity_type->isRevisionable()->shouldBeCalled();
     $entity_type->getProvider()->shouldBeCalled();
 
     $override_entity_type->entityClassImplements(FieldableEntityInterface::class)->willReturn(FALSE)->shouldBeCalled();
@@ -787,7 +790,7 @@ class TestEntityFieldManager extends EntityFieldManager {
 /**
  * Provides a content entity with dummy static method implementations.
  */
-abstract class EntityManagerTestEntity implements \Iterator, ContentEntityInterface {
+abstract class EntityTypeManagerTestEntity implements \Iterator, ContentEntityInterface {
 
   /**
    * The base field definitions.

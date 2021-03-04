@@ -21,7 +21,12 @@ class LocaleFileSystemFormTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp(){
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
     parent::setUp();
     $account = $this->drupalCreateUser(['administer site configuration']);
     $this->drupalLogin($account);
@@ -45,7 +50,7 @@ class LocaleFileSystemFormTest extends BrowserTestBase {
     // The setting should persist.
     $translation_path = $this->publicFilesDirectory . '/translations_changed';
     $fields = [
-      'translation_path' => $translation_path
+      'translation_path' => $translation_path,
     ];
     $this->drupalPostForm(NULL, $fields, t('Save configuration'));
     $this->drupalGet('admin/config/media/file-system');

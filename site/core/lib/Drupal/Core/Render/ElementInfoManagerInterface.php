@@ -2,10 +2,12 @@
 
 namespace Drupal\Core\Render;
 
+use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+
 /**
  * Collects available render array element types.
  */
-interface ElementInfoManagerInterface {
+interface ElementInfoManagerInterface extends DiscoveryInterface {
 
   /**
    * Retrieves the default properties for the defined element type.
@@ -55,7 +57,7 @@ interface ElementInfoManagerInterface {
    *   (Optional) The value to return if the element type does not specify a
    *   value for the property. Defaults to NULL.
    *
-   * @return string
+   * @return mixed
    *   The property value of the defined element type. Or the provided
    *   default value, which can be NULL.
    */

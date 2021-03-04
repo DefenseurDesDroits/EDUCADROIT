@@ -12,10 +12,8 @@ function ddd_resources_theme($existing, $type, $theme, $path) {
         'title' => NULL,
         'teaser' => NULL,
         'filter' => NULL,
-        'collection' => NULL,
-        'pager' => NULL,
         'spotlight' => NULL,
-        'results_count' => NULL
+        'views' => NULL,
       ],
     ],
     # Forms
@@ -26,4 +24,47 @@ function ddd_resources_theme($existing, $type, $theme, $path) {
       'render element' => 'form',
     ],
   ];
+}
+
+function ddd_resources_preprocess_views_view(&$variables){
+  $view = $variables['view'];
+  $id = $view->storage->id();
+  if($id === 'ressources_views') {
+
+    if (!$page = entity_load('resources', 1)) {
+      $title = 'Centre de ressources';
+      $teaser = '';
+      $data = array(
+        'label' => $title,
+        'id' => 1
+      );
+      $page = entity_create('resources', $data);
+      $page->save();
+    } else {
+      $variables['title'] = $page->field_label->value;
+      $variables['teaser'] = $page->field_teaser->value;
+      $collection = [];
+      if (!empty($page->field_spotlights)) {
+        foreach ($page->field_spotlights as $value) {
+          $entity = entity_load('paragraph', $value->target_id);
+          $collection[] = entity_view($entity, 'full');
+        }
+      }
+      $variables['spotlight']  = ['collection' => $collection];
+    }
+
+    //$view->execute('page_1');
+    $variables['total_results'] = $view->total_rows;
+  }
+}
+
+function ddd_resources_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if($form_id === 'views_exposed_form'){
+    $form['search_api_fulltext']['#prefix'] = '<div class="col-lg-8 col-md-6 col-sm-12">';
+    $form['search_api_fulltext']['#suffix'] = '</div>';
+    $form['actions']['#prefix'] = '<div class="col-lg-4 col-md-6 col-sm-12">';
+    $form['actions']['#suffix'] = '</div>';
+    $form['actions']['submit']['#attributes'] = ['class' => array('btn')];
+    $form['actions']['reset']['#attributes'] = ['class' => array('btn')];
+  }
 }

@@ -1,7 +1,6 @@
 <?php
 
 namespace Drupal\Tests\taxonomy\Functional;
-use Drupal\Component\Utility\Unicode;
 
 use Drupal\Core\Url;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -19,6 +18,11 @@ class VocabularyUiTest extends TaxonomyTestBase {
    * @var \Drupal\taxonomy\VocabularyInterface
    */
   protected $vocabulary;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   protected function setUp() {
     parent::setUp();
@@ -38,7 +42,7 @@ class VocabularyUiTest extends TaxonomyTestBase {
     // Create a new vocabulary.
     $this->clickLink(t('Add vocabulary'));
     $edit = [];
-    $vid = Unicode::strtolower($this->randomMachineName());
+    $vid = mb_strtolower($this->randomMachineName());
     $edit['name'] = $this->randomMachineName();
     $edit['description'] = $this->randomMachineName();
     $edit['vid'] = $vid;
@@ -77,7 +81,7 @@ class VocabularyUiTest extends TaxonomyTestBase {
     $this->drupalPostForm('admin/structure/taxonomy/add', $edit, t('Save'));
 
     $site_name = $this->config('system.site')->get('name');
-    $this->assertTitle(t('Don\'t Panic | @site-name', ['@site-name' => $site_name]), 'The page title contains the escaped character.');
+    $this->assertTitle("Don't Panic | $site_name");
   }
 
   /**
@@ -100,7 +104,7 @@ class VocabularyUiTest extends TaxonomyTestBase {
     $this->drupalPostForm('admin/structure/taxonomy', $edit, t('Save'));
 
     // Load the vocabularies from the database.
-    $this->container->get('entity.manager')->getStorage('taxonomy_vocabulary')->resetCache();
+    $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->resetCache();
     $new_vocabularies = Vocabulary::loadMultiple();
 
     // Check that the weights are saved in the database correctly.
@@ -119,7 +123,7 @@ class VocabularyUiTest extends TaxonomyTestBase {
       $vocabulary->delete();
     }
     // Confirm that no vocabularies are found in the database.
-    $this->assertFalse(Vocabulary::loadMultiple(), 'No vocabularies found.');
+    $this->assertEmpty(Vocabulary::loadMultiple(), 'No vocabularies found.');
     $this->drupalGet('admin/structure/taxonomy');
     // Check the default message for no vocabularies.
     $this->assertText(t('No vocabularies available.'));
@@ -130,7 +134,7 @@ class VocabularyUiTest extends TaxonomyTestBase {
    */
   public function testTaxonomyAdminDeletingVocabulary() {
     // Create a vocabulary.
-    $vid = Unicode::strtolower($this->randomMachineName());
+    $vid = mb_strtolower($this->randomMachineName());
     $edit = [
       'name' => $this->randomMachineName(),
       'vid' => $vid,
@@ -139,9 +143,9 @@ class VocabularyUiTest extends TaxonomyTestBase {
     $this->assertText(t('Created new vocabulary'), 'New vocabulary was created.');
 
     // Check the created vocabulary.
-    $this->container->get('entity.manager')->getStorage('taxonomy_vocabulary')->resetCache();
+    $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->resetCache();
     $vocabulary = Vocabulary::load($vid);
-    $this->assertTrue($vocabulary, 'Vocabulary found.');
+    $this->assertNotEmpty($vocabulary, 'Vocabulary found.');
 
     // Delete the vocabulary.
     $this->drupalGet('admin/structure/taxonomy/manage/' . $vocabulary->id());
@@ -152,8 +156,8 @@ class VocabularyUiTest extends TaxonomyTestBase {
     // Confirm deletion.
     $this->drupalPostForm(NULL, NULL, t('Delete'));
     $this->assertRaw(t('Deleted vocabulary %name.', ['%name' => $vocabulary->label()]), 'Vocabulary deleted.');
-    $this->container->get('entity.manager')->getStorage('taxonomy_vocabulary')->resetCache();
-    $this->assertFalse(Vocabulary::load($vid), 'Vocabulary not found.');
+    $this->container->get('entity_type.manager')->getStorage('taxonomy_vocabulary')->resetCache();
+    $this->assertNull(Vocabulary::load($vid), 'Vocabulary not found.');
   }
 
 }

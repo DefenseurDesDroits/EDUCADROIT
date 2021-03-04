@@ -22,6 +22,7 @@ content:
       add_mode: button
       form_display_mode: default
     third_party_settings: {  }
+    region: content
 hidden:
   created: true
   status: true

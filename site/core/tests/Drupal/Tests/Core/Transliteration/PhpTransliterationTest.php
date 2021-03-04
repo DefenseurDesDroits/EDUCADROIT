@@ -37,10 +37,10 @@ class PhpTransliterationTest extends UnitTestCase {
 
     // Test each case both with a new instance of the transliteration class,
     // and with one that builds as it goes.
-    $module_handler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $module_handler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $module_handler->expects($this->any())
       ->method('alter')
-      ->will($this->returnCallback(function($hook, &$overrides, $langcode) {
+      ->will($this->returnCallback(function ($hook, &$overrides, $langcode) {
         if ($langcode == 'zz') {
           // The default transliteration of Ä is A, but change it to Z for testing.
           $overrides[0xC4] = 'Z';

@@ -5,8 +5,8 @@ features:
   favicon: 1
 logo:
   use_default: 0
-  path: 'public://Logo-EducaDroit-RVB-SansFond.png'
+  path: 'public://Logo-EducaDroit-RVB-SansFond_2.png'
 favicon:
   use_default: 0
-  path: 'public://Logo-EducaDroit-RVB-FondBlanc.jpg'
+  path: 'public://Logo-EducaDroit-RVB-FondBlanc_3.jpg'
   mimetype: image/jpeg

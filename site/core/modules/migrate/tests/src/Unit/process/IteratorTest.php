@@ -18,7 +18,7 @@ class IteratorTest extends MigrateTestCase {
   /**
    * The iterator plugin being tested.
    *
-   * @var \Drupal\migrate\Plugin\migrate\process\TestIterator
+   * @var \Drupal\migrate\Plugin\migrate\process\Iterator
    */
   protected $plugin;
 
@@ -31,6 +31,9 @@ class IteratorTest extends MigrateTestCase {
 
   /**
    * Tests the iterator process plugin.
+   *
+   * @group legacy
+   * @expectedDeprecation The Drupal\migrate\Plugin\migrate\process\Iterator is deprecated in Drupal 8.4.x and will be removed before Drupal 9.0.0. Instead, use Drupal\migrate\Plugin\migrate\process\SubProcess
    */
   public function testIterator() {
     $migration = $this->getMigration();
@@ -56,8 +59,8 @@ class IteratorTest extends MigrateTestCase {
     $migration->expects($this->at(2))
       ->method('getProcessPlugins')
       ->will($this->returnValue($key_plugin));
-    $event_dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-    $migrate_executable = new MigrateExecutable($migration, $this->getMock('Drupal\migrate\MigrateMessageInterface'), $event_dispatcher);
+    $event_dispatcher = $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+    $migrate_executable = new MigrateExecutable($migration, $this->createMock('Drupal\migrate\MigrateMessageInterface'), $event_dispatcher);
 
     // The current value of the pipeline.
     $current_value = [
@@ -73,10 +76,10 @@ class IteratorTest extends MigrateTestCase {
     // values ended up in the proper destinations, and that the value of the
     // key (@id) is the same as the destination ID (42).
     $new_value = $plugin->transform($current_value, $migrate_executable, $row, 'test');
-    $this->assertSame(count($new_value), 1);
-    $this->assertSame(count($new_value[42]), 2);
-    $this->assertSame($new_value[42]['foo'], 'test');
-    $this->assertSame($new_value[42]['id'], 42);
+    $this->assertCount(1, $new_value);
+    $this->assertCount(2, $new_value[42]);
+    $this->assertSame('test', $new_value[42]['foo']);
+    $this->assertSame(42, $new_value[42]['id']);
   }
 
 }

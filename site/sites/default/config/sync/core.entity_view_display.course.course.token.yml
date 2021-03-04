@@ -4,7 +4,9 @@ status: false
 dependencies:
   config:
     - core.entity_view_mode.course.token
+    - field.field.course.course.field_episodes
     - field.field.course.course.field_image
+    - field.field.course.course.field_introduction
     - field.field.course.course.field_link
     - field.field.course.course.field_teaser
     - image.style.738x547
@@ -24,12 +26,14 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: image
+    region: content
   field_teaser:
     weight: 1
     label: hidden
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   label:
     label: above
     type: string
@@ -37,6 +41,9 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
 hidden:
+  field_episodes: true
+  field_introduction: true
   field_link: true
   user_id: true

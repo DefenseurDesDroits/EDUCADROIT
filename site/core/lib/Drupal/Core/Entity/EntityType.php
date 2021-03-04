@@ -3,7 +3,7 @@
 namespace Drupal\Core\Entity;
 
 use Drupal\Component\Plugin\Definition\PluginDefinition;
-use Drupal\Component\Utility\Unicode;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 use Drupal\Core\Entity\Exception\EntityTypeIdLengthException;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -15,6 +15,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  */
 class EntityType extends PluginDefinition implements EntityTypeInterface {
 
+  use DependencySerializationTrait;
   use StringTranslationTrait;
 
   /**
@@ -95,13 +96,10 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    *
    * @var callable|null
    *
-   * @deprecated in Drupal 8.0.x-dev and will be removed before Drupal 9.0.0.
-   *   Use Drupal\Core\Entity\EntityInterface::label() for complex label
-   *   generation as needed.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Override the
+   *   EntityInterface::label() method instead for dynamic labels.
    *
    * @see \Drupal\Core\Entity\EntityInterface::label()
-   *
-   * @todo Remove usages of label_callback https://www.drupal.org/node/2450793.
    */
   protected $label_callback = NULL;
 
@@ -155,6 +153,13 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   protected $data_table = NULL;
 
   /**
+   * Indicates whether the entity data is internal.
+   *
+   * @var bool
+   */
+  protected $internal = FALSE;
+
+  /**
    * Indicates whether entities of this type have multilingual support.
    *
    * @var bool
@@ -171,7 +176,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   /**
    * The human-readable name of the type.
    *
-   * @var string
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *
    * @see \Drupal\Core\Entity\EntityTypeInterface::getLabel()
    */
@@ -180,7 +185,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   /**
    * The human-readable label for a collection of entities of the type.
    *
-   * @var string
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *
    * @see \Drupal\Core\Entity\EntityTypeInterface::getCollectionLabel()
    */
@@ -189,7 +194,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   /**
    * The indefinite singular name of the type.
    *
-   * @var string
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *
    * @see \Drupal\Core\Entity\EntityTypeInterface::getSingularLabel()
    */
@@ -198,7 +203,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   /**
    * The indefinite plural name of the type.
    *
-   * @var string
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *
    * @see \Drupal\Core\Entity\EntityTypeInterface::getPluralLabel()
    */
@@ -209,7 +214,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    *
    * Needed keys: "singular" and "plural".
    *
-   * @var string[]
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
    *
    * @see \Drupal\Core\Entity\EntityTypeInterface::getCountLabel()
    */
@@ -224,11 +229,17 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
 
   /**
    * The machine name of the entity type group.
+   *
+   * @var string
    */
   protected $group;
 
   /**
    * The human-readable name of the entity type group.
+   *
+   * @var string|\Drupal\Core\StringTranslation\TranslatableMarkup
+   *
+   * @see \Drupal\Core\Entity\EntityTypeInterface::getGroupLabel()
    */
   protected $group_label;
 
@@ -288,7 +299,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    */
   public function __construct($definition) {
     // Throw an exception if the entity type ID is longer than 32 characters.
-    if (Unicode::strlen($definition['id']) > static::ID_MAX_LENGTH) {
+    if (mb_strlen($definition['id']) > static::ID_MAX_LENGTH) {
       throw new EntityTypeIdLengthException('Attempt to create an entity type with an ID longer than ' . static::ID_MAX_LENGTH . " characters: {$definition['id']}.");
     }
 
@@ -302,6 +313,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
       'bundle' => '',
       'langcode' => '',
       'default_langcode' => 'default_langcode',
+      'revision_translation_affected' => 'revision_translation_affected',
     ];
     $this->handlers += [
       'access' => 'Drupal\Core\Entity\EntityAccessControlHandler',
@@ -310,10 +322,15 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
       $this->checkStorageClass($this->handlers['storage']);
     }
 
-    // Automatically add the EntityChanged constraint if the entity type tracks
-    // the changed time.
-    if ($this->entityClassImplements(EntityChangedInterface::class) ) {
+    // Automatically add the "EntityChanged" constraint if the entity type
+    // tracks the changed time.
+    if ($this->entityClassImplements(EntityChangedInterface::class)) {
       $this->addConstraint('EntityChanged');
+    }
+    // Automatically add the "EntityUntranslatableFields" constraint if we have
+    // an entity type supporting translatable fields and pending revisions.
+    if ($this->entityClassImplements(ContentEntityInterface::class)) {
+      $this->addConstraint('EntityUntranslatableFields');
     }
 
     // Ensure a default list cache tag is set.
@@ -346,6 +363,13 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
       $this->additional[$property] = $value;
     }
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isInternal() {
+    return $this->internal;
   }
 
   /**
@@ -423,6 +447,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function isSubclassOf($class) {
+    @trigger_error(__METHOD__ . '() is deprecated in drupal:8.3.0 and is removed from drupal:10.0.0. Use Drupal\Core\Entity\EntityTypeInterface::entityClassImplements() instead. See https://www.drupal.org/node/2842808', E_USER_DEPRECATED);
     return $this->entityClassImplements($class);
   }
 
@@ -441,6 +466,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
       $handlers = $this->getHandlerClasses();
       return $nested ? $handlers[$handler_type][$nested] : $handlers[$handler_type];
     }
+    return NULL;
   }
 
   /**
@@ -640,6 +666,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function getLabelCallback() {
+    @trigger_error('EntityType::getLabelCallback() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Override the EntityInterface::label() method instead for dynamic labels. See https://www.drupal.org/node/3050794', E_USER_DEPRECATED);
     return $this->label_callback;
   }
 
@@ -647,6 +674,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function setLabelCallback($callback) {
+    @trigger_error('EntityType::setLabelCallback() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Override the EntityInterface::label() method instead for dynamic labels. See https://www.drupal.org/node/3050794', E_USER_DEPRECATED);
     $this->label_callback = $callback;
     return $this;
   }
@@ -655,6 +683,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function hasLabelCallback() {
+    @trigger_error('EntityType::hasabelCallback() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Override the EntityInterface::label() method instead for dynamic labels. See https://www.drupal.org/node/3050794', E_USER_DEPRECATED);
     return isset($this->label_callback);
   }
 
@@ -676,7 +705,15 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function getBundleLabel() {
-    return (string) $this->bundle_label;
+    // If there is no bundle label defined, try to provide some sensible
+    // fallbacks.
+    if (!empty($this->bundle_label)) {
+      return (string) $this->bundle_label;
+    }
+    elseif ($bundle_entity_type_id = $this->getBundleEntityType()) {
+      return (string) \Drupal::entityTypeManager()->getDefinition($bundle_entity_type_id)->getLabel();
+    }
+    return (string) new TranslatableMarkup('@type_label bundle', ['@type_label' => $this->getLabel()], [], $this->getStringTranslation());
   }
 
   /**
@@ -740,7 +777,8 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    * {@inheritdoc}
    */
   public function getLowercaseLabel() {
-    return Unicode::strtolower($this->getLabel());
+    @trigger_error('EntityType::getLowercaseLabel() is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Instead, you should call getSingularLabel(). See https://www.drupal.org/node/3075567', E_USER_DEPRECATED);
+    return mb_strtolower($this->getLabel());
   }
 
   /**
@@ -759,7 +797,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    */
   public function getSingularLabel() {
     if (empty($this->label_singular)) {
-      $lowercase_label = $this->getLowercaseLabel();
+      $lowercase_label = mb_strtolower($this->getLabel());
       $this->label_singular = $lowercase_label;
     }
     return $this->label_singular;
@@ -770,7 +808,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    */
   public function getPluralLabel() {
     if (empty($this->label_plural)) {
-      $lowercase_label = $this->getLowercaseLabel();
+      $lowercase_label = $this->getSingularLabel();
       $this->label_plural = new TranslatableMarkup('@label entities', ['@label' => $lowercase_label], [], $this->getStringTranslation());
     }
     return $this->label_plural;
@@ -781,10 +819,13 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
    */
   public function getCountLabel($count) {
     if (empty($this->label_count)) {
-      return $this->formatPlural($count, '@count @label', '@count @label entities', ['@label' => $this->getLowercaseLabel()], ['context' => 'Entity type label']);
+      return $this->formatPlural($count, '@count @label', '@count @label entities', ['@label' => $this->getSingularLabel()], ['context' => 'Entity type label']);
     }
-    $context = isset($this->label_count['context']) ? $this->label_count['context'] : 'Entity type label';
-    return $this->formatPlural($count, $this->label_count['singular'], $this->label_count['plural'], ['context' => $context]);
+    $options = [];
+    if (isset($this->label_count['context'])) {
+      $options['context'] = $this->label_count['context'];
+    }
+    return $this->formatPlural($count, $this->label_count['singular'], $this->label_count['plural'], [], $options);
   }
 
   /**
@@ -808,7 +849,6 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
   public function getGroup() {
     return $this->group;
   }
-
 
   /**
    * {@inheritdoc}
@@ -878,7 +918,7 @@ class EntityType extends PluginDefinition implements EntityTypeInterface {
     // If this entity type uses entities to manage its bundles then depend on
     // the bundle entity.
     if ($bundle_entity_type_id = $this->getBundleEntityType()) {
-      if (!$bundle_entity = \Drupal::entityManager()->getStorage($bundle_entity_type_id)->load($bundle)) {
+      if (!$bundle_entity = \Drupal::entityTypeManager()->getStorage($bundle_entity_type_id)->load($bundle)) {
         throw new \LogicException(sprintf('Missing bundle entity, entity type %s, entity id %s.', $bundle_entity_type_id, $bundle));
       }
       $config_dependency = [

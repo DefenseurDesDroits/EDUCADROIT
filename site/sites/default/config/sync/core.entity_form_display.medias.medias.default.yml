@@ -64,6 +64,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_spotlights:
     type: entity_reference_paragraphs
     weight: 2
@@ -74,6 +75,7 @@ content:
       add_mode: button
       form_display_mode: default
     third_party_settings: {  }
+    region: content
   field_teaser:
     weight: 2
     settings:
@@ -81,6 +83,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
 hidden:
   langcode: true
   user_id: true

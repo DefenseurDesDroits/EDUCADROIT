@@ -7,9 +7,9 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Tests\field\Traits\EntityReferenceTestTrait;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
 use Drupal\user\RoleInterface;
@@ -108,7 +108,9 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
 
     // Test a non-referenceable bundle.
     entity_test_create_bundle('non_referenceable', NULL, $this->referencedEntityType);
-    $referenced_entity = entity_create($this->referencedEntityType, ['type' => 'non_referenceable']);
+    $referenced_entity = $this->entityTypeManager
+      ->getStorage($this->referencedEntityType)
+      ->create(['type' => 'non_referenceable']);
     $referenced_entity->save();
     $entity->{$this->fieldName}->target_id = $referenced_entity->id();
     $violations = $entity->{$this->fieldName}->validate();
@@ -212,7 +214,7 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
     // Create the default target entity.
     $target_entity = EntityTestStringId::create([
       'id' => $this->randomString(),
-      'type' => $this->bundle
+      'type' => $this->bundle,
     ]);
     $target_entity->save();
 
@@ -242,80 +244,80 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
    * Tests all the possible ways to autocreate an entity via the API.
    */
   public function testAutocreateApi() {
-    $entity = $this->entityManager
+    $entity = $this->entityTypeManager
       ->getStorage($this->entityType)
       ->create(['name' => $this->randomString()]);
 
     // Test content entity autocreation.
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->set('user_id', $user);
     });
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->set('user_id', $user, FALSE);
     });
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->user_id->setValue($user);
     });
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->user_id[0]->get('entity')->setValue($user);
     });
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->user_id->setValue(['entity' => $user, 'target_id' => NULL]);
     });
     try {
       $message = 'Setting both the entity and an invalid target_id property fails.';
-      $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+      $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
         $user->save();
         $entity->user_id->setValue(['entity' => $user, 'target_id' => $this->generateRandomEntityId()]);
       });
       $this->fail($message);
     }
     catch (\InvalidArgumentException $e) {
-      $this->pass($message);
+      // Expected exception; just continue testing.
     }
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->user_id = $user;
     });
-    $this->assertUserAutocreate($entity, function(EntityInterface $entity, UserInterface $user) {
+    $this->assertUserAutocreate($entity, function (EntityInterface $entity, UserInterface $user) {
       $entity->user_id->entity = $user;
     });
 
     // Test config entity autocreation.
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->set('user_role', $role);
     });
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->set('user_role', $role, FALSE);
     });
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->user_role->setValue($role);
     });
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->user_role[0]->get('entity')->setValue($role);
     });
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->user_role->setValue(['entity' => $role, 'target_id' => NULL]);
     });
     try {
       $message = 'Setting both the entity and an invalid target_id property fails.';
-      $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+      $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
         $role->save();
         $entity->user_role->setValue(['entity' => $role, 'target_id' => $this->generateRandomEntityId(TRUE)]);
       });
       $this->fail($message);
     }
     catch (\InvalidArgumentException $e) {
-      $this->pass($message);
+      // Expected exception; just continue testing.
     }
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->user_role = $role;
     });
-    $this->assertUserRoleAutocreate($entity, function(EntityInterface $entity, RoleInterface $role) {
+    $this->assertUserRoleAutocreate($entity, function (EntityInterface $entity, RoleInterface $role) {
       $entity->user_role->entity = $role;
     });
 
     // Test target entity saving after setting it as new.
-    $storage = $this->entityManager->getStorage('user');
+    $storage = $this->entityTypeManager->getStorage('user');
     $user_id = $this->generateRandomEntityId();
     $user = $storage->create(['uid' => $user_id, 'name' => $this->randomString()]);
     $entity->user_id = $user;
@@ -336,7 +338,7 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
    *   TRUE if the user was autocreated, FALSE otherwise.
    */
   protected function assertUserAutocreate(EntityInterface $entity, $setter_callback) {
-    $storage = $this->entityManager->getStorage('user');
+    $storage = $this->entityTypeManager->getStorage('user');
     $user_id = $this->generateRandomEntityId();
     $user = $storage->create(['uid' => $user_id, 'name' => $this->randomString()]);
     $setter_callback($entity, $user);
@@ -358,7 +360,7 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
    *   TRUE if the user was autocreated, FALSE otherwise.
    */
   protected function assertUserRoleAutocreate(EntityInterface $entity, $setter_callback) {
-    $storage = $this->entityManager->getStorage('user_role');
+    $storage = $this->entityTypeManager->getStorage('user_role');
     $role_id = $this->generateRandomEntityId(TRUE);
     $role = $storage->create(['id' => $role_id, 'label' => $this->randomString()]);
     $setter_callback($entity, $role);
@@ -375,20 +377,20 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
     // Setup a test entity type with an entity reference field to itself. We use
     // a special storage class throwing exceptions when a load operation is
     // triggered to be able to detect them.
-    $entity_type = clone $this->entityManager->getDefinition('entity_test_update');
+    $entity_type = clone $this->entityTypeManager->getDefinition('entity_test_update');
     $entity_type->setHandlerClass('storage', '\Drupal\entity_test\EntityTestNoLoadStorage');
     $this->state->set('entity_test_update.entity_type', $entity_type);
     $definitions = [
       'target_reference' => BaseFieldDefinition::create('entity_reference')
         ->setSetting('target_type', $entity_type->id())
-        ->setSetting('handler', 'default')
+        ->setSetting('handler', 'default'),
     ];
     $this->state->set('entity_test_update.additional_base_field_definitions', $definitions);
-    $this->entityManager->clearCachedDefinitions();
+    $this->entityTypeManager->clearCachedDefinitions();
     $this->installEntitySchema($entity_type->id());
 
     // Create the target entity.
-    $storage = $this->entityManager->getStorage($entity_type->id());
+    $storage = $this->entityTypeManager->getStorage($entity_type->id());
     $target_id = $this->generateRandomEntityId();
     $target = $storage->create(['id' => $target_id, 'name' => $this->randomString()]);
     $target->save();
@@ -398,11 +400,10 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
     // trigger a load operation.
     $message = 'The target entity was not loaded.';
     try {
-      $entity = $this->entityManager
+      $entity = $this->entityTypeManager
         ->getStorage($entity_type->id())
         ->create(['name' => $this->randomString()]);
       $entity->target_reference = $target_id;
-      $this->pass($message);
     }
     catch (EntityStorageException $e) {
       $this->fail($message);
@@ -416,7 +417,7 @@ class EntityReferenceFieldTest extends EntityKernelTestBase {
       $this->fail($message);
     }
     catch (EntityStorageException $e) {
-      $this->pass($message);
+      // Expected exception; just continue testing.
     }
   }
 

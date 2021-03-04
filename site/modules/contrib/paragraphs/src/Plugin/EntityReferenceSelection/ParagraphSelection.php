@@ -19,20 +19,23 @@ use Drupal\Component\Utility\NestedArray;
  * )
  */
 class ParagraphSelection extends DefaultSelection {
+  /**
+   * @inheritDoc
+   */
+  public function defaultConfiguration() {
+    return parent::defaultConfiguration() +  [
+      'negate' => 0,
+      'target_bundles_drag_drop' => [],
+    ];
+  }
+
 
   /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $entity_type_id = $this->configuration['target_type'];
-    $selection_handler_settings = $this->configuration['handler_settings'] ?: array();
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type_id);
-
-    // Merge-in default values.
-    $selection_handler_settings += array(
-      'target_bundles' => array(),
-      'target_bundles_drag_drop' => array(),
-    );
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
 
     $bundle_options = array();
     $bundle_options_simple = array();
@@ -44,17 +47,28 @@ class ParagraphSelection extends DefaultSelection {
       $bundle_options_simple[$bundle_name] = $bundle_info['label'];
       $bundle_options[$bundle_name] = array(
         'label' => $bundle_info['label'],
-        'enabled' => isset($selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['enabled']) ? $selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['enabled'] : FALSE,
-        'weight' => isset($selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['weight']) ? $selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['weight'] : $weight,
+        'enabled' => $this->configuration['target_bundles_drag_drop'][$bundle_name]['enabled'] ?? FALSE,
+        'weight' => $this->configuration['target_bundles_drag_drop'][$bundle_name]['weight'] ?? $weight,
       );
       $weight++;
     }
+
+    // Do negate the selection.
+    $form['negate'] = [
+      '#type' => 'radios',
+      '#options' => [
+        1 => $this->t('Exclude the selected below'),
+        0 => $this->t('Include the selected below'),
+      ],
+      '#title' => $this->t('Which Paragraph types should be allowed?'),
+      '#default_value' => $this->configuration['negate'],
+    ];
 
     // Kept for compatibility with other entity reference widgets.
     $form['target_bundles'] = array(
       '#type' => 'checkboxes',
       '#options' => $bundle_options_simple,
-      '#default_value' => isset($selection_handler_settings['target_bundles']) ? $selection_handler_settings['target_bundles'] : array(),
+      '#default_value' => $this->configuration['target_bundles'] ?? [],
       '#access' => FALSE,
     );
 
@@ -70,7 +84,7 @@ class ParagraphSelection extends DefaultSelection {
           'id' => 'bundles',
         ],
         '#prefix' => '<h5>' . $this->t('Paragraph types') . '</h5>',
-        '#suffix' => '<div class="description">' . $this->t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.') .'</div>',
+        '#suffix' => '<div class="description">' . $this->t('Selection of Paragraph types for this field. Select none to allow all Paragraph types.') . '</div>',
       ];
 
       $form['target_bundles_drag_drop']['#tabledrag'][] = [
@@ -113,10 +127,10 @@ class ParagraphSelection extends DefaultSelection {
       $weight++;
     }
 
-    if (!count($bundle_options)) {
+    if (empty($bundle_options)) {
       $form['allowed_bundles_explain'] = [
         '#type' => 'markup',
-        '#markup' => $this->t('You did not add any paragraph types yet, click <a href=":here">here</a> to add one.', [':here' => Url::fromRoute('paragraphs.type_add')->toString()]),
+        '#markup' => $this->t('You did not add any Paragraph types yet, click <a href=":here">here</a> to add one.', [':here' => Url::fromRoute('paragraphs.type_add')->toString()]),
       ];
     }
 
@@ -154,4 +168,125 @@ class ParagraphSelection extends DefaultSelection {
     $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
     NestedArray::setValue($values, $parents, $bundle_options);
   }
+
+  /**
+   * Returns the sorted allowed types for the field.
+   *
+   * @return array
+   *   A list of arrays keyed by the paragraph type machine name
+   *   with the following properties.
+   *     - label: The label of the paragraph type.
+   *     - weight: The weight of the paragraph type.
+   */
+  public function getSortedAllowedTypes() {
+    $return_bundles = [];
+
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo('paragraph');
+    if (!empty($this->configuration['target_bundles'])) {
+      if (isset($this->configuration['negate']) && $this->configuration['negate'] == '1') {
+        $bundles = array_diff_key($bundles, $this->configuration['target_bundles']);
+      }
+      else {
+        $bundles = array_intersect_key($bundles, $this->configuration['target_bundles']);
+      }
+    }
+
+    // Support for the paragraphs reference type.
+    if (!empty($this->configuration['target_bundles_drag_drop'])) {
+      $drag_drop_settings = $this->configuration['target_bundles_drag_drop'];
+      $max_weight = count($bundles);
+
+      foreach ($drag_drop_settings as $bundle_info) {
+        if (isset($bundle_info['weight']) && $bundle_info['weight'] && $bundle_info['weight'] > $max_weight) {
+          $max_weight = $bundle_info['weight'];
+        }
+      }
+
+      // Default weight for new items.
+      $weight = $max_weight + 1;
+      foreach ($bundles as $machine_name => $bundle) {
+        $return_bundles[$machine_name] = [
+          'label' => $bundle['label'],
+          'weight' => isset($drag_drop_settings[$machine_name]['weight']) ? $drag_drop_settings[$machine_name]['weight'] : $weight,
+        ];
+        $weight++;
+      }
+    }
+    else {
+      $weight = 0;
+
+      foreach ($bundles as $machine_name => $bundle) {
+        $return_bundles[$machine_name] = [
+          'label' => $bundle['label'],
+          'weight' => $weight,
+        ];
+
+        $weight++;
+      }
+    }
+    uasort($return_bundles, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+
+    return $return_bundles;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateReferenceableNewEntities(array $entities) {
+    $bundles = array_keys($this->getSortedAllowedTypes());
+    return array_filter($entities, function ($entity) {
+      if (isset($bundles)) {
+        return in_array($entity->bundle(), $bundles);
+      }
+      return TRUE;
+    });
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildEntityQuery($match = NULL, $match_operator = 'CONTAINS') {
+    $target_type = $this->configuration['target_type'];
+    $entity_type = $this->entityTypeManager->getDefinition($target_type);
+
+    $query = $this->entityTypeManager->getStorage($target_type)->getQuery();
+
+    // If 'target_bundles' is NULL, all bundles are referenceable, no further
+    // conditions are needed.
+    if (is_array($this->configuration['target_bundles'])) {
+      $target_bundles = array_keys($this->getSortedAllowedTypes());
+
+      // If 'target_bundles' is an empty array, no bundle is referenceable,
+      // force the query to never return anything and bail out early.
+      if ($target_bundles === []) {
+        $query->condition($entity_type->getKey('id'), NULL, '=');
+        return $query;
+      }
+      else {
+        $query->condition($entity_type->getKey('bundle'), $target_bundles, 'IN');
+      }
+    }
+
+    if (isset($match) && $label_key = $entity_type->getKey('label')) {
+      $query->condition($label_key, $match, $match_operator);
+    }
+
+    // Add entity-access tag.
+    $query->addTag($target_type . '_access');
+
+    // Add the Selection handler for system_query_entity_reference_alter().
+    $query->addTag('entity_reference');
+    $query->addMetaData('entity_reference_selection_handler', $this);
+
+    // Add the sort option.
+    if (!empty($this->configuration['sort'])) {
+      $sort_settings = $this->configuration['sort'];
+      if ($sort_settings['field'] != '_none') {
+        $query->sort($sort_settings['field'], $sort_settings['direction']);
+      }
+    }
+
+    return $query;
+  }
+
 }

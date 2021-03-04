@@ -1,0 +1,3 @@
+administer security_agent settings:
+  title: 'Access Security agent settings'
+  description: 'Access to the Security agent configuration'

@@ -13,7 +13,9 @@ use Drupal\Core\Access\AccessResultNeutral;
 use Drupal\Core\Access\AccessResultReasonInterface;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheableDependencyInterface;
+use Drupal\Core\Config\Config;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -25,7 +27,7 @@ class AccessResultTest extends UnitTestCase {
   /**
    * The cache contexts manager.
    *
-   * @var \Drupal\Core\Cache\Context\CacheContextsManager|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Cache\Context\CacheContextsManager|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $cacheContextsManager;
 
@@ -128,6 +130,9 @@ class AccessResultTest extends UnitTestCase {
     $reason = $this->getRandomGenerator()->string();
     $b = AccessResult::forbidden($reason);
     $verify($b, $reason);
+
+    $b = AccessResult::forbiddenIf(TRUE, $reason);
+    $verify($b, $reason);
   }
 
   /**
@@ -177,7 +182,7 @@ class AccessResultTest extends UnitTestCase {
     $neutral = AccessResult::neutral('neutral message');
     $allowed = AccessResult::allowed();
     $forbidden = AccessResult::forbidden('forbidden message');
-    $unused_access_result_due_to_lazy_evaluation = $this->getMock('\Drupal\Core\Access\AccessResultInterface');
+    $unused_access_result_due_to_lazy_evaluation = $this->createMock('\Drupal\Core\Access\AccessResultInterface');
     $unused_access_result_due_to_lazy_evaluation->expects($this->never())
       ->method($this->anything());
 
@@ -266,9 +271,13 @@ class AccessResultTest extends UnitTestCase {
    */
   public function testOrIf() {
     $neutral = AccessResult::neutral('neutral message');
+    $neutral_other = AccessResult::neutral('other neutral message');
+    $neutral_reasonless = AccessResult::neutral();
     $allowed = AccessResult::allowed();
     $forbidden = AccessResult::forbidden('forbidden message');
-    $unused_access_result_due_to_lazy_evaluation = $this->getMock('\Drupal\Core\Access\AccessResultInterface');
+    $forbidden_other = AccessResult::forbidden('other forbidden message');
+    $forbidden_reasonless = AccessResult::forbidden();
+    $unused_access_result_due_to_lazy_evaluation = $this->createMock('\Drupal\Core\Access\AccessResultInterface');
     $unused_access_result_due_to_lazy_evaluation->expects($this->never())
       ->method($this->anything());
 
@@ -301,6 +310,18 @@ class AccessResultTest extends UnitTestCase {
     $this->assertTrue($access->isNeutral());
     $this->assertEquals('neutral message', $access->getReason());
     $this->assertDefaultCacheability($access);
+    // Reason inheritance edge case: first reason is kept.
+    $access = $neutral->orIf($neutral_other);
+    $this->assertEquals('neutral message', $access->getReason());
+    $access = $neutral_other->orIf($neutral);
+    $this->assertEquals('other neutral message', $access->getReason());
+    // Reason inheritance edge case: one of the operands is reasonless.
+    $access = $neutral->orIf($neutral_reasonless);
+    $this->assertEquals('neutral message', $access->getReason());
+    $access = $neutral_reasonless->orIf($neutral);
+    $this->assertEquals('neutral message', $access->getReason());
+    $access = $neutral_reasonless->orIf($neutral_reasonless);
+    $this->assertNull($access->getReason());
 
     // NEUTRAL || ALLOWED === ALLOWED.
     $access = $neutral->orIf($allowed);
@@ -326,7 +347,7 @@ class AccessResultTest extends UnitTestCase {
     $this->assertDefaultCacheability($access);
 
     // FORBIDDEN || NEUTRAL === FORBIDDEN.
-    $access = $forbidden->orIf($allowed);
+    $access = $forbidden->orIf($neutral);
     $this->assertFalse($access->isAllowed());
     $this->assertTrue($access->isForbidden());
     $this->assertFalse($access->isNeutral());
@@ -334,12 +355,24 @@ class AccessResultTest extends UnitTestCase {
     $this->assertDefaultCacheability($access);
 
     // FORBIDDEN || FORBIDDEN === FORBIDDEN.
-    $access = $forbidden->orIf($allowed);
+    $access = $forbidden->orIf($forbidden);
     $this->assertFalse($access->isAllowed());
     $this->assertTrue($access->isForbidden());
     $this->assertFalse($access->isNeutral());
     $this->assertEquals('forbidden message', $access->getReason());
     $this->assertDefaultCacheability($access);
+    // Reason inheritance edge case: first reason is kept.
+    $access = $forbidden->orIf($forbidden_other);
+    $this->assertEquals('forbidden message', $access->getReason());
+    $access = $forbidden_other->orIf($forbidden);
+    $this->assertEquals('other forbidden message', $access->getReason());
+    // Reason inheritance edge case: one of the operands is reasonless.
+    $access = $forbidden->orIf($forbidden_reasonless);
+    $this->assertEquals('forbidden message', $access->getReason());
+    $access = $forbidden_reasonless->orIf($forbidden);
+    $this->assertEquals('forbidden message', $access->getReason());
+    $access = $forbidden_reasonless->orIf($forbidden_reasonless);
+    $this->assertNull($access->getReason());
 
     // FORBIDDEN || * === FORBIDDEN.
     $access = $forbidden->orIf($unused_access_result_due_to_lazy_evaluation);
@@ -424,7 +457,7 @@ class AccessResultTest extends UnitTestCase {
     $this->assertEquals($a, $c);
 
     // ::allowIfHasPermission and ::allowedIfHasPermission convenience methods.
-    $account = $this->getMock('\Drupal\Core\Session\AccountInterface');
+    $account = $this->createMock('\Drupal\Core\Session\AccountInterface');
     $account->expects($this->any())
       ->method('hasPermission')
       ->with('may herd llamas')
@@ -477,7 +510,7 @@ class AccessResultTest extends UnitTestCase {
     $verify($access, ['bar:baz', 'bar:qux', 'foo:bar', 'foo:baz']);
 
     // ::addCacheableDependency() convenience method.
-    $node = $this->getMock('\Drupal\node\NodeInterface');
+    $node = $this->createMock('\Drupal\node\NodeInterface');
     $node->expects($this->any())
       ->method('getCacheTags')
       ->will($this->returnValue(['node:20011988']));
@@ -505,7 +538,7 @@ class AccessResultTest extends UnitTestCase {
     // andIf(); 1st has defaults, 2nd has custom tags, contexts and max-age.
     $access = AccessResult::allowed();
     $other = AccessResult::allowed()->setCacheMaxAge(1500)->cachePerPermissions()->addCacheTags(['node:20011988']);
-    $this->assertTrue($access->inheritCacheability($other) instanceof AccessResult);
+    $this->assertInstanceOf(AccessResult::class, $access->inheritCacheability($other));
     $this->assertSame(['user.permissions'], $access->getCacheContexts());
     $this->assertSame(['node:20011988'], $access->getCacheTags());
     $this->assertSame(1500, $access->getCacheMaxAge());
@@ -513,7 +546,7 @@ class AccessResultTest extends UnitTestCase {
     // andIf(); 1st has custom tags, max-age, 2nd has custom contexts and max-age.
     $access = AccessResult::allowed()->cachePerUser()->setCacheMaxAge(43200);
     $other = AccessResult::forbidden()->addCacheTags(['node:14031991'])->setCacheMaxAge(86400);
-    $this->assertTrue($access->inheritCacheability($other) instanceof AccessResult);
+    $this->assertInstanceOf(AccessResult::class, $access->inheritCacheability($other));
     $this->assertSame(['user'], $access->getCacheContexts());
     $this->assertSame(['node:14031991'], $access->getCacheTags());
     $this->assertSame(43200, $access->getCacheMaxAge());
@@ -617,7 +650,6 @@ class AccessResultTest extends UnitTestCase {
       [$allowed_un, 'OR', $neutral_cf, FALSE, NULL],
       [$allowed_un, 'OR', $neutral_un, FALSE, NULL],
 
-
       // Forbidden (ct) OR allowed (ct,cf,un).
       [$forbidden_ct, 'OR', $allowed_ct, TRUE, TRUE],
       [$forbidden_ct, 'OR', $allowed_cf, TRUE, TRUE],
@@ -656,7 +688,6 @@ class AccessResultTest extends UnitTestCase {
       [$forbidden_un, 'OR', $forbidden_ct, FALSE, NULL],
       [$forbidden_un, 'OR', $forbidden_cf, FALSE, NULL],
       [$forbidden_un, 'OR', $forbidden_un, FALSE, NULL],
-
 
       // Neutral (ct) OR allowed (ct,cf,un).
       [$neutral_ct, 'OR', $allowed_ct, TRUE, TRUE],
@@ -697,9 +728,6 @@ class AccessResultTest extends UnitTestCase {
       [$neutral_un, 'OR', $forbidden_cf, FALSE, NULL],
       [$neutral_un, 'OR', $forbidden_un, FALSE, NULL],
 
-
-
-
       // Allowed (ct) AND allowed (ct,cf,un).
       [$allowed_ct, 'AND', $allowed_ct, TRUE, TRUE],
       [$allowed_ct, 'AND', $allowed_cf, TRUE, FALSE],
@@ -739,7 +767,6 @@ class AccessResultTest extends UnitTestCase {
       [$allowed_un, 'AND', $neutral_cf, FALSE, NULL],
       [$allowed_un, 'AND', $neutral_un, FALSE, NULL],
 
-
       // Forbidden (ct) AND allowed (ct,cf,un).
       [$forbidden_ct, 'AND', $allowed_ct, TRUE, TRUE],
       [$forbidden_ct, 'AND', $allowed_cf, TRUE, TRUE],
@@ -778,7 +805,6 @@ class AccessResultTest extends UnitTestCase {
       [$forbidden_un, 'AND', $forbidden_ct, FALSE, NULL],
       [$forbidden_un, 'AND', $forbidden_cf, FALSE, NULL],
       [$forbidden_un, 'AND', $forbidden_un, FALSE, NULL],
-
 
       // Neutral (ct) AND allowed (ct,cf,un).
       [$neutral_ct, 'AND', $allowed_ct, TRUE, TRUE],
@@ -839,13 +865,13 @@ class AccessResultTest extends UnitTestCase {
       throw new \LogicException('Invalid operator specified');
     }
     if ($implements_cacheable_dependency_interface) {
-      $this->assertTrue($result instanceof CacheableDependencyInterface, 'Result is an instance of CacheableDependencyInterface.');
+      $this->assertInstanceOf(CacheableDependencyInterface::class, $result);
       if ($result instanceof CacheableDependencyInterface) {
         $this->assertSame($is_cacheable, $result->getCacheMaxAge() !== 0, 'getCacheMaxAge() matches expectations.');
       }
     }
     else {
-      $this->assertFalse($result instanceof CacheableDependencyInterface, 'Result is not an instance of CacheableDependencyInterface.');
+      $this->assertNotInstanceOf(CacheableDependencyInterface::class, $result);
     }
   }
 
@@ -859,7 +885,7 @@ class AccessResultTest extends UnitTestCase {
    * tested in ::testOrIf().
    */
   public function testOrIfCacheabilityMerging() {
-    $merge_both_directions = function(AccessResult $a, AccessResult $b) {
+    $merge_both_directions = function (AccessResult $a, AccessResult $b) {
       // A globally cacheable access result.
       $a->setCacheMaxAge(3600);
       // Another access result that is cacheable per permissions.
@@ -895,7 +921,7 @@ class AccessResultTest extends UnitTestCase {
    *   The expected access check result.
    */
   public function testAllowedIfHasPermissions($permissions, $conjunction, AccessResult $expected_access) {
-    $account = $this->getMock('\Drupal\Core\Session\AccountInterface');
+    $account = $this->createMock('\Drupal\Core\Session\AccountInterface');
     $account->expects($this->any())
       ->method('hasPermission')
       ->willReturnMap([
@@ -944,6 +970,36 @@ class AccessResultTest extends UnitTestCase {
     return $data;
   }
 
+  /**
+   * @expectedDeprecation Drupal\Core\Access\AccessResult::cacheUntilEntityChanges is deprecated in drupal:8.0.0 and is removed in drupal:9.0.0. Use \Drupal\Core\Access\AccessResult::addCacheableDependency() instead.
+   * @group legacy
+   */
+  public function testCacheUntilEntityChanges() {
+    $entity = $this->prophesize(EntityInterface::class);
+    $entity->getCacheContexts()->willReturn(['context']);
+    $entity->getCacheTags()->willReturn(['tag']);
+    $entity->getCacheMaxAge()->willReturn(10);
+    $access_result = AccessResult::neutral()->cacheUntilEntityChanges($entity->reveal());
+    $this->assertSame(['context'], $access_result->getCacheContexts());
+    $this->assertSame(['tag'], $access_result->getCacheTags());
+    $this->assertSame(10, $access_result->getCacheMaxAge());
+  }
+
+  /**
+   * @expectedDeprecation Drupal\Core\Access\AccessResult::cacheUntilConfigurationChanges is deprecated in drupal:8.0.0 and is removed in drupal:9.0.0. Use \Drupal\Core\Access\AccessResult::addCacheableDependency() instead.
+   * @group legacy
+   */
+  public function testCacheUntilConfigurationChanges() {
+    $config = $this->prophesize(Config::class);
+    $config->getCacheContexts()->willReturn(['context']);
+    $config->getCacheTags()->willReturn(['tag']);
+    $config->getCacheMaxAge()->willReturn(10);
+    $access_result = AccessResult::neutral()->cacheUntilConfigurationChanges($config->reveal());
+    $this->assertSame(['context'], $access_result->getCacheContexts());
+    $this->assertSame(['tag'], $access_result->getCacheTags());
+    $this->assertSame(10, $access_result->getCacheMaxAge());
+  }
+
 }
 
 class UncacheableTestAccessResult implements AccessResultInterface {
@@ -961,6 +1017,7 @@ class UncacheableTestAccessResult implements AccessResultInterface {
   public function __construct($value) {
     $this->value = $value;
   }
+
   /**
    * {@inheritdoc}
    */

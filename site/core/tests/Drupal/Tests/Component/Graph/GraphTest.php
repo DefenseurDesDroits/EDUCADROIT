@@ -3,13 +3,13 @@
 namespace Drupal\Tests\Component\Graph;
 
 use Drupal\Component\Graph\Graph;
-use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Drupal\Component\Graph\Graph
  * @group Graph
  */
-class GraphTest extends UnitTestCase {
+class GraphTest extends TestCase {
 
   /**
    * Test depth-first-search features.
@@ -149,7 +149,7 @@ class GraphTest extends UnitTestCase {
         $result_components[] = $graph[$vertex]['component'];
         unset($unassigned_vertices[$vertex]);
       }
-      $this->assertEquals(1, count(array_unique($result_components)), sprintf('Expected one unique component for vertices %s, got %s', $this->displayArray($component), $this->displayArray($result_components)));
+      $this->assertCount(1, array_unique($result_components), sprintf('Expected one unique component for vertices %s, got %s', $this->displayArray($component), $this->displayArray($result_components)));
     }
     $this->assertEquals([], $unassigned_vertices, sprintf('Vertices not assigned to a component: %s', $this->displayArray($unassigned_vertices, TRUE)));
   }

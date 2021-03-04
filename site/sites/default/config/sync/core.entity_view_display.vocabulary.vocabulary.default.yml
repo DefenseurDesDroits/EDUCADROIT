@@ -17,6 +17,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   label:
     label: visually_hidden
     type: string
@@ -24,5 +25,6 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
 hidden:
   user_id: true

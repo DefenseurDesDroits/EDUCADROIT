@@ -110,9 +110,10 @@ class EntityAccessCheckTest extends UnitTestCase {
   /**
    * Wrap any object with a route match, and return that.
    *
-   * @param \stdClass $object
+   * @param object $object
    *   Any object, including prophesized mocks based on interfaces.
-   * @return RouteMatchInterface
+   *
+   * @return \Drupal\Core\Routing\RouteMatchInterface
    *   A prophesized RouteMatchInterface.
    */
   private function createRouteMatchForObject(\stdClass $object) {

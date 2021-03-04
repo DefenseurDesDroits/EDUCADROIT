@@ -65,7 +65,7 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
 
     for ($i = 1; $i < 3; $i++) {
       $entity = EntityTest::create([
-        'name' => $this->randomMachineName()
+        'name' => $this->randomMachineName(),
       ]);
       $entity->save();
       $this->referencedEntities[] = $entity;
@@ -179,12 +179,12 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) { }
+  public function submitForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) { }
+  public function validateForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * Tests valid entries in the EntityAutocomplete Form API element.
@@ -211,7 +211,7 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
     $form_builder->submitForm($this, $form_state);
 
     // Valid form state.
-    $this->assertEqual(count($form_state->getErrors()), 0);
+    $this->assertCount(0, $form_state->getErrors());
 
     // Test the 'single' element.
     $this->assertEqual($form_state->getValue('single'), $this->referencedEntities[0]->id());
@@ -280,7 +280,7 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
         'single' => 'single - non-existent label',
       ]);
     $form_builder->submitForm($this, $form_state);
-    $this->assertEqual(count($form_state->getErrors()), 1);
+    $this->assertCount(1, $form_state->getErrors());
     $this->assertEqual($form_state->getErrors()['single'], t('There are no entities matching "%value".', ['%value' => 'single - non-existent label']));
 
     // Test 'single' with a entity ID that doesn't exist.
@@ -289,7 +289,7 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
         'single' => 'single - non-existent label (42)',
       ]);
     $form_builder->submitForm($this, $form_state);
-    $this->assertEqual(count($form_state->getErrors()), 1);
+    $this->assertCount(1, $form_state->getErrors());
     $this->assertEqual($form_state->getErrors()['single'], t('The referenced entity (%type: %id) does not exist.', ['%type' => 'entity_test', '%id' => 42]));
 
     // Do the same tests as above but on an element with '#validate_reference'
@@ -297,25 +297,25 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
     $form_state = (new FormState())
       ->setValues([
         'single_no_validate' => 'single - non-existent label',
-        'single_autocreate_no_validate' => 'single - autocreate non-existent label'
+        'single_autocreate_no_validate' => 'single - autocreate non-existent label',
       ]);
     $form_builder->submitForm($this, $form_state);
 
     // The element without 'autocreate' support still has to emit a warning when
     // the input doesn't end with an entity ID enclosed in parentheses.
-    $this->assertEqual(count($form_state->getErrors()), 1);
+    $this->assertCount(1, $form_state->getErrors());
     $this->assertEqual($form_state->getErrors()['single_no_validate'], t('There are no entities matching "%value".', ['%value' => 'single - non-existent label']));
 
     $form_state = (new FormState())
       ->setValues([
         'single_no_validate' => 'single - non-existent label (42)',
-        'single_autocreate_no_validate' => 'single - autocreate non-existent label (43)'
+        'single_autocreate_no_validate' => 'single - autocreate non-existent label (43)',
       ]);
     $form_builder->submitForm($this, $form_state);
 
     // The input is complete (i.e. contains an entity ID at the end), no errors
     // are triggered.
-    $this->assertEqual(count($form_state->getErrors()), 0);
+    $this->assertCount(0, $form_state->getErrors());
   }
 
   /**
@@ -353,7 +353,7 @@ class EntityAutocompleteElementFormTest extends EntityKernelTestBase implements 
   public function testEntityAutocompleteIdInput() {
     /** @var \Drupal\Core\Form\FormBuilderInterface $form_builder */
     $form_builder = $this->container->get('form_builder');
-    //$form = $form_builder->getForm($this);
+    // $form = $form_builder->getForm($this);
     $form_state = (new FormState())
       ->setMethod('GET')
       ->setValues([

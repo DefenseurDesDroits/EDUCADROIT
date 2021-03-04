@@ -2,11 +2,18 @@
 
 namespace Drupal\block\Tests;
 
+@trigger_error(__NAMESPACE__ . '\BlockTestBase is deprecated in Drupal 8.5.0 and will be removed before Drupal 9.0.0. Instead, use \Drupal\Tests\block\Functional\BlockTestBase, see https://www.drupal.org/node/2901823.', E_USER_DEPRECATED);
+
 use Drupal\simpletest\WebTestBase;
 use Drupal\filter\Entity\FilterFormat;
 
 /**
  * Provides setup and helper methods for block module tests.
+ *
+ * @deprecated in drupal:8.5.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\Tests\block\Functional\BlockTestBase.
+ *
+ * @see https://www.drupal.org/node/2901823
  */
 abstract class BlockTestBase extends WebTestBase {
 
@@ -15,7 +22,13 @@ abstract class BlockTestBase extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['block', 'filter', 'test_page_test', 'help', 'block_test'];
+  public static $modules = [
+    'block',
+    'filter',
+    'test_page_test',
+    'help',
+    'block_test',
+  ];
 
   /**
    * A list of theme regions to test.

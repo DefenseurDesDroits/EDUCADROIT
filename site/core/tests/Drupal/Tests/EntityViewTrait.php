@@ -30,12 +30,13 @@ trait EntityViewTrait {
    *   the current content language.
    * @param bool $reset
    *   (optional) Whether to clear the cache for this entity.
+   *
    * @return array
    *
-   * @see drupal_render()
+   * @see \Drupal\Core\Render\RendererInterface::render()
    */
   protected function buildEntityView(EntityInterface $entity, $view_mode = 'full', $langcode = NULL, $reset = FALSE) {
-    $ensure_fully_built = function(&$elements) use (&$ensure_fully_built) {
+    $ensure_fully_built = function (&$elements) use (&$ensure_fully_built) {
       // If the default values for this element have not been loaded yet, populate
       // them.
       if (isset($elements['#type']) && empty($elements['#defaults_loaded'])) {
@@ -58,7 +59,7 @@ trait EntityViewTrait {
       }
     };
 
-    $render_controller = $this->container->get('entity.manager')->getViewBuilder($entity->getEntityTypeId());
+    $render_controller = $this->container->get('entity_type.manager')->getViewBuilder($entity->getEntityTypeId());
     if ($reset) {
       $render_controller->resetCache([$entity->id()]);
     }

@@ -6,7 +6,9 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\SortArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
@@ -15,7 +17,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  *
  * @ingroup field_widget
  */
-abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface {
+abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface, ContainerFactoryPluginInterface {
 
   use AllowedTagsXssTrait;
 
@@ -52,6 +54,13 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
     $this->fieldDefinition = $field_definition;
     $this->settings = $settings;
     $this->thirdPartySettings = $third_party_settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['third_party_settings']);
   }
 
   /**
@@ -103,6 +112,19 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
     else {
       $elements = $this->formMultipleElements($items, $form, $form_state);
     }
+
+    // Allow modules to alter the field multi-value widget form element.
+    // This hook can also be used for single-value fields.
+    $context = [
+      'form' => $form,
+      'widget' => $this,
+      'items' => $items,
+      'default' => $this->isDefaultValueWidget($form_state),
+    ];
+    \Drupal::moduleHandler()->alter([
+      'field_widget_multivalue_form',
+      'field_widget_multivalue_' . $this->getPluginId() . '_form',
+    ], $elements, $form_state, $context);
 
     // Populate the 'array_parents' information in $form_state->get('field')
     // after the form is built, so that we catch changes in the form structure
@@ -410,21 +432,26 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
       if (Element::isVisibleElement($element)) {
         $handles_multiple = $this->handlesMultipleValues();
 
-        $violations_by_delta = [];
+        $violations_by_delta = $item_list_violations = [];
         foreach ($violations as $violation) {
           // Separate violations by delta.
           $property_path = explode('.', $violation->getPropertyPath());
           $delta = array_shift($property_path);
-          $violations_by_delta[$delta][] = $violation;
+          if (is_numeric($delta)) {
+            $violations_by_delta[$delta][] = $violation;
+          }
+          // Violations at the ItemList level are not associated to any delta.
+          else {
+            $item_list_violations[] = $violation;
+          }
           $violation->arrayPropertyPath = $property_path;
         }
 
         /** @var \Symfony\Component\Validator\ConstraintViolationInterface[] $delta_violations */
         foreach ($violations_by_delta as $delta => $delta_violations) {
-          // Pass violations to the main element:
-          // - if this is a multiple-value widget,
-          // - or if the violations are at the ItemList level.
-          if ($handles_multiple || !is_numeric($delta)) {
+          // Pass violations to the main element if this is a multiple-value
+          // widget.
+          if ($handles_multiple) {
             $delta_element = $element;
           }
           // Otherwise, pass errors by delta to the corresponding sub-element.
@@ -439,6 +466,13 @@ abstract class WidgetBase extends PluginSettingsBase implements WidgetInterface 
               $form_state->setError($error_element, $violation->getMessage());
             }
           }
+        }
+
+        /** @var \Symfony\Component\Validator\ConstraintViolationInterface[] $item_list_violations */
+        // Pass violations to the main element without going through
+        // errorElement() if the violations are at the ItemList level.
+        foreach ($item_list_violations as $violation) {
+          $form_state->setError($element, $violation->getMessage());
         }
       }
     }

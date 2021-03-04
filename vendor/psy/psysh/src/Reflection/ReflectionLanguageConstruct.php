@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2018 Justin Hileman
+ * (c) 2012-2020 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -76,8 +76,8 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public function __construct($keyword)
     {
-        if (self::isLanguageConstruct($keyword)) {
-            throw new \InvalidArgumentException('Unknown language construct: ' . $keyword);
+        if (!self::isLanguageConstruct($keyword)) {
+            throw new \InvalidArgumentException('Unknown language construct: '.$keyword);
         }
 
         $this->keyword = $keyword;
@@ -122,10 +122,22 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
     {
         $params = [];
         foreach (self::$languageConstructs[$this->keyword] as $parameter => $opts) {
-            array_push($params, new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts));
+            $params[] = new ReflectionLanguageConstructParameter($this->keyword, $parameter, $opts);
         }
 
         return $params;
+    }
+
+    /**
+     * Gets the file name from a language construct.
+     *
+     * (Hint: it always returns false)
+     *
+     * @return bool false
+     */
+    public function getFileName()
+    {
+        return false;
     }
 
     /**
@@ -147,6 +159,6 @@ class ReflectionLanguageConstruct extends \ReflectionFunctionAbstract
      */
     public static function isLanguageConstruct($keyword)
     {
-        return array_key_exists($keyword, self::$languageConstructs);
+        return \array_key_exists($keyword, self::$languageConstructs);
     }
 }

@@ -21,7 +21,15 @@ class RowEntityTest extends ViewsKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['taxonomy', 'text', 'filter', 'field', 'system', 'node', 'user'];
+  public static $modules = [
+    'taxonomy',
+    'text',
+    'filter',
+    'field',
+    'system',
+    'node',
+    'user',
+  ];
 
   /**
    * Views used by this test.
@@ -47,7 +55,7 @@ class RowEntityTest extends ViewsKernelTestBase {
   public function testEntityRow() {
     $vocab = Vocabulary::create(['name' => $this->randomMachineName(), 'vid' => strtolower($this->randomMachineName())]);
     $vocab->save();
-    $term = Term::create(['name' => $this->randomMachineName(), 'vid' => $vocab->id() ]);
+    $term = Term::create(['name' => $this->randomMachineName(), 'vid' => $vocab->id()]);
     $term->save();
 
     $view = Views::getView('test_entity_row');

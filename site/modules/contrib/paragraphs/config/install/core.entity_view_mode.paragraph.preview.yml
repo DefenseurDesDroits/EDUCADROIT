@@ -1,8 +1,9 @@
-id: paragraph.preview
-label: Preview
+langcode: en
 status: true
-cache: true
-targetEntityType: paragraph
 dependencies:
   module:
     - paragraphs
+id: paragraph.preview
+label: Preview
+targetEntityType: paragraph
+cache: true

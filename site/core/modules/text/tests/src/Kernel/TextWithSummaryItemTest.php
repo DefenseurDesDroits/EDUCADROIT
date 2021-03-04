@@ -26,7 +26,7 @@ class TextWithSummaryItemTest extends FieldKernelTestBase {
   /**
    * Field storage entity.
    *
-   * @var \Drupal\field\Entity\FieldStorageConfig.
+   * @var \Drupal\field\Entity\FieldStorageConfig
    */
   protected $fieldStorage;
 
@@ -36,7 +36,6 @@ class TextWithSummaryItemTest extends FieldKernelTestBase {
    * @var \Drupal\field\Entity\FieldConfig
    */
   protected $field;
-
 
   protected function setUp() {
     parent::setUp();
@@ -69,8 +68,8 @@ class TextWithSummaryItemTest extends FieldKernelTestBase {
     $entity->save();
 
     $entity = $storage->load($entity->id());
-    $this->assertTrue($entity->summary_field instanceof FieldItemListInterface, 'Field implements interface.');
-    $this->assertTrue($entity->summary_field[0] instanceof FieldItemInterface, 'Field item implements interface.');
+    $this->assertInstanceOf(FieldItemListInterface::class, $entity->summary_field);
+    $this->assertInstanceOf(FieldItemInterface::class, $entity->summary_field[0]);
     $this->assertEqual($entity->summary_field->value, $value);
     $this->assertEqual($entity->summary_field->summary, $summary);
     $this->assertNull($entity->summary_field->format);
@@ -106,7 +105,7 @@ class TextWithSummaryItemTest extends FieldKernelTestBase {
       'type' => 'text_with_summary',
       'settings' => [
         'max_length' => 10,
-      ]
+      ],
     ]);
     $this->fieldStorage->save();
     $this->field = FieldConfig::create([

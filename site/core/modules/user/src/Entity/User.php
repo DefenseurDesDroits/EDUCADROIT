@@ -9,6 +9,8 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\user\RoleInterface;
+use Drupal\user\StatusItem;
+use Drupal\user\TimeZoneItem;
 use Drupal\user\UserInterface;
 
 /**
@@ -20,6 +22,13 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "user",
  *   label = @Translation("User"),
+ *   label_collection = @Translation("Users"),
+ *   label_singular = @Translation("user"),
+ *   label_plural = @Translation("users"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count user",
+ *     plural = "@count users",
+ *   ),
  *   handlers = {
  *     "storage" = "Drupal\user\UserStorage",
  *     "storage_schema" = "Drupal\user\UserStorageSchema",
@@ -39,7 +48,6 @@ use Drupal\user\UserInterface;
  *   admin_permission = "administer users",
  *   base_table = "users",
  *   data_table = "users_field_data",
- *   label_callback = "user_format_name",
  *   translatable = TRUE,
  *   entity_keys = {
  *     "id" = "uid",
@@ -72,6 +80,13 @@ class User extends ContentEntityBase implements UserInterface {
    */
   public function isNew() {
     return !empty($this->enforceIsNew) || $this->id() === NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label() {
+    return $this->getDisplayName();
   }
 
   /**
@@ -346,6 +361,7 @@ class User extends ContentEntityBase implements UserInterface {
   public function isAuthenticated() {
     return $this->id() > 0;
   }
+
   /**
    * {@inheritdoc}
    */
@@ -357,6 +373,7 @@ class User extends ContentEntityBase implements UserInterface {
    * {@inheritdoc}
    */
   public function getUsername() {
+    @trigger_error('\Drupal\Core\Session\AccountInterface::getUsername() is deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0. Use \Drupal\Core\Session\AccountInterface::getAccountName() or \Drupal\user\UserInterface::getDisplayName() instead. See https://www.drupal.org/node/2572493', E_USER_DEPRECATED);
     return $this->getAccountName();
   }
 
@@ -409,8 +426,8 @@ class User extends ContentEntityBase implements UserInterface {
 
       // @todo Use the entity factory once available, see
       //   https://www.drupal.org/node/1867228.
-      $entity_manager = \Drupal::entityManager();
-      $entity_type = $entity_manager->getDefinition('user');
+      $entity_type_manager = \Drupal::entityTypeManager();
+      $entity_type = $entity_type_manager->getDefinition('user');
       $class = $entity_type->getClass();
 
       static::$anonymousUser = new $class([
@@ -418,7 +435,7 @@ class User extends ContentEntityBase implements UserInterface {
         'name' => [LanguageInterface::LANGCODE_DEFAULT => ''],
         // Explicitly set the langcode to ensure that field definitions do not
         // need to be fetched to figure out a default.
-        'langcode' => [LanguageInterface::LANGCODE_DEFAULT => LanguageInterface::LANGCODE_NOT_SPECIFIED]
+        'langcode' => [LanguageInterface::LANGCODE_DEFAULT => LanguageInterface::LANGCODE_NOT_SPECIFIED],
       ], $entity_type->id());
     }
     return clone static::$anonymousUser;
@@ -498,11 +515,13 @@ class User extends ContentEntityBase implements UserInterface {
       ->addPropertyConstraints('value', [
         'AllowedValues' => ['callback' => __CLASS__ . '::getAllowedTimezones'],
       ]);
+    $fields['timezone']->getItemDefinition()->setClass(TimeZoneItem::class);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('User status'))
       ->setDescription(t('Whether the user is active or blocked.'))
       ->setDefaultValue(FALSE);
+    $fields['status']->getItemDefinition()->setClass(StatusItem::class);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
@@ -544,7 +563,7 @@ class User extends ContentEntityBase implements UserInterface {
    *   The role storage object.
    */
   protected function getRoleStorage() {
-    return \Drupal::entityManager()->getStorage('user_role');
+    return \Drupal::entityTypeManager()->getStorage('user_role');
   }
 
   /**

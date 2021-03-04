@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\taxonomy\Functional\Views;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\node\Entity\Node;
 use Drupal\user\Entity\Role;
 use Drupal\user\RoleInterface;
 use Drupal\views\Views;
@@ -22,6 +22,11 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
    * @var array
    */
   public static $modules = ['taxonomy', 'views'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * An user with permissions to administer taxonomy.
@@ -44,12 +49,15 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     parent::setUp($import_test_views);
 
     // Create an administrative user.
-    $this->adminUser = $this->drupalCreateUser(['administer taxonomy', 'bypass node access']);
+    $this->adminUser = $this->drupalCreateUser([
+      'administer taxonomy',
+      'bypass node access',
+    ]);
     $this->drupalLogin($this->adminUser);
 
     // Create a vocabulary and add two term reference fields to article nodes.
 
-    $this->fieldName1 = Unicode::strtolower($this->randomMachineName());
+    $this->fieldName1 = mb_strtolower($this->randomMachineName());
 
     $handler_settings = [
       'target_bundles' => [
@@ -59,12 +67,14 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     ];
     $this->createEntityReferenceField('node', 'article', $this->fieldName1, NULL, 'taxonomy_term', 'default', $handler_settings, FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
 
-    entity_get_form_display('node', 'article', 'default')
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+    $display_repository = \Drupal::service('entity_display.repository');
+    $display_repository->getFormDisplay('node', 'article')
       ->setComponent($this->fieldName1, [
         'type' => 'options_select',
       ])
       ->save();
-    entity_get_display('node', 'article', 'default')
+    $display_repository->getViewDisplay('node', 'article')
       ->setComponent($this->fieldName1, [
         'type' => 'entity_reference_label',
       ])
@@ -91,8 +101,7 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     $this->assertText($node->label());
 
     \Drupal::service('module_installer')->install(['language', 'content_translation']);
-    $language = ConfigurableLanguage::createFromLangcode('ur');
-    $language->save();
+    ConfigurableLanguage::createFromLangcode('ur')->save();
     // Enable translation for the article content type and ensure the change is
     // picked up.
     \Drupal::service('content_translation.manager')->setEnabled('node', 'article', TRUE);
@@ -101,10 +110,6 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
       ->grantPermission('create content translations')
       ->grantPermission('translate any entity')
       ->save();
-    drupal_static_reset();
-    \Drupal::entityManager()->clearCachedDefinitions();
-    \Drupal::service('router.builder')->rebuild();
-    \Drupal::service('entity.definition_update_manager')->applyUpdates();
 
     $edit['title[0][value]'] = $translated_title = $this->randomMachineName();
 
@@ -124,6 +129,12 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     // query anymore.
     // @see \Drupal\views\Plugin\views\filter\LanguageFilter::query()
     $node->delete();
+
+    // We also have to remove the nodes created by the parent ::setUp() method
+    // if we want to be able to uninstall the Content Translation module.
+    foreach (Node::loadMultiple() as $node) {
+      $node->delete();
+    }
     \Drupal::service('module_installer')->uninstall(['content_translation', 'language']);
 
     $view = Views::getView('taxonomy_term');
@@ -140,7 +151,7 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     $condition = $query->conditions();
     // We only want to check the no. of conditions in the query.
     unset($condition['#conjunction']);
-    $this->assertEqual(1, count($condition));
+    $this->assertCount(1, $condition);
 
     // Clear permissions for anonymous users to check access for default views.
     Role::load(RoleInterface::ANONYMOUS_ID)->revokePermission('access content')->save();
@@ -148,9 +159,9 @@ class TaxonomyTermViewTest extends TaxonomyTestBase {
     // Test the default views disclose no data by default.
     $this->drupalLogout();
     $this->drupalGet('taxonomy/term/' . $term->id());
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
     $this->drupalGet('taxonomy/term/' . $term->id() . '/feed');
-    $this->assertResponse(403);
+    $this->assertSession()->statusCodeEquals(403);
   }
 
 }

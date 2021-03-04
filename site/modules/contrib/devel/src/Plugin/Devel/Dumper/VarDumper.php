@@ -15,16 +15,8 @@ use Symfony\Component\VarDumper\Dumper\HtmlDumper;
  *   label = @Translation("Symfony var-dumper"),
  *   description = @Translation("Wrapper for <a href='https://github.com/symfony/var-dumper'>Symfony var-dumper</a> debugging tool."),
  * )
- *
  */
 class VarDumper extends DevelDumperBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function dump($input, $name = NULL) {
-    echo (string) $this->export($input, $name);
-  }
 
   /**
    * {@inheritdoc}
@@ -36,6 +28,10 @@ class VarDumper extends DevelDumperBase {
     $output = fopen('php://memory', 'r+b');
     $dumper->dump($cloner->cloneVar($input), $output);
     $output = stream_get_contents($output, -1, 0);
+
+    if ($name) {
+      $output = $name . ' => ' . $output;
+    }
 
     return $this->setSafeMarkup($output);
   }

@@ -43,12 +43,26 @@ class ConfigEntityStorageTest extends KernelTestBase {
       $this->fail('Exception thrown when attempting to save a configuration entity with a UUID that does not match the existing UUID.');
     }
     catch (ConfigDuplicateUUIDException $e) {
-      $this->pass(format_string('Exception thrown when attempting to save a configuration entity with a UUID that does not match existing data: %e.', ['%e' => $e]));
+      // Expected exception; just continue testing.
     }
 
     // Ensure that the config entity was not corrupted.
-    $entity = entity_load('config_test', $entity->id(), TRUE);
+    $entity = $storage->loadUnchanged($entity->id());
     $this->assertIdentical($entity->toArray(), $original_properties);
+  }
+
+  /**
+   * Tests the hasData() method for config entity storage.
+   *
+   * @covers \Drupal\Core\Config\Entity\ConfigEntityStorage::hasData
+   */
+  public function testHasData() {
+    $storage = \Drupal::entityTypeManager()->getStorage('config_test');
+    $this->assertFalse($storage->hasData());
+
+    // Add a test config entity and check again.
+    $storage->create(['id' => $this->randomMachineName()])->save();
+    $this->assertTrue($storage->hasData());
   }
 
 }

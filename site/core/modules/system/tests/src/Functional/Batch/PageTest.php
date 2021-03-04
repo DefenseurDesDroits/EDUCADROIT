@@ -19,12 +19,17 @@ class PageTest extends BrowserTestBase {
   public static $modules = ['batch_test'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Tests that the batch API progress page uses the correct theme.
    */
   public function testBatchProgressPageTheme() {
     // Make sure that the page which starts the batch (an administrative page)
     // is using a different theme than would normally be used by the batch API.
-    $this->container->get('theme_handler')->install(['seven', 'bartik']);
+    $this->container->get('theme_installer')->install(['seven', 'bartik']);
     $this->config('system.theme')
       ->set('default', 'bartik')
       ->set('admin', 'seven')
@@ -50,7 +55,15 @@ class PageTest extends BrowserTestBase {
     // Visit an administrative page that runs a test batch, and check that the
     // title shown during batch execution (which the batch callback function
     // saved as a variable) matches the theme used on the administrative page.
+    // Run initial step only first.
+    $this->maximumMetaRefreshCount = 0;
     $this->drupalGet('batch-test/test-title');
+    $this->assertText('Batch Test', 'The test is in the html output.');
+
+    // Leave the batch process running.
+    $this->maximumMetaRefreshCount = NULL;
+    $this->drupalGet('batch-test/test-title');
+
     // The stack should contain the title shown on the progress page.
     $this->assertEqual(batch_test_stack(), ['Batch Test'], 'The batch title is shown on the batch page.');
     $this->assertText('Redirection successful.', 'Redirection after batch execution is correct.');

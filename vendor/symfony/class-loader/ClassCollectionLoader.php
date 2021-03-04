@@ -11,10 +11,16 @@
 
 namespace Symfony\Component\ClassLoader;
 
+if (\PHP_VERSION_ID >= 70000) {
+    @trigger_error('The '.__NAMESPACE__.'\ClassCollectionLoader class is deprecated since Symfony 3.3 and will be removed in 4.0.', \E_USER_DEPRECATED);
+}
+
 /**
  * ClassCollectionLoader.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @deprecated since version 3.3, to be removed in 4.0.
  */
 class ClassCollectionLoader
 {
@@ -44,25 +50,22 @@ class ClassCollectionLoader
         self::$loaded[$name] = true;
 
         if ($adaptive) {
-            $declared = array_merge(get_declared_classes(), get_declared_interfaces());
-            if (function_exists('get_declared_traits')) {
-                $declared = array_merge($declared, get_declared_traits());
-            }
+            $declared = array_merge(get_declared_classes(), get_declared_interfaces(), get_declared_traits());
 
             // don't include already declared classes
             $classes = array_diff($classes, $declared);
 
             // the cache is different depending on which classes are already declared
-            $name = $name.'-'.substr(hash('sha256', implode('|', $classes)), 0, 5);
+            $name .= '-'.substr(hash('sha256', implode('|', $classes)), 0, 5);
         }
 
         $classes = array_unique($classes);
 
         // cache the core classes
         if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0777, true) && !is_dir($cacheDir)) {
-            throw new \RuntimeException(sprintf('Class Collection Loader was not able to create directory "%s"', $cacheDir));
+            throw new \RuntimeException(sprintf('Class Collection Loader was not able to create directory "%s".', $cacheDir));
         }
-        $cacheDir = rtrim(realpath($cacheDir) ?: $cacheDir, '/'.DIRECTORY_SEPARATOR);
+        $cacheDir = rtrim(realpath($cacheDir) ?: $cacheDir, '/'.\DIRECTORY_SEPARATOR);
         $cache = $cacheDir.'/'.$name.$extension;
 
         // auto-reload
@@ -98,10 +101,39 @@ class ClassCollectionLoader
             return;
         }
         if (!$adaptive) {
-            $declared = array_merge(get_declared_classes(), get_declared_interfaces());
-            if (function_exists('get_declared_traits')) {
-                $declared = array_merge($declared, get_declared_traits());
-            }
+            $declared = array_merge(get_declared_classes(), get_declared_interfaces(), get_declared_traits());
+        }
+
+        $files = self::inline($classes, $cache, $declared);
+
+        if ($autoReload) {
+            // save the resources
+            self::writeCacheFile($metadata, serialize([array_values($files), $classes]));
+        }
+    }
+
+    /**
+     * Generates a file where classes and their parents are inlined.
+     *
+     * @param array  $classes  An array of classes to load
+     * @param string $cache    The file where classes are inlined
+     * @param array  $excluded An array of classes that won't be inlined
+     *
+     * @return array The source map of inlined classes, with classes as keys and files as values
+     *
+     * @throws \RuntimeException When class can't be loaded
+     */
+    public static function inline($classes, $cache, array $excluded)
+    {
+        $declared = [];
+        foreach (self::getOrderedClasses($excluded) as $class) {
+            $declared[$class->getName()] = true;
+        }
+
+        // cache the core classes
+        $cacheDir = \dirname($cache);
+        if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0777, true) && !is_dir($cacheDir)) {
+            throw new \RuntimeException(sprintf('Class Collection Loader was not able to create directory "%s".', $cacheDir));
         }
 
         $spacesRegex = '(?:\s*+(?:(?:\#|//)[^\n]*+\n|/\*(?:(?<!\*/).)++)?+)*+';
@@ -114,19 +146,20 @@ class ClassCollectionLoader
 REGEX;
         $dontInlineRegex = str_replace('.', $spacesRegex, $dontInlineRegex);
 
-        $cacheDir = explode('/', str_replace(DIRECTORY_SEPARATOR, '/', $cacheDir));
-        $files = array();
+        $cacheDir = explode('/', str_replace(\DIRECTORY_SEPARATOR, '/', $cacheDir));
+        $files = [];
         $content = '';
         foreach (self::getOrderedClasses($classes) as $class) {
-            if (in_array($class->getName(), $declared)) {
+            if (isset($declared[$class->getName()])) {
                 continue;
             }
+            $declared[$class->getName()] = true;
 
-            $files[] = $file = $class->getFileName();
+            $files[$class->getName()] = $file = $class->getFileName();
             $c = file_get_contents($file);
 
             if (preg_match($dontInlineRegex, $c)) {
-                $file = explode('/', str_replace(DIRECTORY_SEPARATOR, '/', $file));
+                $file = explode('/', str_replace(\DIRECTORY_SEPARATOR, '/', $file));
 
                 for ($i = 0; isset($file[$i], $cacheDir[$i]); ++$i) {
                     if ($file[$i] !== $cacheDir[$i]) {
@@ -136,14 +169,14 @@ REGEX;
                 if (1 >= $i) {
                     $file = var_export(implode('/', $file), true);
                 } else {
-                    $file = array_slice($file, $i);
-                    $file = str_repeat('../', count($cacheDir) - $i).implode('/', $file);
+                    $file = \array_slice($file, $i);
+                    $file = str_repeat('../', \count($cacheDir) - $i).implode('/', $file);
                     $file = '__DIR__.'.var_export('/'.$file, true);
                 }
 
                 $c = "\nnamespace {require $file;}";
             } else {
-                $c = preg_replace(array('/^\s*<\?php/', '/\?>\s*$/'), '', $c);
+                $c = preg_replace(['/^\s*<\?php/', '/\?>\s*$/'], '', $c);
 
                 // fakes namespace declaration for global code
                 if (!$class->inNamespace()) {
@@ -158,10 +191,7 @@ REGEX;
         }
         self::writeCacheFile($cache, '<?php '.$content);
 
-        if ($autoReload) {
-            // save the resources
-            self::writeCacheFile($metadata, serialize(array($files, $classes)));
-        }
+        return $files;
     }
 
     /**
@@ -173,7 +203,7 @@ REGEX;
      */
     public static function fixNamespaceDeclarations($source)
     {
-        if (!function_exists('token_get_all') || !self::$useTokenizer) {
+        if (!\function_exists('token_get_all') || !self::$useTokenizer) {
             if (preg_match('/(^|\s)namespace(.*?)\s*;/', $source)) {
                 $source = preg_replace('/(^|\s)namespace(.*?)\s*;/', "$1namespace$2\n{", $source)."}\n";
             }
@@ -186,21 +216,26 @@ REGEX;
         $inNamespace = false;
         $tokens = token_get_all($source);
 
+        $nsTokens = [\T_WHITESPACE => true, \T_NS_SEPARATOR => true, \T_STRING => true];
+        if (\defined('T_NAME_QUALIFIED')) {
+            $nsTokens[T_NAME_QUALIFIED] = true;
+        }
+
         for ($i = 0; isset($tokens[$i]); ++$i) {
             $token = $tokens[$i];
             if (!isset($token[1]) || 'b"' === $token) {
                 $rawChunk .= $token;
-            } elseif (in_array($token[0], array(T_COMMENT, T_DOC_COMMENT))) {
+            } elseif (\in_array($token[0], [\T_COMMENT, \T_DOC_COMMENT])) {
                 // strip comments
                 continue;
-            } elseif (T_NAMESPACE === $token[0]) {
+            } elseif (\T_NAMESPACE === $token[0]) {
                 if ($inNamespace) {
                     $rawChunk .= "}\n";
                 }
                 $rawChunk .= $token[1];
 
                 // namespace name and whitespaces
-                while (isset($tokens[++$i][1]) && in_array($tokens[$i][0], array(T_WHITESPACE, T_NS_SEPARATOR, T_STRING))) {
+                while (isset($tokens[++$i][1], $nsTokens[$tokens[$i][0]])) {
                     $rawChunk .= $tokens[$i][1];
                 }
                 if ('{' === $tokens[$i]) {
@@ -210,15 +245,15 @@ REGEX;
                     $rawChunk = rtrim($rawChunk)."\n{";
                     $inNamespace = true;
                 }
-            } elseif (T_START_HEREDOC === $token[0]) {
+            } elseif (\T_START_HEREDOC === $token[0]) {
                 $output .= self::compressCode($rawChunk).$token[1];
                 do {
                     $token = $tokens[++$i];
                     $output .= isset($token[1]) && 'b"' !== $token ? $token[1] : $token;
-                } while (T_END_HEREDOC !== $token[0]);
+                } while (\T_END_HEREDOC !== $token[0]);
                 $output .= "\n";
                 $rawChunk = '';
-            } elseif (T_CONSTANT_ENCAPSED_STRING === $token[0]) {
+            } elseif (\T_CONSTANT_ENCAPSED_STRING === $token[0]) {
                 $output .= self::compressCode($rawChunk).$token[1];
                 $rawChunk = '';
             } else {
@@ -259,8 +294,8 @@ REGEX;
     private static function compressCode($code)
     {
         return preg_replace(
-            array('/^\s+/m', '/\s+$/m', '/([\n\r]+ *[\n\r]+)+/', '/[ \t]+/'),
-            array('', '', "\n", ' '),
+            ['/^\s+/m', '/\s+$/m', '/([\n\r]+ *[\n\r]+)+/', '/[ \t]+/'],
+            ['', '', "\n", ' '],
             $code
         );
     }
@@ -275,7 +310,7 @@ REGEX;
      */
     private static function writeCacheFile($file, $content)
     {
-        $dir = dirname($file);
+        $dir = \dirname($file);
         if (!is_writable($dir)) {
             throw new \RuntimeException(sprintf('Cache directory "%s" is not writable.', $dir));
         }
@@ -300,13 +335,13 @@ REGEX;
      */
     private static function getOrderedClasses(array $classes)
     {
-        $map = array();
-        self::$seen = array();
+        $map = [];
+        self::$seen = [];
         foreach ($classes as $class) {
             try {
                 $reflectionClass = new \ReflectionClass($class);
             } catch (\ReflectionException $e) {
-                throw new \InvalidArgumentException(sprintf('Unable to load class "%s"', $class));
+                throw new \InvalidArgumentException(sprintf('Unable to load class "%s".', $class));
             }
 
             $map = array_merge($map, self::getClassHierarchy($reflectionClass));
@@ -318,12 +353,12 @@ REGEX;
     private static function getClassHierarchy(\ReflectionClass $class)
     {
         if (isset(self::$seen[$class->getName()])) {
-            return array();
+            return [];
         }
 
         self::$seen[$class->getName()] = true;
 
-        $classes = array($class);
+        $classes = [$class];
         $parent = $class;
         while (($parent = $parent->getParentClass()) && $parent->isUserDefined() && !isset(self::$seen[$parent->getName()])) {
             self::$seen[$parent->getName()] = true;
@@ -331,14 +366,12 @@ REGEX;
             array_unshift($classes, $parent);
         }
 
-        $traits = array();
+        $traits = [];
 
-        if (method_exists('ReflectionClass', 'getTraits')) {
-            foreach ($classes as $c) {
-                foreach (self::resolveDependencies(self::computeTraitDeps($c), $c) as $trait) {
-                    if ($trait !== $c) {
-                        $traits[] = $trait;
-                    }
+        foreach ($classes as $c) {
+            foreach (self::resolveDependencies(self::computeTraitDeps($c), $c) as $trait) {
+                if ($trait !== $c) {
+                    $traits[] = $trait;
                 }
             }
         }
@@ -348,7 +381,7 @@ REGEX;
 
     private static function getInterfaces(\ReflectionClass $class)
     {
-        $classes = array();
+        $classes = [];
 
         foreach ($class->getInterfaces() as $interface) {
             $classes = array_merge($classes, self::getInterfaces($interface));
@@ -366,7 +399,7 @@ REGEX;
     private static function computeTraitDeps(\ReflectionClass $class)
     {
         $traits = $class->getTraits();
-        $deps = array($class->getName() => $traits);
+        $deps = [$class->getName() => $traits];
         while ($trait = array_pop($traits)) {
             if ($trait->isUserDefined() && !isset(self::$seen[$trait->getName()])) {
                 self::$seen[$trait->getName()] = true;

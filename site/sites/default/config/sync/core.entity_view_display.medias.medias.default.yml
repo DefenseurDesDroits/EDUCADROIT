@@ -22,6 +22,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_spotlights:
     type: entity_reference_revisions_entity_view
     weight: 0
@@ -30,16 +31,19 @@ content:
       view_mode: default
       link: ''
     third_party_settings: {  }
+    region: content
   field_teaser:
     weight: -1
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   user_id:
     label: visually_hidden
     type: author
     weight: -3
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden: {  }

@@ -5,5 +5,4 @@ dependencies: {  }
 name: Spécialités
 vid: speciality
 description: 'Spécialité - Intervenant'
-hierarchy: 0
 weight: -4

@@ -5,5 +5,4 @@ dependencies: {  }
 name: 'Types d''intervenants'
 vid: speaker_type
 description: 'Type d''intervenants - Intervenant'
-hierarchy: 0
 weight: 0

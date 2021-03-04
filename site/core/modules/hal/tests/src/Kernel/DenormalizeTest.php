@@ -3,6 +3,7 @@
 namespace Drupal\Tests\hal\Kernel;
 
 use Drupal\Core\Url;
+use Drupal\entity_test\Entity\EntitySerializedField;
 use Drupal\field\Entity\FieldConfig;
 use Symfony\Component\Serializer\Exception\UnexpectedValueException;
 
@@ -57,20 +58,19 @@ class DenormalizeTest extends NormalizerTestBase {
       $this->fail('Exception should be thrown when type is invalid.');
     }
     catch (UnexpectedValueException $e) {
-      $this->pass('Exception thrown when type is invalid.');
+      // Expected exception; just continue testing.
     }
 
     // No type.
     $data_with_no_type = [
-      '_links' => [
-      ],
+      '_links' => [],
     ];
     try {
       $this->serializer->denormalize($data_with_no_type, $this->entityClass, $this->format);
       $this->fail('Exception should be thrown when no type is provided.');
     }
     catch (UnexpectedValueException $e) {
-      $this->pass('Exception thrown when no type is provided.');
+      // Expected exception; just continue testing.
     }
   }
 
@@ -86,7 +86,7 @@ class DenormalizeTest extends NormalizerTestBase {
       ],
     ];
 
-    $this->setExpectedException(UnexpectedValueException::class);
+    $this->expectException(UnexpectedValueException::class);
     $this->serializer->denormalize($data_with_invalid_type, $this->entityClass, $this->format);
   }
 
@@ -100,7 +100,7 @@ class DenormalizeTest extends NormalizerTestBase {
       ],
     ];
 
-    $this->setExpectedException(UnexpectedValueException::class);
+    $this->expectException(UnexpectedValueException::class);
     $this->serializer->denormalize($data_with_no_types, $this->entityClass, $this->format);
   }
 
@@ -136,8 +136,58 @@ class DenormalizeTest extends NormalizerTestBase {
       ],
       'field_test_text' => [],
     ];
-    $entity = $this->serializer->denormalize($data, get_class($entity), $this->format, [ 'target_instance' => $entity ]);
+    $entity = $this->serializer->denormalize($data, get_class($entity), $this->format, ['target_instance' => $entity]);
     $this->assertEqual($entity->field_test_text->count(), 0);
+  }
+
+  /**
+   * Tests normalizing/denormalizing serialized columns.
+   */
+  public function testDenormalizeSerializedItem() {
+    $entity = EntitySerializedField::create(['serialized' => 'boo']);
+    $normalized = $this->serializer->normalize($entity, $this->format);
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('The generic FieldItemNormalizer cannot denormalize string values for "value" properties of the "serialized" field (field item class: Drupal\entity_test\Plugin\Field\FieldType\SerializedItem).');
+    $this->serializer->denormalize($normalized, EntitySerializedField::class, $this->format);
+  }
+
+  /**
+   * Tests normalizing/denormalizing invalid custom serialized fields.
+   */
+  public function testDenormalizeInvalidCustomSerializedField() {
+    $entity = EntitySerializedField::create(['serialized_long' => serialize(['Hello world!'])]);
+    $normalized = $this->serializer->normalize($entity);
+    $this->assertEquals($normalized['serialized_long'][0]['value'], ['Hello world!']);
+
+    $normalized['serialized_long'][0]['value'] = 'boo';
+    $this->expectException(\LogicException::class);
+    $this->expectExceptionMessage('The generic FieldItemNormalizer cannot denormalize string values for "value" properties of the "serialized_long" field (field item class: Drupal\Core\Field\Plugin\Field\FieldType\StringLongItem).');
+    $this->serializer->denormalize($normalized, EntitySerializedField::class);
+  }
+
+  /**
+   * Tests normalizing/denormalizing empty custom serialized fields.
+   */
+  public function testDenormalizeEmptyCustomSerializedField() {
+    $entity = EntitySerializedField::create(['serialized_long' => serialize([])]);
+    $normalized = $this->serializer->normalize($entity);
+    $this->assertEquals([], $normalized['serialized_long'][0]['value']);
+
+    $entity = $this->serializer->denormalize($normalized, EntitySerializedField::class);
+    $this->assertEquals(serialize([]), $entity->get('serialized_long')->value);
+  }
+
+  /**
+   * Tests normalizing/denormalizing valid custom serialized fields.
+   */
+  public function testDenormalizeValidCustomSerializedField() {
+    $entity = EntitySerializedField::create(['serialized_long' => serialize(['key' => 'value'])]);
+    $normalized = $this->serializer->normalize($entity);
+    $this->assertEquals(['key' => 'value'], $normalized['serialized_long'][0]['value']);
+
+    $entity = $this->serializer->denormalize($normalized, EntitySerializedField::class);
+
+    $this->assertEquals(serialize(['key' => 'value']), $entity->get('serialized_long')->value);
   }
 
 }

@@ -2,18 +2,15 @@
 
 namespace Drupal\Tests\migrate\Unit\process;
 
-@trigger_error('The ' . __NAMESPACE__ . '\DedupeEntityTest is deprecated in
-Drupal 8.4.0 and will be removed before Drupal 9.0.0. Instead, use ' . __NAMESPACE__ . '\MakeUniqueEntityFieldTest', E_USER_DEPRECATED);
-
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\migrate\Plugin\migrate\process\DedupeEntity;
-use Drupal\Component\Utility\Unicode;
 
 /**
  * @coversDefaultClass \Drupal\migrate\Plugin\migrate\process\DedupeEntity
  * @group migrate
+ * @group legacy
  */
 class DedupeEntityTest extends MigrateProcessTestCase {
 
@@ -21,14 +18,13 @@ class DedupeEntityTest extends MigrateProcessTestCase {
    * The mock entity query.
    *
    * @var \Drupal\Core\Entity\Query\QueryInterface
-   * @var \Drupal\Core\Entity\Query\QueryFactory
    */
   protected $entityQuery;
 
   /**
    * The mocked entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $entityTypeManager;
 
@@ -48,9 +44,9 @@ class DedupeEntityTest extends MigrateProcessTestCase {
     $this->entityQuery = $this->getMockBuilder('Drupal\Core\Entity\Query\QueryInterface')
       ->disableOriginalConstructor()
       ->getMock();
-    $this->entityTypeManager = $this->getMock(EntityTypeManagerInterface::class);
+    $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
 
-    $storage = $this->getMock(EntityStorageInterface::class);
+    $storage = $this->createMock(EntityStorageInterface::class);
     $storage->expects($this->any())
       ->method('getQuery')
       ->willReturn($this->entityQuery);
@@ -80,7 +76,7 @@ class DedupeEntityTest extends MigrateProcessTestCase {
     $this->entityQueryExpects($count);
     $value = $this->randomMachineName(32);
     $actual = $plugin->transform($value, $this->migrateExecutable, $this->row, 'testproperty');
-    $expected = Unicode::substr($value, $start, $length);
+    $expected = mb_substr($value, $start, $length);
     $expected .= $count ? $postfix . $count : '';
     $this->assertSame($expected, $actual);
   }
@@ -95,7 +91,8 @@ class DedupeEntityTest extends MigrateProcessTestCase {
       'start' => 'foobar',
     ];
     $plugin = new DedupeEntity($configuration, 'dedupe_entity', [], $this->getMigration(), $this->entityTypeManager);
-    $this->setExpectedException('Drupal\migrate\MigrateException', 'The start position configuration key should be an integer. Omit this key to capture from the beginning of the string.');
+    $this->expectException('Drupal\migrate\MigrateException');
+    $this->expectExceptionMessage('The start position configuration key should be an integer. Omit this key to capture from the beginning of the string.');
     $plugin->transform('test_start', $this->migrateExecutable, $this->row, 'testproperty');
   }
 
@@ -109,7 +106,8 @@ class DedupeEntityTest extends MigrateProcessTestCase {
       'length' => 'foobar',
     ];
     $plugin = new DedupeEntity($configuration, 'dedupe_entity', [], $this->getMigration(), $this->entityTypeManager);
-    $this->setExpectedException('Drupal\migrate\MigrateException', 'The character length configuration key should be an integer. Omit this key to capture the entire string.');
+    $this->expectException('Drupal\migrate\MigrateException');
+    $this->expectExceptionMessage('The character length configuration key should be an integer. Omit this key to capture the entire string.');
     $plugin->transform('test_length', $this->migrateExecutable, $this->row, 'testproperty');
   }
 
@@ -168,7 +166,9 @@ class DedupeEntityTest extends MigrateProcessTestCase {
       ->will($this->returnValue($this->entityQuery));
     $this->entityQuery->expects($this->exactly($count + 1))
       ->method('execute')
-      ->will($this->returnCallback(function () use (&$count) { return $count--;}));
+      ->will($this->returnCallback(function () use (&$count) {
+        return $count--;
+      }));
   }
 
   /**
@@ -199,7 +199,7 @@ class DedupeEntityTest extends MigrateProcessTestCase {
 
     // Entity 'forums' is pre-existing, entity 'test_vocab' was migrated.
     $this->idMap
-      ->method('lookupSourceID')
+      ->method('lookupSourceId')
       ->will($this->returnValueMap([
         [['test_field' => 'forums'], FALSE],
         [['test_field' => 'test_vocab'], ['source_id' => 42]],

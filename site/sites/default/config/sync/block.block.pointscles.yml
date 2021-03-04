@@ -1,0 +1,23 @@
+uuid: 7ac90f7f-b48e-4dd7-bb1f-16f5bb6650b5
+langcode: fr
+status: true
+dependencies:
+  config:
+    - facets.facet.points_cles
+  module:
+    - facets
+  theme:
+    - ddd
+id: pointscles
+theme: ddd
+region: facets
+weight: 0
+provider: null
+plugin: 'facet_block:points_cles'
+settings:
+  id: 'facet_block:points_cles'
+  label: 'Points Clés'
+  provider: facets
+  label_display: visible
+  block_id: pointscles
+visibility: {  }

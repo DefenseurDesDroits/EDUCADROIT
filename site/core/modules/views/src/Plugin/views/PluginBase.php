@@ -9,6 +9,7 @@ use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\PluginBase as ComponentPluginBase;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\ViewExecutable;
@@ -38,7 +39,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @ingroup views_plugins
  */
-abstract class PluginBase extends ComponentPluginBase implements ContainerFactoryPluginInterface, ViewsPluginInterface, DependentPluginInterface {
+abstract class PluginBase extends ComponentPluginBase implements ContainerFactoryPluginInterface, ViewsPluginInterface, DependentPluginInterface, TrustedCallbackInterface {
 
   /**
    * Include negotiated languages when listing languages.
@@ -155,7 +156,9 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
    * @return array
    *   Returns the options of this handler/plugin.
    */
-  protected function defineOptions() { return []; }
+  protected function defineOptions() {
+    return [];
+  }
 
   /**
    * Fills up the options of the plugin with defaults.
@@ -271,17 +274,24 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
   /**
    * {@inheritdoc}
    */
-  public function validateOptionsForm(&$form, FormStateInterface $form_state) { }
+  public static function trustedCallbacks() {
+    return ['preRenderAddFieldsetMarkup'];
+  }
 
   /**
    * {@inheritdoc}
    */
-  public function submitOptionsForm(&$form, FormStateInterface $form_state) { }
+  public function validateOptionsForm(&$form, FormStateInterface $form_state) {}
 
   /**
    * {@inheritdoc}
    */
-  public function query() { }
+  public function submitOptionsForm(&$form, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function query() {}
 
   /**
    * {@inheritdoc}
@@ -293,7 +303,9 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
   /**
    * {@inheritdoc}
    */
-  public function validate() { return []; }
+  public function validate() {
+    return [];
+  }
 
   /**
    * {@inheritdoc}
@@ -351,7 +363,7 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
     foreach ($tokens as $token => $replacement) {
       // Twig wants a token replacement array stripped of curly-brackets.
       // Some Views tokens come with curly-braces, others do not.
-      //@todo: https://www.drupal.org/node/2544392
+      // @todo: https://www.drupal.org/node/2544392
       if (strpos($token, '{{') !== FALSE) {
         // Twig wants a token replacement array stripped of curly-brackets.
         $token = trim(str_replace(['{{', '}}'], '', $token));
@@ -364,17 +376,17 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
         // We need to validate tokens are valid Twig variables. Twig uses the
         // same variable naming rules as PHP.
         // @see http://php.net/manual/language.variables.basics.php
-        assert('preg_match(\'/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/\', $token) === 1', 'Tokens need to be valid Twig variables.');
+        assert(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $token) === 1, 'Tokens need to be valid Twig variables.');
         $twig_tokens[$token] = $replacement;
       }
       else {
         $parts = explode('.', $token);
         $top = array_shift($parts);
-        assert('preg_match(\'/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/\', $top) === 1', 'Tokens need to be valid Twig variables.');
+        assert(preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $top) === 1, 'Tokens need to be valid Twig variables.');
         $token_array = [array_pop($parts) => $replacement];
         foreach (array_reverse($parts) as $key) {
           // The key could also be numeric (array index) so allow that.
-          assert('is_numeric($key) || (preg_match(\'/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/\', $key) === 1)', 'Tokens need to be valid Twig variables.');
+          assert(is_numeric($key) || preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $key) === 1, 'Tokens need to be valid Twig variables.');
           $token_array = [$key => $token_array];
         }
         if (!isset($twig_tokens[$top])) {
@@ -396,7 +408,7 @@ abstract class PluginBase extends ComponentPluginBase implements ContainerFactor
         '#post_render' => [
           function ($children, $elements) {
             return Xss::filterAdmin($children);
-          }
+          },
         ],
       ];
 

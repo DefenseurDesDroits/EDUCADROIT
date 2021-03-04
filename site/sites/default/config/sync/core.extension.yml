@@ -25,7 +25,6 @@ module:
   ddd_resources: 0
   ddd_speakers: 0
   ddd_user_import: 0
-  devel: 0
   draggableviews: 0
   dropzonejs: 0
   dropzonejs_eb_widget: 0
@@ -36,6 +35,7 @@ module:
   entity_browser: 0
   entity_embed: 0
   entity_reference_revisions: 0
+  facets: 0
   field: 0
   field_group: 0
   field_ui: 0
@@ -53,7 +53,6 @@ module:
   link: 0
   linkit: 0
   locale: 0
-  maillog: 0
   media_entity: 0
   menu_link_content: 0
   menu_ui: 0
@@ -63,10 +62,12 @@ module:
   node: 0
   options: 0
   page_cache: 0
-  paragraphs: 0
   path: 0
+  path_alias: 0
   rest: 0
   search: 0
+  search_api: 0
+  search_api_solr: 0
   serialization: 0
   system: 0
   taxonomy: 0
@@ -75,6 +76,8 @@ module:
   token: 0
   toolbar: 0
   toolbar_menu: 0
+  twig_tweak: 0
+  update: 0
   user: 0
   video_embed_dailymotion: 0
   video_embed_field: 0
@@ -84,6 +87,7 @@ module:
   forum: 1
   pathauto: 1
   views: 10
+  paragraphs: 11
   minimal: 1000
 theme:
   stable: 0
@@ -95,3 +99,4 @@ theme:
 _core:
   default_config_hash: m2GVq11UAOVuNgj8x0t5fMOPujpvQQ_zxLoaly1BMEU
 langcode: fr
+profile: minimal

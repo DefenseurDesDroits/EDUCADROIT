@@ -6,9 +6,11 @@ use Drupal\Component\FileCache\FileCacheFactory;
 use Drupal\Core\Database\Database;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamStructureVisitor;
+use PHPUnit\Framework\SkippedTestError;
 
 /**
  * @coversDefaultClass \Drupal\KernelTests\KernelTestBase
+ *
  * @group PHPUnit
  * @group Test
  * @group KernelTests
@@ -136,6 +138,10 @@ class KernelTestBaseTest extends KernelTestBase {
     $this->assertInstanceOf('Symfony\Component\HttpFoundation\Request', $new_request);
     $this->assertSame($new_request, \Drupal::request());
     $this->assertSame($request, $new_request);
+
+    // Ensure getting the router.route_provider does not trigger a deprecation
+    // message that errors.
+    $this->container->get('router.route_provider');
   }
 
   /**
@@ -182,7 +188,7 @@ class KernelTestBaseTest extends KernelTestBase {
     $output = \Drupal::service('renderer')->renderRoot($build);
     $this->assertEquals('core', \Drupal::theme()->getActiveTheme()->getName());
 
-    $this->assertEquals($expected, $build['#children']);
+    $this->assertEquals($expected, $build['#markup']);
     $this->assertEquals($expected, $output);
   }
 
@@ -209,8 +215,8 @@ class KernelTestBaseTest extends KernelTestBase {
   /**
    * @covers ::bootKernel
    */
-  public function testFileDefaultScheme() {
-    $this->assertEquals('public', file_default_scheme());
+  public function testBootKernel() {
+    $this->assertNull($this->container->get('request_stack')->getParentRequest(), 'There should only be one request on the stack');
     $this->assertEquals('public', \Drupal::config('system.file')->get('default_scheme'));
   }
 
@@ -220,6 +226,60 @@ class KernelTestBaseTest extends KernelTestBase {
   public function testLocalTimeZone() {
     // The 'Australia/Sydney' time zone is set in core/tests/bootstrap.php
     $this->assertEquals('Australia/Sydney', date_default_timezone_get());
+  }
+
+  /**
+   * Tests that a test method is skipped when it requires a module not present.
+   *
+   * In order to catch checkRequirements() regressions, we have to make a new
+   * test object and run checkRequirements() here.
+   *
+   * @covers ::checkRequirements
+   * @covers ::checkModuleRequirements
+   */
+  public function testMethodRequiresModule() {
+    require __DIR__ . '/../../fixtures/KernelMissingDependentModuleMethodTest.php';
+
+    $stub_test = new KernelMissingDependentModuleMethodTest();
+    // We have to setName() to the method name we're concerned with.
+    $stub_test->setName('testRequiresModule');
+
+    // We cannot use $this->setExpectedException() because PHPUnit would skip
+    // the test before comparing the exception type.
+    try {
+      $stub_test->publicCheckRequirements();
+      $this->fail('Missing required module throws skipped test exception.');
+    }
+    catch (SkippedTestError $e) {
+      $this->assertEqual('Required modules: module_does_not_exist', $e->getMessage());
+    }
+  }
+
+  /**
+   * Tests that a test case is skipped when it requires a module not present.
+   *
+   * In order to catch checkRequirements() regressions, we have to make a new
+   * test object and run checkRequirements() here.
+   *
+   * @covers ::checkRequirements
+   * @covers ::checkModuleRequirements
+   */
+  public function testRequiresModule() {
+    require __DIR__ . '/../../fixtures/KernelMissingDependentModuleTest.php';
+
+    $stub_test = new KernelMissingDependentModuleTest();
+    // We have to setName() to the method name we're concerned with.
+    $stub_test->setName('testRequiresModule');
+
+    // We cannot use $this->setExpectedException() because PHPUnit would skip
+    // the test before comparing the exception type.
+    try {
+      $stub_test->publicCheckRequirements();
+      $this->fail('Missing required module throws skipped test exception.');
+    }
+    catch (SkippedTestError $e) {
+      $this->assertEqual('Required modules: module_does_not_exist', $e->getMessage());
+    }
   }
 
   /**
@@ -245,6 +305,17 @@ class KernelTestBaseTest extends KernelTestBase {
 
       $this->assertTrue(empty($result), 'All test tables have been removed.');
     }
+  }
+
+  /**
+   * Ensures KernelTestBase tests can access modules in profiles.
+   */
+  public function testProfileModules() {
+    $this->assertFileExists('core/profiles/demo_umami/modules/demo_umami_content/demo_umami_content.info.yml');
+    $this->assertSame(
+      'core/profiles/demo_umami/modules/demo_umami_content/demo_umami_content.info.yml',
+      \Drupal::service('extension.list.module')->getPathname('demo_umami_content')
+    );
   }
 
 }

@@ -5,5 +5,4 @@ dependencies: {  }
 name: Formats
 vid: formats
 description: 'Formats Ressources'
-hierarchy: 0
 weight: -10

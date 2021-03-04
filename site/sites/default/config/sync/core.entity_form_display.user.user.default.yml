@@ -81,6 +81,7 @@ content:
     weight: 1
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_capacities:
     weight: 16
     settings:
@@ -88,6 +89,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_firstname:
     weight: 14
     settings:
@@ -95,6 +97,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_organization:
     weight: 15
     settings:
@@ -102,6 +105,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_surname:
     weight: 13
     settings:
@@ -109,23 +113,28 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   google_analytics:
     weight: 3
     settings: {  }
     third_party_settings: {  }
+    region: content
   language:
     weight: 2
     settings: {  }
     third_party_settings: {  }
+    region: content
   path:
     type: path
     weight: 5
     settings: {  }
     third_party_settings: {  }
+    region: content
   timezone:
     weight: 4
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
   field_first_connection_hash: true
   langcode: true

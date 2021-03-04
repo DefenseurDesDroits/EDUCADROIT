@@ -10,9 +10,9 @@ weight: -10
 is_admin: false
 permissions:
   - 'access content'
-  - 'view files'
   - 'access site-wide contact form'
-  - 'view glossary entity'
-  - 'view courses entity'
   - 'view course entity'
+  - 'view courses entity'
+  - 'view files'
+  - 'view glossary entity'
   - 'view vocabulary entity'

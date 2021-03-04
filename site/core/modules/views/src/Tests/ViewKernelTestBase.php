@@ -2,6 +2,9 @@
 
 namespace Drupal\views\Tests;
 
+@trigger_error(__NAMESPACE__ . '\ViewKernelTestBase is deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0. Use \Drupal\Tests\views\Kernel\ViewsKernelTestBase instead.', E_USER_DEPRECATED);
+
+use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\simpletest\KernelTestBase;
 
@@ -12,7 +15,7 @@ use Drupal\simpletest\KernelTestBase;
  * requires the full web test environment provided by WebTestBase, extend
  * ViewTestBase instead.
  *
- * @deprecated in Drupal 8.0.x, will be removed in Drupal 8.2.x. Use
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
  *   \Drupal\Tests\views\Kernel\ViewsKernelTestBase instead.
  *
  * @see \Drupal\Tests\views\Kernel\ViewsKernelTestBase
@@ -26,13 +29,19 @@ abstract class ViewKernelTestBase extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'views', 'views_test_config', 'views_test_data', 'user'];
+  public static $modules = [
+    'system',
+    'views',
+    'views_test_config',
+    'views_test_data',
+    'user',
+  ];
 
   /**
    * {@inheritdoc}
    *
    * @param bool $import_test_views
-   *   Should the views specififed on the test class be imported. If you need
+   *   Should the views specified on the test class be imported. If you need
    *   to setup some additional stuff, like fields, you need to call false and
    *   then call createTestViews for your own.
    */
@@ -71,7 +80,7 @@ abstract class ViewKernelTestBase extends KernelTestBase {
 
     // Load the test dataset.
     $data_set = $this->dataSet();
-    $query = db_insert('views_test_data')
+    $query = Database::getConnection()->insert('views_test_data')
       ->fields(array_keys($data_set[0]));
     foreach ($data_set as $record) {
       $query->values($record);
@@ -126,6 +135,8 @@ abstract class ViewKernelTestBase extends KernelTestBase {
 
   /**
    * Returns the schema definition.
+   *
+   * @internal
    */
   protected function schemaDefinition() {
     return ViewTestData::schemaDefinition();

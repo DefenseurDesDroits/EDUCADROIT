@@ -51,7 +51,7 @@ class YamlDiscoveryTest extends UnitTestCase {
   public function testGetDefinitions() {
     $definitions = $this->discovery->getDefinitions();
 
-    $this->assertInternalType('array', $definitions);
+    $this->assertIsArray($definitions);
     $this->assertCount(4, $definitions);
 
     foreach ($this->expectedKeys as $expected_key) {
@@ -88,8 +88,8 @@ EOS;
       ],
       'test_2' => [
         'test_2.test.yml' => $file_2,
-      ]]
-    );
+      ],
+    ]);
 
     $discovery = new YamlDiscovery('test', ['test_1' => vfsStream::url('root/test_1'), 'test_2' => vfsStream::url('root/test_2')]);
     $discovery->addTranslatableProperty('title', 'title_context');

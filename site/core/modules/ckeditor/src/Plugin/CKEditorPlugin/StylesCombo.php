@@ -101,7 +101,9 @@ class StylesCombo extends CKEditorPluginBase implements CKEditorPluginConfigurab
       $form_state->setError($element, $this->t('The provided list of styles is syntactically incorrect.'));
     }
     else {
-      $style_names = array_map(function ($style) { return $style['name']; }, $styles_setting);
+      $style_names = array_map(function ($style) {
+        return $style['name'];
+      }, $styles_setting);
       if (count($style_names) !== count(array_unique($style_names))) {
         $form_state->setError($element, $this->t('Each style must have a unique label.'));
       }
@@ -115,6 +117,7 @@ class StylesCombo extends CKEditorPluginBase implements CKEditorPluginConfigurab
    *
    * @param string $styles
    *   The "styles" setting.
+   *
    * @return array|false
    *   An array containing the "stylesSet" configuration, or FALSE when the
    *   syntax is invalid.
@@ -148,14 +151,14 @@ class StylesCombo extends CKEditorPluginBase implements CKEditorPluginConfigurab
       $element = array_shift($classes);
 
       // Build the data structure CKEditor's stylescombo plugin expects.
-      // @see http://docs.cksource.com/CKEditor_3.x/Developers_Guide/Styles
+      // @see https://ckeditor.com/docs/ckeditor4/latest/guide/dev_howtos_styles.html
       $configured_style = [
         'name' => trim($label),
         'element' => trim($element),
       ];
       if (!empty($classes)) {
         $configured_style['attributes'] = [
-          'class' => implode(' ', array_map('trim', $classes))
+          'class' => implode(' ', array_map('trim', $classes)),
         ];
       }
       $styles_set[] = $configured_style;

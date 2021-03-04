@@ -35,6 +35,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_image:
     weight: 1
     label: visually_hidden
@@ -43,6 +44,7 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: image
+    region: content
   field_year:
     type: string
     weight: 3
@@ -50,10 +52,12 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   links:
     weight: 0
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
   field_date: true
   field_description: true

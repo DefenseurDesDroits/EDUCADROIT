@@ -28,7 +28,9 @@ abstract class SortPluginBase extends HandlerBase implements CacheableDependency
   /**
    * Determine if a sort can be exposed.
    */
-  public function canExpose() { return TRUE; }
+  public function canExpose() {
+    return TRUE;
+  }
 
   /**
    * Called to add the sort to a query.
@@ -167,7 +169,7 @@ abstract class SortPluginBase extends HandlerBase implements CacheableDependency
     $options = $this->sortOptions();
     if (!empty($options)) {
       $form['order'] = [
-        '#title' => $this->t('Order'),
+        '#title' => $this->t('Order', [], ['context' => 'Sort order']),
         '#type' => 'radios',
         '#options' => $options,
         '#default_value' => $this->options['order'],
@@ -175,9 +177,9 @@ abstract class SortPluginBase extends HandlerBase implements CacheableDependency
     }
   }
 
-  protected function sortValidate(&$form, FormStateInterface $form_state) { }
+  protected function sortValidate(&$form, FormStateInterface $form_state) {}
 
-  public function sortSubmit(&$form, FormStateInterface $form_state) { }
+  public function sortSubmit(&$form, FormStateInterface $form_state) {}
 
   /**
    * Provide a list of options for the default sort form.
@@ -206,6 +208,15 @@ abstract class SortPluginBase extends HandlerBase implements CacheableDependency
       '#size' => 40,
       '#weight' => -1,
    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    $callbacks = parent::trustedCallbacks();
+    $callbacks[] = 'preRenderFlattenData';
+    return $callbacks;
   }
 
   /**

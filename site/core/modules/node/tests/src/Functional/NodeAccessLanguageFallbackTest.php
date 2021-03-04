@@ -16,7 +16,16 @@ class NodeAccessLanguageFallbackTest extends NodeTestBase {
    *
    * @var array
    */
-  public static $modules = ['language', 'node_access_test', 'content_translation'];
+  public static $modules = [
+    'language',
+    'node_access_test',
+    'content_translation',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * {@inheritdoc}
@@ -73,7 +82,7 @@ class NodeAccessLanguageFallbackTest extends NodeTestBase {
     $this->drupalGet('node/' . $node->id() . '/translations/add/hu/ca', $url_options);
     $this->assertSession()->statusCodeEquals(200);
     // Save the form.
-    $this->getSession()->getPage()->pressButton('Save and keep published (this translation)');
+    $this->getSession()->getPage()->pressButton('Save (this translation)');
     $this->assertSession()->statusCodeEquals(200);
 
     // Check the node access table.
@@ -97,7 +106,7 @@ class NodeAccessLanguageFallbackTest extends NodeTestBase {
     $this->drupalGet('node/' . $node->id() . '/edit', $url_options);
     $this->assertSession()->statusCodeEquals(200);
     // Save the form.
-    $this->getSession()->getPage()->pressButton('Save and keep published (this translation)');
+    $this->getSession()->getPage()->pressButton('Save (this translation)');
     $this->assertSession()->statusCodeEquals(200);
     // Check the node access table.
     $this->checkRecords(3, 'hu');

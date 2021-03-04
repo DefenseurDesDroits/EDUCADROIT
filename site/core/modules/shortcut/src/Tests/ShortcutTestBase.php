@@ -2,6 +2,8 @@
 
 namespace Drupal\shortcut\Tests;
 
+@trigger_error(__NAMESPACE__ . '\ShortcutTestBase is deprecated in Drupal 8.5.0 and will be removed before Drupal 9.0.0. Instead, use \Drupal\Tests\shortcut\Functional\ShortcutTestBase, see https://www.drupal.org/node/2906736.', E_USER_DEPRECATED);
+
 use Drupal\shortcut\Entity\Shortcut;
 use Drupal\shortcut\Entity\ShortcutSet;
 use Drupal\shortcut\ShortcutSetInterface;
@@ -9,6 +11,11 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Defines base class for shortcut test cases.
+ *
+ * @deprecated in drupal:8.5.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\Tests\shortcut\Functional\ShortcutTestBase.
+ *
+ * @see https://www.drupal.org/node/2906736
  */
 abstract class ShortcutTestBase extends WebTestBase {
 
@@ -87,7 +94,7 @@ abstract class ShortcutTestBase extends WebTestBase {
     // Log in as admin and grab the default shortcut set.
     $this->drupalLogin($this->adminUser);
     $this->set = ShortcutSet::load('default');
-    \Drupal::entityManager()->getStorage('shortcut_set')->assignUser($this->set, $this->adminUser);
+    \Drupal::entityTypeManager()->getStorage('shortcut_set')->assignUser($this->set, $this->adminUser);
   }
 
   /**
@@ -118,7 +125,7 @@ abstract class ShortcutTestBase extends WebTestBase {
    */
   public function getShortcutInformation(ShortcutSetInterface $set, $key) {
     $info = [];
-    \Drupal::entityManager()->getStorage('shortcut')->resetCache();
+    \Drupal::entityTypeManager()->getStorage('shortcut')->resetCache();
     foreach ($set->getShortcuts() as $shortcut) {
       if ($key == 'link') {
         $info[] = $shortcut->link->uri;

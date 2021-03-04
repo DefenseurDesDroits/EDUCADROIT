@@ -3,7 +3,6 @@
 namespace Drupal\Tests\migrate\Functional\process;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate\MigrateMessage;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
 use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\Tests\BrowserTestBase;
@@ -19,6 +18,11 @@ class DownloadFunctionalTest extends BrowserTestBase {
    * {@inheritdoc}
    */
   public static $modules = ['migrate', 'file'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Tests that an exception is thrown bu migration continues with the next row.
@@ -42,7 +46,7 @@ class DownloadFunctionalTest extends BrowserTestBase {
         'uri' => [
           'plugin' => 'download',
           'source' => ['url', 'uri'],
-        ]
+        ],
       ],
       'destination' => [
         'plugin' => 'entity:file',
@@ -51,7 +55,7 @@ class DownloadFunctionalTest extends BrowserTestBase {
 
     $migration = \Drupal::service('plugin.manager.migration')->createStubMigration($definition);
 
-    $executable = new MigrateExecutable($migration, new MigrateMessage());
+    $executable = new MigrateExecutable($migration);
     $result = $executable->import();
 
     // Check that the migration has completed.
@@ -66,10 +70,10 @@ class DownloadFunctionalTest extends BrowserTestBase {
     $this->assertNull($map_row['destid1']);
 
     // Check that a message with the thrown exception has been logged.
-    $messages = $id_map_plugin->getMessageIterator(['url' => $invalid_url])->fetchAll();
+    $messages = $id_map_plugin->getMessages(['url' => $invalid_url])->fetchAll();
     $this->assertCount(1, $messages);
     $message = reset($messages);
-    $this->assertEquals("Cannot read from non-readable stream ($invalid_url)", $message->message);
+    $this->assertEquals("Client error: `GET $invalid_url` resulted in a `404 Not Found` response ($invalid_url)", $message->message);
     $this->assertEquals(MigrationInterface::MESSAGE_ERROR, $message->level);
 
     // Check that the second row was migrated successfully.

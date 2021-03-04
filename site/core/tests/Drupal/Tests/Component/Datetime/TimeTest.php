@@ -3,7 +3,7 @@
 namespace Drupal\Tests\Component\Datetime;
 
 use Drupal\Component\Datetime\Time;
-use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -15,12 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class TimeTest extends UnitTestCase {
+class TimeTest extends TestCase {
 
   /**
    * The mocked request stack.
    *
-   * @var \Symfony\Component\HttpFoundation\RequestStack|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Symfony\Component\HttpFoundation\RequestStack|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $requestStack;
 
@@ -37,8 +37,7 @@ class TimeTest extends UnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
-
+    $this->requestStack = $this->getMockBuilder('Symfony\Component\HttpFoundation\RequestStack')->getMock();
     $this->time = new Time($this->requestStack);
   }
 
@@ -78,6 +77,28 @@ class TimeTest extends UnitTestCase {
       ->willReturn($request);
 
     $this->assertEquals($expected, $this->time->getRequestMicroTime());
+  }
+
+  /**
+   * @covers ::getRequestTime
+   */
+  public function testGetRequestTimeNoRequest() {
+    $expected = 12345678;
+    unset($_SERVER['REQUEST_TIME']);
+    $this->assertEquals($expected, $this->time->getRequestTime());
+    $_SERVER['REQUEST_TIME'] = 23456789;
+    $this->assertEquals(23456789, $this->time->getRequestTime());
+  }
+
+  /**
+   * @covers ::getRequestMicroTime
+   */
+  public function testGetRequestMicroTimeNoRequest() {
+    $expected = 1234567.89;
+    unset($_SERVER['REQUEST_TIME_FLOAT']);
+    $this->assertEquals($expected, $this->time->getRequestMicroTime());
+    $_SERVER['REQUEST_TIME_FLOAT'] = 2345678.90;
+    $this->assertEquals(2345678.90, $this->time->getRequestMicroTime());
   }
 
   /**

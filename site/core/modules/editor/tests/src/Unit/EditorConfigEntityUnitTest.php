@@ -3,6 +3,7 @@
 namespace Drupal\Tests\editor\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\editor\Entity\Editor;
 use Drupal\Tests\UnitTestCase;
 
@@ -15,16 +16,16 @@ class EditorConfigEntityUnitTest extends UnitTestCase {
   /**
    * The entity type used for testing.
    *
-   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $entityType;
 
   /**
    * The entity manager used for testing.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The ID of the type of the entity under test.
@@ -36,14 +37,14 @@ class EditorConfigEntityUnitTest extends UnitTestCase {
   /**
    * The UUID generator used for testing.
    *
-   * @var \Drupal\Component\Uuid\UuidInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Component\Uuid\UuidInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $uuid;
 
   /**
    * The editor plugin manager used for testing.
    *
-   * @var \Drupal\editor\Plugin\EditorManager|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\editor\Plugin\EditorManager|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $editorPluginManager;
 
@@ -61,25 +62,25 @@ class EditorConfigEntityUnitTest extends UnitTestCase {
     $this->editorId = $this->randomMachineName();
     $this->entityTypeId = $this->randomMachineName();
 
-    $this->entityType = $this->getMock('\Drupal\Core\Entity\EntityTypeInterface');
+    $this->entityType = $this->createMock('\Drupal\Core\Entity\EntityTypeInterface');
     $this->entityType->expects($this->any())
       ->method('getProvider')
       ->will($this->returnValue('editor'));
 
-    $this->entityManager = $this->getMock('\Drupal\Core\Entity\EntityManagerInterface');
-    $this->entityManager->expects($this->any())
+    $this->entityTypeManager = $this->createMock(EntityTypeManagerInterface::class);
+    $this->entityTypeManager->expects($this->any())
       ->method('getDefinition')
       ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
 
-    $this->uuid = $this->getMock('\Drupal\Component\Uuid\UuidInterface');
+    $this->uuid = $this->createMock('\Drupal\Component\Uuid\UuidInterface');
 
     $this->editorPluginManager = $this->getMockBuilder('Drupal\editor\Plugin\EditorManager')
       ->disableOriginalConstructor()
       ->getMock();
 
     $container = new ContainerBuilder();
-    $container->set('entity.manager', $this->entityManager);
+    $container->set('entity_type.manager', $this->entityTypeManager);
     $container->set('uuid', $this->uuid);
     $container->set('plugin.manager.editor', $this->editorPluginManager);
     \Drupal::setContainer($container);
@@ -109,18 +110,18 @@ class EditorConfigEntityUnitTest extends UnitTestCase {
 
     $entity = new Editor($values, $this->entityTypeId);
 
-    $filter_format = $this->getMock('Drupal\Core\Config\Entity\ConfigEntityInterface');
+    $filter_format = $this->createMock('Drupal\Core\Config\Entity\ConfigEntityInterface');
     $filter_format->expects($this->once())
       ->method('getConfigDependencyName')
       ->will($this->returnValue('filter.format.test'));
 
-    $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
+    $storage = $this->createMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('load')
       ->with($format_id)
       ->will($this->returnValue($filter_format));
 
-    $this->entityManager->expects($this->once())
+    $this->entityTypeManager->expects($this->once())
       ->method('getStorage')
       ->with('filter_format')
       ->will($this->returnValue($storage));

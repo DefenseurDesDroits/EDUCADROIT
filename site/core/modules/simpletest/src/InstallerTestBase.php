@@ -2,10 +2,13 @@
 
 namespace Drupal\simpletest;
 
+@trigger_error(__NAMESPACE__ . '\InstallerTestBase is deprecated in Drupal 8.6.0 and will be removed before Drupal 9.0.0. Instead, use \Drupal\FunctionalTests\Installer\InstallerTestBase, see https://www.drupal.org/node/2988752.', E_USER_DEPRECATED);
+
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Session\UserSession;
 use Drupal\Core\Site\Settings;
+use Drupal\Tests\RequirementsPageTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,8 +16,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Base class for testing the interactive installer.
+ *
+ * @deprecated in drupal:8.6.0 and is removed from drupal:9.0.0.
+ * Use \Drupal\FunctionalTests\Installer\InstallerTestBase. See
+ * https://www.drupal.org/node/2988752
  */
 abstract class InstallerTestBase extends WebTestBase {
+
+  use RequirementsPageTrait;
 
   /**
    * Custom settings.php values to write for a test run.
@@ -122,6 +131,9 @@ abstract class InstallerTestBase extends WebTestBase {
     // Select profile.
     $this->setUpProfile();
 
+    // Address the requirements problem screen, if any.
+    $this->setUpRequirementsProblem();
+
     // Configure settings.
     $this->setUpSettings();
 
@@ -136,9 +148,7 @@ abstract class InstallerTestBase extends WebTestBase {
       $request = Request::createFromGlobals();
       $class_loader = require $this->container->get('app.root') . '/autoload.php';
       Settings::initialize($this->container->get('app.root'), DrupalKernel::findSitePath($request), $class_loader);
-      foreach ($GLOBALS['config_directories'] as $type => $path) {
-        $this->configDirectories[$type] = $path;
-      }
+      $this->configDirectories['sync'] = Settings::get('config_sync_directory');
 
       // After writing settings.php, the installer removes write permissions
       // from the site directory. To allow drupal_generate_test_ua() to write
@@ -148,8 +158,13 @@ abstract class InstallerTestBase extends WebTestBase {
       // Not using File API; a potential error must trigger a PHP warning.
       chmod($this->container->get('app.root') . '/' . $this->siteDirectory, 0777);
       $this->kernel = DrupalKernel::createFromRequest($request, $class_loader, 'prod', FALSE);
-      $this->kernel->prepareLegacyRequest($request);
+      $this->kernel->boot();
+      $this->kernel->preHandle($request);
       $this->container = $this->kernel->getContainer();
+      // Ensure our request includes the session if appropriate.
+      if (PHP_SAPI !== 'cli') {
+        $request->setSession($this->container->get('session'));
+      }
 
       // Manually configure the test mail collector implementation to prevent
       // tests from sending out emails and collect them in state instead.
@@ -193,6 +208,18 @@ abstract class InstallerTestBase extends WebTestBase {
   protected function setUpSettings() {
     $edit = $this->translatePostValues($this->parameters['forms']['install_settings_form']);
     $this->drupalPostForm(NULL, $edit, $this->translations['Save and continue']);
+  }
+
+  /**
+   * Installer step: Requirements problem.
+   *
+   * Override this method to test specific requirements warnings or errors
+   * during the installer.
+   *
+   * @see system_requirements()
+   */
+  protected function setUpRequirementsProblem() {
+    // Do nothing.
   }
 
   /**

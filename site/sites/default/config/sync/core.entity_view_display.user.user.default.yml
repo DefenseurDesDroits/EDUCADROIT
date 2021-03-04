@@ -22,6 +22,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_first_connection_hash:
     weight: 7
     label: above
@@ -29,6 +30,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_firstname:
     weight: 8
     label: above
@@ -36,6 +38,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_organization:
     weight: 9
     label: above
@@ -43,6 +46,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_surname:
     weight: 10
     label: above
@@ -50,7 +54,11 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   member_for:
     weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden:
   langcode: true

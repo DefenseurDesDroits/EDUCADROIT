@@ -32,22 +32,22 @@ class ConstraintViolation implements ConstraintViolationInterface
     /**
      * Creates a new constraint violation.
      *
-     * @param string          $message         The violation message
-     * @param string          $messageTemplate The raw violation message
-     * @param array           $parameters      The parameters to substitute in the
-     *                                         raw violation message
-     * @param mixed           $root            The value originally passed to the
-     *                                         validator
-     * @param string          $propertyPath    The property path from the root
-     *                                         value to the invalid value
-     * @param mixed           $invalidValue    The invalid value that caused this
-     *                                         violation
-     * @param int|null        $plural          The number for determining the plural
-     *                                         form when translating the message
-     * @param mixed           $code            The error code of the violation
-     * @param Constraint|null $constraint      The constraint whose validation
-     *                                         caused the violation
-     * @param mixed           $cause           The cause of the violation
+     * @param string|\Stringable $message         The violation message as a string or a stringable object
+     * @param string             $messageTemplate The raw violation message
+     * @param array              $parameters      The parameters to substitute in the
+     *                                            raw violation message
+     * @param mixed              $root            The value originally passed to the
+     *                                            validator
+     * @param string             $propertyPath    The property path from the root
+     *                                            value to the invalid value
+     * @param mixed              $invalidValue    The invalid value that caused this
+     *                                            violation
+     * @param int|null           $plural          The number for determining the plural
+     *                                            form when translating the message
+     * @param mixed              $code            The error code of the violation
+     * @param Constraint|null    $constraint      The constraint whose validation
+     *                                            caused the violation
+     * @param mixed              $cause           The cause of the violation
      */
     public function __construct($message, $messageTemplate, array $parameters, $root, $propertyPath, $invalidValue, $plural = null, $code = null, Constraint $constraint = null, $cause = null)
     {
@@ -70,22 +70,22 @@ class ConstraintViolation implements ConstraintViolationInterface
      */
     public function __toString()
     {
-        if (is_object($this->root)) {
-            $class = 'Object('.get_class($this->root).')';
-        } elseif (is_array($this->root)) {
+        if (\is_object($this->root)) {
+            $class = 'Object('.\get_class($this->root).')';
+        } elseif (\is_array($this->root)) {
             $class = 'Array';
         } else {
             $class = (string) $this->root;
         }
 
         $propertyPath = (string) $this->propertyPath;
-        $code = $this->code;
+        $code = (string) $this->code;
 
         if ('' !== $propertyPath && '[' !== $propertyPath[0] && '' !== $class) {
             $class .= '.';
         }
 
-        if (!empty($code)) {
+        if ('' !== $code) {
             $code = ' (code '.$code.')';
         }
 
@@ -102,19 +102,6 @@ class ConstraintViolation implements ConstraintViolationInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated since version 2.7, to be removed in 3.0.
-     *             Use getParameters() instead
-     */
-    public function getMessageParameters()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.7, to be removed in 3.0. Use the ConstraintViolation::getParameters() method instead.', E_USER_DEPRECATED);
-
-        return $this->parameters;
-    }
-
-    /**
-     * Alias of {@link getMessageParameters()}.
      */
     public function getParameters()
     {
@@ -123,19 +110,6 @@ class ConstraintViolation implements ConstraintViolationInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @deprecated since version 2.7, to be removed in 3.0.
-     *             Use getPlural() instead
-     */
-    public function getMessagePluralization()
-    {
-        @trigger_error('The '.__METHOD__.' method is deprecated since Symfony 2.7, to be removed in 3.0. Use the ConstraintViolation::getPlural() method instead.', E_USER_DEPRECATED);
-
-        return $this->plural;
-    }
-
-    /**
-     * Alias of {@link getMessagePluralization()}.
      */
     public function getPlural()
     {

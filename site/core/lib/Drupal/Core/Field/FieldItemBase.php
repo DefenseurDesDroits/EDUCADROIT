@@ -184,34 +184,34 @@ abstract class FieldItemBase extends Map implements FieldItemInterface {
    * {@inheritdoc}
    */
   public function view($display_options = []) {
-    $view_builder = \Drupal::entityManager()->getViewBuilder($this->getEntity()->getEntityTypeId());
+    $view_builder = \Drupal::entityTypeManager()->getViewBuilder($this->getEntity()->getEntityTypeId());
     return $view_builder->viewFieldItem($this, $display_options);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function preSave() { }
+  public function preSave() {}
 
   /**
    * {@inheritdoc}
    */
-  public function postSave($update) { }
+  public function postSave($update) {}
 
   /**
    * {@inheritdoc}
    */
-  public function delete() { }
+  public function delete() {}
 
   /**
    * {@inheritdoc}
    */
-  public static function generateSampleValue(FieldDefinitionInterface $field_definition) { }
+  public static function generateSampleValue(FieldDefinitionInterface $field_definition) {}
 
   /**
    * {@inheritdoc}
    */
-  public function deleteRevision() { }
+  public function deleteRevision() {}
 
   /**
    * {@inheritdoc}

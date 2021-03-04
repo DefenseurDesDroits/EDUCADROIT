@@ -14,7 +14,17 @@ class FieldLayoutTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['field_layout', 'field_ui', 'node', 'field_layout_test'];
+  public static $modules = [
+    'field_layout',
+    'field_ui',
+    'node',
+    'field_layout_test',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'classy';
 
   /**
    * {@inheritdoc}
@@ -28,9 +38,9 @@ class FieldLayoutTest extends BrowserTestBase {
     $this->createNode([
       'type' => 'article',
       'title' => 'The node title',
-      'body' => [[
-        'value' => 'The node body',
-      ]],
+      'body' => [
+        ['value' => 'The node body'],
+      ],
     ]);
     $this->drupalLogin($this->drupalCreateUser([
       'access administration pages',

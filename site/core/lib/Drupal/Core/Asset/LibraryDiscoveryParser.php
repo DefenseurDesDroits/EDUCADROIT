@@ -8,6 +8,7 @@ use Drupal\Core\Asset\Exception\InvalidLibraryFileException;
 use Drupal\Core\Asset\Exception\LibraryDefinitionMissingLicenseException;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Serialization\Yaml;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\Core\Theme\ThemeManagerInterface;
 use Drupal\Component\Serialization\Exception\InvalidDataTypeException;
 use Drupal\Component\Utility\NestedArray;
@@ -39,6 +40,20 @@ class LibraryDiscoveryParser {
   protected $root;
 
   /**
+   * The stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   */
+  protected $streamWrapperManager;
+
+  /**
+   * The libraries directory file finder.
+   *
+   * @var \Drupal\Core\Asset\LibrariesDirectoryFileFinder
+   */
+  protected $librariesDirectoryFileFinder;
+
+  /**
    * Constructs a new LibraryDiscoveryParser instance.
    *
    * @param string $root
@@ -47,11 +62,25 @@ class LibraryDiscoveryParser {
    *   The module handler.
    * @param \Drupal\Core\Theme\ThemeManagerInterface $theme_manager
    *   The theme manager.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   *   The stream wrapper manager.
+   * @param \Drupal\Core\Asset\LibrariesDirectoryFileFinder $libraries_directory_file_finder
+   *   The libraries directory file finder.
    */
-  public function __construct($root, ModuleHandlerInterface $module_handler, ThemeManagerInterface $theme_manager) {
+  public function __construct($root, ModuleHandlerInterface $module_handler, ThemeManagerInterface $theme_manager, StreamWrapperManagerInterface $stream_wrapper_manager = NULL, LibrariesDirectoryFileFinder $libraries_directory_file_finder = NULL) {
     $this->root = $root;
     $this->moduleHandler = $module_handler;
     $this->themeManager = $theme_manager;
+    if (!$stream_wrapper_manager) {
+      @trigger_error('Calling LibraryDiscoveryParser::__construct() without the $stream_wrapper_manager argument is deprecated in drupal:8.8.0. The $stream_wrapper_manager argument will be required in drupal:9.0.0. See https://www.drupal.org/node/3035273', E_USER_DEPRECATED);
+      $stream_wrapper_manager = \Drupal::service('stream_wrapper_manager');
+    }
+    $this->streamWrapperManager = $stream_wrapper_manager;
+    if (!$libraries_directory_file_finder) {
+      @trigger_error('Calling LibraryDiscoveryParser::__construct() without the $libraries_directory_file_finder argument is deprecated in drupal:8.9.0. The $libraries_directory_file_finder argument will be required in drupal:10.0.0. See https://www.drupal.org/node/3099614', E_USER_DEPRECATED);
+      $libraries_directory_file_finder = \Drupal::service('library.libraries_directory_file_finder');
+    }
+    $this->librariesDirectoryFileFinder = $libraries_directory_file_finder;
   }
 
   /**
@@ -69,8 +98,6 @@ class LibraryDiscoveryParser {
    *   Thrown when a js file defines a positive weight.
    */
   public function buildByExtension($extension) {
-    $libraries = [];
-
     if ($extension === 'core') {
       $path = 'core';
       $extension_type = 'core';
@@ -89,7 +116,7 @@ class LibraryDiscoveryParser {
     $libraries = $this->applyLibrariesOverride($libraries, $extension);
 
     foreach ($libraries as $id => &$library) {
-      if (!isset($library['js']) && !isset($library['css']) && !isset($library['drupalSettings'])) {
+      if (!isset($library['js']) && !isset($library['css']) && !isset($library['drupalSettings']) && !isset($library['dependencies'])) {
         throw new IncompleteLibraryDefinitionException(sprintf("Incomplete library definition for definition '%s' in extension '%s'", $id, $extension));
       }
       $library += ['dependencies' => [], 'js' => [], 'css' => []];
@@ -104,7 +131,7 @@ class LibraryDiscoveryParser {
           $library['version'] = \Drupal::VERSION;
         }
         // Remove 'v' prefix from external library versions.
-        elseif ($library['version'][0] === 'v') {
+        elseif (is_string($library['version']) && $library['version'][0] === 'v') {
           $library['version'] = substr($library['version'], 1);
         }
       }
@@ -129,13 +156,17 @@ class LibraryDiscoveryParser {
         //   properly resolve dependencies for all (css) libraries per category,
         //   and only once prior to rendering out an HTML page.
         if ($type == 'css' && !empty($library[$type])) {
+          assert(static::validateCssLibrary($library[$type]) < 2, 'CSS files should be specified as key/value pairs, where the values are configuration options. See https://www.drupal.org/node/2274843.');
+          assert(static::validateCssLibrary($library[$type]) === 0, 'CSS must be nested under a category. See https://www.drupal.org/node/2274843.');
           foreach ($library[$type] as $category => $files) {
+            $category_weight = 'CSS_' . strtoupper($category);
+            assert(defined($category_weight), 'Invalid CSS category: ' . $category . '. See https://www.drupal.org/node/2274843.');
             foreach ($files as $source => $options) {
               if (!isset($options['weight'])) {
                 $options['weight'] = 0;
               }
               // Apply the corresponding weight defined by CSS_* constants.
-              $options['weight'] += constant('CSS_' . strtoupper($category));
+              $options['weight'] += constant($category_weight);
               $library[$type][$source] = $options;
             }
             unset($library[$type][$category]);
@@ -172,7 +203,15 @@ class LibraryDiscoveryParser {
             if ($source[0] === '/') {
               // An absolute path maps to DRUPAL_ROOT / base_path().
               if ($source[1] !== '/') {
-                $options['data'] = substr($source, 1);
+                $source = substr($source, 1);
+                // Non core provided libraries can be in multiple locations.
+                if (strpos($source, 'libraries/') === 0) {
+                  $path_to_source = $this->librariesDirectoryFileFinder->find(substr($source, 10));
+                  if ($path_to_source) {
+                    $source = $path_to_source;
+                  }
+                }
+                $options['data'] = $source;
               }
               // A protocol-free URI (e.g., //cdn.com/example.js) is external.
               else {
@@ -181,7 +220,7 @@ class LibraryDiscoveryParser {
               }
             }
             // A stream wrapper URI (e.g., public://generated_js/example.js).
-            elseif ($this->fileValidUri($source)) {
+            elseif ($this->streamWrapperManager->isValidUri($source)) {
               $options['data'] = $source;
             }
             // A regular URI (e.g., http://example.com/example.js) without
@@ -224,8 +263,8 @@ class LibraryDiscoveryParser {
    * This method sets the parsed information onto the library property.
    *
    * Library information is parsed from *.libraries.yml files; see
-   * editor.library.yml for an example. Every library must have at least one js
-   * or css entry. Each entry starts with a machine name and defines the
+   * editor.libraries.yml for an example. Every library must have at least one
+   * js or css entry. Each entry starts with a machine name and defines the
    * following elements:
    * - js: A list of JavaScript files to include. Each file is keyed by the file
    *   path. An item can have several attributes (like HTML
@@ -261,6 +300,14 @@ class LibraryDiscoveryParser {
    *   Just like with JavaScript files, each CSS file is the key of an object
    *   that can define specific attributes. The format of the file path is the
    *   same as for the JavaScript files.
+   *   If the JavaScript or CSS file starts with /libraries/ the
+   *   library.libraries_directory_file_finder service is used to find the files
+   *   in the following locations:
+   *   - A libraries directory in the current site directory, for example:
+   *     sites/default/libraries.
+   *   - The root libraries directory.
+   *   - A libraries directory in the selected installation profile, for
+   *     example: profiles/my_install_profile/libraries.
    * - dependencies: A list of libraries this library depends on.
    * - version: The library version. The string "VERSION" can be used to mean
    *   the current Drupal core version.
@@ -298,7 +345,7 @@ class LibraryDiscoveryParser {
     $library_file = $path . '/' . $extension . '.libraries.yml';
     if (file_exists($this->root . '/' . $library_file)) {
       try {
-        $libraries = Yaml::decode(file_get_contents($this->root . '/' . $library_file));
+        $libraries = Yaml::decode(file_get_contents($this->root . '/' . $library_file)) ?? [];
       }
       catch (InvalidDataTypeException $e) {
         // Rethrow a more helpful exception to provide context.
@@ -391,10 +438,15 @@ class LibraryDiscoveryParser {
   }
 
   /**
-   * Wraps file_valid_uri().
+   * Wraps \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface::isValidUri().
+   *
+   * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use
+   *   \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface::isValidUri()
+   *   instead.
    */
   protected function fileValidUri($source) {
-    return file_valid_uri($source);
+    @trigger_error('fileValidUri() is deprecated in Drupal 8.8.0 and will be removed before Drupal 9.0.0. Use \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface::isValidUri() instead. See https://www.drupal.org/node/3035273', E_USER_DEPRECATED);
+    return $this->streamWrapperManager->isValidUri($source);
   }
 
   /**
@@ -458,6 +510,36 @@ class LibraryDiscoveryParser {
       return '/' . $theme_path . '/' . $overriding_asset;
     }
     return $overriding_asset;
+  }
+
+  /**
+   * Validates CSS library structure.
+   *
+   * @param array $library
+   *   The library definition array.
+   *
+   * @return int
+   *   Returns based on validity:
+   *     - 0 if the library definition is valid
+   *     - 1 if the library definition has improper nesting
+   *     - 2 if the library definition specifies files as an array
+   */
+  public static function validateCssLibrary($library) {
+    $categories = [];
+    // Verify options first and return early if invalid.
+    foreach ($library as $category => $files) {
+      if (!is_array($files)) {
+        return 2;
+      }
+      $categories[] = $category;
+      foreach ($files as $source => $options) {
+        if (!is_array($options)) {
+          return 1;
+        }
+      }
+    }
+
+    return 0;
   }
 
 }

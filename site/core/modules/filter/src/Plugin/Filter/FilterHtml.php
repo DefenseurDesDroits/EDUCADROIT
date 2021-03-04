@@ -113,7 +113,7 @@ class FilterHtml extends FilterBase {
     $xpath = new \DOMXPath($html_dom);
     foreach ($restrictions['allowed'] as $allowed_tag => $tag_attributes) {
       // By default, no attributes are allowed for a tag, but due to the
-      // globally whitelisted attributes, it is impossible for a tag to actually
+      // globally allowed attributes, it is impossible for a tag to actually
       // completely disallow attributes.
       if ($tag_attributes === FALSE) {
         $tag_attributes = [];
@@ -149,23 +149,23 @@ class FilterHtml extends FilterBase {
   }
 
   /**
-   * Filter attributes on an element by name and value according to a whitelist.
+   * Filters attributes on an element according to a list of allowed values.
    *
    * @param \DOMElement $element
    *   The element to be processed.
    * @param array $allowed_attributes
-   *   The attributes whitelist as an array of names and values.
+   *   The list of allowed attributes as an array of names and values.
    */
   protected function filterElementAttributes(\DOMElement $element, array $allowed_attributes) {
     $modified_attributes = [];
     foreach ($element->attributes as $name => $attribute) {
-      // Remove attributes not in the whitelist.
+      // Remove attributes not in the list of allowed attributes.
       $allowed_value = $this->findAllowedValue($allowed_attributes, $name);
       if (empty($allowed_value)) {
         $modified_attributes[$name] = FALSE;
       }
       elseif ($allowed_value !== TRUE) {
-        // Check the attribute values whitelist.
+        // Check the list of allowed attribute values.
         $attribute_values = preg_split('/\s+/', $attribute->value, -1, PREG_SPLIT_NO_EMPTY);
         $modified_attributes[$name] = [];
         foreach ($attribute_values as $value) {
@@ -247,8 +247,8 @@ class FilterHtml extends FilterBase {
       return $this->restrictions;
     }
 
-    // Parse the allowed HTML setting, and gradually make the whitelist more
-    // specific.
+    // Parse the allowed HTML setting, and gradually make the list of allowed
+    // tags more specific.
     $restrictions = ['allowed' => []];
 
     // Make all the tags self-closing, so they will be parsed into direct
@@ -283,9 +283,11 @@ class FilterHtml extends FilterBase {
           // but one allowed attribute value that some may be tempted to use
           // is specifically nonsensical: the asterisk. A prefix is required for
           // allowed attribute values with a wildcard. A wildcard by itself
-          // would mean whitelisting all possible attribute values. But in that
+          // would mean allowing all possible attribute values. But in that
           // case, one would not specify an attribute value at all.
-          $allowed_attribute_values = array_filter($allowed_attribute_values, function ($value) use ($star_protector) { return $value !== '*'; });
+          $allowed_attribute_values = array_filter($allowed_attribute_values, function ($value) use ($star_protector) {
+            return $value !== '*';
+          });
 
           if (empty($allowed_attribute_values)) {
             // If the value is the empty string all values are allowed.
@@ -309,14 +311,14 @@ class FilterHtml extends FilterBase {
     // The 'style' and 'on*' ('onClick' etc.) attributes are always forbidden,
     // and are removed by Xss::filter().
     // The 'lang', and 'dir' attributes apply to all elements and are always
-    // allowed. The value whitelist for the 'dir' attribute is enforced by
-    // self::filterAttributes().  Note that those two attributes are in the
+    // allowed. The list of allowed values for the 'dir' attribute is enforced
+    // by self::filterAttributes(). Note that those two attributes are in the
     // short list of globally usable attributes in HTML5. They are always
     // allowed since the correct values of lang and dir may only be known to
     // the content author. Of the other global attributes, they are not usually
     // added by hand to content, and especially the class attribute can have
     // undesired visual effects by allowing content authors to apply any
-    // available style, so specific values should be explicitly whitelisted.
+    // available style, so specific values should be explicitly allowed.
     // @see http://www.w3.org/TR/html5/dom.html#global-attributes
     $restrictions['allowed']['*'] = [
       'style' => FALSE,
@@ -371,7 +373,9 @@ class FilterHtml extends FilterBase {
       'q' => [$this->t('Quoted inline'), '<q>' . $this->t('Quoted inline') . '</q>'],
       // Assumes and describes tr, td, th.
       'table' => [$this->t('Table'), '<table> <tr><th>' . $this->t('Table header') . '</th></tr> <tr><td>' . $this->t('Table cell') . '</td></tr> </table>'],
-      'tr' => NULL, 'td' => NULL, 'th' => NULL,
+      'tr' => NULL,
+      'td' => NULL,
+      'th' => NULL,
       'del' => [$this->t('Deleted'), '<del>' . $this->t('Deleted') . '</del>'],
       'ins' => [$this->t('Inserted'), '<ins>' . $this->t('Inserted') . '</ins>'],
        // Assumes and describes li.
@@ -380,13 +384,14 @@ class FilterHtml extends FilterBase {
       'li' => NULL,
       // Assumes and describes dt and dd.
       'dl' => [$this->t('Definition lists are similar to other HTML lists. &lt;dl&gt; begins the definition list, &lt;dt&gt; begins the definition term and &lt;dd&gt; begins the definition description.'), '<dl> <dt>' . $this->t('First term') . '</dt> <dd>' . $this->t('First definition') . '</dd> <dt>' . $this->t('Second term') . '</dt> <dd>' . $this->t('Second definition') . '</dd> </dl>'],
-      'dt' => NULL, 'dd' => NULL,
+      'dt' => NULL,
+      'dd' => NULL,
       'h1' => [$this->t('Heading'), '<h1>' . $this->t('Title') . '</h1>'],
       'h2' => [$this->t('Heading'), '<h2>' . $this->t('Subtitle') . '</h2>'],
       'h3' => [$this->t('Heading'), '<h3>' . $this->t('Subtitle three') . '</h3>'],
       'h4' => [$this->t('Heading'), '<h4>' . $this->t('Subtitle four') . '</h4>'],
       'h5' => [$this->t('Heading'), '<h5>' . $this->t('Subtitle five') . '</h5>'],
-      'h6' => [$this->t('Heading'), '<h6>' . $this->t('Subtitle six') . '</h6>']
+      'h6' => [$this->t('Heading'), '<h6>' . $this->t('Subtitle six') . '</h6>'],
     ];
     $header = [$this->t('Tag Description'), $this->t('You Type'), $this->t('You Get')];
     preg_match_all('/<([a-z0-9]+)[^a-z0-9]/i', $allowed_html, $out);
@@ -396,19 +401,17 @@ class FilterHtml extends FilterBase {
           ['data' => $tips[$tag][0], 'class' => ['description']],
           // The markup must be escaped because this is the example code for the
           // user.
-          ['data' =>
-            [
+          [
+            'data' => [
               '#prefix' => '<code>',
               '#plain_text' => $tips[$tag][1],
-              '#suffix' => '</code>'
+              '#suffix' => '</code>',
             ],
-            'class' => ['type']],
+            'class' => ['type'],
+          ],
           // The markup must not be escaped because this is the example output
           // for the user.
-          ['data' =>
-            ['#markup' => $tips[$tag][1]],
-            'class' => ['get'],
-          ],
+          ['data' => ['#markup' => $tips[$tag][1]], 'class' => ['get']],
         ];
       }
       else {
@@ -422,7 +425,7 @@ class FilterHtml extends FilterBase {
       '#header' => $header,
       '#rows' => $rows,
     ];
-    $output .= drupal_render($table);
+    $output .= \Drupal::service('renderer')->render($table);
 
     $output .= '<p>' . $this->t('Most unusual characters can be directly entered without any problems.') . '</p>';
     $output .= '<p>' . $this->t('If you do encounter problems, try using HTML character entities. A common example looks like &amp;amp; for an ampersand &amp; character. For a full list of entities see HTML\'s <a href=":html-entities">entities</a> page. Some of the available characters include:', [':html-entities' => 'http://www.w3.org/TR/html4/sgml/entities.html']) . '</p>';
@@ -461,7 +464,7 @@ class FilterHtml extends FilterBase {
       '#header' => $header,
       '#rows' => $rows,
     ];
-    $output .= drupal_render($table);
+    $output .= \Drupal::service('renderer')->render($table);
     return $output;
   }
 

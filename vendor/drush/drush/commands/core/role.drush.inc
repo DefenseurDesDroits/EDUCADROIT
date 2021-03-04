@@ -3,6 +3,9 @@
 use Drush\Log\LogLevel;
 use Drush\Role\RoleBase;
 
+// Internal, do not use
+define('DRUSH_ANONYMOUS_RID', -9999);
+
 /**
  * Implementation of hook_drush_help().
  */
@@ -43,7 +46,7 @@ function role_drush_command() {
       'machine name' => 'The symbolic machine name for the role. Required.',
       'human-readable name' => 'A descriptive name for the role. Optional; Drupal 8 only.  Ignored in D6 and D7.',
     ),
-    'aliases' => array('rcrt'),
+    'aliases' => array('rcrt', 'role:create'),
   );
   $items['role-delete'] = array(
     'description' => 'Delete a role.',
@@ -53,7 +56,7 @@ function role_drush_command() {
     'arguments' => array(
       'machine name' => 'The symbolic machine name for the role. Required.  In D6 and D7, this may also be a numeric role ID.',
     ),
-    'aliases' => array('rdel'),
+    'aliases' => array('rdel', 'role:delete'),
   );
   $items['role-add-perm'] = array(
     'description' => 'Grant specified permission(s) to a role.',
@@ -73,7 +76,7 @@ function role_drush_command() {
     'global-options' => array(
       'cache-clear',
     ),
-    'aliases' => array('rap'),
+    'aliases' => array('rap', 'role:add:perm'),
   );
 
   $items['role-remove-perm'] = array(
@@ -92,7 +95,7 @@ function role_drush_command() {
     'global-options' => array(
       'cache-clear',
     ),
-    'aliases' => array('rmp'),
+    'aliases' => array('rmp', 'role:remove:perm'),
   );
 
   $items['role-list'] = array(
@@ -113,7 +116,7 @@ function role_drush_command() {
       'field-labels' => array('rid' => 'ID', 'label' => 'Role Label', 'perm' => "Permission"),
       'output-data-type' => 'format-table',
     ),
-    'aliases' => array('rls'),
+    'aliases' => array('rls', 'role:list'),
   );
 
   return $items;
@@ -270,8 +273,20 @@ function drush_role_perm($action, $rid, $permission = NULL) {
  *
  * @see drush_get_class().
  */
-function drush_role_get_class($role_name = DRUPAL_ANONYMOUS_RID) {
-  return drush_get_class('Drush\Role\Role', func_get_args());
+function drush_role_get_class($role_name = DRUSH_ANONYMOUS_RID) {
+  $args = func_get_args();
+  // We cannot change our function default value based on the Drupal major
+  // version, so we have this workaround. We could do this better with an
+  // engine (only include the file for the right version, but not going to
+  // introduce that just for this.)
+  if ($role_name == DRUSH_ANONYMOUS_RID) {
+    if (drush_drupal_major_version() >= 8) {
+      $args[0] = \Drupal\user\RoleInterface::ANONYMOUS_ID;
+    } else {
+      $args[0] = DRUPAL_ANONYMOUS_RID;
+    }
+  }
+  return drush_get_class('Drush\Role\Role', $args);
 }
 
 /**

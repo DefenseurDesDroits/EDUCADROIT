@@ -47,9 +47,6 @@ class MigrateSystemConfigurationTest extends MigrateDrupal6TestBase {
       'allow_insecure_uploads' => TRUE,
       // default_scheme is not handled by the migration.
       'default_scheme' => 'public',
-      'path' => [
-        'temporary' => 'files/temp',
-      ],
       // temporary_maximum_age is not handled by the migration.
       'temporary_maximum_age' => 21600,
     ],
@@ -92,9 +89,6 @@ class MigrateSystemConfigurationTest extends MigrateDrupal6TestBase {
       ],
       // stale_file_threshold is not handled by the migration.
       'stale_file_threshold' => 2592000,
-      'response' => [
-        'gzip' => TRUE,
-      ],
     ],
     'system.rss' => [
       // channel is not handled by the migration.

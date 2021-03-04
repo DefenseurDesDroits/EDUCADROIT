@@ -2,9 +2,10 @@
 
 namespace Drupal\Tests\locale\Functional;
 
+use Drupal\Component\Gettext\PoItem;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 
 /**
  * Tests parsing js files for translatable strings.
@@ -20,74 +21,94 @@ class LocaleJavascriptTranslationTest extends BrowserTestBase {
    */
   public static $modules = ['locale', 'locale_test'];
 
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
   public function testFileParsing() {
-    $filename = __DIR__ . '/../../locale_test.js';
 
-    // Parse the file to look for source strings.
-    _locale_parse_js_file($filename);
+    // This test is for ensuring that the regular expression in
+    // _locale_parse_js_file() finds translatable source strings in all valid
+    // JavaScript syntax regardless of the coding style used, especially with
+    // respect to optional whitespace, line breaks, etc.
+    // - We test locale_test.es6.js, because that is the one that contains a
+    //   variety of whitespace styles.
+    // - We also test the transpiled locale_test.js as an extra double-check
+    //   that JavaScript transpilation doesn't change what
+    //   _locale_parse_js_file() finds.
+    $files[] = __DIR__ . '/../../locale_test.es6.js';
+    $files[] = __DIR__ . '/../../locale_test.js';
 
-    // Get all of the source strings that were found.
-    $strings = $this->container
-      ->get('locale.storage')
-      ->getStrings([
-        'type' => 'javascript',
-        'name' => $filename,
-      ]);
+    foreach ($files as $filename) {
+      // Parse the file to look for source strings.
+      _locale_parse_js_file($filename);
 
-    $source_strings = [];
-    foreach ($strings as $string) {
-      $source_strings[$string->source] = $string->context;
+      // Get all of the source strings that were found.
+      $strings = $this->container
+        ->get('locale.storage')
+        ->getStrings([
+          'type' => 'javascript',
+          'name' => $filename,
+        ]);
+
+      $source_strings = [];
+      foreach ($strings as $string) {
+        $source_strings[$string->source] = $string->context;
+      }
+
+      $etx = PoItem::DELIMITER;
+      // List of all strings that should be in the file.
+      $test_strings = [
+        'Standard Call t' => '',
+        'Whitespace Call t' => '',
+
+        'Single Quote t' => '',
+        "Single Quote \\'Escaped\\' t" => '',
+        'Single Quote Concat strings t' => '',
+
+        'Double Quote t' => '',
+        "Double Quote \\\"Escaped\\\" t" => '',
+        'Double Quote Concat strings t' => '',
+
+        'Context !key Args t' => 'Context string',
+
+        'Context Unquoted t' => 'Context string unquoted',
+        'Context Single Quoted t' => 'Context string single quoted',
+        'Context Double Quoted t' => 'Context string double quoted',
+
+        "Standard Call plural{$etx}Standard Call @count plural" => '',
+        "Whitespace Call plural{$etx}Whitespace Call @count plural" => '',
+
+        "Single Quote plural{$etx}Single Quote @count plural" => '',
+        "Single Quote \\'Escaped\\' plural{$etx}Single Quote \\'Escaped\\' @count plural" => '',
+
+        "Double Quote plural{$etx}Double Quote @count plural" => '',
+        "Double Quote \\\"Escaped\\\" plural{$etx}Double Quote \\\"Escaped\\\" @count plural" => '',
+
+        "Context !key Args plural{$etx}Context !key Args @count plural" => 'Context string',
+
+        "Context Unquoted plural{$etx}Context Unquoted @count plural" => 'Context string unquoted',
+        "Context Single Quoted plural{$etx}Context Single Quoted @count plural" => 'Context string single quoted',
+        "Context Double Quoted plural{$etx}Context Double Quoted @count plural" => 'Context string double quoted',
+
+        "No count argument plural - singular{$etx}No count argument plural - plural" => '',
+      ];
+
+      // Assert that all strings were found properly.
+      foreach ($test_strings as $str => $context) {
+        $args = ['%source' => $str, '%context' => $context];
+
+        // Make sure that the string was found in the file.
+        $this->assertTrue(isset($source_strings[$str]), new FormattableMarkup('Found source string: %source', $args));
+
+        // Make sure that the proper context was matched.
+        $message = $context ? new FormattableMarkup('Context for %source is %context', $args) : new FormattableMarkup('Context for %source is blank', $args);
+        $this->assertTrue(isset($source_strings[$str]) && $source_strings[$str] === $context, $message);
+      }
+
+      $this->assertEqual(count($source_strings), count($test_strings), 'Found correct number of source strings.');
     }
-
-    $etx = LOCALE_PLURAL_DELIMITER;
-    // List of all strings that should be in the file.
-    $test_strings = [
-      'Standard Call t' => '',
-      'Whitespace Call t' => '',
-
-      'Single Quote t' => '',
-      "Single Quote \\'Escaped\\' t" => '',
-      'Single Quote Concat strings t' => '',
-
-      'Double Quote t' => '',
-      "Double Quote \\\"Escaped\\\" t" => '',
-      'Double Quote Concat strings t' => '',
-
-      'Context !key Args t' => 'Context string',
-
-      'Context Unquoted t' => 'Context string unquoted',
-      'Context Single Quoted t' => 'Context string single quoted',
-      'Context Double Quoted t' => 'Context string double quoted',
-
-      "Standard Call plural{$etx}Standard Call @count plural" => '',
-      "Whitespace Call plural{$etx}Whitespace Call @count plural" => '',
-
-      "Single Quote plural{$etx}Single Quote @count plural" => '',
-      "Single Quote \\'Escaped\\' plural{$etx}Single Quote \\'Escaped\\' @count plural" => '',
-
-      "Double Quote plural{$etx}Double Quote @count plural" => '',
-      "Double Quote \\\"Escaped\\\" plural{$etx}Double Quote \\\"Escaped\\\" @count plural" => '',
-
-      "Context !key Args plural{$etx}Context !key Args @count plural" => 'Context string',
-
-      "Context Unquoted plural{$etx}Context Unquoted @count plural" => 'Context string unquoted',
-      "Context Single Quoted plural{$etx}Context Single Quoted @count plural" => 'Context string single quoted',
-      "Context Double Quoted plural{$etx}Context Double Quoted @count plural" => 'Context string double quoted',
-    ];
-
-    // Assert that all strings were found properly.
-    foreach ($test_strings as $str => $context) {
-      $args = ['%source' => $str, '%context' => $context];
-
-      // Make sure that the string was found in the file.
-      $this->assertTrue(isset($source_strings[$str]), SafeMarkup::format('Found source string: %source', $args));
-
-      // Make sure that the proper context was matched.
-      $message = $context ? SafeMarkup::format('Context for %source is %context', $args) : SafeMarkup::format('Context for %source is blank', $args);
-      $this->assertTrue(isset($source_strings[$str]) && $source_strings[$str] === $context, $message);
-    }
-
-    $this->assertEqual(count($source_strings), count($test_strings), 'Found correct number of source strings.');
   }
 
   /**
@@ -95,7 +116,11 @@ class LocaleJavascriptTranslationTest extends BrowserTestBase {
    */
   public function testLocaleTranslationJsDependencies() {
     // User to add and remove language.
-    $admin_user = $this->drupalCreateUser(['administer languages', 'access administration pages', 'translate interface']);
+    $admin_user = $this->drupalCreateUser([
+      'administer languages',
+      'access administration pages',
+      'translate interface',
+    ]);
 
     // Add custom language.
     $this->drupalLogin($admin_user);
@@ -131,7 +156,7 @@ class LocaleJavascriptTranslationTest extends BrowserTestBase {
     $string = $strings[0];
 
     $this->drupalPostForm(NULL, ['string' => 'Show description'], t('Filter'));
-    $edit = ['strings[' . $string->lid . '][translations][0]' => $this->randomString(16)];
+    $edit = ['strings[' . $string->lid . '][translations][0]' => 'Mostrar descripcion'];
     $this->drupalPostForm(NULL, $edit, t('Save translations'));
 
     // Calculate the filename of the JS including the translations.
@@ -139,6 +164,8 @@ class LocaleJavascriptTranslationTest extends BrowserTestBase {
     $js_filename = $prefix . '_' . $js_translation_files[$prefix] . '.js';
 
     $content = $this->getSession()->getPage()->getContent();
+    $this->assertRaw('core/misc/drupal.js');
+    $this->assertRaw($js_filename);
     // Assert translations JS is included before drupal.js.
     $this->assertTrue(strpos($content, $js_filename) < strpos($content, 'core/misc/drupal.js'), 'Translations are included before Drupal.t.');
   }

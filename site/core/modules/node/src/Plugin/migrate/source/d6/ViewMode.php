@@ -7,7 +7,7 @@ namespace Drupal\node\Plugin\migrate\source\d6;
  *
  * @MigrateSource(
  *   id = "d6_view_mode",
- *   source_provider = "content"
+ *   source_module = "content"
  * )
  */
 class ViewMode extends ViewModeBase {
@@ -71,7 +71,7 @@ class ViewMode extends ViewModeBase {
   public function calculateDependencies() {
     $this->dependencies = parent::calculateDependencies();
     if (isset($this->configuration['constants']['targetEntityType'])) {
-      $this->addDependency('module', $this->entityManager->getDefinition($this->configuration['constants']['targetEntityType'])->getProvider());
+      $this->addDependency('module', $this->entityTypeManager->getDefinition($this->configuration['constants']['targetEntityType'])->getProvider());
     }
     return $this->dependencies;
   }

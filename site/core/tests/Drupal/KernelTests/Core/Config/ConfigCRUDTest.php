@@ -3,7 +3,8 @@
 namespace Drupal\KernelTests\Core\Config;
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\Config\Config;
 use Drupal\Core\Config\ConfigNameException;
 use Drupal\Core\Config\ConfigValueException;
 use Drupal\Core\Config\InstallStorage;
@@ -38,20 +39,44 @@ class ConfigCRUDTest extends KernelTestBase {
    * Tests CRUD operations.
    */
   public function testCRUD() {
+    $event_dispatcher = $this->container->get('event_dispatcher');
+    $typed_config_manager = $this->container->get('config.typed');
+
     $storage = $this->container->get('config.storage');
+    $collection_storage = $storage->createCollection('test_collection');
+
     $config_factory = $this->container->get('config.factory');
     $name = 'config_test.crud';
 
+    // Create a new configuration object in the default collection.
     $config = $this->config($name);
     $this->assertIdentical($config->isNew(), TRUE);
 
-    // Create a new configuration object.
     $config->set('value', 'initial');
     $config->save();
     $this->assertIdentical($config->isNew(), FALSE);
 
     // Verify the active configuration contains the saved value.
     $actual_data = $storage->read($name);
+    $this->assertIdentical($actual_data, ['value' => 'initial']);
+
+    // Verify the config factory contains the saved value.
+    $actual_data = $config_factory->get($name)->getRawData();
+    $this->assertIdentical($actual_data, ['value' => 'initial']);
+
+    // Create another instance of the config object using a custom collection.
+    $collection_config = new Config(
+      $name,
+      $collection_storage,
+      $event_dispatcher,
+      $typed_config_manager
+    );
+    $collection_config->set('value', 'overridden');
+    $collection_config->save();
+
+    // Verify that the config factory still returns the right value, from the
+    // config instance in the default collection.
+    $actual_data = $config_factory->get($name)->getRawData();
     $this->assertIdentical($actual_data, ['value' => 'initial']);
 
     // Update the configuration object instance.
@@ -70,6 +95,14 @@ class ConfigCRUDTest extends KernelTestBase {
 
     // Pollute the config factory static cache.
     $config_factory->getEditable($name);
+
+    // Delete the config object that uses a custom collection. This should not
+    // affect the instance returned by the config factory which depends on the
+    // default collection storage.
+    $collection_config->delete();
+    $actual_config = $config_factory->get($name);
+    $this->assertIdentical($actual_config->isNew(), FALSE);
+    $this->assertIdentical($actual_config->getRawData(), ['value' => 'instance-update']);
 
     // Delete the configuration object.
     $config->delete();
@@ -151,7 +184,7 @@ class ConfigCRUDTest extends KernelTestBase {
     // previously accessed with get()
     $new_config = $config_factory->get('non_existing_key');
     $this->assertTrue($new_config->isNew());
-    $this->assertEqual(0, count($config_factory->loadMultiple(['non_existing_key'])), 'loadMultiple() does not return new objects');
+    $this->assertCount(0, $config_factory->loadMultiple(['non_existing_key']), 'loadMultiple() does not return new objects');
   }
 
   /**
@@ -160,24 +193,22 @@ class ConfigCRUDTest extends KernelTestBase {
   public function testNameValidation() {
     // Verify that an object name without namespace causes an exception.
     $name = 'nonamespace';
-    $message = 'Expected ConfigNameException was thrown for a name without a namespace.';
     try {
       $this->config($name)->save();
-      $this->fail($message);
+      $this->fail('Expected ConfigNameException was thrown for a name without a namespace.');
     }
-    catch (ConfigNameException $e) {
-      $this->pass($message);
+    catch (\Exception $e) {
+      $this->assertInstanceOf(ConfigNameException::class, $e);
     }
 
     // Verify that a name longer than the maximum length causes an exception.
     $name = 'config_test.herman_melville.moby_dick_or_the_whale.harper_1851.now_small_fowls_flew_screaming_over_the_yet_yawning_gulf_a_sullen_white_surf_beat_against_its_steep_sides_then_all_collapsed_and_the_great_shroud_of_the_sea_rolled_on_as_it_rolled_five_thousand_years_ago';
-    $message = 'Expected ConfigNameException was thrown for a name longer than Config::MAX_NAME_LENGTH.';
     try {
       $this->config($name)->save();
-      $this->fail($message);
+      $this->fail('Expected ConfigNameException was thrown for a name longer than Config::MAX_NAME_LENGTH.');
     }
-    catch (ConfigNameException $e) {
-      $this->pass($message);
+    catch (\Exception $e) {
+      $this->assertInstanceOf(ConfigNameException::class, $e);
     }
 
     // Verify that disallowed characters in the name cause an exception.
@@ -192,20 +223,18 @@ class ConfigCRUDTest extends KernelTestBase {
         unset($test_characters[$i]);
       }
     }
-    $this->assertTrue(empty($test_characters), format_string('Expected ConfigNameException was thrown for all invalid name characters: @characters', [
+    $this->assertTrue(empty($test_characters), new FormattableMarkup('Expected ConfigNameException was thrown for all invalid name characters: @characters', [
       '@characters' => implode(' ', $characters),
     ]));
 
     // Verify that a valid config object name can be saved.
     $name = 'namespace.object';
-    $message = 'ConfigNameException was not thrown for a valid object name.';
     try {
       $config = $this->config($name);
       $config->save();
-      $this->pass($message);
     }
     catch (ConfigNameException $e) {
-      $this->fail($message);
+      $this->fail('ConfigNameException was not thrown for a valid object name.');
     }
 
   }
@@ -215,23 +244,21 @@ class ConfigCRUDTest extends KernelTestBase {
    */
   public function testValueValidation() {
     // Verify that setData() will catch dotted keys.
-    $message = 'Expected ConfigValueException was thrown from setData() for value with dotted keys.';
     try {
       $this->config('namespace.object')->setData(['key.value' => 12])->save();
-      $this->fail($message);
+      $this->fail('Expected ConfigValueException was thrown from setData() for value with dotted keys.');
     }
-    catch (ConfigValueException $e) {
-      $this->pass($message);
+    catch (\Exception $e) {
+      $this->assertInstanceOf(ConfigValueException::class, $e);
     }
 
     // Verify that set() will catch dotted keys.
-    $message = 'Expected ConfigValueException was thrown from set() for value with dotted keys.';
     try {
       $this->config('namespace.object')->set('foo', ['key.value' => 12])->save();
-      $this->fail($message);
+      $this->fail('Expected ConfigValueException was thrown from set() for value with dotted keys.');
     }
-    catch (ConfigValueException $e) {
-      $this->pass($message);
+    catch (\Exception $e) {
+      $this->assertInstanceOf(ConfigValueException::class, $e);
     }
   }
 
@@ -278,12 +305,12 @@ class ConfigCRUDTest extends KernelTestBase {
     $this->assertIdentical($storage->read($name), $data);
 
     // Test that schema type enforcement can be overridden by trusting the data.
-    $this->assertIdentical(99, $config->get('int'));
+    $this->assertSame(99, $config->get('int'));
     $config->set('int', '99')->save(TRUE);
-    $this->assertIdentical('99', $config->get('int'));
+    $this->assertSame('99', $config->get('int'));
     // Test that re-saving without testing the data enforces the schema type.
     $config->save();
-    $this->assertIdentical($data, $config->get());
+    $this->assertSame($data, $config->get());
 
     // Test that setting an unsupported type for a config object with a schema
     // fails.
@@ -292,9 +319,7 @@ class ConfigCRUDTest extends KernelTestBase {
       $this->fail('No Exception thrown upon saving invalid data type.');
     }
     catch (UnsupportedDataTypeConfigException $e) {
-      $this->pass(SafeMarkup::format('%class thrown upon saving invalid data type.', [
-        '%class' => get_class($e),
-      ]));
+      // Expected exception; just continue testing.
     }
 
     // Test that setting an unsupported type for a config object with no schema
@@ -309,9 +334,7 @@ class ConfigCRUDTest extends KernelTestBase {
       $this->fail('No Exception thrown upon saving invalid data type.');
     }
     catch (UnsupportedDataTypeConfigException $e) {
-      $this->pass(SafeMarkup::format('%class thrown upon saving invalid data type.', [
-        '%class' => get_class($e),
-      ]));
+      // Expected exception; just continue testing.
     }
   }
 

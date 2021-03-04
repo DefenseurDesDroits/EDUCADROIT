@@ -1,0 +1,10 @@
+services:
+  security_agent.access_service:
+    class: Drupal\security_agent\Service\AccessService
+    arguments: ['@request_stack', '@state']
+  security_agent.extension_service:
+    class: Drupal\security_agent\Service\ExtensionService
+    arguments: ['@extension.list.module', '@theme_handler']
+  security_agent.environment_service:
+    class: Drupal\security_agent\Service\EnvironmentService
+    arguments: ['@database']

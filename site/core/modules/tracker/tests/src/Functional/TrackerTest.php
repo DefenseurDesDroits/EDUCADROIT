@@ -2,15 +2,17 @@
 
 namespace Drupal\Tests\tracker\Functional;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\comment\CommentInterface;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Database\Database;
 use Drupal\Core\EventSubscriber\MainContentViewSubscriber;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
-use Drupal\system\Tests\Cache\AssertPageCacheContextsAndTagsTrait;
 use Drupal\Tests\BrowserTestBase;
+use Drupal\Tests\system\Functional\Cache\AssertPageCacheContextsAndTagsTrait;
 
 /**
  * Create and delete nodes and check for their display in the tracker listings.
@@ -27,7 +29,18 @@ class TrackerTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['block', 'comment', 'tracker', 'history', 'node_test'];
+  public static $modules = [
+    'block',
+    'comment',
+    'tracker',
+    'history',
+    'node_test',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * The main user for testing.
@@ -78,7 +91,7 @@ class TrackerTest extends BrowserTestBase {
     $this->drupalGet('activity');
     $this->assertNoText($unpublished->label(), 'Unpublished node does not show up in the tracker listing.');
     $this->assertText($published->label(), 'Published node shows up in the tracker listing.');
-    $this->assertLink(t('My recent content'), 0, 'User tab shows up on the global tracker page.');
+    $this->assertSession()->linkExists(t('My recent content'), 0, 'User tab shows up on the global tracker page.');
 
     // Assert cache contexts, specifically the pager and node access contexts.
     $this->assertCacheContexts(['languages:language_interface', 'route', 'theme', 'url.query_args:' . MainContentViewSubscriber::WRAPPER_FORMAT, 'url.query_args.pagers:0', 'user.node_grants:view', 'user']);
@@ -93,6 +106,7 @@ class TrackerTest extends BrowserTestBase {
     $expected_tags = Cache::mergeTags($expected_tags, $role_tags);
     $block_tags = [
       'block_view',
+      'local_task',
       'config:block.block.page_actions_block',
       'config:block.block.page_tabs_block',
       'config:block_list',
@@ -179,6 +193,7 @@ class TrackerTest extends BrowserTestBase {
     $expected_tags = Cache::mergeTags($expected_tags, $role_tags);
     $block_tags = [
       'block_view',
+      'local_task',
       'config:block.block.page_actions_block',
       'config:block.block.page_tabs_block',
       'config:block_list',
@@ -193,14 +208,18 @@ class TrackerTest extends BrowserTestBase {
     $this->assertCacheTags($expected_tags);
     $this->assertCacheContexts(['languages:language_interface', 'route', 'theme', 'url.query_args:' . MainContentViewSubscriber::WRAPPER_FORMAT, 'url.query_args.pagers:0', 'user', 'user.node_grants:view']);
 
-    $this->assertLink($my_published->label());
-    $this->assertNoLink($unpublished->label());
+    $this->assertSession()->linkExists($my_published->label());
+    $this->assertSession()->linkNotExists($unpublished->label());
     // Verify that title and tab title have been set correctly.
     $this->assertText('Activity', 'The user activity tab has the name "Activity".');
-    $this->assertTitle(t('@name | @site', ['@name' => $this->user->getUsername(), '@site' => $this->config('system.site')->get('name')]), 'The user tracker page has the correct page title.');
+    $this->assertTitle($this->user->getAccountName() . ' | Drupal');
 
     // Verify that unpublished comments are removed from the tracker.
-    $admin_user = $this->drupalCreateUser(['post comments', 'administer comments', 'access user profiles']);
+    $admin_user = $this->drupalCreateUser([
+      'post comments',
+      'administer comments',
+      'access user profiles',
+    ]);
     $this->drupalLogin($admin_user);
     $this->drupalPostForm('comment/1/edit', ['status' => CommentInterface::NOT_PUBLISHED], t('Save'));
     $this->drupalGet('user/' . $this->user->id() . '/activity');
@@ -334,7 +353,9 @@ class TrackerTest extends BrowserTestBase {
     // It's almost certainly too brittle.
     $pattern = '/' . preg_quote($node_one->getTitle()) . '.+' . preg_quote($node_two->getTitle()) . '/s';
     $this->verbose($pattern);
-    $this->assertPattern($pattern, 'Most recently commented on node appears at the top of tracker');
+    // Verify that the most recent comment on node appears at the top of
+    // tracker.
+    $this->assertPattern($pattern);
   }
 
   /**
@@ -361,13 +382,20 @@ class TrackerTest extends BrowserTestBase {
     ];
     $this->drupalPostForm('comment/reply/node/' . $nodes[3]->id() . '/comment', $comment, t('Save'));
 
-    // Start indexing backwards from node 3.
-    \Drupal::state()->set('tracker.index_nid', 3);
+    // Create an unpublished node.
+    $unpublished = $this->drupalCreateNode([
+      'title' => $this->randomMachineName(8),
+      'status' => 0,
+    ]);
+
+    // Start indexing backwards from node 4.
+    \Drupal::state()->set('tracker.index_nid', 4);
 
     // Clear the current tracker tables and rebuild them.
-    db_delete('tracker_node')
+    $connection = Database::getConnection();
+    $connection->delete('tracker_node')
       ->execute();
-    db_delete('tracker_user')
+    $connection->delete('tracker_user')
       ->execute();
     tracker_cron();
 
@@ -378,7 +406,7 @@ class TrackerTest extends BrowserTestBase {
 
     // Assert that all node titles are displayed.
     foreach ($nodes as $i => $node) {
-      $this->assertText($node->label(), format_string('Node @i is displayed on the tracker listing pages.', ['@i' => $i]));
+      $this->assertText($node->label(), new FormattableMarkup('Node @i is displayed on the tracker listing pages.', ['@i' => $i]));
     }
 
     // Fetch the site-wide tracker.
@@ -386,7 +414,7 @@ class TrackerTest extends BrowserTestBase {
 
     // Assert that all node titles are displayed.
     foreach ($nodes as $i => $node) {
-      $this->assertText($node->label(), format_string('Node @i is displayed on the tracker listing pages.', ['@i' => $i]));
+      $this->assertText($node->label(), new FormattableMarkup('Node @i is displayed on the tracker listing pages.', ['@i' => $i]));
     }
   }
 
@@ -396,7 +424,11 @@ class TrackerTest extends BrowserTestBase {
   public function testTrackerAdminUnpublish() {
     \Drupal::service('module_installer')->install(['views']);
     \Drupal::service('router.builder')->rebuild();
-    $admin_user = $this->drupalCreateUser(['access content overview', 'administer nodes', 'bypass node access']);
+    $admin_user = $this->drupalCreateUser([
+      'access content overview',
+      'administer nodes',
+      'bypass node access',
+    ]);
     $this->drupalLogin($admin_user);
 
     $node = $this->drupalCreateNode([
@@ -441,8 +473,8 @@ class TrackerTest extends BrowserTestBase {
   public function assertHistoryMetadata($node_id, $node_timestamp, $node_last_comment_timestamp, $library_is_present = TRUE) {
     $settings = $this->getDrupalSettings();
     $this->assertIdentical($library_is_present, isset($settings['ajaxPageState']) && in_array('tracker/history', explode(',', $settings['ajaxPageState']['libraries'])), 'drupal.tracker-history library is present.');
-    $this->assertIdentical(1, count($this->xpath('//table/tbody/tr/td[@data-history-node-id="' . $node_id . '" and @data-history-node-timestamp="' . $node_timestamp . '"]')), 'Tracker table cell contains the data-history-node-id and data-history-node-timestamp attributes for the node.');
-    $this->assertIdentical(1, count($this->xpath('//table/tbody/tr/td[@data-history-node-last-comment-timestamp="' . $node_last_comment_timestamp . '"]')), 'Tracker table cell contains the data-history-node-last-comment-timestamp attribute for the node.');
+    $this->assertCount(1, $this->xpath('//table/tbody/tr/td[@data-history-node-id="' . $node_id . '" and @data-history-node-timestamp="' . $node_timestamp . '"]'), 'Tracker table cell contains the data-history-node-id and data-history-node-timestamp attributes for the node.');
+    $this->assertCount(1, $this->xpath('//table/tbody/tr/td[@data-history-node-last-comment-timestamp="' . $node_last_comment_timestamp . '"]'), 'Tracker table cell contains the data-history-node-last-comment-timestamp attribute for the node.');
   }
 
 }

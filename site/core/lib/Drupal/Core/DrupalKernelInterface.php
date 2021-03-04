@@ -15,6 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 interface DrupalKernelInterface extends HttpKernelInterface, ContainerAwareInterface {
 
   /**
+   * Event fired when the service container finished initializing in subrequest.
+   *
+   * This event allows you to initialize overrides such as language to the
+   * services.
+   *
+   * @var string
+   */
+  const CONTAINER_INITIALIZE_SUBREQUEST_FINISHED = 'kernel.container.finish_container_initialize_subrequest';
+
+  /**
    * Boots the current kernel.
    *
    * @return $this
@@ -122,8 +132,10 @@ interface DrupalKernelInterface extends HttpKernelInterface, ContainerAwareInter
    *
    * @return $this
    *
-   * @deprecated in Drupal 8.0.x and will be removed before 9.0.0. Only used by
-   *   legacy front-controller scripts.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+   *   DrupalKernel::boot() and DrupalKernel::preHandle() instead.
+   *
+   * @see https://www.drupal.org/node/3070678
    */
   public function prepareLegacyRequest(Request $request);
 

@@ -4,6 +4,10 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
+    - field.field.node.page.field_carrousel
+    - field.field.node.page.field_paragraphs
+    - field.field.node.page.field_spotlights
+    - field.field.node.page.field_teaser
     - node.type.page
   module:
     - user
@@ -14,5 +18,12 @@ mode: teaser
 content:
   links:
     weight: 100
+    region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden:
+  field_carrousel: true
+  field_paragraphs: true
+  field_spotlights: true
+  field_teaser: true
   langcode: true

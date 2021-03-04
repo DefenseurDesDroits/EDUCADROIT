@@ -31,7 +31,7 @@ class ViewTestData {
       $class = get_parent_class($class);
     }
     if (!empty($views)) {
-      $storage = \Drupal::entityManager()->getStorage('view');
+      $storage = \Drupal::entityTypeManager()->getStorage('view');
       $module_handler = \Drupal::moduleHandler();
       foreach ($modules as $module) {
         $config_dir = drupal_get_path('module', $module) . '/test_views';
@@ -58,6 +58,8 @@ class ViewTestData {
 
   /**
    * Returns the schema definition.
+   *
+   * @internal
    */
   public static function schemaDefinition() {
     $schema['views_test_data'] = [
@@ -80,7 +82,8 @@ class ViewTestData {
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => TRUE,
-          'default' => 0],
+          'default' => 0,
+        ],
         'job' => [
           'description' => "The person's job",
           'type' => 'varchar',
@@ -105,7 +108,7 @@ class ViewTestData {
       ],
       'primary key' => ['id'],
       'unique keys' => [
-        'name' => ['name']
+        'name' => ['name'],
       ],
       'indexes' => [
         'ages' => ['age'],

@@ -20,12 +20,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: list_key
+    region: content
   field_content:
     weight: 0
     label: hidden
     settings: {  }
     third_party_settings: {  }
     type: text_default
+    region: content
 hidden:
   created: true
   uid: true

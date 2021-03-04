@@ -29,8 +29,10 @@ content:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
+      match_limit: 10
     third_party_settings: {  }
     type: entity_reference_autocomplete
+    region: content
   field_image:
     weight: 4
     settings:
@@ -43,6 +45,7 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: entity_browser_file
+    region: content
   field_image_left:
     weight: 3
     settings:
@@ -55,6 +58,7 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: entity_browser_file
+    region: content
   field_image_right:
     weight: 2
     settings:
@@ -67,6 +71,7 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: entity_browser_file
+    region: content
   field_keep_in_mind:
     weight: 5
     settings:
@@ -74,6 +79,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_quizz:
     type: entity_reference_paragraphs
     weight: 8
@@ -84,14 +90,17 @@ content:
       add_mode: dropdown
       form_display_mode: default
     third_party_settings: {  }
+    region: content
   field_ressource_refs:
     weight: 7
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
+      match_limit: 10
     third_party_settings: {  }
     type: entity_reference_autocomplete
+    region: content
   field_title:
     weight: 0
     settings:
@@ -99,11 +108,13 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_video_embed:
     weight: 1
     settings: {  }
     third_party_settings: {  }
     type: video_embed_field_textfield
+    region: content
 hidden:
   created: true
   status: true

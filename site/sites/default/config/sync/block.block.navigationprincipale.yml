@@ -10,7 +10,7 @@ dependencies:
     - ddd
 id: navigationprincipale
 theme: ddd
-region: '-1'
+region: header
 weight: -6
 provider: null
 plugin: 'system_menu_block:main'
@@ -21,4 +21,5 @@ settings:
   label_display: '0'
   level: 1
   depth: 0
+  expand_all_items: false
 visibility: {  }

@@ -2,9 +2,10 @@
 
 namespace Drupal\Tests\options\Functional;
 
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\field\Tests\FieldTestBase;
+use Drupal\Tests\field\Functional\FieldTestBase;
 
 /**
  * Tests the Options field UI functionality.
@@ -18,7 +19,18 @@ class OptionsFieldUITest extends FieldTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'options', 'field_test', 'taxonomy', 'field_ui'];
+  public static $modules = [
+    'node',
+    'options',
+    'field_test',
+    'taxonomy',
+    'field_ui',
+  ];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * The name of the created content type.
@@ -52,7 +64,17 @@ class OptionsFieldUITest extends FieldTestBase {
     parent::setUp();
 
     // Create test user.
-    $admin_user = $this->drupalCreateUser(['access content', 'administer taxonomy', 'access administration pages', 'administer site configuration', 'administer content types', 'administer nodes', 'bypass node access', 'administer node fields', 'administer node display']);
+    $admin_user = $this->drupalCreateUser([
+      'access content',
+      'administer taxonomy',
+      'access administration pages',
+      'administer site configuration',
+      'administer content types',
+      'administer nodes',
+      'bypass node access',
+      'administer node fields',
+      'administer node display',
+    ]);
     $this->drupalLogin($admin_user);
 
     // Create content type, with underscores.
@@ -94,7 +116,7 @@ class OptionsFieldUITest extends FieldTestBase {
     $node = $this->drupalCreateNode($settings);
 
     // Check that a flat list of values is rejected once the field has data.
-    $this->assertAllowedValuesInput( "Zero\nOne", 'invalid input', 'Unkeyed lists are rejected once the field has data.');
+    $this->assertAllowedValuesInput("Zero\nOne", 'invalid input', 'Unkeyed lists are rejected once the field has data.');
 
     // Check that values can be added but values in use cannot be removed.
     $string = "0|Zero\n1|One\n2|Two";
@@ -259,7 +281,7 @@ class OptionsFieldUITest extends FieldTestBase {
    * Helper function to create list field of a given type.
    *
    * @param string $type
-   *   'list_integer', 'list_float' or 'list_string'
+   *   One of 'list_integer', 'list_float' or 'list_string'.
    */
   protected function createOptionsField($type) {
     // Create a field.
@@ -274,7 +296,10 @@ class OptionsFieldUITest extends FieldTestBase {
       'bundle' => $this->type,
     ])->save();
 
-    entity_get_form_display('node', $this->type, 'default')->setComponent($this->fieldName)->save();
+    \Drupal::service('entity_display.repository')
+      ->getFormDisplay('node', $this->type)
+      ->setComponent($this->fieldName)
+      ->save();
 
     $this->adminPath = 'admin/structure/types/manage/' . $this->type . '/fields/node.' . $this->type . '.' . $this->fieldName . '/storage';
   }
@@ -322,13 +347,13 @@ class OptionsFieldUITest extends FieldTestBase {
     ];
 
     $this->drupalPostForm($this->adminPath, $edit, t('Save field settings'));
-    $this->assertText(format_string('Updated field @field_name field settings.', ['@field_name' => $this->fieldName]), "The 'On' and 'Off' form fields work for boolean fields.");
+    $this->assertText(new FormattableMarkup('Updated field @field_name field settings.', ['@field_name' => $this->fieldName]), "The 'On' and 'Off' form fields work for boolean fields.");
 
     // Select a default value.
     $edit = [
       $this->fieldName => '1',
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save'));
 
     // Check the node page and see if the values are correct.
     $file_formatters = ['list_default', 'list_key'];
@@ -348,7 +373,7 @@ class OptionsFieldUITest extends FieldTestBase {
       }
 
       $elements = $this->xpath('//div[text()="' . $output . '"]');
-      $this->assertEqual(count($elements), 1, 'Correct options found.');
+      $this->assertCount(1, $elements, 'Correct options found.');
     }
   }
 

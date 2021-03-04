@@ -2,13 +2,13 @@
 
 namespace Drupal\Tests\Component\Plugin;
 
-use Drupal\Tests\UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Drupal\Component\Plugin\PluginBase
  * @group Plugin
  */
-class PluginBaseTest extends UnitTestCase {
+class PluginBaseTest extends TestCase {
 
   /**
    * @dataProvider providerTestGetPluginId
@@ -41,7 +41,7 @@ class PluginBaseTest extends UnitTestCase {
    * @coves ::getBaseId
    */
   public function testGetBaseId($plugin_id, $expected) {
-    /** @var \Drupal\Component\Plugin\PluginBase|\PHPUnit_Framework_MockObject_MockObject $plugin_base */
+    /** @var \Drupal\Component\Plugin\PluginBase|\PHPUnit\Framework\MockObject\MockObject $plugin_base */
     $plugin_base = $this->getMockForAbstractClass('Drupal\Component\Plugin\PluginBase', [
       [],
       $plugin_id,
@@ -63,13 +63,12 @@ class PluginBaseTest extends UnitTestCase {
     ];
   }
 
-
   /**
    * @dataProvider providerTestGetDerivativeId
    * @covers ::getDerivativeId
    */
   public function testGetDerivativeId($plugin_id = NULL, $expected = NULL) {
-    /** @var \Drupal\Component\Plugin\PluginBase|\PHPUnit_Framework_MockObject_MockObject $plugin_base */
+    /** @var \Drupal\Component\Plugin\PluginBase|\PHPUnit\Framework\MockObject\MockObject $plugin_base */
     $plugin_base = $this->getMockForAbstractClass('Drupal\Component\Plugin\PluginBase', [
       [],
       $plugin_id,

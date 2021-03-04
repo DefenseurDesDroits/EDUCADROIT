@@ -15,21 +15,38 @@ class ScriptHandler
     public static function copy(Event $event)
     {
         $extras = $event->getComposer()->getPackage()->getExtra();
+        $extraField = $event->isDevMode() && isset($extras['copy-file-dev']) ? 'copy-file-dev' : 'copy-file';
 
-        if (!isset($extras['copy-file'])) {
-            throw new \InvalidArgumentException('The dirs or files needs to be configured through the extra.copy-file setting.');
+        $io = $event->getIO();
+        if (!isset($extras[$extraField])) {
+            $io->write("No dirs or files are configured through the extra.{$extraField} setting.");
+
+            return;
         }
 
-        $files = $extras['copy-file'];
+        $files = $extras[$extraField];
 
-        if ($files === array_values($files)) {
-            throw new \InvalidArgumentException('The extra.copy-file must be hash like "{<dir_or_file_from>: <dir_to>}".');
+        if (!is_array($files) || $files === array_values($files)) {
+            $io->write("The extra.{$extraField} must be hash like \"\{<dir_or_file_from>: <dir_to>\}\".");
+
+            return;
         }
 
         $fs = new Filesystem;
-        $io = $event->getIO();
 
         foreach ($files as $from => $to) {
+            // check pattern
+            $pattern = null;
+            if (strpos($from, '#') > 0) {
+                list($from, $pattern) = explode('#', $from, 2);
+            }
+
+            // check the overwrite newer files disable flag (? in end of path)
+            $overwriteNewerFiles = substr($to, -1) != '?';
+            if (!$overwriteNewerFiles) {
+                $to = substr($to, 0, -1);
+            }
+
             // Check the renaming of file for direct moving (file-to-file)
             $isRenameFile = substr($to, -1) != '/' && !is_dir($from);
 
@@ -44,7 +61,7 @@ class ScriptHandler
                     $fs->mkdir($to);
                 }
             } catch (IOException $e) {
-                throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to));
+                throw new \InvalidArgumentException(sprintf('<error>Could not create directory %s.</error>', $to), $e->getCode(), $e);
             }
 
             if (false === file_exists($from)) {
@@ -55,24 +72,28 @@ class ScriptHandler
                 $finder = new Finder;
                 $finder->files()->ignoreDotFiles(false)->in($from);
 
+                if ($pattern) {
+                    $finder->path("#{$pattern}#");
+                }
+
                 foreach ($finder as $file) {
                     $dest = sprintf('%s/%s', $to, $file->getRelativePathname());
 
                     try {
-                        $fs->copy($file, $dest);
+                        $fs->copy($file, $dest, $overwriteNewerFiles);
                     } catch (IOException $e) {
-                        throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()));
+                        throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $file->getBaseName()), $e->getCode(), $e);
                     }
                 }
             } else {
                 try {
                     if ($isRenameFile) {
-                        $fs->copy($from, $to);
+                        $fs->copy($from, $to, $overwriteNewerFiles);
                     } else {
-                        $fs->copy($from, $to.'/'.basename($from));
+                        $fs->copy($from, $to.'/'.basename($from), $overwriteNewerFiles);
                     }
                 } catch (IOException $e) {
-                    throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from));
+                    throw new \InvalidArgumentException(sprintf('<error>Could not copy %s</error>', $from), $e->getCode(), $e);
                 }
             }
 
