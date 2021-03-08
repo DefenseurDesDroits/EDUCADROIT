@@ -1,3 +1,4 @@
+ab1728a4 Julien Liébert 2021-03-08 11:29:50 +0100 [TASK] Ajouts d'un settings.local.php pour la production
 6311176e Sébastien Libbrecht 2021-02-16 14:44:35 +0100 Pull request #20: [TASK] DDD-83 - Ajout de placeholder sur les champs de recherche libre
 bea92320 Sébastien Libbrecht 2021-02-16 14:44:08 +0100 [TASK] DDD-83 - Ajout de placeholder sur les champs de recherche libre
 29ce76bc Sébastien Libbrecht 2021-02-16 14:34:07 +0100 Pull request #19: [TASK] DDD-83 - Ajustement suite à recette client
@@ -97,4 +98,3 @@ de5d14e4 adrien-gontier 2017-04-20 10:35:16 +0200 integration glossary debug
 0ada8192 adrien-gontier 2017-04-19 17:40:40 +0200 [TASK] DDD-38 Fiche ressource - Affichage du diaporama d'images
 2dd2906a adrien-gontier 2017-04-19 16:11:01 +0200 [TASK] DDD-37 glossary sort
 5bbfddf7 adrien-gontier 2017-04-19 14:14:21 +0200 ddd-34
-2090ba30 adrien-gontier 2017-04-19 13:52:02 +0200 ddd-34
