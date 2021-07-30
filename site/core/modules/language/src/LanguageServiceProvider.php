@@ -29,8 +29,8 @@ class LanguageServiceProvider extends ServiceProviderBase {
         ->addArgument(new Reference('current_user'));
 
       $container->register('path_processor_language', 'Drupal\language\HttpKernel\PathProcessorLanguage')
-        ->addTag('path_processor_inbound', array('priority' => 300))
-        ->addTag('path_processor_outbound', array('priority' => 100))
+        ->addTag('path_processor_inbound', ['priority' => 300])
+        ->addTag('path_processor_outbound', ['priority' => 100])
         ->addArgument(new Reference('config.factory'))
         ->addArgument(new Reference('language_manager'))
         ->addArgument(new Reference('language_negotiator'))
@@ -54,13 +54,6 @@ class LanguageServiceProvider extends ServiceProviderBase {
       $container->setParameter('language.default_values', $default_language_values);
     }
 
-    // For monolingual sites, we explicitly set the default language for the
-    // language config override service as there is no language negotiation.
-    if (!$this->isMultilingual()) {
-      $container->getDefinition('language.config_factory_override')
-        ->addMethodCall('setLanguageFromDefault', array(new Reference('language.default')));
-    }
-
   }
 
   /**
@@ -77,7 +70,7 @@ class LanguageServiceProvider extends ServiceProviderBase {
     //   and caching. This might prove difficult as this is called before the
     //   container has finished building.
     $config_storage = BootstrapConfigStorageFactory::get();
-    $config_ids = array_filter($config_storage->listAll($prefix), function($config_id) use ($prefix) {
+    $config_ids = array_filter($config_storage->listAll($prefix), function ($config_id) use ($prefix) {
       return $config_id != $prefix . LanguageInterface::LANGCODE_NOT_SPECIFIED && $config_id != $prefix . LanguageInterface::LANGCODE_NOT_APPLICABLE;
     });
     return count($config_ids) > 1;
@@ -94,6 +87,12 @@ class LanguageServiceProvider extends ServiceProviderBase {
   protected function getDefaultLanguageValues() {
     $config_storage = BootstrapConfigStorageFactory::get();
     $system = $config_storage->read('system.site');
+    // In Kernel tests it's possible this code is called before system.site
+    // exists. In such cases behave as though the corresponding language
+    // configuration entity does not exist.
+    if ($system === FALSE) {
+      return FALSE;
+    }
     $default_language = $config_storage->read(static::CONFIG_PREFIX . $system['default_langcode']);
     if (is_array($default_language)) {
       return $default_language;

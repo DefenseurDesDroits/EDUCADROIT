@@ -14,7 +14,7 @@ class ControllerBaseTest extends UnitTestCase {
   /**
    * The tested controller base class.
    *
-   * @var \Drupal\Core\Controller\ControllerBase|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Controller\ControllerBase|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $controllerBase;
 
@@ -26,16 +26,16 @@ class ControllerBaseTest extends UnitTestCase {
    * Tests the config method.
    */
   public function testGetConfig() {
-    $config_factory = $this->getConfigFactoryStub(array(
-      'config_name' => array(
+    $config_factory = $this->getConfigFactoryStub([
+      'config_name' => [
         'key' => 'value',
-      ),
-      'config_name2' => array(
+      ],
+      'config_name2' => [
         'key2' => 'value2',
-      ),
-    ));
+      ],
+    ]);
 
-    $container = $this->getMock('Symfony\Component\DependencyInjection\ContainerInterface');
+    $container = $this->createMock('Symfony\Component\DependencyInjection\ContainerInterface');
     $container->expects($this->once())
       ->method('get')
       ->with('config.factory')

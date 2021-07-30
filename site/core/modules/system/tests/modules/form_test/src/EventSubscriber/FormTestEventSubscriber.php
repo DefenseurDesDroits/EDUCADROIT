@@ -27,7 +27,7 @@ class FormTestEventSubscriber implements EventSubscriberInterface {
   /**
    * Adds custom headers to the response.
    *
-   * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
+   * @param \Symfony\Component\HttpKernel\Event\FilterResponseEvent $event
    *   The kernel request event.
    */
   public function onKernelResponse(FilterResponseEvent $event) {
@@ -39,8 +39,8 @@ class FormTestEventSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
-    $events[KernelEvents::REQUEST][] = array('onKernelRequest');
-    $events[KernelEvents::RESPONSE][] = array('onKernelResponse');
+    $events[KernelEvents::REQUEST][] = ['onKernelRequest'];
+    $events[KernelEvents::RESPONSE][] = ['onKernelResponse'];
     return $events;
   }
 

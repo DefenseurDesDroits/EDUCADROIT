@@ -64,8 +64,8 @@ abstract class FormElementBase implements ElementInterface {
     $build['source'] = $this->getSourceElement($source_language, $source_config);
     $build['translation'] = $this->getTranslationElement($translation_language, $source_config, $translation_config);
 
-    $build['source']['#parents'] = array_merge(array('source'), $parents);
-    $build['translation']['#parents'] = array_merge(array('translation'), $parents);
+    $build['source']['#parents'] = array_merge(['source'], $parents);
+    $build['translation']['#parents'] = array_merge(['translation'], $parents);
     return $build;
   }
 
@@ -93,15 +93,15 @@ abstract class FormElementBase implements ElementInterface {
       $value = $this->t('(Empty)');
     }
 
-    return array(
+    return [
       '#type' => 'item',
-      '#title' => $this->t('@label <span class="visually-hidden">(@source_language)</span>', array(
+      '#title' => $this->t('@label <span class="visually-hidden">(@source_language)</span>', [
         // Labels originate from configuration schema and are translatable.
         '@label' => $this->t($this->definition->getLabel()),
         '@source_language' => $source_language->getName(),
-      )),
+      ]),
       '#markup' => $value,
-    );
+    ];
   }
 
   /**
@@ -138,9 +138,9 @@ abstract class FormElementBase implements ElementInterface {
    * utilizing a form element of type 'text_format' and its #format and
    * #allowed_formats properties. The access logic explained above is then
    * handled by the 'text_format' element itself, specifically by
-   * filter_process_format(). In case such a rich element is not available for
-   * translation of complex data, similar access logic must be implemented
-   * manually.
+   * \Drupal\filter\Element\TextFormat::processFormat(). In case such a rich
+   * element is not available for translation of complex data, similar access
+   * logic must be implemented manually.
    *
    * @param \Drupal\Core\Language\LanguageInterface $translation_language
    *   The language to display the translation form for.
@@ -153,19 +153,19 @@ abstract class FormElementBase implements ElementInterface {
    *   Form API array to represent the form element.
    *
    * @see \Drupal\config_translation\FormElement\TextFormat
-   * @see filter_process_format()
+   * @see \Drupal\filter\Element\TextFormat::processFormat()
    */
   protected function getTranslationElement(LanguageInterface $translation_language, $source_config, $translation_config) {
     // Add basic properties that apply to all form elements.
-    return array(
-      '#title' => $this->t('@label <span class="visually-hidden">(@source_language)</span>', array(
+    return [
+      '#title' => $this->t('@label <span class="visually-hidden">(@source_language)</span>', [
         // Labels originate from configuration schema and are translatable.
         '@label' => $this->t($this->definition->getLabel()),
         '@source_language' => $translation_language->getName(),
-      )),
+      ]),
       '#default_value' => $translation_config,
-      '#attributes' => array('lang' => $translation_language->getId()),
-    );
+      '#attributes' => ['lang' => $translation_language->getId()],
+    ];
   }
 
   /**

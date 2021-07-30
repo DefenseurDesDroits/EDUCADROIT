@@ -5,6 +5,7 @@ namespace Drupal\views\Form;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Render\Element\Checkboxes;
 use Drupal\Core\Url;
 use Drupal\views\ExposedFormCache;
@@ -12,6 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the views exposed form.
+ *
+ * @internal
  */
 class ViewsExposedForm extends FormBase {
 
@@ -22,21 +25,39 @@ class ViewsExposedForm extends FormBase {
    */
   protected $exposedFormCache;
 
+
+  /**
+   * The current path stack.
+   *
+   * @var \Drupal\Core\Path\CurrentPathStack
+   */
+  protected $currentPathStack;
+
   /**
    * Constructs a new ViewsExposedForm
    *
    * @param \Drupal\views\ExposedFormCache $exposed_form_cache
    *   The exposed form cache.
+   * @param \Drupal\Core\Path\CurrentPathStack $current_path_stack
+   *   The current path stack.
    */
-  public function __construct(ExposedFormCache $exposed_form_cache) {
+  public function __construct(ExposedFormCache $exposed_form_cache, CurrentPathStack $current_path_stack = NULL) {
     $this->exposedFormCache = $exposed_form_cache;
+    if ($current_path_stack === NULL) {
+      @trigger_error('The path.current service must be passed to ViewsExposedForm::__construct(), it is required before Drupal 9.0.0. See https://www.drupal.org/node/3066604', E_USER_DEPRECATED);
+      $current_path_stack = \Drupal::service('path.current');
+    }
+    $this->currentPathStack = $current_path_stack;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('views.exposed_form_cache'));
+    return new static(
+      $container->get('views.exposed_form_cache'),
+      $container->get('path.current')
+    );
   }
 
   /**
@@ -52,10 +73,10 @@ class ViewsExposedForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Don't show the form when batch operations are in progress.
     if ($batch = batch_get() && isset($batch['current_set'])) {
-      return array(
+      return [
         // Set the theme callback to be nothing to avoid errors in template_preprocess_views_exposed_form().
         '#theme' => '',
-      );
+      ];
     }
 
     // Make sure that we validate because this form might be submitted
@@ -74,7 +95,7 @@ class ViewsExposedForm extends FormBase {
       return $cache;
     }
 
-    $form['#info'] = array();
+    $form['#info'] = [];
 
     // Go through each handler and let it generate its exposed widget.
     foreach ($view->display_handler->handlers as $type => $value) {
@@ -84,7 +105,7 @@ class ViewsExposedForm extends FormBase {
           // Grouped exposed filters have their own forms.
           // Instead of render the standard exposed form, a new Select or
           // Radio form field is rendered with the available groups.
-          // When an user choose an option the selected value is split
+          // When an user chooses an option the selected value is split
           // into the operator and value that the item represents.
           if ($handler->isAGroup()) {
             $handler->groupForm($form, $form_state);
@@ -100,18 +121,32 @@ class ViewsExposedForm extends FormBase {
       }
     }
 
-    $form['actions'] = array(
-      '#type' => 'actions'
-    );
-    $form['actions']['submit'] = array(
+    $form['actions'] = [
+      '#type' => 'actions',
+    ];
+    $form['actions']['submit'] = [
       // Prevent from showing up in \Drupal::request()->query.
       '#name' => '',
       '#type' => 'submit',
       '#value' => $this->t('Apply'),
       '#id' => Html::getUniqueId('edit-submit-' . $view->storage->id()),
-    );
+    ];
 
-    $form['#action'] = $view->hasUrl() ? $view->getUrl()->toString() : Url::fromRoute('<current>')->toString();
+    if (!$view->hasUrl()) {
+      // On any non views.ajax route, use the current route for the form action.
+      if ($this->getRouteMatch()->getRouteName() !== 'views.ajax') {
+        $form_action = Url::fromRoute('<current>')->toString();
+      }
+      else {
+        // On the views.ajax route, set the action to the page we were on.
+        $form_action = Url::fromUserInput($this->currentPathStack->getPath())->toString();
+      }
+    }
+    else {
+      $form_action = $view->getUrl()->toString();
+    }
+
+    $form['#action'] = $form_action;
     $form['#theme'] = $view->buildThemeFunctions('views_exposed_form');
     $form['#id'] = Html::cleanCssIdentifier('views_exposed_form-' . $view->storage->id() . '-' . $display['id']);
 
@@ -131,7 +166,7 @@ class ViewsExposedForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $view = $form_state->get('view');
 
-    foreach (array('field', 'filter') as $type) {
+    foreach (['field', 'filter'] as $type) {
       /** @var \Drupal\views\Plugin\views\ViewsHandlerInterface[] $handlers */
       $handlers = &$view->$type;
       foreach ($handlers as $key => $handler) {
@@ -148,9 +183,9 @@ class ViewsExposedForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Form input keys that will not be included in $view->exposed_raw_data.
-    $exclude = array('submit', 'form_build_id', 'form_id', 'form_token', 'exposed_form_plugin', 'reset');
+    $exclude = ['submit', 'form_build_id', 'form_id', 'form_token', 'exposed_form_plugin', 'reset'];
     $values = $form_state->getValues();
-    foreach (array('field', 'filter') as $type) {
+    foreach (['field', 'filter'] as $type) {
       /** @var \Drupal\views\Plugin\views\ViewsHandlerInterface[] $handlers */
       $handlers = &$form_state->get('view')->$type;
       foreach ($handlers as $key => $info) {
@@ -169,7 +204,7 @@ class ViewsExposedForm extends FormBase {
     $view->exposed_data = $values;
     $view->exposed_raw_input = [];
 
-    $exclude = array('submit', 'form_build_id', 'form_id', 'form_token', 'exposed_form_plugin', 'reset');
+    $exclude = ['submit', 'form_build_id', 'form_id', 'form_token', 'exposed_form_plugin', 'reset'];
     /** @var \Drupal\views\Plugin\views\exposed_form\ExposedFormPluginBase $exposed_form_plugin */
     $exposed_form_plugin = $view->display_handler->getPlugin('exposed_form');
     $exposed_form_plugin->exposedFormSubmit($form, $form_state, $exclude);
@@ -181,7 +216,7 @@ class ViewsExposedForm extends FormBase {
           //   https://www.drupal.org/node/342316 is resolved.
           $checked = Checkboxes::getCheckedCheckboxes($value);
           foreach ($checked as $option_id) {
-            $view->exposed_raw_input[$option_id] = $value[$option_id];
+            $view->exposed_raw_input[$key][$option_id] = $value[$option_id];
           }
         }
         else {

@@ -18,7 +18,14 @@ class EntityDefaultLanguageTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('language', 'node', 'field', 'text', 'user', 'system');
+  public static $modules = [
+    'language',
+    'node',
+    'field',
+    'text',
+    'user',
+    'system',
+  ];
 
   /**
    * {@inheritdoc}
@@ -29,9 +36,9 @@ class EntityDefaultLanguageTest extends KernelTestBase {
     $this->installEntitySchema('user');
 
     // Activate Spanish language, so there are two languages activated.
-    $language = $this->container->get('entity.manager')->getStorage('configurable_language')->create(array(
+    $language = $this->container->get('entity_type.manager')->getStorage('configurable_language')->create([
       'id' => 'es',
-    ));
+    ]);
     $language->save();
 
     // Create a new content type which has Undefined language by default.
@@ -67,7 +74,7 @@ class EntityDefaultLanguageTest extends KernelTestBase {
     $this->assertEqual($node->langcode->value, 'en');
 
     // Disable language module.
-    $this->disableModules(array('language'));
+    $this->disableModules(['language']);
 
     // With language module disabled, and a content type that is configured to
     // have no language specified by default, a new node of this content type
@@ -101,12 +108,12 @@ class EntityDefaultLanguageTest extends KernelTestBase {
    *   Default language code of the nodes of this type.
    */
   protected function createContentType($name, $langcode) {
-    $content_type = $this->container->get('entity.manager')->getStorage('node_type')->create(array(
+    $content_type = $this->container->get('entity_type.manager')->getStorage('node_type')->create([
       'name' => 'Test ' . $name,
       'title_label' => 'Title',
       'type' => $name,
       'create_body' => FALSE,
-    ));
+    ]);
     $content_type->save();
     ContentLanguageSettings::loadByEntityTypeBundle('node', $name)
       ->setLanguageAlterable(FALSE)
@@ -127,14 +134,14 @@ class EntityDefaultLanguageTest extends KernelTestBase {
    *   The node created.
    */
   protected function createNode($type, $langcode = NULL) {
-    $values = array(
+    $values = [
       'type' => $type,
       'title' => $this->randomString(),
-    );
+    ];
     if (!empty($langcode)) {
       $values['langcode'] = $langcode;
     }
-    $node = $this->container->get('entity.manager')->getStorage('node')->create($values);
+    $node = $this->container->get('entity_type.manager')->getStorage('node')->create($values);
     return $node;
   }
 

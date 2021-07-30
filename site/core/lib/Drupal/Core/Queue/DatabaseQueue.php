@@ -3,7 +3,7 @@
 namespace Drupal\Core\Queue;
 
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\SchemaObjectExistsException;
+use Drupal\Core\Database\DatabaseException;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
 
 /**
@@ -30,7 +30,7 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
   /**
    * The database connection.
    *
-   * @var \Drupal\Core\Database\Connection $connection
+   * @var \Drupal\Core\Database\Connection
    */
   protected $connection;
 
@@ -42,7 +42,7 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
    * @param \Drupal\Core\Database\Connection $connection
    *   The Connection object containing the key-value tables.
    */
-  function __construct($name, Connection $connection) {
+  public function __construct($name, Connection $connection) {
     $this->name = $name;
     $this->connection = $connection;
   }
@@ -84,13 +84,13 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
    */
   protected function doCreateItem($data) {
     $query = $this->connection->insert(static::TABLE_NAME)
-      ->fields(array(
+      ->fields([
         'name' => $this->name,
         'data' => serialize($data),
         // We cannot rely on REQUEST_TIME because many items might be created
         // by a single request which takes longer than 1 second.
         'created' => time(),
-      ));
+      ]);
     // Return the new serial ID, or FALSE on failure.
     return $query->execute();
   }
@@ -100,7 +100,7 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
    */
   public function numberOfItems() {
     try {
-      return $this->connection->query('SELECT COUNT(item_id) FROM {' . static::TABLE_NAME . '} WHERE name = :name', array(':name' => $this->name))
+      return (int) $this->connection->query('SELECT COUNT(item_id) FROM {' . static::TABLE_NAME . '} WHERE name = :name', [':name' => $this->name])
         ->fetchField();
     }
     catch (\Exception $e) {
@@ -120,36 +120,34 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
     // are no unclaimed items left.
     while (TRUE) {
       try {
-        $item = $this->connection->queryRange('SELECT data, created, item_id FROM {' . static::TABLE_NAME . '} q WHERE expire = 0 AND name = :name ORDER BY created, item_id ASC', 0, 1, array(':name' => $this->name))->fetchObject();
+        $item = $this->connection->queryRange('SELECT data, created, item_id FROM {' . static::TABLE_NAME . '} q WHERE expire = 0 AND name = :name ORDER BY created, item_id ASC', 0, 1, [':name' => $this->name])->fetchObject();
       }
       catch (\Exception $e) {
         $this->catchException($e);
-        // If the table does not exist there are no items currently available to
-        // claim.
+      }
+
+      // If the table does not exist there are no items currently available to
+      // claim.
+      if (empty($item)) {
         return FALSE;
       }
-      if ($item) {
-        // Try to update the item. Only one thread can succeed in UPDATEing the
-        // same row. We cannot rely on REQUEST_TIME because items might be
-        // claimed by a single consumer which runs longer than 1 second. If we
-        // continue to use REQUEST_TIME instead of the current time(), we steal
-        // time from the lease, and will tend to reset items before the lease
-        // should really expire.
-        $update = $this->connection->update(static::TABLE_NAME)
-          ->fields(array(
-            'expire' => time() + $lease_time,
-          ))
-          ->condition('item_id', $item->item_id)
-          ->condition('expire', 0);
-        // If there are affected rows, this update succeeded.
-        if ($update->execute()) {
-          $item->data = unserialize($item->data);
-          return $item;
-        }
-      }
-      else {
-        // No items currently available to claim.
-        return FALSE;
+
+      // Try to update the item. Only one thread can succeed in UPDATEing the
+      // same row. We cannot rely on REQUEST_TIME because items might be
+      // claimed by a single consumer which runs longer than 1 second. If we
+      // continue to use REQUEST_TIME instead of the current time(), we steal
+      // time from the lease, and will tend to reset items before the lease
+      // should really expire.
+      $update = $this->connection->update(static::TABLE_NAME)
+        ->fields([
+          'expire' => time() + $lease_time,
+        ])
+        ->condition('item_id', $item->item_id)
+        ->condition('expire', 0);
+      // If there are affected rows, this update succeeded.
+      if ($update->execute()) {
+        $item->data = unserialize($item->data);
+        return $item;
       }
     }
   }
@@ -160,9 +158,9 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
   public function releaseItem($item) {
     try {
       $update = $this->connection->update(static::TABLE_NAME)
-        ->fields(array(
+        ->fields([
           'expire' => 0,
-        ))
+        ])
         ->condition('item_id', $item->item_id);
       return $update->execute();
     }
@@ -223,9 +221,9 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
       // Reset expired items in the default queue implementation table. If that's
       // not used, this will simply be a no-op.
       $this->connection->update(static::TABLE_NAME)
-        ->fields(array(
+        ->fields([
           'expire' => 0,
-        ))
+        ])
         ->condition('expire', 0, '<>')
         ->condition('expire', REQUEST_TIME, '<')
         ->execute();
@@ -250,7 +248,7 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
     // If another process has already created the queue table, attempting to
     // recreate it will throw an exception. In this case just catch the
     // exception and do nothing.
-    catch (SchemaObjectExistsException $e) {
+    catch (DatabaseException $e) {
       return TRUE;
     }
     return FALSE;
@@ -277,6 +275,8 @@ class DatabaseQueue implements ReliableQueueInterface, QueueGarbageCollectionInt
 
   /**
    * Defines the schema for the queue table.
+   *
+   * @internal
    */
   public function schemaDefinition() {
     return [

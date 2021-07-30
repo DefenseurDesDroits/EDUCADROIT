@@ -4,6 +4,8 @@
   use Drupal\Core\Entity\EntityForm;
   use Drupal\Core\Form\FormStateInterface;
   use Drupal\Core\Language\LanguageInterface;
+  use Drupal\file\Entity\File;
+
   class ConfigForm extends EntityForm {
     /**
      * {@inheritdoc}
@@ -74,6 +76,20 @@
     public function save(array $form, FormStateInterface $form_state) {
       $entity = $this->entity;
       $is_new = !$entity->getOriginalId();
+
+      // By default, managed_file save file in temporary mode
+      // set to permanent...
+      if(!empty($form_state->getValue('header_ddd_logo'))){
+        $logo_header = File::load($form_state->getValue('header_ddd_logo')[0]);
+        $logo_header->setPermanent();
+        $logo_header->save();
+      }
+      if(!empty($form_state->getValue('footer_ddd_logo'))){
+        $logo_footer = File::load($form_state->getValue('footer_ddd_logo')[0]);
+        $logo_footer->setPermanent();
+        $logo_footer->save();
+      }
+
       if ($is_new) {
         $machine_name = \Drupal::transliteration()->transliterate($entity->label(),
           LanguageInterface::LANGCODE_DEFAULT, '_');

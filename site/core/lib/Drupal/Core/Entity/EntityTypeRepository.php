@@ -62,8 +62,8 @@ class EntityTypeRepository implements EntityTypeRepositoryInterface {
       }
 
       // Make sure that the 'Content' group is situated at the top.
-      $content = $this->t('Content', array(), array('context' => 'Entity type group'));
-      $options = array((string) $content => $options[(string) $content]) + $options;
+      $content = $this->t('Content', [], ['context' => 'Entity type group']);
+      $options = [(string) $content => $options[(string) $content]] + $options;
     }
 
     return $options;
@@ -102,6 +102,7 @@ class EntityTypeRepository implements EntityTypeRepositoryInterface {
    * {@inheritdoc}
    */
   public function clearCachedDefinitions() {
+    @trigger_error(__METHOD__ . ' is deprecated in drupal:8.0.0 and is removed in drupal:9.0.0', E_USER_DEPRECATED);
     $this->classNameEntityTypeMap = [];
   }
 

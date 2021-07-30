@@ -13,24 +13,14 @@
         {{ filter }}
       </div>
 
-      <div class="row">
-        <div class="col-sm-6">
-          <p class="nb-result"><strong>{{ results_count }} résultats</strong> pour les critères sélectionnés</p>
-        </div>
-
-        <div class="col-sm-6">
-          {{ pager }}
-        </div>
+      <div class="col-lg-3 col-md-3 col-sm-12">
+        {{ drupal_region('facets') }}
       </div>
-      {% for resource in collection %}
-        {{ resource }}
-      {% endfor %}
 
-      <div class="row">
-        <div class="col-sm-12">
-          {{ pager }}
-        </div>
+      <div class="col-lg-9 col-md-9 col-sm-12">
+        {{ views }}
       </div>
+
     </div>
   </div>
 </section>

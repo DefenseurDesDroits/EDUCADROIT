@@ -7,6 +7,8 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Generate form of id batch_test_multistep_form.
+ *
+ * @internal
  */
 class BatchTestMultiStepForm extends FormBase {
 
@@ -27,13 +29,13 @@ class BatchTestMultiStepForm extends FormBase {
       $form_state->set('step', $step);
     }
 
-    $form['step_display'] = array(
+    $form['step_display'] = [
       '#markup' => 'step ' . $step . '<br/>',
-    );
-    $form['submit'] = array(
+    ];
+    $form['submit'] = [
       '#type' => 'submit',
       '#value' => 'Submit',
-    );
+    ];
 
     // This is a POST form with multiple steps that does not transition from one
     // step to the next via POST requests, but via GET requests, because it uses
@@ -54,6 +56,7 @@ class BatchTestMultiStepForm extends FormBase {
       case 1:
         batch_set(_batch_test_batch_1());
         break;
+
       case 2:
         batch_set(_batch_test_batch_2());
         break;

@@ -5,5 +5,4 @@ dependencies: {  }
 name: Publics
 vid: public
 description: 'Public ressources'
-hierarchy: 0
 weight: -8

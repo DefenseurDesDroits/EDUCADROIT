@@ -10,7 +10,7 @@ _core:
   default_config_hash: 862sIulDdHmF0vBU1s2j2_a_CwkxursrL0pIrMDzzOg
 id: ddd_login
 theme: ddd
-region: '-1'
+region: header
 weight: -5
 provider: null
 plugin: user_login_block

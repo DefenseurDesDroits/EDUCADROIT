@@ -6,8 +6,10 @@
  */
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
 
 /**
  * Prepares variables for administrative content block templates.
@@ -25,7 +27,7 @@ function template_preprocess_admin_block_content(&$variables) {
   if (!empty($variables['content'])) {
     $variables['compact'] = system_admin_compact_mode();
     foreach ($variables['content'] as $key => $item) {
-      $variables['content'][$key]['link'] = \Drupal::l($item['title'], $item['url']);
+      $variables['content'][$key]['link'] = Link::fromTextAndUrl($item['title'], $item['url'])->toString();
       if (!$variables['compact'] && isset($item['description'])) {
         $variables['content'][$key]['description'] = ['#markup' => $item['description']];
       }
@@ -49,10 +51,10 @@ function template_preprocess_admin_block_content(&$variables) {
  *     'right'.
  */
 function template_preprocess_admin_page(&$variables) {
-  $variables['system_compact_link'] = array(
+  $variables['system_compact_link'] = [
     '#type' => 'system_compact_link',
-  );
-  $variables['containers'] = array();
+  ];
+  $variables['containers'] = [];
   $stripe = 0;
   foreach ($variables['blocks'] as $block) {
     if (!empty($block['content']['#content'])) {
@@ -60,10 +62,10 @@ function template_preprocess_admin_page(&$variables) {
         // Perform automatic striping.
         $block['position'] = ++$stripe % 2 ? 'left' : 'right';
       }
-      $variables['containers'][$block['position']]['blocks'][] = array(
+      $variables['containers'][$block['position']]['blocks'][] = [
         '#theme' => 'admin_block',
         '#block' => $block,
-      );
+      ];
     }
   }
 }
@@ -78,10 +80,10 @@ function template_preprocess_admin_page(&$variables) {
  *   - menu_items: An array of modules to be displayed.
  */
 function template_preprocess_system_admin_index(&$variables) {
-  $variables['system_compact_link'] = array(
+  $variables['system_compact_link'] = [
     '#type' => 'system_compact_link',
-  );
-  $variables['containers'] = array();
+  ];
+  $variables['containers'] = [];
   $stripe = 0;
   // Iterate over all modules.
   foreach ($variables['menu_items'] as $module => $block) {
@@ -89,79 +91,19 @@ function template_preprocess_system_admin_index(&$variables) {
     $position = ++$stripe % 2 ? 'left' : 'right';
     // Output links.
     if (count($items)) {
-      $variables['containers'][$position][] = array(
+      $variables['containers'][$position][] = [
         '#theme' => 'admin_block',
-        '#block' => array(
+        '#block' => [
           'position' => $position,
           'title' => $module,
-          'content' => array(
+          'content' => [
             '#theme' => 'admin_block_content',
             '#content' => $items,
-          ),
+          ],
           'description' => t($description),
-        ),
-      );
+        ],
+      ];
     }
-  }
-}
-
-/**
- * Prepares variables for status report template.
- *
- * Default template: status-report.html.twig.
- *
- * This theme function is dependent on install.inc being loaded, because
- * that's where the constants are defined.
- *
- * @param $variables
- *   An associative array containing:
- *   - requirements: An array of requirements/status items. Each requirement
- *     is an associative array containing the following elements:
- *     - title: The name of the requirement.
- *     - value: (optional) The current value (version, time, level, etc).
- *     - description: (optional) The description of the requirement.
- *     - severity: (optional) The requirement's result/severity level, one of:
- *       - REQUIREMENT_INFO: Status information.
- *       - REQUIREMENT_OK: The requirement is satisfied.
- *       - REQUIREMENT_WARNING: The requirement failed with a warning.
- *       - REQUIREMENT_ERROR: The requirement failed with an error.
- */
-function template_preprocess_status_report(&$variables) {
-  $severities = array(
-    REQUIREMENT_INFO => array(
-      'title' => t('Info'),
-      'status' => 'info',
-    ),
-    REQUIREMENT_OK => array(
-      'title' => t('OK'),
-      'status' => 'ok',
-    ),
-    REQUIREMENT_WARNING => array(
-      'title' => t('Warning'),
-      'status' => 'warning',
-    ),
-    REQUIREMENT_ERROR => array(
-      'title' => t('Error'),
-      'status' => 'error',
-    ),
-  );
-
-  foreach ($variables['requirements'] as $i => $requirement) {
-    // Always use the explicit requirement severity, if defined. Otherwise,
-    // default to REQUIREMENT_OK in the installer to visually confirm that
-    // installation requirements are met. And default to REQUIREMENT_INFO to
-    // denote neutral information without special visualization.
-    if (isset($requirement['severity'])) {
-      $severity = $severities[(int) $requirement['severity']];
-    }
-    elseif (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
-      $severity = $severities[REQUIREMENT_OK];
-    }
-    else {
-      $severity = $severities[REQUIREMENT_INFO];
-    }
-    $variables['requirements'][$i]['severity_title'] = $severity['title'];
-    $variables['requirements'][$i]['severity_status'] = $severity['status'];
   }
 }
 
@@ -182,13 +124,25 @@ function template_preprocess_status_report(&$variables) {
  *     - version: The version of the module.
  *     - links: Administration links provided by the module.
  *     - #requires: A list of modules that the project requires.
- *     - #required_by: A list of modules that require the project.
+ *     - #required_by: A list of modules and themes that require the project.
  *     - #attributes: A list of attributes for the module wrapper.
  *
  * @see \Drupal\system\Form\ModulesListForm
  */
 function template_preprocess_system_modules_details(&$variables) {
   $form = $variables['form'];
+
+  // Identify modules that are depended on by themes.
+  // Added here instead of ModuleHandler to avoid recursion.
+  $themes = \Drupal::service('extension.list.theme')->getList();
+  foreach ($themes as $theme) {
+    foreach ($theme->info['dependencies'] as $dependency) {
+      if (isset($form[$dependency])) {
+        // Add themes to the module's required by list.
+        $form[$dependency]['#required_by'][] = $theme->status ? t('@theme', ['@theme (theme)' => $theme->info['name']]) : t('@theme (theme) (<span class="admin-disabled">disabled</span>)', ['@theme' => $theme->info['name']]);
+      }
+    }
+  }
 
   $variables['modules'] = [];
   // Iterate through all the modules, which are children of this element.
@@ -301,7 +255,7 @@ function template_preprocess_system_modules_uninstall(&$variables) {
  *   - theme_group_titles: An associative array containing titles of themes.
  */
 function template_preprocess_system_themes_page(&$variables) {
-  $groups = array();
+  $groups = [];
   $theme_groups = $variables['theme_groups'];
   $variables['attributes']['id'] = 'system-themes-page';
 
@@ -311,33 +265,33 @@ function template_preprocess_system_themes_page(&$variables) {
       continue;
     }
     // Start new theme group.
-    $theme_group = array();
+    $theme_group = [];
     $theme_group['state'] = $state;
     $theme_group['title'] = $title;
-    $theme_group['themes'] = array();
+    $theme_group['themes'] = [];
     $theme_group['attributes'] = new Attribute();
 
     foreach ($theme_groups[$state] as $theme) {
-      $current_theme = array();
+      $current_theme = [];
 
       // Screenshot depicting the theme.
       if ($theme->screenshot) {
-        $current_theme['screenshot'] = array(
+        $current_theme['screenshot'] = [
           '#theme' => 'image',
           '#uri' => $theme->screenshot['uri'],
           '#alt' => $theme->screenshot['alt'],
           '#title' => $theme->screenshot['title'],
           '#attributes' => $theme->screenshot['attributes'],
-        );
+        ];
       }
       else {
-        $current_theme['screenshot'] = array(
+        $current_theme['screenshot'] = [
           '#theme' => 'image',
           '#uri' => drupal_get_path('module', 'system') . '/images/no_screenshot.png',
           '#alt' => t('No screenshot'),
           '#title' => t('No screenshot'),
-          '#attributes' => new Attribute(array('class' => array('no-screenshot'))),
-        );
+          '#attributes' => new Attribute(['class' => ['no-screenshot']]),
+        ];
       }
 
       // Localize the theme description.
@@ -350,10 +304,16 @@ function template_preprocess_system_themes_page(&$variables) {
       $current_theme['is_default'] = $theme->is_default;
       $current_theme['is_admin'] = $theme->is_admin;
 
+      $current_theme['module_dependencies'] = !empty($theme->module_dependencies_list) ? [
+        '#theme' => 'item_list',
+        '#items' => $theme->module_dependencies_list,
+        '#context' => ['list_style' => 'comma-list'],
+      ] : [];
+
       // Make sure to provide feedback on compatibility.
       $current_theme['incompatible'] = '';
-      if (!empty($theme->incompatible_core)) {
-        $current_theme['incompatible'] = t("This theme is not compatible with Drupal @core_version. Check that the .info.yml file contains the correct 'core' value.", ['@core_version' => \Drupal::CORE_COMPATIBILITY]);
+      if (!empty($theme->info['core_incompatible'])) {
+        $current_theme['incompatible'] = t("This theme is not compatible with Drupal @core_version. Check that the .info.yml file contains a compatible 'core' or 'core_version_requirement' value.", ['@core_version' => \Drupal::VERSION]);
       }
       elseif (!empty($theme->incompatible_region)) {
         $current_theme['incompatible'] = t("This theme is missing a 'content' region.");
@@ -362,23 +322,37 @@ function template_preprocess_system_themes_page(&$variables) {
         if (substr_count($theme->info['php'], '.') < 2) {
           $theme->info['php'] .= '.*';
         }
-        $current_theme['incompatible'] = t('This theme requires PHP version @php_required and is incompatible with PHP version @php_version.', array('@php_required' => $theme->info['php'], '@php_version' => phpversion()));
+        $current_theme['incompatible'] = t('This theme requires PHP version @php_required and is incompatible with PHP version @php_version.', ['@php_required' => $theme->info['php'], '@php_version' => phpversion()]);
       }
       elseif (!empty($theme->incompatible_base)) {
-        $current_theme['incompatible'] = t('This theme requires the base theme @base_theme to operate correctly.', array('@base_theme' => $theme->info['base theme']));
+        $current_theme['incompatible'] = t('This theme requires the base theme @base_theme to operate correctly.', ['@base_theme' => $theme->info['base theme']]);
       }
       elseif (!empty($theme->incompatible_engine)) {
-        $current_theme['incompatible'] = t('This theme requires the theme engine @theme_engine to operate correctly.', array('@theme_engine' => $theme->info['engine']));
+        $current_theme['incompatible'] = t('This theme requires the theme engine @theme_engine to operate correctly.', ['@theme_engine' => $theme->info['engine']]);
+      }
+      elseif (!empty($theme->incompatible_module)) {
+        $current_theme['incompatible'] = t('This theme requires the listed modules to operate correctly.');
+      }
+      elseif (!empty($theme->module_dependencies_disabled)) {
+        if (!empty($theme->insufficient_module_permissions)) {
+          $current_theme['incompatible'] = t('This theme requires the listed modules to operate correctly. They must first be enabled by a user with permissions to do so.');
+        }
+        else {
+          $modules_url = (string) Url::fromRoute('system.modules_list')->toString();
+          $current_theme['incompatible'] = t('This theme requires the listed modules to operate correctly. They must first be enabled via the <a href=":modules_url">Extend page</a>.', [
+            ':modules_url' => $modules_url,
+          ]);
+        }
       }
 
       // Build operation links.
-      $current_theme['operations'] = array(
+      $current_theme['operations'] = [
         '#theme' => 'links',
         '#links' => $theme->operations,
-        '#attributes' => array(
-          'class' => array('operations', 'clearfix'),
-        ),
-      );
+        '#attributes' => [
+          'class' => ['operations', 'clearfix'],
+        ],
+      ];
       $theme_group['themes'][] = $current_theme;
     }
     $groups[] = $theme_group;

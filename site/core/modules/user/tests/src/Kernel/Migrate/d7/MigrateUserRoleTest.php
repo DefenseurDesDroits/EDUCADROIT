@@ -35,7 +35,7 @@ class MigrateUserRoleTest extends MigrateDrupal7TestBase {
   protected function assertEntity($id, $label, $original_rid) {
     /** @var \Drupal\user\RoleInterface $entity */
     $entity = Role::load($id);
-    $this->assertTrue($entity instanceof RoleInterface);
+    $this->assertInstanceOf(RoleInterface::class, $entity);
     $this->assertIdentical($label, $entity->label());
 
     if (isset($original_rid)) {
@@ -45,6 +45,7 @@ class MigrateUserRoleTest extends MigrateDrupal7TestBase {
         ->condition('rid', $original_rid)
         ->execute()
         ->fetchCol();
+      sort($permissions);
       $this->assertIdentical($permissions, $entity->getPermissions());
     }
   }

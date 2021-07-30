@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\views\FunctionalJavascript\Plugin\views\Handler;
 
-use Drupal\config\Tests\SchemaCheckTestTrait;
+use Drupal\Tests\SchemaCheckTestTrait;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
+use Drupal\FunctionalJavascriptTests\WebDriverTestBase;
 use Drupal\node\Entity\NodeType;
 use Drupal\views\Tests\ViewTestData;
 
@@ -13,13 +13,18 @@ use Drupal\views\Tests\ViewTestData;
  *
  * @group views
  */
-class FieldTest extends JavascriptTestBase {
+class FieldTest extends WebDriverTestBase {
   use SchemaCheckTestTrait;
 
   /**
    * {@inheritdoc}
    */
   public static $modules = ['node', 'views', 'views_ui', 'views_test_config'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
 
   /**
    * Views used by this test.

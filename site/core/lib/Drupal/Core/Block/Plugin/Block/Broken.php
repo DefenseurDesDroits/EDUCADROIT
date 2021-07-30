@@ -2,8 +2,11 @@
 
 namespace Drupal\Core\Block\Plugin\Block;
 
-use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Block\BlockPluginInterface;
+use Drupal\Core\Block\BlockPluginTrait;
+use Drupal\Core\Cache\CacheableDependencyTrait;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\PluginBase;
 
 /**
  * Defines a fallback plugin for missing block plugins.
@@ -14,7 +17,10 @@ use Drupal\Core\Form\FormStateInterface;
  *   category = @Translation("Block"),
  * )
  */
-class Broken extends BlockBase {
+class Broken extends PluginBase implements BlockPluginInterface {
+
+  use BlockPluginTrait;
+  use CacheableDependencyTrait;
 
   /**
    * {@inheritdoc}
@@ -38,7 +44,7 @@ class Broken extends BlockBase {
    */
   protected function brokenMessage() {
     $build['message'] = [
-      '#markup' => $this->t('This block is broken or missing. You may be missing content or you might need to enable the original module.')
+      '#markup' => $this->t('This block is broken or missing. You may be missing content or you might need to enable the original module.'),
     ];
 
     return $build;

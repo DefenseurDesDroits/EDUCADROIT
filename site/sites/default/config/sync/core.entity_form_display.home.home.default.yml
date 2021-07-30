@@ -144,14 +144,17 @@ content:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
+      match_limit: 10
     third_party_settings: {  }
     type: entity_reference_autocomplete
+    region: content
   field_document_spotlight_bool:
     weight: 9
     settings:
       display_label: true
     third_party_settings: {  }
     type: boolean_checkbox
+    region: content
   field_file:
     weight: 10
     settings:
@@ -164,6 +167,7 @@ content:
       field_widget_display_settings: {  }
     third_party_settings: {  }
     type: entity_browser_entity_reference
+    region: content
   field_image_about:
     weight: 5
     settings:
@@ -176,6 +180,7 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: entity_browser_file
+    region: content
   field_link_about:
     weight: 6
     settings:
@@ -183,14 +188,17 @@ content:
       placeholder_title: ''
     third_party_settings: {  }
     type: link_default
+    region: content
   field_resources:
     weight: 8
     settings:
       match_operator: CONTAINS
       size: 60
       placeholder: ''
+      match_limit: 10
     third_party_settings: {  }
     type: entity_reference_autocomplete
+    region: content
   field_spotlights:
     type: entity_reference_paragraphs
     weight: 11
@@ -201,6 +209,7 @@ content:
       add_mode: button
       form_display_mode: default
     third_party_settings: {  }
+    region: content
   field_teaser_about:
     weight: 4
     settings:
@@ -208,6 +217,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
   field_teaser_resources:
     weight: 3
     settings:
@@ -215,6 +225,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
   field_teaser_resources_list:
     weight: 7
     settings:
@@ -222,6 +233,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
   field_teaser_speakers:
     weight: 5
     settings:
@@ -229,6 +241,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
   field_title_about:
     weight: 3
     settings:
@@ -236,6 +249,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_title_resources:
     weight: 2
     settings:
@@ -243,6 +257,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_title_resources_list:
     weight: 6
     settings:
@@ -250,6 +265,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
   field_title_speakers:
     weight: 4
     settings:
@@ -257,6 +273,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textfield
+    region: content
 hidden:
   langcode: true
   user_id: true

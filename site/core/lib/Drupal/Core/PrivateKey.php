@@ -18,12 +18,12 @@ class PrivateKey {
   protected $state;
 
   /**
-   * Constructs the token generator.
+   * Constructs the private key object.
    *
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    */
-  function __construct(StateInterface $state) {
+  public function __construct(StateInterface $state) {
     $this->state = $state;
   }
 

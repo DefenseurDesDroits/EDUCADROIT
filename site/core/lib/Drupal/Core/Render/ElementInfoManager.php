@@ -65,6 +65,7 @@ class ElementInfoManager extends DefaultPluginManager implements ElementInfoMana
     $this->cacheTagInvalidator = $cache_tag_invalidator;
 
     parent::__construct('Element', $namespaces, $module_handler, 'Drupal\Core\Render\Element\ElementInterface', 'Drupal\Core\Render\Annotation\RenderElement');
+    $this->alterInfo('element_plugin');
   }
 
   /**
@@ -75,7 +76,7 @@ class ElementInfoManager extends DefaultPluginManager implements ElementInfoMana
     if (!isset($this->elementInfo[$theme_name])) {
       $this->elementInfo[$theme_name] = $this->buildInfo($theme_name);
     }
-    $info = isset($this->elementInfo[$theme_name][$type]) ? $this->elementInfo[$theme_name][$type] : array();
+    $info = isset($this->elementInfo[$theme_name][$type]) ? $this->elementInfo[$theme_name][$type] : [];
     $info['#defaults_loaded'] = TRUE;
     return $info;
   }
@@ -114,7 +115,7 @@ class ElementInfoManager extends DefaultPluginManager implements ElementInfoMana
       // will receive input, and assign the value callback.
       if ($element instanceof FormElementInterface) {
         $element_info['#input'] = TRUE;
-        $element_info['#value_callback'] = array($definition['class'], 'valueCallback');
+        $element_info['#value_callback'] = [$definition['class'], 'valueCallback'];
       }
       $info[$element_type] = $element_info;
     }
@@ -136,7 +137,7 @@ class ElementInfoManager extends DefaultPluginManager implements ElementInfoMana
    *
    * @return \Drupal\Core\Render\Element\ElementInterface
    */
-  public function createInstance($plugin_id, array $configuration = array()) {
+  public function createInstance($plugin_id, array $configuration = []) {
     return parent::createInstance($plugin_id, $configuration);
   }
 

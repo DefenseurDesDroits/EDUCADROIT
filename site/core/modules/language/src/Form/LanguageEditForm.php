@@ -6,6 +6,8 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Controller for language edit forms.
+ *
+ * @internal
  */
 class LanguageEditForm extends LanguageFormBase {
 
@@ -13,7 +15,7 @@ class LanguageEditForm extends LanguageFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    // @todo Remove in favour of base method.
+    // @todo Remove in favor of base method.
     return 'language_admin_edit_form';
   }
 
@@ -29,12 +31,12 @@ class LanguageEditForm extends LanguageFormBase {
    * {@inheritdoc}
    */
   public function actions(array $form, FormStateInterface $form_state) {
-    $actions['submit'] = array(
+    $actions['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save language'),
-      '#validate' => array('::validateCommon'),
-      '#submit' => array('::submitForm', '::save'),
-    );
+      '#validate' => ['::validateCommon'],
+      '#submit' => ['::submitForm', '::save'],
+    ];
     return $actions;
   }
 
@@ -43,8 +45,8 @@ class LanguageEditForm extends LanguageFormBase {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    $form_state->setRedirectUrl($this->entity->urlInfo('collection'));
-    $this->logger('language')->notice('The %language (%langcode) language has been updated.', array('%language' => $this->entity->label(), '%langcode' => $this->entity->id()));
+    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+    $this->logger('language')->notice('The %language (%langcode) language has been updated.', ['%language' => $this->entity->label(), '%langcode' => $this->entity->id()]);
   }
 
 }

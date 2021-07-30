@@ -35,14 +35,23 @@ class TwigWhiteListTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['node', 'taxonomy', 'user', 'system', 'text', 'field', 'entity_reference'];
+  public static $modules = [
+    'node',
+    'taxonomy',
+    'user',
+    'system',
+    'text',
+    'field',
+    'entity_reference',
+  ];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-    $this->installSchema('system', array('sequences'));
+    \Drupal::service('theme_installer')->install(['test_theme']);
+    $this->installSchema('system', ['sequences']);
     $this->installEntitySchema('node');
     $this->installEntitySchema('user');
     $this->installEntitySchema('taxonomy_term');
@@ -71,38 +80,39 @@ class TwigWhiteListTest extends KernelTestBase {
     $this->term->save();
 
     // Create a field.
-    $handler_settings = array(
-      'target_bundles' => array(
+    $handler_settings = [
+      'target_bundles' => [
         $vocabulary->id() => $vocabulary->id(),
-      ),
+      ],
       'auto_create' => TRUE,
-    );
+    ];
     // Add the term field.
-    FieldStorageConfig::create(array(
+    FieldStorageConfig::create([
       'field_name' => 'field_term',
       'type' => 'entity_reference',
       'entity_type' => 'node',
       'cardinality' => 1,
-      'settings' => array(
+      'settings' => [
         'target_type' => 'taxonomy_term',
-      ),
-    ))->save();
-    FieldConfig::create(array(
+      ],
+    ])->save();
+    FieldConfig::create([
       'field_name' => 'field_term',
       'entity_type' => 'node',
       'bundle' => 'page',
       'label' => 'Terms',
-      'settings' => array(
+      'settings' => [
         'handler' => 'default',
         'handler_settings' => $handler_settings,
-      ),
-    ))->save();
+      ],
+    ])->save();
 
     // Show on default display and teaser.
-    entity_get_display('node', 'page', 'default')
-      ->setComponent('field_term', array(
+    \Drupal::service('entity_display.repository')
+      ->getViewDisplay('node', 'page')
+      ->setComponent('field_term', [
         'type' => 'entity_reference_label',
-      ))
+      ])
       ->save();
     // Boot twig environment.
     $this->twig = \Drupal::service('twig');

@@ -2,9 +2,11 @@
 
 namespace Drupal\views;
 
+use Drupal\Core\DependencyInjection\DeprecatedServicePropertyTrait;
 use Drupal\Core\Entity\ContentEntityType;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\Core\Entity\Sql\TableMappingInterface;
@@ -21,6 +23,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterface {
 
   use StringTranslationTrait;
+  use DeprecatedServicePropertyTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $deprecatedProperties = ['entityManager' => 'entity.manager'];
 
   /**
    * Entity type for this views data handler instance.
@@ -58,11 +66,18 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
   protected $fieldStorageDefinitions;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
 
   /**
    * Constructs an EntityViewsData object.
@@ -71,19 +86,26 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
    *   The entity type to provide views integration for.
    * @param \Drupal\Core\Entity\Sql\SqlEntityStorageInterface $storage_controller
    *   The storage handler used for this entity type.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $translation_manager
    *   The translation manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    */
-  function __construct(EntityTypeInterface $entity_type, SqlEntityStorageInterface $storage_controller, EntityManagerInterface $entity_manager, ModuleHandlerInterface $module_handler, TranslationInterface $translation_manager) {
+  public function __construct(EntityTypeInterface $entity_type, SqlEntityStorageInterface $storage_controller, EntityTypeManagerInterface $entity_type_manager, ModuleHandlerInterface $module_handler, TranslationInterface $translation_manager, EntityFieldManagerInterface $entity_field_manager = NULL) {
     $this->entityType = $entity_type;
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->storage = $storage_controller;
     $this->moduleHandler = $module_handler;
     $this->setStringTranslation($translation_manager);
+    if (!$entity_field_manager) {
+      @trigger_error('Calling EntityViewsData::__construct() with the $entity_field_manager argument is supported in drupal:8.8.0 and will be required before drupal:9.0.0. See https://www.drupal.org/node/2549139.', E_USER_DEPRECATED);
+      $entity_field_manager = \Drupal::service('entity_field.manager');
+    }
+    $this->entityFieldManager = $entity_field_manager;
   }
 
   /**
@@ -92,11 +114,11 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
   public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity.manager')->getStorage($entity_type->id()),
-      $container->get('entity.manager'),
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager'),
       $container->get('module_handler'),
       $container->get('string_translation'),
-      $container->get('typed_data_manager')
+      $container->get('entity_field.manager')
     );
   }
 
@@ -107,7 +129,7 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
    */
   protected function getFieldStorageDefinitions() {
     if (!isset($this->fieldStorageDefinitions)) {
-      $this->fieldStorageDefinitions = $this->entityManager->getFieldStorageDefinitions($this->entityType->id());
+      $this->fieldStorageDefinitions = $this->entityFieldManager->getFieldStorageDefinitions($this->entityType->id());
     }
     return $this->fieldStorageDefinitions;
   }
@@ -156,33 +178,43 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
       'field' => $base_field,
       'title' => $this->entityType->getLabel(),
       'cache_contexts' => $this->entityType->getListCacheContexts(),
+      'access query tag' => $this->entityType->id() . '_access',
     ];
     $data[$base_table]['table']['entity revision'] = FALSE;
 
     if ($label_key = $this->entityType->getKey('label')) {
       if ($data_table) {
-        $data[$views_base_table]['table']['base']['defaults'] = array(
+        $data[$views_base_table]['table']['base']['defaults'] = [
           'field' => $label_key,
           'table' => $data_table,
-        );
+        ];
       }
       else {
-        $data[$views_base_table]['table']['base']['defaults'] = array(
+        $data[$views_base_table]['table']['base']['defaults'] = [
           'field' => $label_key,
-        );
+        ];
       }
     }
 
     // Entity types must implement a list_builder in order to use Views'
     // entity operations field.
     if ($this->entityType->hasListBuilderClass()) {
-      $data[$base_table]['operations'] = array(
-        'field' => array(
+      $data[$base_table]['operations'] = [
+        'field' => [
           'title' => $this->t('Operations links'),
           'help' => $this->t('Provides links to perform entity operations.'),
           'id' => 'entity_operations',
-        ),
-      );
+        ],
+      ];
+      if ($revision_table) {
+        $data[$revision_table]['operations'] = [
+          'field' => [
+            'title' => $this->t('Operations links'),
+            'help' => $this->t('Provides links to perform entity operations.'),
+            'id' => 'entity_operations',
+          ],
+        ];
+      }
     }
 
     if ($this->entityType->hasViewBuilderClass()) {
@@ -200,7 +232,7 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
       $data[$base_table]['table']['join'][$data_table] = [
         'left_field' => $base_field,
         'field' => $base_field,
-        'type' => 'INNER'
+        'type' => 'INNER',
       ];
       $data[$data_table]['table']['group'] = $this->entityType->getLabel();
       $data[$data_table]['table']['provider'] = $this->entityType->getProvider();
@@ -215,34 +247,51 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
         $views_revision_base_table = $revision_data_table;
       }
       $data[$views_revision_base_table]['table']['entity revision'] = TRUE;
-      $data[$views_revision_base_table]['table']['base'] = array(
+      $data[$views_revision_base_table]['table']['base'] = [
         'field' => $revision_field,
-        'title' => $this->t('@entity_type revisions', array('@entity_type' => $this->entityType->getLabel())),
-      );
+        'title' => $this->t('@entity_type revisions', ['@entity_type' => $this->entityType->getLabel()]),
+      ];
       // Join the revision table to the base table.
-      $data[$views_revision_base_table]['table']['join'][$views_base_table] = array(
+      $data[$views_revision_base_table]['table']['join'][$views_base_table] = [
         'left_field' => $revision_field,
         'field' => $revision_field,
         'type' => 'INNER',
-      );
+      ];
 
       if ($revision_data_table) {
         $data[$revision_data_table]['table']['group'] = $this->t('@entity_type revision', ['@entity_type' => $this->entityType->getLabel()]);
         $data[$revision_data_table]['table']['entity revision'] = TRUE;
 
-        $data[$revision_table]['table']['join'][$revision_data_table] = array(
+        $data[$revision_table]['table']['join'][$revision_data_table] = [
           'left_field' => $revision_field,
           'field' => $revision_field,
           'type' => 'INNER',
-        );
+        ];
+      }
+
+      // Add a filter for showing only the latest revisions of an entity.
+      $data[$revision_table]['latest_revision'] = [
+        'title' => $this->t('Is Latest Revision'),
+        'help' => $this->t('Restrict the view to only revisions that are the latest revision of their entity.'),
+        'filter' => ['id' => 'latest_revision'],
+      ];
+      if ($this->entityType->isTranslatable()) {
+        $data[$revision_table]['latest_translation_affected_revision'] = [
+          'title' => $this->t('Is Latest Translation Affected Revision'),
+          'help' => $this->t('Restrict the view to only revisions that are the latest translation affected revision of their entity.'),
+          'filter' => ['id' => 'latest_translation_affected_revision'],
+        ];
       }
     }
 
     $this->addEntityLinks($data[$base_table]);
+    if ($views_revision_base_table) {
+      $this->addEntityLinks($data[$views_revision_base_table]);
+    }
 
     // Load all typed data definitions of all fields. This should cover each of
     // the entity base, revision, data tables.
-    $field_definitions = $this->entityManager->getBaseFieldDefinitions($this->entityType->id());
+    $field_definitions = $this->entityFieldManager->getBaseFieldDefinitions($this->entityType->id());
     /** @var \Drupal\Core\Entity\Sql\DefaultTableMapping $table_mapping */
     if ($table_mapping = $this->storage->getTableMapping($field_definitions)) {
       // Fetch all fields that can appear in both the base table and the data
@@ -300,7 +349,7 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
 
     // Add the entity type key to each table generated.
     $entity_type_id = $this->entityType->id();
-    array_walk($data, function(&$table_data) use ($entity_type_id){
+    array_walk($data, function (&$table_data) use ($entity_type_id) {
       $table_data['table']['entity type'] = $entity_type_id;
     });
 
@@ -371,13 +420,10 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
     // @todo Introduce concept of the "main" column for a field, rather than
     //   assuming the first one is the main column. See also what the
     //   mapSingleFieldViewsData() method does with $first.
-    $multiple = (count($field_column_mapping) > 1);
     $first = TRUE;
     foreach ($field_column_mapping as $field_column_name => $schema_field_name) {
-      $views_field_name = ($multiple) ? $field_name . '__' . $field_column_name : $field_name;
-      $table_data[$views_field_name] = $this->mapSingleFieldViewsData($table, $field_name, $field_definition_type, $field_column_name, $field_schema['columns'][$field_column_name]['type'], $first, $field_definition);
-
-      $table_data[$views_field_name]['entity field'] = $field_name;
+      $table_data[$schema_field_name] = $this->mapSingleFieldViewsData($table, $field_name, $field_definition_type, $field_column_name, $field_schema['columns'][$field_column_name]['type'], $first, $field_definition);
+      $table_data[$schema_field_name]['entity field'] = $field_name;
       $first = FALSE;
     }
   }
@@ -404,7 +450,7 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
    *   The modified views data field definition.
    */
   protected function mapSingleFieldViewsData($table, $field_name, $field_type, $column_name, $column_type, $first, FieldDefinitionInterface $field_definition) {
-    $views_field = array();
+    $views_field = [];
 
     // Provide a nicer, less verbose label for the first column within a field.
     // @todo Introduce concept of the "main" column for a field, rather than
@@ -561,7 +607,7 @@ class EntityViewsData implements EntityHandlerInterface, EntityViewsDataInterfac
     // @see https://www.drupal.org/node/2322949
 
     if ($entity_type_id = $field_definition->getItemDefinition()->getSetting('target_type')) {
-      $entity_type = $this->entityManager->getDefinition($entity_type_id);
+      $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
       if ($entity_type instanceof ContentEntityType) {
         $views_field['relationship'] = [
           'base' => $this->getViewsTableForEntityType($entity_type),

@@ -10,6 +10,8 @@ use Drupal\Core\Database\Connection;
 
 /**
  * Builds the shortcut set deletion form.
+ *
+ * @internal
  */
 class ShortcutSetDeleteForm extends EntityDeleteForm {
 
@@ -41,7 +43,7 @@ class ShortcutSetDeleteForm extends EntityDeleteForm {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('database'),
-      $container->get('entity.manager')->getStorage('shortcut_set')
+      $container->get('entity_type.manager')->getStorage('shortcut_set')
     );
   }
 
@@ -65,9 +67,9 @@ class ShortcutSetDeleteForm extends EntityDeleteForm {
       $info .= '<p>' . t('If you have chosen this shortcut set as the default for some or all users, they may also be affected by deleting it.') . '</p>';
     }
 
-    $form['info'] = array(
+    $form['info'] = [
       '#markup' => $info,
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }

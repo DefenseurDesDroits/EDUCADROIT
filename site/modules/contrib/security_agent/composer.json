@@ -1,0 +1,16 @@
+{
+  "name": "drupal/security_agent",
+  "type": "drupal-module",
+  "description": "GAYA security agent",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "GAYA - La Nouvelle Agence",
+      "email": "tech@gaya.fr",
+      "homepage": "http://www.gaya.fr"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0"
+  }
+}

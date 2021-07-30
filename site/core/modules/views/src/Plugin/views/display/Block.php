@@ -2,7 +2,11 @@
 
 namespace Drupal\views\Plugin\views\display;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Url;
+use Drupal\Component\Plugin\Discovery\CachedDiscoveryInterface;
+use Drupal\Core\Block\BlockManagerInterface;
+use Drupal\Core\DependencyInjection\DeprecatedServicePropertyTrait;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\Block\ViewsBlock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -23,10 +27,16 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin = @Translation("Block")
  * )
  *
- * @see \Drupal\views\Plugin\block\block\ViewsBlock
+ * @see \Drupal\views\Plugin\Block\ViewsBlock
  * @see \Drupal\views\Plugin\Derivative\ViewsBlock
  */
 class Block extends DisplayPluginBase {
+  use DeprecatedServicePropertyTrait;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $deprecatedProperties = ['entityManager' => 'entity.manager'];
 
   /**
    * Whether the display allows attachments.
@@ -36,11 +46,18 @@ class Block extends DisplayPluginBase {
   protected $usesAttachments = TRUE;
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
+
+  /**
+   * The block manager.
+   *
+   * @var \Drupal\Core\Block\BlockManagerInterface
+   */
+  protected $blockManager;
 
   /**
    * Constructs a new Block instance.
@@ -51,13 +68,16 @@ class Block extends DisplayPluginBase {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager.
+   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
+   *   The block manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, BlockManagerInterface $block_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
 
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->blockManager = $block_manager;
   }
 
   /**
@@ -68,7 +88,8 @@ class Block extends DisplayPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager')
+      $container->get('entity_type.manager'),
+      $container->get('plugin.manager.block')
     );
   }
 
@@ -78,15 +99,15 @@ class Block extends DisplayPluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['block_description'] = array('default' => '');
-    $options['block_category'] = array('default' => $this->t('Lists (Views)'));
-    $options['block_hide_empty'] = array('default' => FALSE);
+    $options['block_description'] = ['default' => ''];
+    $options['block_category'] = ['default' => $this->t('Lists (Views)')];
+    $options['block_hide_empty'] = ['default' => FALSE];
 
-    $options['allow'] = array(
-      'contains' => array(
-        'items_per_page' => array('default' => 'items_per_page'),
-      ),
-    );
+    $options['allow'] = [
+      'contains' => [
+        'items_per_page' => ['default' => 'items_per_page'],
+      ],
+    ];
 
     return $options;
   }
@@ -116,7 +137,7 @@ class Block extends DisplayPluginBase {
     // display, and arguments should be set on the view.
     $element = $this->view->render();
     if ($this->outputIsEmpty() && $this->getOption('block_hide_empty') && empty($this->view->style_plugin->definition['even empty'])) {
-      return array();
+      return [];
     }
     else {
       return $element;
@@ -131,13 +152,13 @@ class Block extends DisplayPluginBase {
   public function optionsSummary(&$categories, &$options) {
     parent::optionsSummary($categories, $options);
 
-    $categories['block'] = array(
+    $categories['block'] = [
       'title' => $this->t('Block settings'),
       'column' => 'second',
-      'build' => array(
+      'build' => [
         '#weight' => -10,
-      ),
-    );
+      ],
+    ];
 
     $block_description = strip_tags($this->getOption('block_description'));
     if (empty($block_description)) {
@@ -145,30 +166,30 @@ class Block extends DisplayPluginBase {
     }
     $block_category = $this->getOption('block_category');
 
-    $options['block_description'] = array(
+    $options['block_description'] = [
       'category' => 'block',
       'title' => $this->t('Block name'),
       'value' => views_ui_truncate($block_description, 24),
-    );
-    $options['block_category'] = array(
+    ];
+    $options['block_category'] = [
       'category' => 'block',
       'title' => $this->t('Block category'),
       'value' => views_ui_truncate($block_category, 24),
-    );
+    ];
 
     $filtered_allow = array_filter($this->getOption('allow'));
 
-    $options['allow'] = array(
+    $options['allow'] = [
       'category' => 'block',
       'title' => $this->t('Allow settings'),
       'value' => empty($filtered_allow) ? $this->t('None') : $this->t('Items per page'),
-    );
+    ];
 
-    $options['block_hide_empty'] = array(
+    $options['block_hide_empty'] = [
       'category' => 'other',
       'title' => $this->t('Hide block if the view output is empty'),
       'value' => $this->getOption('block_hide_empty') ? $this->t('Yes') : $this->t('No'),
-    );
+    ];
   }
 
   /**
@@ -180,53 +201,57 @@ class Block extends DisplayPluginBase {
     switch ($form_state->get('section')) {
       case 'block_description':
         $form['#title'] .= $this->t('Block admin description');
-        $form['block_description'] = array(
+        $form['block_description'] = [
           '#type' => 'textfield',
           '#description' => $this->t('This will appear as the name of this block in administer >> structure >> blocks.'),
           '#default_value' => $this->getOption('block_description'),
-        );
+        ];
         break;
+
       case 'block_category':
         $form['#title'] .= $this->t('Block category');
-        $form['block_category'] = array(
+        $form['block_category'] = [
           '#type' => 'textfield',
           '#autocomplete_route_name' => 'block.category_autocomplete',
-          '#description' => $this->t('The category this block will appear under on the <a href=":href">blocks placement page</a>.', array(':href' => \Drupal::url('block.admin_display'))),
+          '#description' => $this->t('The category this block will appear under on the <a href=":href">blocks placement page</a>.', [':href' => Url::fromRoute('block.admin_display')->toString()]),
           '#default_value' => $this->getOption('block_category'),
-        );
+        ];
         break;
+
       case 'block_hide_empty':
         $form['#title'] .= $this->t('Block empty settings');
 
-        $form['block_hide_empty'] = array(
+        $form['block_hide_empty'] = [
           '#title' => $this->t('Hide block if no result/empty text'),
           '#type' => 'checkbox',
           '#description' => $this->t('Hide the block if there is no result and no empty text and no header/footer which is shown on empty result'),
           '#default_value' => $this->getOption('block_hide_empty'),
-        );
+        ];
         break;
+
       case 'exposed_form_options':
         $this->view->initHandlers();
         if (!$this->usesExposed() && parent::usesExposed()) {
-          $form['exposed_form_options']['warning'] = array(
+          $form['exposed_form_options']['warning'] = [
             '#weight' => -10,
             '#markup' => '<div class="messages messages--warning">' . $this->t('Exposed filters in block displays require "Use AJAX" to be set to work correctly.') . '</div>',
-          );
+          ];
         }
         break;
+
       case 'allow':
         $form['#title'] .= $this->t('Allow settings in the block configuration');
 
-        $options = array(
+        $options = [
           'items_per_page' => $this->t('Items per page'),
-        );
+        ];
 
         $allow = array_filter($this->getOption('allow'));
-        $form['allow'] = array(
+        $form['allow'] = [
           '#type' => 'checkboxes',
           '#default_value' => $allow,
           '#options' => $options,
-        );
+        ];
         break;
     }
   }
@@ -260,7 +285,7 @@ class Block extends DisplayPluginBase {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @return array $form
+   * @return array
    *   The renderable form array representing the entire configuration form.
    *
    * @see \Drupal\views\Plugin\Block\ViewsBlock::blockForm()
@@ -276,18 +301,26 @@ class Block extends DisplayPluginBase {
       }
       switch ($type) {
         case 'items_per_page':
-          $form['override']['items_per_page'] = array(
+          $form['override']['items_per_page'] = [
             '#type' => 'select',
             '#title' => $this->t('Items per block'),
-            '#options' => array(
-              'none' => $this->t('@count (default setting)', array('@count' => $this->getPlugin('pager')->getItemsPerPage())),
+            '#options' => [
+              'none' => $this->t('@count (default setting)', ['@count' => $this->getPlugin('pager')->getItemsPerPage()]),
+              1 => 1,
+              2 => 2,
+              3 => 3,
+              4 => 4,
               5 => 5,
+              6 => 6,
               10 => 10,
+              12 => 12,
               20 => 20,
+              24 => 24,
               40 => 40,
-            ),
+              48 => 48,
+            ],
             '#default_value' => $block_configuration['items_per_page'],
-          );
+          ];
           break;
       }
     }
@@ -323,10 +356,10 @@ class Block extends DisplayPluginBase {
    * @see \Drupal\views\Plugin\Block\ViewsBlock::blockSubmit()
    */
   public function blockSubmit(ViewsBlock $block, $form, FormStateInterface $form_state) {
-    if ($items_per_page = $form_state->getValue(array('override', 'items_per_page'))) {
+    if ($items_per_page = $form_state->getValue(['override', 'items_per_page'])) {
       $block->setConfigurationValue('items_per_page', $items_per_page);
     }
-    $form_state->unsetValue(array('override', 'items_per_page'));
+    $form_state->unsetValue(['override', 'items_per_page']);
   }
 
   /**
@@ -358,11 +391,14 @@ class Block extends DisplayPluginBase {
   public function remove() {
     parent::remove();
 
-    if ($this->entityManager->hasDefinition('block')) {
+    if ($this->entityTypeManager->hasDefinition('block')) {
       $plugin_id = 'views_block:' . $this->view->storage->id() . '-' . $this->display['id'];
-      foreach ($this->entityManager->getStorage('block')->loadByProperties(['plugin' => $plugin_id]) as $block) {
+      foreach ($this->entityTypeManager->getStorage('block')->loadByProperties(['plugin' => $plugin_id]) as $block) {
         $block->delete();
       }
+    }
+    if ($this->blockManager instanceof CachedDiscoveryInterface) {
+      $this->blockManager->clearCachedDefinitions();
     }
   }
 

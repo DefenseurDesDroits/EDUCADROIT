@@ -19,15 +19,22 @@ class Crypt {
    *
    * In PHP 7 and up, this uses the built-in PHP function random_bytes().
    * In older PHP versions, this uses the random_bytes() function provided by
-   * the random_compat library.
+   * the random_compat library, or the fallback hash-based generator from Drupal
+   * 7.x.
    *
    * @param int $count
    *   The number of characters (bytes) to return in the string.
    *
    * @return string
    *   A randomly generated string.
+   *
+   * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0.
+   *   Use PHP's built-in random_bytes() function instead.
+   *
+   * @see https://www.drupal.org/node/3057191
    */
   public static function randomBytes($count) {
+    @trigger_error(__CLASS__ . '::randomBytes() is deprecated in Drupal 8.8.0 and will be removed before Drupal 9.0.0. Use PHP\'s built-in random_bytes() function instead. See https://www.drupal.org/node/3057191', E_USER_DEPRECATED);
     return random_bytes($count);
   }
 
@@ -83,37 +90,15 @@ class Crypt {
    *
    * @return bool
    *   Returns TRUE when the two strings are equal, FALSE otherwise.
+   *
+   * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0.
+   *   Use PHP's built-in hash_equals() function instead.
+   *
+   * @see https://www.drupal.org/node/3054488
    */
   public static function hashEquals($known_string, $user_string) {
-    if (function_exists('hash_equals')) {
-      return hash_equals($known_string, $user_string);
-    }
-    else {
-      // Backport of hash_equals() function from PHP 5.6
-      // @see https://github.com/php/php-src/blob/PHP-5.6/ext/hash/hash.c#L739
-      if (!is_string($known_string)) {
-        trigger_error(sprintf("Expected known_string to be a string, %s given", gettype($known_string)), E_USER_WARNING);
-        return FALSE;
-      }
-
-      if (!is_string($user_string)) {
-        trigger_error(sprintf("Expected user_string to be a string, %s given", gettype($user_string)), E_USER_WARNING);
-        return FALSE;
-      }
-
-      $known_len = strlen($known_string);
-      if ($known_len !== strlen($user_string)) {
-        return FALSE;
-      }
-
-      // This is security sensitive code. Do not optimize this for speed.
-      $result = 0;
-      for ($i = 0; $i < $known_len; $i++) {
-        $result |= (ord($known_string[$i]) ^ ord($user_string[$i]));
-      }
-
-      return $result === 0;
-    }
+    @trigger_error(__CLASS__ . '::hashEquals() is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use PHP\'s built-in hash_equals() function instead. See https://www.drupal.org/node/3054488', E_USER_DEPRECATED);
+    return hash_equals($known_string, $user_string);
   }
 
   /**
@@ -123,12 +108,13 @@ class Crypt {
    *   The number of random bytes to fetch and base64 encode.
    *
    * @return string
-   *   The base64 encoded result will have a length of up to 4 * $count.
+   *   A base-64 encoded string, with + replaced with -, / with _ and any =
+   *   padding characters removed.
    *
    * @see \Drupal\Component\Utility\Crypt::randomBytes()
    */
   public static function randomBytesBase64($count = 32) {
-    return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(static::randomBytes($count)));
+    return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode(random_bytes($count)));
   }
 
 }

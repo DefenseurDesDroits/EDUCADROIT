@@ -30,14 +30,14 @@ class RouteProcessorManagerTest extends UnitTestCase {
    */
   public function testRouteProcessorManager() {
     $route = new Route('');
-    $parameters = array('test' => 'test');
+    $parameters = ['test' => 'test'];
     $route_name = 'test_name';
 
-    $processors = array(
+    $processors = [
       10 => $this->getMockProcessor($route_name, $route, $parameters),
       5 => $this->getMockProcessor($route_name, $route, $parameters),
       0 => $this->getMockProcessor($route_name, $route, $parameters),
-    );
+    ];
 
     // Add the processors in reverse order.
     foreach ($processors as $priority => $processor) {
@@ -60,10 +60,10 @@ class RouteProcessorManagerTest extends UnitTestCase {
    * @param array $parameters
    *   The parameters to use in mock with() expectation.
    *
-   * @return \Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @return \Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected function getMockProcessor($route_name, $route, $parameters) {
-    $processor = $this->getMock('Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface');
+    $processor = $this->createMock('Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface');
     $processor->expects($this->once())
       ->method('processOutbound')
       ->with($route_name, $route, $parameters);

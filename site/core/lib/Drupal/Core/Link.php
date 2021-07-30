@@ -3,7 +3,7 @@
 namespace Drupal\Core;
 
 use Drupal\Core\Render\RenderableInterface;
-use Drupal\Core\Routing\LinkGeneratorTrait;
+use Drupal\Core\Utility\LinkGeneratorInterface;
 
 /**
  * Defines an object that holds information about a link.
@@ -11,9 +11,11 @@ use Drupal\Core\Routing\LinkGeneratorTrait;
 class Link implements RenderableInterface {
 
   /**
-   * @deprecated in Drupal 8.0.x-dev, will be removed before Drupal 9.0.0.
+   * The link generator.
+   *
+   * @var \Drupal\Core\Utility\LinkGeneratorInterface
    */
-  use LinkGeneratorTrait;
+  protected $linkGenerator;
 
   /**
    * The text of the link.
@@ -52,33 +54,20 @@ class Link implements RenderableInterface {
    * @param array $route_parameters
    *   (optional) An associative array of parameter names and values.
    * @param array $options
-   *   (optional) An associative array of additional options, with the following
-   *   elements:
-   *   - 'query': An array of query key/value-pairs (without any URL-encoding)
-   *     to append to the URL. Merged with the parameters array.
-   *   - 'fragment': A fragment identifier (named anchor) to append to the URL.
-   *     Do not include the leading '#' character.
-   *   - 'absolute': Defaults to FALSE. Whether to force the output to be an
-   *     absolute link (beginning with http:). Useful for links that will be
-   *     displayed outside the site, such as in an RSS feed.
-   *   - 'language': An optional language object used to look up the alias
-   *     for the URL. If $options['language'] is omitted, it defaults to the
-   *     current language for the language type LanguageInterface::TYPE_URL.
-   *   - 'https': Whether this URL should point to a secure location. If not
-   *     defined, the current scheme is used, so the user stays on HTTP or HTTPS
-   *     respectively. TRUE enforces HTTPS and FALSE enforces HTTP.
+   *   The options parameter takes exactly the same structure.
+   *   See \Drupal\Core\Url::fromUri() for details.
    *
    * @return static
    */
-  public static function createFromRoute($text, $route_name, $route_parameters = array(), $options = array()) {
+  public static function createFromRoute($text, $route_name, $route_parameters = [], $options = []) {
     return new static($text, new Url($route_name, $route_parameters, $options));
   }
 
   /**
    * Creates a Link object from a given Url object.
    *
-   * @param string $text
-   *   The text of the link.
+   * @param string|array|\Drupal\Component\Render\MarkupInterface $text
+   *   The link text for the anchor tag as a translated string or render array.
    * @param \Drupal\Core\Url $url
    *   The Url to create the link for.
    *
@@ -158,6 +147,33 @@ class Link implements RenderableInterface {
       '#url' => $this->url,
       '#title' => $this->text,
     ];
+  }
+
+  /**
+   * Returns the link generator.
+   *
+   * @return \Drupal\Core\Utility\LinkGeneratorInterface
+   *   The link generator
+   */
+  protected function getLinkGenerator() {
+    if (!isset($this->linkGenerator)) {
+      $this->linkGenerator = \Drupal::service('link_generator');
+    }
+    return $this->linkGenerator;
+  }
+
+  /**
+   * Sets the link generator service.
+   *
+   * @param \Drupal\Core\Utility\LinkGeneratorInterface $generator
+   *   The link generator service.
+   *
+   * @return $this
+   */
+  public function setLinkGenerator(LinkGeneratorInterface $generator) {
+    $this->linkGenerator = $generator;
+
+    return $this;
   }
 
 }

@@ -22,6 +22,7 @@ content:
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image:
     weight: 1
     label: visually_hidden
@@ -30,12 +31,14 @@ content:
       image_link: ''
     third_party_settings: {  }
     type: image
+    region: content
   field_page:
     weight: 3
     label: above
     settings: {  }
     third_party_settings: {  }
     type: list_default
+    region: content
 hidden:
   created: true
   uid: true

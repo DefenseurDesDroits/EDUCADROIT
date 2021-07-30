@@ -5,5 +5,4 @@ dependencies: {  }
 name: 'Sujets des messages'
 vid: contact_object
 description: ''
-hierarchy: 1
 weight: 0

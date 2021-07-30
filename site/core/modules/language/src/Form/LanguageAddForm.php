@@ -5,10 +5,13 @@ namespace Drupal\language\Form;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManager;
+use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
 
 /**
  * Controller for language addition forms.
+ *
+ * @internal
  */
 class LanguageAddForm extends LanguageFormBase {
 
@@ -16,7 +19,7 @@ class LanguageAddForm extends LanguageFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    // @todo Remove in favour of base method.
+    // @todo Remove in favor of base method.
     return 'language_admin_add_form';
   }
 
@@ -30,50 +33,50 @@ class LanguageAddForm extends LanguageFormBase {
 
     $predefined_languages['custom'] = $this->t('Custom language...');
     $predefined_default = $form_state->getValue('predefined_langcode', key($predefined_languages));
-    $form['predefined_langcode'] = array(
+    $form['predefined_langcode'] = [
       '#type' => 'select',
       '#title' => $this->t('Language name'),
       '#default_value' => $predefined_default,
       '#options' => $predefined_languages,
-    );
-    $form['predefined_submit'] = array(
+    ];
+    $form['predefined_submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add language'),
       '#name' => 'add_language',
-      '#limit_validation_errors' => array(array('predefined_langcode'), array('predefined_submit')),
-      '#states' => array(
-        'invisible' => array(
-          'select#edit-predefined-langcode' => array('value' => 'custom'),
-        ),
-      ),
-      '#validate' => array('::validatePredefined'),
-      '#submit' => array('::submitForm', '::save'),
+      '#limit_validation_errors' => [['predefined_langcode'], ['predefined_submit']],
+      '#states' => [
+        'invisible' => [
+          'select#edit-predefined-langcode' => ['value' => 'custom'],
+        ],
+      ],
+      '#validate' => ['::validatePredefined'],
+      '#submit' => ['::submitForm', '::save'],
       '#button_type' => 'primary',
-    );
+    ];
 
-    $custom_language_states_conditions = array(
-      'select#edit-predefined-langcode' => array('value' => 'custom'),
-    );
-    $form['custom_language'] = array(
+    $custom_language_states_conditions = [
+      'select#edit-predefined-langcode' => ['value' => 'custom'],
+    ];
+    $form['custom_language'] = [
       '#type' => 'container',
-      '#states' => array(
+      '#states' => [
         'visible' => $custom_language_states_conditions,
-      ),
-    );
+      ],
+    ];
     $this->commonForm($form['custom_language']);
-    $form['custom_language']['langcode']['#states'] = array(
+    $form['custom_language']['langcode']['#states'] = [
       'required' => $custom_language_states_conditions,
-    );
-    $form['custom_language']['label']['#states'] = array(
+    ];
+    $form['custom_language']['label']['#states'] = [
       'required' => $custom_language_states_conditions,
-    );
-    $form['custom_language']['submit'] = array(
+    ];
+    $form['custom_language']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add custom language'),
       '#name' => 'add_custom_language',
-      '#validate' => array('::validateCustom'),
-      '#submit' => array('::submitForm', '::save'),
-    );
+      '#validate' => ['::validateCustom'],
+      '#submit' => ['::submitForm', '::save'],
+    ];
 
     return $form;
   }
@@ -84,16 +87,16 @@ class LanguageAddForm extends LanguageFormBase {
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
 
-    $t_args = array('%language' => $this->entity->label(), '%langcode' => $this->entity->id());
+    $t_args = ['%language' => $this->entity->label(), '%langcode' => $this->entity->id()];
     $this->logger('language')->notice('The %language (%langcode) language has been created.', $t_args);
-    drupal_set_message($this->t('The language %language has been created and can now be used.', $t_args));
+    $this->messenger()->addStatus($this->t('The language %language has been created and can now be used.', $t_args));
 
     if ($this->moduleHandler->moduleExists('block')) {
       // Tell the user they have the option to add a language switcher block
       // to their theme so they can switch between the languages.
-      drupal_set_message($this->t('Use one of the language switcher blocks to allow site visitors to switch between languages. You can enable these blocks on the <a href=":block-admin">block administration page</a>.', array(':block-admin' => $this->url('block.admin_display'))));
+      $this->messenger()->addStatus($this->t('Use one of the language switcher blocks to allow site visitors to switch between languages. You can enable these blocks on the <a href=":block-admin">block administration page</a>.', [':block-admin' => Url::fromRoute('block.admin_display')->toString()]));
     }
-    $form_state->setRedirectUrl($this->entity->urlInfo('collection'));
+    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
   }
 
   /**
@@ -101,7 +104,7 @@ class LanguageAddForm extends LanguageFormBase {
    */
   public function actions(array $form, FormStateInterface $form_state) {
     // No actions needed.
-    return array();
+    return [];
   }
 
   /**
@@ -114,7 +117,7 @@ class LanguageAddForm extends LanguageFormBase {
       $this->validateCommon($form['custom_language'], $form_state);
 
       if ($language = $this->languageManager->getLanguage($langcode)) {
-        $form_state->setErrorByName('langcode', $this->t('The language %language (%langcode) already exists.', array('%language' => $language->getName(), '%langcode' => $langcode)));
+        $form_state->setErrorByName('langcode', $this->t('The language %language (%langcode) already exists.', ['%language' => $language->getName(), '%langcode' => $langcode]));
       }
     }
     else {
@@ -132,7 +135,7 @@ class LanguageAddForm extends LanguageFormBase {
     }
     else {
       if ($language = $this->languageManager->getLanguage($langcode)) {
-        $form_state->setErrorByName('predefined_langcode', $this->t('The language %language (%langcode) already exists.', array('%language' => $language->getName(), '%langcode' => $langcode)));
+        $form_state->setErrorByName('predefined_langcode', $this->t('The language %language (%langcode) already exists.', ['%language' => $language->getName(), '%langcode' => $langcode]));
       }
     }
   }

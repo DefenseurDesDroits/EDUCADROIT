@@ -8,11 +8,31 @@ namespace Drupal\update;
 interface UpdateFetcherInterface {
 
   /**
+   * Project's status cannot be checked.
+   */
+  const NOT_CHECKED = -1;
+
+  /**
+   * No available update data was found for project.
+   */
+  const UNKNOWN = -2;
+
+  /**
+   * There was a failure fetching available update data for this project.
+   */
+  const NOT_FETCHED = -3;
+
+  /**
+   * We need to (re)fetch available update data for this project.
+   */
+  const FETCH_PENDING = -4;
+
+  /**
    * Returns the base of the URL to fetch available update data for a project.
    *
    * @param array $project
    *   The array of project information from
-   *   \Drupal\Update\UpdateManager::getProjects().
+   *   \Drupal\update\UpdateManager::getProjects().
    *
    * @return string
    *   The base of the URL used for fetching available update data. This does
@@ -26,7 +46,7 @@ interface UpdateFetcherInterface {
    *
    * @param array $project
    *   The array of project information from
-   *   \Drupal\Update\UpdateManager::getProjects().
+   *   \Drupal\update\UpdateManager::getProjects().
    * @param string $site_key
    *   (optional) The anonymous site key hash. Defaults to an empty string.
    *
@@ -44,7 +64,7 @@ interface UpdateFetcherInterface {
    *
    * @param array $project
    *   The array of project information from
-   *   \Drupal\Update\UpdateManager::getProjects().
+   *   \Drupal\update\UpdateManager::getProjects().
    * @param string $site_key
    *   (optional) The anonymous site key hash. Defaults to an empty string.
    *

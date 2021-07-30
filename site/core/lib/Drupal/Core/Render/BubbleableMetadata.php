@@ -15,7 +15,7 @@ class BubbleableMetadata extends CacheableMetadata implements AttachmentsInterfa
   use AttachmentsTrait;
 
   /**
-   * Merges the values of another bubbleable metadata object with this one.
+   * Creates a new bubbleable metadata object by merging this one with another.
    *
    * @param \Drupal\Core\Cache\CacheableMetadata $other
    *   The other bubbleable metadata object.
@@ -149,7 +149,7 @@ class BubbleableMetadata extends CacheableMetadata implements AttachmentsInterfa
     // correctly; adding the same settings multiple times needs to behave
     // idempotently.
     if (!empty($a['drupalSettings']) && !empty($b['drupalSettings'])) {
-      $drupalSettings = NestedArray::mergeDeepArray(array($a['drupalSettings'], $b['drupalSettings']), TRUE);
+      $drupalSettings = NestedArray::mergeDeepArray([$a['drupalSettings'], $b['drupalSettings']], TRUE);
       // No need for re-merging them.
       unset($a['drupalSettings']);
       unset($b['drupalSettings']);

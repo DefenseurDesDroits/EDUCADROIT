@@ -5,7 +5,7 @@ Initialize Symfony Console commands from annotated command class methods.
 [![Travis CI](https://travis-ci.org/consolidation/annotated-command.svg?branch=master)](https://travis-ci.org/consolidation/annotated-command)
 [![Windows CI](https://ci.appveyor.com/api/projects/status/c2c4lcf43ux4c30p?svg=true)](https://ci.appveyor.com/project/greg-1-anderson/annotated-command)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/consolidation/annotated-command/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/consolidation/annotated-command/?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/consolidation/annotated-command/badge.svg?branch=master)](https://coveralls.io/github/consolidation/annotated-command?branch=master) 
+[![Coverage Status](https://coveralls.io/repos/github/consolidation/annotated-command/badge.svg?branch=master)](https://coveralls.io/github/consolidation/annotated-command?branch=master)
 [![License](https://poser.pugx.org/consolidation/annotated-command/license)](https://packagist.org/packages/consolidation/annotated-command)
 
 ## Component Status
@@ -24,14 +24,14 @@ Extant commandline tools that utilize this technique include:
 
 This library provides routines to produce the Symfony\Component\Console\Command\Command from all public methods defined in the provided class.
 
-**Note** If you are looking for a very fast way to write a Symfony Console-base command-line tool, you should consider using [Robo](https://github.com/consolidation/Robo), which is built on top of this library, and adds additional conveniences to get you going quickly. See [Using Robo as a Framework](https://github.com/consolidation/Robo/docs/framework.md).  It is possible to use this project without Robo if desired, of course.
+**Note** If you are looking for a very fast way to write a Symfony Console-base command-line tool, you should consider using [Robo](https://github.com/consolidation/Robo), which is built on top of this library, and adds additional conveniences to get you going quickly. Use [g1a/starter](https://github.com/g1a/starter) to quickly scaffold a new commandline tool. See [Using Robo as a Framework](http://robo.li/framework/).  It is possible to use this project without Robo if desired, of course.
 
 ## Library Usage
 
 This is a library intended to be used in some other project.  Require from your composer.json file:
 ```
     "require": {
-        "consolidation/annotated-command": "~2"
+        "consolidation/annotated-command": "^2"
     },
 ```
 
@@ -43,12 +43,12 @@ The rest of the parameters are arguments. Parameters with a default value are op
 class MyCommandClass
 {
     /**
-     * This is the my:cat command
+     * This is the my:echo command
      *
      * This command will concatenate two parameters. If the --flip flag
      * is provided, then the result is the concatenation of two and one.
      *
-     * @command my:cat
+     * @command my:echo
      * @param integer $one The first parameter.
      * @param integer $two The other parameter.
      * @option arr An option that takes multiple values.
@@ -57,7 +57,7 @@ class MyCommandClass
      * @usage bet alpha --flip
      *   Concatenate "alpha" and "bet".
      */
-    public function myCat($one, $two, $options = ['flip' => false])
+    public function myEcho($one, $two, $options = ['flip' => false])
     {
         if ($options['flip']) {
             return "{$two}{$one}";
@@ -65,7 +65,7 @@ class MyCommandClass
         return "{$one}{$two}";
     }
 }
-``` 
+```
 ## Option Default Values
 
 The `$options` array must be an associative array whose key is the name of the option, and whose value is one of:
@@ -87,7 +87,7 @@ The `$options` array must be an associative array whose key is the name of the o
   - If the user adds `--no-foo` on the commandline, then the value of `foo` will be `false`.
 - An empty array, which indicates that the option may appear multiple times on the command line.
 
-No other values should be used for the default value. For example, `$options = ['a' => 1]` is **incorrect**; instead, use `$options = ['a' => '1']`. Similarly, `$options = ['a' => true]` is unsupported, or at least not useful, as this would indicate that the value of `--a` was always `true`, whether or not it appeared on the command line.
+No other values should be used for the default value. For example, `$options = ['a' => 1]` is **incorrect**; instead, use `$options = ['a' => '1']`.
 
 Default values for options may also be provided via the `@default` annotation. See hook alter, below.
 
@@ -103,24 +103,56 @@ The hook **target** specifies which command or commands the hook will be attache
 
 - The command's primary name (e.g. `my:command`) or the command's method name (e.g. myCommand) will attach the hook to only that command.
 - An annotation (e.g. `@foo`) will attach the hook to any command that is annotated with the given label.
+- If the target is specified as `*`, then the hook will be attached to all commands.
 - If the target is omitted, then the hook will be attached to every command defined in the same class as the hook implementation.
 
-There are ten types of hooks supported:
+There are ten types of hooks in the command processing request flow:
 
-- Command Event (Symfony)
-- Option
-- Initialize (Symfony)
-- Interact (Symfony)
-- Validate
-- Command
-- Process
-- Alter
-- Status
-- Extract
-- On-event
-- Replace Command
+- [Command Event](#command-event-hook) (Symfony)
+   - @pre-command-event
+   - @command-event
+   - @post-command-event
+- [Option](#option-event-hook)
+   - @pre-option
+   - @option
+   - @post-option
+- [Initialize](#initialize-hook) (Symfony)
+   - @pre-init
+   - @init
+   - @post-init
+- [Interact](#interact-hook) (Symfony)
+   - @pre-interact
+   - @interact
+   - @post-interact
+- [Validate](#validate-hook)
+   - @pre-validate
+   - @validate
+   - @post-validate
+- [Command](#command-hook)
+   - @pre-command
+   - @command
+   - @post-command
+- [Process](#process-hook)
+   - @pre-process
+   - @process
+   - @post-process
+- [Alter](#alter-hook)
+   - @pre-alter
+   - @alter
+   - @post-alter
+- [Status](#status-hook)
+   - @status
+- [Extract](#extract-hook)
+   - @extract
 
-Most of these also have "pre" and "post" varieties, to give more flexibility vis-a-vis hook ordering (and for consistency). Within one type of hook, the running order is undefined and not guaranteed. Note that many validate, process and alter hooks may run, but the first status or extract hook that successfully returns a result will halt processing of further hooks of the same type.
+In addition to these, there are two more hooks available:
+
+- [On-event](#on-event-hook)
+   - @on-event
+- [Replace Command](#replace-command-hook)
+   - @replace-command
+
+The "pre" and "post" varieties of these hooks, where avalable, give more flexibility vis-a-vis hook ordering (and for consistency). Within one type of hook, the running order is undefined and not guaranteed. Note that many validate, process and alter hooks may run, but the first status or extract hook that successfully returns a result will halt processing of further hooks of the same type.
 
 Each hook has an interface that defines its calling conventions; however, any callable may be used when registering a hook, which is convenient if versions of PHP prior to 7.0 (with no anonymous classes) need to be supported.
 
@@ -167,6 +199,42 @@ public function initSomeCommand(InputInterface $input, AnnotationData $annotatio
     if (!$value) {
         $input->setOption('some-option', $this->generateRandomOptionValue());
     }
+}
+```
+
+You may alter the AnnotationData here by using simple array syntax. Below, we
+add an additional display field label for a Property List.
+
+```
+use Consolidation\AnnotatedCommand\AnnotationData;
+use Symfony\Component\Console\Input\InputInterface;
+
+/**
+ * @hook init some:command
+ */
+public function initSomeCommand(InputInterface $input, AnnotationData $annotationData)
+{
+    $annotationData['field-labels'] .= "\n" . "new_field: My new field";
+}
+```
+
+Alternately, you may use the `set()` or `append()` methods on the AnnotationData
+class.
+
+```
+use Consolidation\AnnotatedCommand\AnnotationData;
+use Symfony\Component\Console\Input\InputInterface;
+
+/**
+ * @hook init some:command
+ */
+public function initSomeCommand(InputInterface $input, AnnotationData $annotationData)
+{
+    // Add a line to the field labels.
+    $annotationData->append('field-labels', "\n" . "new_field: My new field");
+    // Replace all field labels.
+    $annotationData->set('field-labels', "one_field: My only field");
+
 }
 ```
 
@@ -314,11 +382,19 @@ public function nameSomeCommand($result, CommandData $commandData)
 
 ### Status Hook
 
+**DEPRECATED**
+
+Instead of using a Status Determiner hook, commands should simply return their exit code and result data separately using a CommandResult object.
+
 The status hook ([StatusDeterminerInterface](src/Hooks/StatusDeterminerInterface.php)) is responsible for determing whether a command succeeded (status code 0) or failed (status code > 0).  The result object returned by a command may be a compound object that contains multiple bits of information about the command result.  If the result object implements [ExitCodeInterface](ExitCodeInterface.php), then the `getExitCode()` method of the result object is called to determine what the status result code for the command should be. If ExitCodeInterface is not implemented, then all of the status hooks attached to this command are executed; the first one that successfully returns a result will stop further execution of status hooks, and the result it returned will be used as the status result code for this operation.
 
 If no status hook returns any result, then success is presumed.
 
 ### Extract Hook
+
+**DEPRECATED**
+
+See [RowsOfFieldsWithMetadata in output-formatters](https://github.com/consolidation/output-formatters/blob/master/src/StructuredData/RowsOfFieldsWithMetadata.php) for an alternative that is more flexible for most use cases.
 
 The extract hook ([ExtractOutputInterface](src/Hooks/ExtractOutputInterface.php)) is responsible for determining what the actual rendered output for the command should be.  The result object returned by a command may be a compound object that contains multiple bits of information about the command result.  If the result object implements [OutputDataInterface](OutputDataInterface.php), then the `getOutputData()` method of the result object is called to determine what information should be displayed to the user as a result of the command's execution. If OutputDataInterface is not implemented, then all of the extract hooks attached to this command are executed; the first one that successfully returns output data will stop further execution of extract hooks.
 
@@ -368,8 +444,8 @@ class MyReplaceCommandHook  {
 
   /**
    * @hook replace-command foo:bar
-   * 
-   * Parameters must match original command method. 
+   *
+   * Parameters must match original command method.
    */
   public function myFooBarReplacement($value) {
     print "Hello $value!";
@@ -392,6 +468,46 @@ The Annotated-Command project is completely agnostic to logging. If a command wi
 If you want to use annotations, but still want access to the Symfony Command, e.g. to get a reference to the helpers in order to call some legacy code, you may create an ordinary Symfony Command that extends \Consolidation\AnnotatedCommand\AnnotatedCommand, which is a \Symfony\Component\Console\Command\Command. Omit the configure method, and place your annotations on the `execute()` method.
 
 It is also possible to add InputInterface and/or OutputInterface parameters to any annotated method of a command file (the parameters must go before command arguments).
+
+## Parameter Injection
+
+Just as this library will by default inject $input and/or $output at the head of the parameter list of any command function, it is also possible to add a handler to inject other objects as well.
+
+Given an implementation of SymfonyStyleInjector similar to the example below:
+```
+use Consolidation\AnnotatedCommand\ParameterInjector
+
+class SymfonyStyleInjector implements ParameterInjector
+{
+    public function get(CommandData $commandData, $interfaceName)
+    {
+        return new MySymfonyStyle($commandData->input(), $commandData->output());
+    }
+}
+```
+Then, an instance of 'MySymfonyStyle' will be provided to any command handler method that takes a SymfonyStyle parameter if the SymfonyStyleInjector is registered in your application's initialization code like so:
+```
+$commandProcessor->parameterInjection()->register('Symfony\Component\Console\Style\SymfonyStyle', new SymfonyStyleInjector);
+```
+
+## Handling Standard Input
+
+Any Symfony command may use the provides StdinHandler to imlement commands that read from standard input.
+
+```php
+  /**
+   * @command example
+   * @option string $file
+   * @default $file -
+   */
+  public function example(InputInterface $input)
+  {
+      $data = StdinHandler::selectStream($input, 'file')->contents();
+  }
+```
+This example will read all of the data available from the stdin stream into $data, or, alternately, will read the entire contents of the file specified via the `--file=/path` option.
+
+For more details, including examples of using the StdinHandle with a DI container, see the comments in [StdinHandler.php](src/Input/StdinHandler.php).
 
 ## API Usage
 
@@ -465,7 +581,7 @@ Listeners can be used to construct command file instances as they are provided t
 
 ### Option Providers
 
-An option provider is given an opportunity to add options to a command as it is being constructed.  
+An option provider is given an opportunity to add options to a command as it is being constructed.
 ```
 public function AnnotatedCommandFactory::addAutomaticOptionProvider(AutomaticOptionsProviderInterface $listener);
 ```
@@ -477,7 +593,3 @@ CommandInfo alterers can adjust information about a command immediately before i
 ```
 public function alterCommandInfo(CommandInfo $commandInfo, $commandFileInstance);
 ```
-
-## Comparison to Existing Solutions
-
-The existing solutions used their own hand-rolled regex-based parsers to process the contents of the DocBlock comments. consolidation/annotated-command uses the [phpdocumentor/reflection-docblock](https://github.com/phpDocumentor/ReflectionDocBlock) project (which is itself a regex-based parser) to interpret DocBlock contents. 

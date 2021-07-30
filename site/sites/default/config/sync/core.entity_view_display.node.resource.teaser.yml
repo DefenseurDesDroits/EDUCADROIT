@@ -37,6 +37,7 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   field_date:
     type: datetime_default
     weight: 7
@@ -45,12 +46,14 @@ content:
       timezone_override: ''
       format_type: j_f_y
     third_party_settings: {  }
+    region: content
   field_description:
     type: text_default
     weight: 6
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_format:
     type: entity_reference_label
     weight: 5
@@ -58,6 +61,7 @@ content:
     settings:
       link: false
     third_party_settings: {  }
+    region: content
   field_image:
     type: image
     weight: 9
@@ -66,6 +70,7 @@ content:
       image_style: 164x231
       image_link: ''
     third_party_settings: {  }
+    region: content
   field_key_points:
     type: entity_reference_label
     weight: 3
@@ -73,6 +78,7 @@ content:
     settings:
       link: false
     third_party_settings: {  }
+    region: content
   field_publics:
     type: entity_reference_label
     weight: 1
@@ -80,6 +86,7 @@ content:
     settings:
       link: false
     third_party_settings: {  }
+    region: content
   field_themes:
     type: entity_reference_label
     weight: 2
@@ -87,6 +94,7 @@ content:
     settings:
       link: false
     third_party_settings: {  }
+    region: content
   field_year:
     type: string
     weight: 8
@@ -94,10 +102,12 @@ content:
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    region: content
   links:
     weight: 0
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
   field_email: true
   field_firstname: true

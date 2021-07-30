@@ -37,7 +37,7 @@ class MigrateUserTest extends MigrateDrupal6TestBase {
     // Make sure uid 1 is created.
     user_install();
 
-    $file = File::create(array(
+    $file = File::create([
       'fid' => 2,
       'uid' => 2,
       'filename' => 'image-test.jpg',
@@ -46,12 +46,12 @@ class MigrateUserTest extends MigrateDrupal6TestBase {
       'created' => 1,
       'changed' => 1,
       'status' => FILE_STATUS_PERMANENT,
-    ));
+    ]);
     $file->enforceIsNew();
-    file_put_contents($file->getFileUri(), file_get_contents('core/modules/simpletest/files/image-1.png'));
+    file_put_contents($file->getFileUri(), file_get_contents('core/tests/fixtures/files/image-1.png'));
     $file->save();
 
-    $file = File::create(array(
+    $file = File::create([
       'fid' => 8,
       'uid' => 8,
       'filename' => 'image-test.png',
@@ -60,9 +60,9 @@ class MigrateUserTest extends MigrateDrupal6TestBase {
       'created' => 1,
       'changed' => 1,
       'status' => FILE_STATUS_PERMANENT,
-    ));
+    ]);
     $file->enforceIsNew();
-    file_put_contents($file->getFileUri(), file_get_contents('core/modules/simpletest/files/image-2.jpg'));
+    file_put_contents($file->getFileUri(), file_get_contents('core/tests/fixtures/files/image-2.jpg'));
     $file->save();
 
     $this->executeMigration('language');
@@ -84,14 +84,14 @@ class MigrateUserTest extends MigrateDrupal6TestBase {
       // Get roles directly from the source.
       $rids = Database::getConnection('default', 'migrate')
         ->select('users_roles', 'ur')
-        ->fields('ur', array('rid'))
+        ->fields('ur', ['rid'])
         ->condition('ur.uid', $source->uid)
         ->execute()
         ->fetchCol();
-      $roles = array(RoleInterface::AUTHENTICATED_ID);
+      $roles = [RoleInterface::AUTHENTICATED_ID];
       $id_map = $this->getMigration('d6_user_role')->getIdMap();
       foreach ($rids as $rid) {
-        $role = $id_map->lookupDestinationId(array($rid));
+        $role = $id_map->lookupDestinationIds([$rid])[0];
         $roles[] = reset($role);
       }
 
@@ -141,7 +141,7 @@ class MigrateUserTest extends MigrateDrupal6TestBase {
       }
       else {
         // Ensure the user does not have a picture.
-        $this->assertFalse($user->user_picture->target_id, sprintf('User %s does not have a picture', $user->id()));
+        $this->assertEmpty($user->user_picture->target_id, sprintf('User %s does not have a picture', $user->id()));
       }
 
       // Use the API to check if the password has been salted and re-hashed to

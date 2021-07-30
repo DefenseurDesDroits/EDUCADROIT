@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\views\Kernel\Handler;
 
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Tests\views\Kernel\ViewsKernelTestBase;
 use Drupal\views\Views;
@@ -13,16 +14,16 @@ use Drupal\views\Views;
  */
 class FieldUrlTest extends ViewsKernelTestBase {
 
-  public static $modules = array('system');
+  public static $modules = ['system'];
 
   /**
    * Views used by this test.
    *
    * @var array
    */
-  public static $testViews = array('test_view');
+  public static $testViews = ['test_view'];
 
-  function viewsData() {
+  public function viewsData() {
     $data = parent::viewsData();
     $data['views_test_data']['name']['field']['id'] = 'url';
     return $data;
@@ -32,15 +33,15 @@ class FieldUrlTest extends ViewsKernelTestBase {
     $view = Views::getView('test_view');
     $view->setDisplay();
 
-    $view->displayHandlers->get('default')->overrideOption('fields', array(
-      'name' => array(
+    $view->displayHandlers->get('default')->overrideOption('fields', [
+      'name' => [
         'id' => 'name',
         'table' => 'views_test_data',
         'field' => 'name',
         'relationship' => 'none',
         'display_as_link' => FALSE,
-      ),
-    ));
+      ],
+    ]);
 
     $this->executeView($view);
 
@@ -50,18 +51,18 @@ class FieldUrlTest extends ViewsKernelTestBase {
     $view->destroy();
     $view->setDisplay();
 
-    $view->displayHandlers->get('default')->overrideOption('fields', array(
-      'name' => array(
+    $view->displayHandlers->get('default')->overrideOption('fields', [
+      'name' => [
         'id' => 'name',
         'table' => 'views_test_data',
         'field' => 'name',
         'relationship' => 'none',
-      ),
-    ));
+      ],
+    ]);
 
     $this->executeView($view);
 
-    $this->assertEqual(\Drupal::l('John', Url::fromUri('base:John'))->getGeneratedLink(), $view->field['name']->advancedRender($view->result[0]));
+    $this->assertEqual(Link::fromTextAndUrl('John', Url::fromUri('base:John'))->toString(), $view->field['name']->advancedRender($view->result[0]));
   }
 
 }

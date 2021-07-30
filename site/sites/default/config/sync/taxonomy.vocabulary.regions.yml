@@ -5,5 +5,4 @@ dependencies: {  }
 name: Régions
 vid: regions
 description: 'Régions - intervenants'
-hierarchy: 0
 weight: -6

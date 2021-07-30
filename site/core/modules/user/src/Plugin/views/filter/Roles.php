@@ -48,7 +48,7 @@ class Roles extends ManyToOne {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity.manager')->getStorage('user_role')
+      $container->get('entity_type.manager')->getStorage('user_role')
     );
   }
 
@@ -62,7 +62,7 @@ class Roles extends ManyToOne {
   /**
    * Override empty and not empty operator labels to be clearer for user roles.
    */
-  function operators() {
+  public function operators() {
     $operators = parent::operators();
     $operators['empty']['title'] = $this->t("Only has the 'authenticated user' role");
     $operators['not empty']['title'] = $this->t("Has roles in addition to 'authenticated user'");
@@ -73,10 +73,27 @@ class Roles extends ManyToOne {
    * {@inheritdoc}
    */
   public function calculateDependencies() {
-    $dependencies = array();
-    foreach ($this->value as $role_id) {
-      $role = $this->roleStorage->load($role_id);
-      $dependencies[$role->getConfigDependencyKey()][] = $role->getConfigDependencyName();
+    $dependencies = [];
+
+    if (in_array($this->operator, ['empty', 'not empty'])) {
+      return $dependencies;
+    }
+
+    // The value might be a string due to the wrong plugin being used for role
+    // field data, and subsequently the incorrect config schema object and
+    // value. In the empty case stop early. Otherwise we cast it to an array
+    // later.
+    if (is_string($this->value) && $this->value === '') {
+      return [];
+    }
+
+    foreach ((array) $this->value as $role_id) {
+      if ($role = $this->roleStorage->load($role_id)) {
+        $dependencies[$role->getConfigDependencyKey()][] = $role->getConfigDependencyName();
+      }
+      else {
+        trigger_error("The {$role_id} role does not exist. You should review and fix the configuration of the {$this->view->id()} view.", E_USER_WARNING);
+      }
     }
     return $dependencies;
   }

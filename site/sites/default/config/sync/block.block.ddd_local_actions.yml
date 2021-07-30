@@ -9,7 +9,7 @@ _core:
 id: ddd_local_actions
 theme: ddd
 region: content
-weight: -6
+weight: -9
 provider: null
 plugin: local_actions_block
 settings:

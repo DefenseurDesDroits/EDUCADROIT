@@ -30,7 +30,7 @@ class TwigMarkupInterfaceTest extends KernelTestBase {
    * @var array
    */
   public static $modules = [
-    'language'
+    'language',
   ];
 
   /**
@@ -57,13 +57,13 @@ class TwigMarkupInterfaceTest extends KernelTestBase {
       'empty GeneratedLink' => ['', new GeneratedLink()],
       'non-empty GeneratedLink' => ['<span><a hef="http://www.example.com">test</a></span>', (new GeneratedLink())->setGeneratedLink('<a hef="http://www.example.com">test</a>')],
       // Test objects that do not implement \Countable.
-      'empty SafeMarkupTestMarkup' => ['<span></span>', SafeMarkupTestMarkup::create('')],
+      'empty SafeMarkupTestMarkup' => ['', SafeMarkupTestMarkup::create('')],
       'non-empty SafeMarkupTestMarkup' => ['<span>test</span>', SafeMarkupTestMarkup::create('test')],
     ];
   }
 
   /**
-   * Tests behaviour if a string is translated to become an empty string.
+   * Tests behavior if a string is translated to become an empty string.
    */
   public function testEmptyTranslation() {
     $settings = Settings::getAll();
@@ -90,7 +90,7 @@ class TwigMarkupInterfaceTest extends KernelTestBase {
       $elements = [
         '#type' => 'inline_template',
         '#template' => '{%- if variable is not empty -%}<span>{{ variable }}</span>{%- endif -%}',
-        '#context' => array('variable' => $variable),
+        '#context' => ['variable' => $variable],
       ];
       return $renderer->render($elements);
     });

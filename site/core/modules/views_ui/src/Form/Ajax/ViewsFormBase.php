@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\RenderContext;
+use Drupal\Core\Url;
 use Drupal\views\Ajax\HighlightCommand;
 use Drupal\views\Ajax\ReplaceTitleCommand;
 use Drupal\views\Ajax\ShowButtonsCommand;
@@ -104,11 +105,13 @@ abstract class ViewsFormBase extends FormBase implements ViewsFormInterface {
       // Retrieve the first form from the stack without changing the integer keys,
       // as they're being used for the "2 of 3" progress indicator.
       reset($view->stack);
-      list($key, $top) = each($view->stack);
+      $key = key($view->stack);
+      $top = current($view->stack);
+      next($view->stack);
       unset($view->stack[$key]);
 
       if (array_shift($top) != $identifier) {
-        $view->stack = array();
+        $view->stack = [];
       }
     }
 
@@ -138,7 +141,7 @@ abstract class ViewsFormBase extends FormBase implements ViewsFormInterface {
       $form_state = $reflection->newInstanceArgs(array_slice($top, 3, 2))->getFormState($view, $top[2], $form_state->get('ajax'));
       $form_class = get_class($form_state->getFormObject());
 
-      $form_state->setUserInput(array());
+      $form_state->setUserInput([]);
       $form_url = views_ui_build_form_url($form_state);
       if (!$form_state->get('ajax')) {
         return new RedirectResponse($form_url->setAbsolute()->toString());
@@ -149,7 +152,7 @@ abstract class ViewsFormBase extends FormBase implements ViewsFormInterface {
     elseif (!$form_state->get('ajax')) {
       // if nothing on the stack, non-js forms just go back to the main view editor.
       $display_id = $form_state->get('display_id');
-      return new RedirectResponse($this->url('entity.view.edit_display_form', ['view' => $view->id(), 'display_id' => $display_id], ['absolute' => TRUE]));
+      return new RedirectResponse(Url::fromRoute('entity.view.edit_display_form', ['view' => $view->id(), 'display_id' => $display_id], ['absolute' => TRUE])->toString());
     }
     else {
       $response = new AjaxResponse();
@@ -163,7 +166,7 @@ abstract class ViewsFormBase extends FormBase implements ViewsFormInterface {
     // If this form was for view-wide changes, there's no need to regenerate
     // the display section of the form.
     if ($display_id !== '') {
-      \Drupal::entityManager()->getFormObject('view', 'edit')->rebuildCurrentTab($view, $response, $display_id);
+      \Drupal::entityTypeManager()->getFormObject('view', 'edit')->rebuildCurrentTab($view, $response, $display_id);
     }
 
     return $response;
@@ -234,23 +237,23 @@ abstract class ViewsFormBase extends FormBase implements ViewsFormInterface {
       $response->setAttachments($form['#attached']);
 
       $display = '';
-      $status_messages = array('#type' => 'status_messages');
+      $status_messages = ['#type' => 'status_messages'];
       if ($messages = $renderer->renderRoot($status_messages)) {
         $display = '<div class="views-messages">' . $messages . '</div>';
       }
       $display .= $output;
 
-      $options = array(
+      $options = [
         'dialogClass' => 'views-ui-dialog js-views-ui-dialog',
         'width' => '75%',
-      );
+      ];
 
       $response->addCommand(new OpenModalDialogCommand($title, $display, $options));
 
       // Views provides its own custom handling of AJAX form submissions.
       // Usually this happens at the same path, but custom paths may be
       // specified in $form_state.
-      $form_url = $form_state->has('url') ? $form_state->get('url')->toString() : $this->url('<current>');
+      $form_url = $form_state->has('url') ? $form_state->get('url')->toString() : Url::fromRoute('<current>')->toString();
       $response->addCommand(new SetFormCommand($form_url));
 
       if ($section = $form_state->get('#section')) {

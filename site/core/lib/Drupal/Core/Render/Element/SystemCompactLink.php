@@ -2,6 +2,7 @@
 
 namespace Drupal\Core\Render\Element;
 
+use Drupal\Core\Link as BaseLink;
 use Drupal\Core\Url as BaseUrl;
 use Drupal\Component\Utility\NestedArray;
 
@@ -24,17 +25,17 @@ class SystemCompactLink extends Link {
    */
   public function getInfo() {
     $class = get_class($this);
-    return array(
-      '#pre_render' => array(
-        array($class, 'preRenderCompactLink'),
-        array($class, 'preRenderLink'),
-      ),
-      '#theme_wrappers' => array(
-        'container' => array(
-          '#attributes' => array('class' => array('compact-link')),
-        ),
-      ),
-    );
+    return [
+      '#pre_render' => [
+        [$class, 'preRenderCompactLink'],
+        [$class, 'preRenderLink'],
+      ],
+      '#theme_wrappers' => [
+        'container' => [
+          '#attributes' => ['class' => ['compact-link']],
+        ],
+      ],
+    ];
   }
 
   /**
@@ -58,27 +59,27 @@ class SystemCompactLink extends Link {
    */
   public static function preRenderCompactLink($element) {
     // By default, link options to pass to l() are normally set in #options.
-    $element += array('#options' => array());
+    $element += ['#options' => []];
 
     if (system_admin_compact_mode()) {
       $element['#title'] = t('Show descriptions');
-      $element['#url'] = BaseUrl::fromRoute('system.admin_compact_page', array('mode' => 'off'));
-      $element['#options'] = array(
-        'attributes' => array('title' => t('Expand layout to include descriptions.')),
-        'query' => \Drupal::destination()->getAsArray()
-      );
+      $element['#url'] = BaseUrl::fromRoute('system.admin_compact_page', ['mode' => 'off']);
+      $element['#options'] = [
+        'attributes' => ['title' => t('Expand layout to include descriptions.')],
+        'query' => \Drupal::destination()->getAsArray(),
+      ];
     }
     else {
       $element['#title'] = t('Hide descriptions');
-      $element['#url'] = BaseUrl::fromRoute('system.admin_compact_page', array('mode' => 'on'));
-      $element['#options'] = array(
-        'attributes' => array('title' => t('Compress layout by hiding descriptions.')),
+      $element['#url'] = BaseUrl::fromRoute('system.admin_compact_page', ['mode' => 'on']);
+      $element['#options'] = [
+        'attributes' => ['title' => t('Compress layout by hiding descriptions.')],
         'query' => \Drupal::destination()->getAsArray(),
-      );
+      ];
     }
 
     $options = NestedArray::mergeDeep($element['#url']->getOptions(), $element['#options']);
-    $element['#markup'] = \Drupal::l($element['#title'], $element['#url']->setOptions($options));
+    $element['#markup'] = BaseLink::fromTextAndUrl($element['#title'], $element['#url']->setOptions($options))->toString();
 
     return $element;
   }

@@ -20,7 +20,7 @@ class CommandInfo
     /**
      * Serialization schema version. Incremented every time the serialization schema changes.
      */
-    const SERIALIZATION_SCHEMA_VERSION = 3;
+    const SERIALIZATION_SCHEMA_VERSION = 4;
 
     /**
      * @var \ReflectionMethod
@@ -87,6 +87,11 @@ class CommandInfo
      * @var string
      */
     protected $returnType;
+
+    /**
+     * @var string[]
+     */
+    protected $injectedClasses = [];
 
     /**
      * Create a new CommandInfo class for a particular method of a class.
@@ -201,6 +206,18 @@ class CommandInfo
     {
         $this->parseDocBlock();
         return $this->returnType;
+    }
+
+    public function getInjectedClasses()
+    {
+        $this->parseDocBlock();
+        return $this->injectedClasses;
+    }
+
+    public function setInjectedClasses($injectedClasses)
+    {
+        $this->injectedClasses = $injectedClasses;
+        return $this;
     }
 
     public function setReturnType($returnType)
@@ -384,6 +401,27 @@ class CommandInfo
             $aliases = explode(',', static::convertListToCommaSeparated($aliases));
         }
         $this->aliases = array_filter($aliases);
+        return $this;
+    }
+
+    /**
+     * Get hidden status for the command.
+     * @return bool
+     */
+    public function getHidden()
+    {
+        $this->parseDocBlock();
+        return $this->hasAnnotation('hidden');
+    }
+
+    /**
+     * Set hidden status. List command omits hidden commands.
+     *
+     * @param bool $hidden
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
         return $this;
     }
 
@@ -610,8 +648,13 @@ class CommandInfo
         $result = new DefaultsWithDescriptions();
         $params = $this->reflection->getParameters();
         $optionsFromParameters = $this->determineOptionsFromParameters();
-        if (!empty($optionsFromParameters)) {
+        if ($this->lastParameterIsOptionsArray()) {
             array_pop($params);
+        }
+        while (!empty($params) && ($params[0]->getClass() != null)) {
+            $param = array_shift($params);
+            $injectedClass = $param->getClass()->getName();
+            array_unshift($this->injectedClasses, $injectedClass);
         }
         foreach ($params as $param) {
             $this->addParameterToResult($result, $param);
@@ -662,6 +705,28 @@ class CommandInfo
             return [];
         }
         return $param->getDefaultValue();
+    }
+
+    /**
+     * Determine if the last argument contains $options.
+     *
+     * Two forms indicate options:
+     * - $options = []
+     * - $options = ['flag' => 'default-value']
+     *
+     * Any other form, including `array $foo`, is not options.
+     */
+    protected function lastParameterIsOptionsArray()
+    {
+        $params = $this->reflection->getParameters();
+        if (empty($params)) {
+            return [];
+        }
+        $param = end($params);
+        if (!$param->isDefaultValueAvailable()) {
+            return [];
+        }
+        return is_array($param->getDefaultValue());
     }
 
     /**

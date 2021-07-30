@@ -29,14 +29,14 @@ class PermissionHandlerTest extends UnitTestCase {
   /**
    * The tested permission handler.
    *
-   * @var \Drupal\Tests\user\Unit\TestPermissionHandler|\Drupal\user\PermissionHandler
+   * @var \Drupal\user\PermissionHandler
    */
   protected $permissionHandler;
 
   /**
    * The mocked module handler.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $moduleHandler;
 
@@ -50,7 +50,7 @@ class PermissionHandlerTest extends UnitTestCase {
   /**
    * The mocked controller resolver.
    *
-   * @var \Drupal\Core\Controller\ControllerResolverInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Controller\ControllerResolverInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $controllerResolver;
 
@@ -61,7 +61,7 @@ class PermissionHandlerTest extends UnitTestCase {
     parent::setUp();
 
     $this->stringTranslation = new TestTranslationManager();
-    $this->controllerResolver = $this->getMock('Drupal\Core\Controller\ControllerResolverInterface');
+    $this->controllerResolver = $this->createMock('Drupal\Core\Controller\ControllerResolverInterface');
   }
 
   /**
@@ -76,7 +76,7 @@ class PermissionHandlerTest extends UnitTestCase {
    *   The extension object.
    */
   protected function mockModuleExtension($module, $name) {
-    $extension = new Extension($this->root, $module, "modules/$module");
+    $extension = new Extension('vfs:/', $module, "modules/$module");
     $extension->info['name'] = $name;
     return $extension;
   }
@@ -94,14 +94,14 @@ class PermissionHandlerTest extends UnitTestCase {
     $root = new vfsStreamDirectory('modules');
     vfsStreamWrapper::setRoot($root);
 
-    $this->moduleHandler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $this->moduleHandler->expects($this->once())
       ->method('getModuleDirectories')
-      ->willReturn(array(
+      ->willReturn([
         'module_a' => vfsStream::url('modules/module_a'),
         'module_b' => vfsStream::url('modules/module_b'),
         'module_c' => vfsStream::url('modules/module_c'),
-      ));
+      ]);
 
     $url = vfsStream::url('modules');
     mkdir($url . '/module_a');
@@ -124,16 +124,16 @@ EOF
   'restrict access': TRUE
 EOF
     );
-    $modules = array('module_a', 'module_b', 'module_c');
-    $extensions = array(
+    $modules = ['module_a', 'module_b', 'module_c'];
+    $extensions = [
       'module_a' => $this->mockModuleExtension('module_a', 'Module a'),
       'module_b' => $this->mockModuleExtension('module_b', 'Module b'),
       'module_c' => $this->mockModuleExtension('module_c', 'Module c'),
-    );
+    ];
     $this->moduleHandler->expects($this->any())
       ->method('getImplementations')
       ->with('permission')
-      ->willReturn(array());
+      ->willReturn([]);
 
     $this->moduleHandler->expects($this->any())
       ->method('getModuleList')
@@ -142,10 +142,7 @@ EOF
     $this->controllerResolver->expects($this->never())
       ->method('getControllerFromDefinition');
 
-    $this->permissionHandler = new TestPermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
-
-    // Setup system_rebuild_module_data().
-    $this->permissionHandler->setSystemRebuildModuleData($extensions);
+    $this->permissionHandler = new PermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
 
     $actual_permissions = $this->permissionHandler->getPermissions();
     $this->assertPermissions($actual_permissions);
@@ -169,7 +166,7 @@ EOF
     $root = new vfsStreamDirectory('modules');
     vfsStreamWrapper::setRoot($root);
 
-    $this->moduleHandler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $this->moduleHandler->expects($this->once())
       ->method('getModuleDirectories')
       ->willReturn([
@@ -206,7 +203,7 @@ EOF
       ->method('getModuleList')
       ->willReturn(array_flip($modules));
 
-    $permissionHandler = new TestPermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
+    $permissionHandler = new PermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
     $actual_permissions = $permissionHandler->getPermissions();
     $this->assertEquals(['access_module_a4', 'access_module_a1', 'access_module_a2', 'access_module_a3'],
       array_keys($actual_permissions));
@@ -224,14 +221,14 @@ EOF
     $root = new vfsStreamDirectory('modules');
     vfsStreamWrapper::setRoot($root);
 
-    $this->moduleHandler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $this->moduleHandler->expects($this->once())
       ->method('getModuleDirectories')
-      ->willReturn(array(
+      ->willReturn([
         'module_a' => vfsStream::url('modules/module_a'),
         'module_b' => vfsStream::url('modules/module_b'),
         'module_c' => vfsStream::url('modules/module_c'),
-      ));
+      ]);
 
     $url = vfsStream::url('modules');
     mkdir($url . '/module_a');
@@ -254,17 +251,17 @@ permission_callbacks:
 EOF
     );
 
-    $modules = array('module_a', 'module_b', 'module_c');
-    $extensions = array(
+    $modules = ['module_a', 'module_b', 'module_c'];
+    $extensions = [
       'module_a' => $this->mockModuleExtension('module_a', 'Module a'),
       'module_b' => $this->mockModuleExtension('module_b', 'Module b'),
       'module_c' => $this->mockModuleExtension('module_c', 'Module c'),
-    );
+    ];
 
     $this->moduleHandler->expects($this->any())
       ->method('getImplementations')
       ->with('permission')
-      ->willReturn(array());
+      ->willReturn([]);
 
     $this->moduleHandler->expects($this->any())
       ->method('getModuleList')
@@ -273,24 +270,21 @@ EOF
     $this->controllerResolver->expects($this->at(0))
       ->method('getControllerFromDefinition')
       ->with('Drupal\\user\\Tests\\TestPermissionCallbacks::singleDescription')
-      ->willReturn(array(new TestPermissionCallbacks(), 'singleDescription'));
+      ->willReturn([new TestPermissionCallbacks(), 'singleDescription']);
     $this->controllerResolver->expects($this->at(1))
       ->method('getControllerFromDefinition')
       ->with('Drupal\\user\\Tests\\TestPermissionCallbacks::titleDescription')
-      ->willReturn(array(new TestPermissionCallbacks(), 'titleDescription'));
+      ->willReturn([new TestPermissionCallbacks(), 'titleDescription']);
     $this->controllerResolver->expects($this->at(2))
       ->method('getControllerFromDefinition')
       ->with('Drupal\\user\\Tests\\TestPermissionCallbacks::titleProvider')
-      ->willReturn(array(new TestPermissionCallbacks(), 'titleProvider'));
+      ->willReturn([new TestPermissionCallbacks(), 'titleProvider']);
     $this->controllerResolver->expects($this->at(3))
       ->method('getControllerFromDefinition')
       ->with('Drupal\\user\\Tests\\TestPermissionCallbacks::titleDescriptionRestrictAccess')
-      ->willReturn(array(new TestPermissionCallbacks(), 'titleDescriptionRestrictAccess'));
+      ->willReturn([new TestPermissionCallbacks(), 'titleDescriptionRestrictAccess']);
 
-    $this->permissionHandler = new TestPermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
-
-    // Setup system_rebuild_module_data().
-    $this->permissionHandler->setSystemRebuildModuleData($extensions);
+    $this->permissionHandler = new PermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
 
     $actual_permissions = $this->permissionHandler->getPermissions();
     $this->assertPermissions($actual_permissions);
@@ -304,12 +298,12 @@ EOF
     $root = new vfsStreamDirectory('modules');
     vfsStreamWrapper::setRoot($root);
 
-    $this->moduleHandler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
     $this->moduleHandler->expects($this->once())
       ->method('getModuleDirectories')
-      ->willReturn(array(
+      ->willReturn([
         'module_a' => vfsStream::url('modules/module_a'),
-      ));
+      ]);
 
     $url = vfsStream::url('modules');
     mkdir($url . '/module_a');
@@ -322,15 +316,15 @@ permission_callbacks:
 EOF
     );
 
-    $modules = array('module_a');
-    $extensions = array(
+    $modules = ['module_a'];
+    $extensions = [
       'module_a' => $this->mockModuleExtension('module_a', 'Module a'),
-    );
+    ];
 
     $this->moduleHandler->expects($this->any())
       ->method('getImplementations')
       ->with('permission')
-      ->willReturn(array());
+      ->willReturn([]);
 
     $this->moduleHandler->expects($this->any())
       ->method('getModuleList')
@@ -339,12 +333,9 @@ EOF
     $this->controllerResolver->expects($this->once())
       ->method('getControllerFromDefinition')
       ->with('Drupal\\user\\Tests\\TestPermissionCallbacks::titleDescription')
-      ->willReturn(array(new TestPermissionCallbacks(), 'titleDescription'));
+      ->willReturn([new TestPermissionCallbacks(), 'titleDescription']);
 
-    $this->permissionHandler = new TestPermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
-
-    // Setup system_rebuild_module_data().
-    $this->permissionHandler->setSystemRebuildModuleData($extensions);
+    $this->permissionHandler = new PermissionHandler($this->moduleHandler, $this->stringTranslation, $this->controllerResolver);
 
     $actual_permissions = $this->permissionHandler->getPermissions();
 
@@ -377,59 +368,40 @@ EOF
 
 }
 
-class TestPermissionHandler extends PermissionHandler {
-
-  /**
-   * Test module data.
-   *
-   * @var array
-   */
-  protected $systemModuleData;
-
-  protected function systemRebuildModuleData() {
-    return $this->systemModuleData;
-  }
-
-  public function setSystemRebuildModuleData(array $extensions) {
-    $this->systemModuleData = $extensions;
-  }
-
-}
-
 class TestPermissionCallbacks {
 
   public function singleDescription() {
-    return array(
-      'access_module_a' => 'single_description'
-    );
+    return [
+      'access_module_a' => 'single_description',
+    ];
   }
 
   public function titleDescription() {
-    return array(
-      'access module b' => array(
+    return [
+      'access module b' => [
         'title' => 'Access B',
         'description' => 'bla bla',
-      ),
-    );
+      ],
+    ];
   }
 
   public function titleDescriptionRestrictAccess() {
-    return array(
-      'access_module_c' => array(
+    return [
+      'access_module_c' => [
         'title' => 'Access C',
         'description' => 'bla bla',
         'restrict access' => TRUE,
-      ),
-    );
+      ],
+    ];
   }
 
   public function titleProvider() {
-    return array(
-      'access module a via module b' => array(
+    return [
+      'access module a via module b' => [
         'title' => 'Access A via B',
         'provider' => 'module_a',
-      ),
-    );
+      ],
+    ];
   }
 
 }
@@ -442,7 +414,7 @@ class TestTranslationManager implements TranslationInterface {
   /**
    * {@inheritdoc}
    */
-  public function translate($string, array $args = array(), array $options = array()) {
+  public function translate($string, array $args = [], array $options = []) {
     return new TranslatableMarkup($string, $args, $options, $this);
   }
 
@@ -456,7 +428,7 @@ class TestTranslationManager implements TranslationInterface {
   /**
    * {@inheritdoc}
    */
-  public function formatPlural($count, $singular, $plural, array $args = array(), array $options = array()) {
+  public function formatPlural($count, $singular, $plural, array $args = [], array $options = []) {
     return new PluralTranslatableMarkup($count, $singular, $plural, $args, $options, $this);
   }
 

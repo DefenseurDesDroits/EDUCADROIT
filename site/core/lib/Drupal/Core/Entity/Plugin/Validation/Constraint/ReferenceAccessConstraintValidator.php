@@ -29,7 +29,7 @@ class ReferenceAccessConstraintValidator extends ConstraintValidator {
       $entity = $value->getEntity();
       $check_permission = TRUE;
       if (!$entity->isNew()) {
-        $existing_entity = \Drupal::entityManager()->getStorage($entity->getEntityTypeId())->loadUnchanged($entity->id());
+        $existing_entity = \Drupal::entityTypeManager()->getStorage($entity->getEntityTypeId())->loadUnchanged($entity->id());
         $referenced_entities = $existing_entity->{$value->getFieldDefinition()->getName()}->referencedEntities();
         // Check permission if we are not already referencing the entity.
         foreach ($referenced_entities as $ref) {
@@ -43,7 +43,7 @@ class ReferenceAccessConstraintValidator extends ConstraintValidator {
       // referenced entity.
       if ($check_permission && !$referenced_entity->access('view')) {
         $type = $value->getFieldDefinition()->getSetting('target_type');
-        $this->context->addViolation($constraint->message, array('%type' => $type, '%id' => $id));
+        $this->context->addViolation($constraint->message, ['%type' => $type, '%id' => $id]);
       }
     }
   }

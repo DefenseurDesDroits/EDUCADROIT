@@ -6,6 +6,8 @@ dependencies:
     - core.entity_view_mode.node.teaser
     - field.field.node.media.field_description
     - field.field.node.media.field_image
+    - field.field.node.media.field_paragraphs
+    - field.field.node.media.field_spotlights
     - image.style.720x410
     - node.type.media
   module:
@@ -23,6 +25,7 @@ content:
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
+    region: content
   field_image:
     type: image
     weight: 1
@@ -31,9 +34,13 @@ content:
       image_style: 720x410
       image_link: ''
     third_party_settings: {  }
+    region: content
   links:
     weight: 0
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
+  field_paragraphs: true
+  field_spotlights: true
   langcode: true

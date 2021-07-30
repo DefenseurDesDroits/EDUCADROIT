@@ -33,7 +33,7 @@ class FileStorageTest extends ConfigStorageTestBase {
 
     // FileStorage::listAll() requires other configuration data to exist.
     $this->storage->write('system.performance', $this->config('system.performance')->get());
-    $this->storage->write('core.extension', array('module' => array()));
+    $this->storage->write('core.extension', ['module' => []]);
   }
 
   protected function read($name) {
@@ -57,10 +57,10 @@ class FileStorageTest extends ConfigStorageTestBase {
    * Tests the FileStorage::listAll method with a relative and absolute path.
    */
   public function testlistAll() {
-    $expected_files = array(
+    $expected_files = [
       'core.extension',
       'system.performance',
-    );
+    ];
 
     $config_files = $this->storage->listAll();
     $this->assertIdentical($config_files, $expected_files, 'Relative path, two config files found.');
@@ -68,8 +68,8 @@ class FileStorageTest extends ConfigStorageTestBase {
     // @todo https://www.drupal.org/node/2666954 FileStorage::listAll() is
     //   case-sensitive. However, \Drupal\Core\Config\DatabaseStorage::listAll()
     //   is case-insensitive.
-    $this->assertIdentical(['system.performance'], $this->storage->listAll('system'), 'The FileStorage::listAll() with prefix works.');
-    $this->assertIdentical([], $this->storage->listAll('System'), 'The FileStorage::listAll() is case sensitive.');
+    $this->assertSame(['system.performance'], $this->storage->listAll('system'), 'The FileStorage::listAll() with prefix works.');
+    $this->assertSame([], $this->storage->listAll('System'), 'The FileStorage::listAll() is case sensitive.');
   }
 
   /**
@@ -82,8 +82,7 @@ class FileStorageTest extends ConfigStorageTestBase {
       $config_parsed = $this->storage->read('core.extension');
     }
     catch (UnsupportedDataTypeConfigException $e) {
-      $this->pass('Exception thrown when trying to read a field containing invalid data type.');
-      $this->assertTrue((strpos($e->getMessage(), $this->storage->getFilePath('core.extension')) !== FALSE), 'Erroneous file path is displayed.');
+      $this->assertStringContainsString($this->storage->getFilePath('core.extension'), $e->getMessage(), 'Erroneous file path is displayed.');
     }
   }
 

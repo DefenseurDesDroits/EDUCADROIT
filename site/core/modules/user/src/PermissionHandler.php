@@ -136,8 +136,8 @@ class PermissionHandler implements PermissionHandlerInterface {
    *   - provider: The provider of the permission.
    */
   protected function buildPermissionsYaml() {
-    $all_permissions = array();
-    $all_callback_permissions = array();
+    $all_permissions = [];
+    $all_callback_permissions = [];
 
     foreach ($this->getYamlDiscovery()->findAll() as $provider => $permissions) {
       // The top-level 'permissions_callback' is a list of methods in controller
@@ -151,15 +151,15 @@ class PermissionHandler implements PermissionHandlerInterface {
             // defaults can then get processed below.
             foreach ($callback_permissions as $name => $callback_permission) {
               if (!is_array($callback_permission)) {
-                $callback_permission = array(
+                $callback_permission = [
                   'title' => $callback_permission,
-                );
+                ];
               }
 
-              $callback_permission += array(
+              $callback_permission += [
                 'description' => NULL,
                 'provider' => $provider,
-              );
+              ];
 
               $all_callback_permissions[$name] = $callback_permission;
             }
@@ -171,9 +171,9 @@ class PermissionHandler implements PermissionHandlerInterface {
 
       foreach ($permissions as &$permission) {
         if (!is_array($permission)) {
-          $permission = array(
+          $permission = [
             'title' => $permission,
-          );
+          ];
         }
         $permission['title'] = $this->t($permission['title']);
         $permission['description'] = isset($permission['description']) ? $this->t($permission['description']) : NULL;
@@ -198,17 +198,17 @@ class PermissionHandler implements PermissionHandlerInterface {
    *   - description: The description of the permission, defaults to NULL.
    *   - provider: The provider of the permission.
    */
-  protected function sortPermissions(array $all_permissions = array()) {
+  protected function sortPermissions(array $all_permissions = []) {
     // Get a list of all the modules providing permissions and sort by
     // display name.
     $modules = $this->getModuleNames();
 
     uasort($all_permissions, function (array $permission_a, array $permission_b) use ($modules) {
       if ($modules[$permission_a['provider']] == $modules[$permission_b['provider']]) {
-        return $permission_a['title'] > $permission_b['title'];
+        return $permission_a['title'] <=> $permission_b['title'];
       }
       else {
-        return $modules[$permission_a['provider']] > $modules[$permission_b['provider']];
+        return $modules[$permission_a['provider']] <=> $modules[$permission_b['provider']];
       }
     });
     return $all_permissions;
@@ -221,21 +221,12 @@ class PermissionHandler implements PermissionHandlerInterface {
    *   Returns the human readable names of all modules keyed by machine name.
    */
   protected function getModuleNames() {
-    $modules = array();
+    $modules = [];
     foreach (array_keys($this->moduleHandler->getModuleList()) as $module) {
       $modules[$module] = $this->moduleHandler->getName($module);
     }
     asort($modules);
     return $modules;
-  }
-
-  /**
-   * Wraps system_rebuild_module_data()
-   *
-   * @return \Drupal\Core\Extension\Extension[]
-   */
-  protected function systemRebuildModuleData() {
-    return system_rebuild_module_data();
   }
 
 }

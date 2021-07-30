@@ -3,14 +3,13 @@
 namespace Drupal\KernelTests\Core\Asset;
 
 use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Asset\AttachedAssets;
 use Drupal\KernelTests\KernelTestBase;
 
 /**
  * Tests #attached assets: attached asset libraries and JavaScript settings.
  *
- * i.e. tests:
+ * I.e. tests:
  *
  * @code
  * $build['#attached']['library'] = …
@@ -39,7 +38,7 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = array('language', 'simpletest', 'common_test', 'system');
+  public static $modules = ['language', 'simpletest', 'common_test', 'system'];
 
   /**
    * {@inheritdoc}
@@ -55,57 +54,57 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * Tests that default CSS and JavaScript is empty.
    */
-  function testDefault() {
+  public function testDefault() {
     $assets = new AttachedAssets();
-    $this->assertEqual(array(), $this->assetResolver->getCssAssets($assets, FALSE), 'Default CSS is empty.');
+    $this->assertEqual([], $this->assetResolver->getCssAssets($assets, FALSE), 'Default CSS is empty.');
     list($js_assets_header, $js_assets_footer) = $this->assetResolver->getJsAssets($assets, FALSE);
-    $this->assertEqual(array(), $js_assets_header, 'Default header JavaScript is empty.');
-    $this->assertEqual(array(), $js_assets_footer, 'Default footer JavaScript is empty.');
+    $this->assertEqual([], $js_assets_header, 'Default header JavaScript is empty.');
+    $this->assertEqual([], $js_assets_footer, 'Default footer JavaScript is empty.');
   }
 
   /**
    * Tests non-existing libraries.
    */
-  function testLibraryUnknown() {
+  public function testLibraryUnknown() {
     $build['#attached']['library'][] = 'core/unknown';
     $assets = AttachedAssets::createFromRenderArray($build);
 
-    $this->assertIdentical([], $this->assetResolver->getJsAssets($assets, FALSE)[0], 'Unknown library was not added to the page.');
+    $this->assertSame([], $this->assetResolver->getJsAssets($assets, FALSE)[0], 'Unknown library was not added to the page.');
   }
 
   /**
    * Tests adding a CSS and a JavaScript file.
    */
-  function testAddFiles() {
+  public function testAddFiles() {
     $build['#attached']['library'][] = 'common_test/files';
     $assets = AttachedAssets::createFromRenderArray($build);
 
     $css = $this->assetResolver->getCssAssets($assets, FALSE);
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
-    $this->assertTrue(array_key_exists('core/modules/system/tests/modules/common_test/bar.css', $css), 'CSS files are correctly added.');
-    $this->assertTrue(array_key_exists('core/modules/system/tests/modules/common_test/foo.js', $js), 'JavaScript files are correctly added.');
+    $this->assertArrayHasKey('core/modules/system/tests/modules/common_test/bar.css', $css);
+    $this->assertArrayHasKey('core/modules/system/tests/modules/common_test/foo.js', $js);
 
     $css_render_array = \Drupal::service('asset.css.collection_renderer')->render($css);
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_css = $this->renderer->renderPlain($css_render_array);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
     $query_string = $this->container->get('state')->get('system.css_js_query_string') ?: '0';
-    $this->assertNotIdentical(strpos($rendered_css, '<link rel="stylesheet" href="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/bar.css')) . '?' . $query_string . '" media="all" />'), FALSE, 'Rendering an external CSS file.');
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/foo.js')) . '?' . $query_string . '"></script>'), FALSE, 'Rendering an external JavaScript file.');
+    $this->assertStringContainsString('<link rel="stylesheet" media="all" href="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/bar.css')) . '?' . $query_string . '" />', $rendered_css, 'Rendering an external CSS file.');
+    $this->assertStringContainsString('<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/foo.js')) . '?' . $query_string . '"></script>', $rendered_js, 'Rendering an external JavaScript file.');
   }
 
   /**
    * Tests adding JavaScript settings.
    */
-  function testAddJsSettings() {
+  public function testAddJsSettings() {
     // Add a file in order to test default settings.
     $build['#attached']['library'][] = 'core/drupalSettings';
     $assets = AttachedAssets::createFromRenderArray($build);
 
     $this->assertEqual([], $assets->getSettings(), 'JavaScript settings on $assets are empty.');
     $javascript = $this->assetResolver->getJsAssets($assets, FALSE)[1];
-    $this->assertTrue(array_key_exists('currentPath', $javascript['drupalSettings']['data']['path']), 'The current path JavaScript setting is set correctly.');
-    $this->assertTrue(array_key_exists('currentPath', $assets->getSettings()['path']), 'JavaScript settings on $assets are resolved after retrieving JavaScript assets, and are equal to the returned JavaScript settings.');
+    $this->assertArrayHasKey('currentPath', $javascript['drupalSettings']['data']['path']);
+    $this->assertArrayHasKey('currentPath', $assets->getSettings()['path']);
 
     $assets->setSettings(['drupal' => 'rocks', 'dries' => 280342800]);
     $javascript = $this->assetResolver->getJsAssets($assets, FALSE)[1];
@@ -116,27 +115,27 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * Tests adding external CSS and JavaScript files.
    */
-  function testAddExternalFiles() {
+  public function testAddExternalFiles() {
     $build['#attached']['library'][] = 'common_test/external';
     $assets = AttachedAssets::createFromRenderArray($build);
 
     $css = $this->assetResolver->getCssAssets($assets, FALSE);
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
-    $this->assertTrue(array_key_exists('http://example.com/stylesheet.css', $css), 'External CSS files are correctly added.');
-    $this->assertTrue(array_key_exists('http://example.com/script.js', $js), 'External JavaScript files are correctly added.');
+    $this->assertArrayHasKey('http://example.com/stylesheet.css', $css);
+    $this->assertArrayHasKey('http://example.com/script.js', $js);
 
     $css_render_array = \Drupal::service('asset.css.collection_renderer')->render($css);
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_css = $this->renderer->renderPlain($css_render_array);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
-    $this->assertNotIdentical(strpos($rendered_css, '<link rel="stylesheet" href="http://example.com/stylesheet.css" media="all" />'), FALSE, 'Rendering an external CSS file.');
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="http://example.com/script.js"></script>'), FALSE, 'Rendering an external JavaScript file.');
+    $this->assertStringContainsString('<link rel="stylesheet" media="all" href="http://example.com/stylesheet.css" />', $rendered_css, 'Rendering an external CSS file.');
+    $this->assertStringContainsString('<script src="http://example.com/script.js"></script>', $rendered_js, 'Rendering an external JavaScript file.');
   }
 
   /**
    * Tests adding JavaScript files with additional attributes.
    */
-  function testAttributes() {
+  public function testAttributes() {
     $build['#attached']['library'][] = 'common_test/js-attributes';
     $assets = AttachedAssets::createFromRenderArray($build);
 
@@ -145,14 +144,14 @@ class AttachedAssetsTest extends KernelTestBase {
     $rendered_js = $this->renderer->renderPlain($js_render_array);
     $expected_1 = '<script src="http://example.com/deferred-external.js" foo="bar" defer></script>';
     $expected_2 = '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/deferred-internal.js')) . '?v=1" defer bar="foo"></script>';
-    $this->assertNotIdentical(strpos($rendered_js, $expected_1), FALSE, 'Rendered external JavaScript with correct defer and random attributes.');
-    $this->assertNotIdentical(strpos($rendered_js, $expected_2), FALSE, 'Rendered internal JavaScript with correct defer and random attributes.');
+    $this->assertStringContainsString($expected_1, $rendered_js, 'Rendered external JavaScript with correct defer and random attributes.');
+    $this->assertStringContainsString($expected_2, $rendered_js, 'Rendered internal JavaScript with correct defer and random attributes.');
   }
 
   /**
    * Tests that attributes are maintained when JS aggregation is enabled.
    */
-  function testAggregatedAttributes() {
+  public function testAggregatedAttributes() {
     $build['#attached']['library'][] = 'common_test/js-attributes';
     $assets = AttachedAssets::createFromRenderArray($build);
 
@@ -161,33 +160,33 @@ class AttachedAssetsTest extends KernelTestBase {
     $rendered_js = $this->renderer->renderPlain($js_render_array);
     $expected_1 = '<script src="http://example.com/deferred-external.js" foo="bar" defer></script>';
     $expected_2 = '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/deferred-internal.js')) . '?v=1" defer bar="foo"></script>';
-    $this->assertNotIdentical(strpos($rendered_js, $expected_1), FALSE, 'Rendered external JavaScript with correct defer and random attributes.');
-    $this->assertNotIdentical(strpos($rendered_js, $expected_2), FALSE, 'Rendered internal JavaScript with correct defer and random attributes.');
+    $this->assertStringContainsString($expected_1, $rendered_js, 'Rendered external JavaScript with correct defer and random attributes.');
+    $this->assertStringContainsString($expected_2, $rendered_js, 'Rendered internal JavaScript with correct defer and random attributes.');
   }
 
   /**
    * Integration test for CSS/JS aggregation.
    */
-  function testAggregation() {
+  public function testAggregation() {
     $build['#attached']['library'][] = 'core/drupal.timezone';
     $build['#attached']['library'][] = 'core/drupal.vertical-tabs';
     $assets = AttachedAssets::createFromRenderArray($build);
 
-    $this->assertEqual(1, count($this->assetResolver->getCssAssets($assets, TRUE)), 'There is a sole aggregated CSS asset.');
+    $this->assertCount(1, $this->assetResolver->getCssAssets($assets, TRUE), 'There is a sole aggregated CSS asset.');
 
     list($header_js, $footer_js) = $this->assetResolver->getJsAssets($assets, TRUE);
     $this->assertEqual([], \Drupal::service('asset.js.collection_renderer')->render($header_js), 'There are 0 JavaScript assets in the header.');
     $rendered_footer_js = \Drupal::service('asset.js.collection_renderer')->render($footer_js);
-    $this->assertEqual(2, count($rendered_footer_js), 'There are 2 JavaScript assets in the footer.');
+    $this->assertCount(2, $rendered_footer_js, 'There are 2 JavaScript assets in the footer.');
     $this->assertEqual('drupal-settings-json', $rendered_footer_js[0]['#attributes']['data-drupal-selector'], 'The first of the two JavaScript assets in the footer has drupal settings.');
-    $this->assertEqual(0, strpos($rendered_footer_js[1]['#attributes']['src'], base_path()), 'The second of the two JavaScript assets in the footer has the sole aggregated JavaScript asset.');
+    $this->assertStringStartsWith(base_path(), $rendered_footer_js[1]['#attributes']['src'], 'The second of the two JavaScript assets in the footer has the sole aggregated JavaScript asset.');
   }
 
   /**
    * Tests JavaScript settings.
    */
-  function testSettings() {
-    $build = array();
+  public function testSettings() {
+    $build = [];
     $build['#attached']['library'][] = 'core/drupalSettings';
     // Nonsensical value to verify if it's possible to override path settings.
     $build['#attached']['drupalSettings']['path']['pathPrefix'] = 'yarhar';
@@ -205,7 +204,7 @@ class AttachedAssetsTest extends KernelTestBase {
     $end = strrpos($rendered_js, $endToken);
     // Convert to a string, as $renderer_js is a \Drupal\Core\Render\Markup
     // object.
-    $json  = Unicode::substr($rendered_js, $start, $end - $start + 1);
+    $json = mb_substr($rendered_js, $start, $end - $start + 1);
     $parsed_settings = Json::decode($json);
 
     // Test whether the settings for core/drupalSettings are available.
@@ -226,7 +225,7 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * Tests JS assets depending on the 'core/<head>' virtual library.
    */
-  function testHeaderHTML() {
+  public function testHeaderHTML() {
     $build['#attached']['library'][] = 'common_test/js-header';
     $assets = AttachedAssets::createFromRenderArray($build);
 
@@ -234,15 +233,15 @@ class AttachedAssetsTest extends KernelTestBase {
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
     $query_string = $this->container->get('state')->get('system.css_js_query_string') ?: '0';
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/header.js')) . '?' . $query_string . '"></script>'), FALSE, 'The JS asset in common_test/js-header appears in the header.');
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="' . file_url_transform_relative(file_create_url('core/misc/drupal.js'))), FALSE, 'The JS asset of the direct dependency (core/drupal) of common_test/js-header appears in the header.');
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="' . file_url_transform_relative(file_create_url('core/assets/vendor/domready/ready.min.js'))), FALSE, 'The JS asset of the indirect dependency (core/domready) of common_test/js-header appears in the header.');
+    $this->assertStringContainsString('<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/header.js')) . '?' . $query_string . '"></script>', $rendered_js, 'The JS asset in common_test/js-header appears in the header.');
+    $this->assertStringContainsString('<script src="' . file_url_transform_relative(file_create_url('core/misc/drupal.js')), $rendered_js, 'The JS asset of the direct dependency (core/drupal) of common_test/js-header appears in the header.');
+    $this->assertStringContainsString('<script src="' . file_url_transform_relative(file_create_url('core/misc/drupalSettingsLoader.js')), $rendered_js, 'The JS asset of the indirect dependency (core/drupalSettings) of common_test/js-header appears in the header.');
   }
 
   /**
    * Tests that for assets with cache = FALSE, Drupal sets preprocess = FALSE.
    */
-  function testNoCache() {
+  public function testNoCache() {
     $build['#attached']['library'][] = 'common_test/no-cache';
     $assets = AttachedAssets::createFromRenderArray($build);
 
@@ -255,7 +254,7 @@ class AttachedAssetsTest extends KernelTestBase {
    *
    * @see \Drupal\Core\Render\Element\HtmlTag::preRenderConditionalComments()
    */
-  function testBrowserConditionalComments() {
+  public function testBrowserConditionalComments() {
     $default_query_string = $this->container->get('state')->get('system.css_js_query_string') ?: '0';
 
     $build['#attached']['library'][] = 'common_test/browsers';
@@ -267,29 +266,28 @@ class AttachedAssetsTest extends KernelTestBase {
     $expected_1 = "<!--[if lte IE 8]>\n" . '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/old-ie.js')) . '?' . $default_query_string . '"></script>' . "\n<![endif]-->";
     $expected_2 = "<!--[if !IE]><!-->\n" . '<script src="' . file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/no-ie.js')) . '?' . $default_query_string . '"></script>' . "\n<!--<![endif]-->";
 
-    $this->assertNotIdentical(strpos($rendered_js, $expected_1), FALSE, 'Rendered JavaScript within downlevel-hidden conditional comments.');
-    $this->assertNotIdentical(strpos($rendered_js, $expected_2), FALSE, 'Rendered JavaScript within downlevel-revealed conditional comments.');
+    $this->assertStringContainsString($expected_1, $rendered_js, 'Rendered JavaScript within downlevel-hidden conditional comments.');
+    $this->assertStringContainsString($expected_2, $rendered_js, 'Rendered JavaScript within downlevel-revealed conditional comments.');
   }
 
   /**
    * Tests JavaScript versioning.
    */
-  function testVersionQueryString() {
+  public function testVersionQueryString() {
     $build['#attached']['library'][] = 'core/backbone';
-    $build['#attached']['library'][] = 'core/domready';
     $assets = AttachedAssets::createFromRenderArray($build);
 
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
 
     $rendered_js = $this->renderer->renderPlain($js_render_array);
-    $this->assertTrue(strpos($rendered_js, 'core/assets/vendor/backbone/backbone-min.js?v=1.2.3') > 0 && strpos($rendered_js, 'core/assets/vendor/domready/ready.min.js?v=1.0.8') > 0, 'JavaScript version identifiers correctly appended to URLs');
+    $this->assertStringContainsString('core/assets/vendor/backbone/backbone-min.js?v=1.4.0', $rendered_js, 'JavaScript version identifiers correctly appended to URLs');
   }
 
   /**
    * Tests JavaScript and CSS asset ordering.
    */
-  function testRenderOrder() {
+  public function testRenderOrder() {
     $build['#attached']['library'][] = 'common_test/order';
     $assets = AttachedAssets::createFromRenderArray($build);
 
@@ -299,7 +297,8 @@ class AttachedAssetsTest extends KernelTestBase {
       "-8_2",
       "-8_3",
       "-8_4",
-      "-5_1", // The external script.
+      // The external script.
+      "-5_1",
       "-3_1",
       "-3_2",
       "0_1",
@@ -311,12 +310,12 @@ class AttachedAssetsTest extends KernelTestBase {
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
-    $matches = array();
+    $matches = [];
     if (preg_match_all('/weight_([-0-9]+_[0-9]+)/', $rendered_js, $matches)) {
       $result = $matches[1];
     }
     else {
-      $result = array();
+      $result = [];
     }
     $this->assertIdentical($result, $expected_order_js, 'JavaScript is added in the expected weight order.');
 
@@ -353,12 +352,12 @@ class AttachedAssetsTest extends KernelTestBase {
     $css = $this->assetResolver->getCssAssets($assets, FALSE);
     $css_render_array = \Drupal::service('asset.css.collection_renderer')->render($css);
     $rendered_css = $this->renderer->renderPlain($css_render_array);
-    $matches = array();
+    $matches = [];
     if (preg_match_all('/([a-z]+)_weight_([-0-9]+_[0-9]+)/', $rendered_css, $matches)) {
       $result = $matches[0];
     }
     else {
-      $result = array();
+      $result = [];
     }
     $this->assertIdentical($result, $expected_order_css, 'CSS is added in the expected weight order.');
   }
@@ -366,7 +365,7 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * Tests rendering the JavaScript with a file's weight above jQuery's.
    */
-  function testRenderDifferentWeight() {
+  public function testRenderDifferentWeight() {
     // If a library contains assets A and B, and A is listed first, then B can
     // still make itself appear first by defining a lower weight.
     $build['#attached']['library'][] = 'core/jquery';
@@ -386,7 +385,7 @@ class AttachedAssetsTest extends KernelTestBase {
    *
    * @see simpletest_js_alter()
    */
-  function testAlter() {
+  public function testAlter() {
     // Add both tableselect.js and simpletest.js.
     $build['#attached']['library'][] = 'core/drupal.tableselect';
     $build['#attached']['library'][] = 'simpletest/drupal.simpletest';
@@ -406,7 +405,7 @@ class AttachedAssetsTest extends KernelTestBase {
    *
    * @see common_test_library_info_alter()
    */
-  function testLibraryAlter() {
+  public function testLibraryAlter() {
     // Verify that common_test altered the title of Farbtastic.
     /** @var \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery */
     $library_discovery = \Drupal::service('library.discovery');
@@ -419,13 +418,13 @@ class AttachedAssetsTest extends KernelTestBase {
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
-    $this->assertTrue(strpos($rendered_js, 'core/assets/vendor/jquery-form/jquery.form.min.js'), 'Altered library dependencies are added to the page.');
+    $this->assertStringContainsString('core/assets/vendor/jquery-form/jquery.form.min.js', (string) $rendered_js, 'Altered library dependencies are added to the page.');
   }
 
   /**
    * Dynamically defines an asset library and alters it.
    */
-  function testDynamicLibrary() {
+  public function testDynamicLibrary() {
     /** @var \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery */
     $library_discovery = \Drupal::service('library.discovery');
     // Retrieve a dynamic library definition.
@@ -433,15 +432,13 @@ class AttachedAssetsTest extends KernelTestBase {
     \Drupal::state()->set('common_test.library_info_build_test', TRUE);
     $library_discovery->clearCachedDefinitions();
     $dynamic_library = $library_discovery->getLibraryByName('common_test', 'dynamic_library');
-    $this->assertTrue(is_array($dynamic_library));
-    if ($this->assertTrue(isset($dynamic_library['version']))) {
-      $this->assertIdentical('1.0', $dynamic_library['version']);
-    }
+    $this->assertIsArray($dynamic_library);
+    $this->assertArrayHasKey('version', $dynamic_library);
+    $this->assertSame('1.0', $dynamic_library['version']);
     // Make sure the dynamic library definition could be altered.
     // @see common_test_library_info_alter()
-    if ($this->assertTrue(isset($dynamic_library['dependencies']))) {
-      $this->assertIdentical(['core/jquery'], $dynamic_library['dependencies']);
-    }
+    $this->assertArrayHasKey('dependencies', $dynamic_library);
+    $this->assertSame(['core/jquery'], $dynamic_library['dependencies']);
   }
 
   /**
@@ -449,7 +446,7 @@ class AttachedAssetsTest extends KernelTestBase {
    *
    * @see common_test.library.yml
    */
-  function testLibraryNameConflicts() {
+  public function testLibraryNameConflicts() {
     /** @var \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery */
     $library_discovery = \Drupal::service('library.discovery');
     $farbtastic = $library_discovery->getLibraryByName('common_test', 'jquery.farbtastic');
@@ -459,22 +456,22 @@ class AttachedAssetsTest extends KernelTestBase {
   /**
    * Tests JavaScript files that have querystrings attached get added right.
    */
-  function testAddJsFileWithQueryString() {
+  public function testAddJsFileWithQueryString() {
     $build['#attached']['library'][] = 'common_test/querystring';
     $assets = AttachedAssets::createFromRenderArray($build);
 
     $css = $this->assetResolver->getCssAssets($assets, FALSE);
     $js = $this->assetResolver->getJsAssets($assets, FALSE)[1];
-    $this->assertTrue(array_key_exists('core/modules/system/tests/modules/common_test/querystring.css?arg1=value1&arg2=value2', $css), 'CSS file with query string is correctly added.');
-    $this->assertTrue(array_key_exists('core/modules/system/tests/modules/common_test/querystring.js?arg1=value1&arg2=value2', $js), 'JavaScript file with query string is correctly added.');
+    $this->assertArrayHasKey('core/modules/system/tests/modules/common_test/querystring.css?arg1=value1&arg2=value2', $css);
+    $this->assertArrayHasKey('core/modules/system/tests/modules/common_test/querystring.js?arg1=value1&arg2=value2', $js);
 
     $css_render_array = \Drupal::service('asset.css.collection_renderer')->render($css);
     $rendered_css = $this->renderer->renderPlain($css_render_array);
     $js_render_array = \Drupal::service('asset.js.collection_renderer')->render($js);
     $rendered_js = $this->renderer->renderPlain($js_render_array);
     $query_string = $this->container->get('state')->get('system.css_js_query_string') ?: '0';
-    $this->assertNotIdentical(strpos($rendered_css, '<link rel="stylesheet" href="' . str_replace('&', '&amp;', file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/querystring.css?arg1=value1&arg2=value2'))) . '&amp;' . $query_string . '" media="all" />'), FALSE, 'CSS file with query string gets version query string correctly appended..');
-    $this->assertNotIdentical(strpos($rendered_js, '<script src="' . str_replace('&', '&amp;', file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/querystring.js?arg1=value1&arg2=value2'))) . '&amp;' . $query_string . '"></script>'), FALSE, 'JavaScript file with query string gets version query string correctly appended.');
+    $this->assertStringContainsString('<link rel="stylesheet" media="all" href="' . str_replace('&', '&amp;', file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/querystring.css?arg1=value1&arg2=value2'))) . '&amp;' . $query_string . '" />', $rendered_css, 'CSS file with query string gets version query string correctly appended..');
+    $this->assertStringContainsString('<script src="' . str_replace('&', '&amp;', file_url_transform_relative(file_create_url('core/modules/system/tests/modules/common_test/querystring.js?arg1=value1&arg2=value2'))) . '&amp;' . $query_string . '"></script>', $rendered_js, 'JavaScript file with query string gets version query string correctly appended.');
   }
 
 }

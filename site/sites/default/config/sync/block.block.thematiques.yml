@@ -1,0 +1,23 @@
+uuid: 4ee6a1c4-d887-4ccb-af4f-6835e487979c
+langcode: fr
+status: true
+dependencies:
+  config:
+    - facets.facet.thematiques
+  module:
+    - facets
+  theme:
+    - ddd
+id: thematiques
+theme: ddd
+region: facets
+weight: 0
+provider: null
+plugin: 'facet_block:thematiques'
+settings:
+  id: 'facet_block:thematiques'
+  label: Thématiques
+  provider: facets
+  label_display: visible
+  block_id: thematiques
+visibility: {  }

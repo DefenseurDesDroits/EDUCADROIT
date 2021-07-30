@@ -29,7 +29,7 @@ class Log {
    *
    * @var array
    */
-  protected $queryLog = array();
+  protected $queryLog = [];
 
   /**
    * The connection key for which this object is logging.
@@ -69,6 +69,7 @@ class Log {
    *
    * @param $logging_key
    *   The logging key to fetch.
+   *
    * @return
    *   An indexed array of all query records for this logging key.
    */
@@ -86,7 +87,7 @@ class Log {
    *   The logging key to empty.
    */
   public function clear($logging_key) {
-    $this->queryLog[$logging_key] = array();
+    $this->queryLog[$logging_key] = [];
   }
 
   /**
@@ -111,13 +112,13 @@ class Log {
    */
   public function log(StatementInterface $statement, $args, $time) {
     foreach (array_keys($this->queryLog) as $key) {
-      $this->queryLog[$key][] = array(
+      $this->queryLog[$key][] = [
         'query' => $statement->getQueryString(),
         'args' => $args,
         'target' => $statement->dbh->getTarget(),
         'caller' => $this->findCaller(),
         'time' => $time,
-      );
+      ];
     }
   }
 
@@ -147,19 +148,19 @@ class Log {
       // If the call was made from a function, 'class' will be empty. It's
       // just easier to give it a default value than to try and integrate
       // that into the if statement below.
-      if (empty($stack[$i]['class'])) {
-        $stack[$i]['class'] = '';
+      if (empty($stack[$i + 1]['class'])) {
+        $stack[$i + 1]['class'] = '';
       }
-      if (strpos($stack[$i]['class'], __NAMESPACE__) === FALSE && strpos($stack[$i + 1]['function'], 'db_') === FALSE && !empty($stack[$i]['file'])) {
-        $stack[$i] += array('file' => '?', 'line' => '?', 'args' => array());
-        return array(
+      if (strpos($stack[$i + 1]['class'], __NAMESPACE__) === FALSE && strpos($stack[$i + 1]['function'], 'db_') === FALSE && !empty($stack[$i]['file'])) {
+        $stack[$i] += ['file' => '?', 'line' => '?', 'args' => []];
+        return [
           'file' => $stack[$i]['file'],
           'line' => $stack[$i]['line'],
           'function' => $stack[$i + 1]['function'],
-          'class' => isset($stack[$i + 1]['class']) ? $stack[$i + 1]['class'] : NULL,
+          'class' => $stack[$i + 1]['class'],
           'type' => isset($stack[$i + 1]['type']) ? $stack[$i + 1]['type'] : NULL,
           'args' => $stack[$i + 1]['args'],
-        );
+        ];
       }
     }
   }

@@ -2,11 +2,12 @@
 
 namespace Drupal\system\Form;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\PreExistingConfigException;
 use Drupal\Core\Config\UnmetDependenciesException;
 use Drupal\Core\Access\AccessManagerInterface;
 use Drupal\Core\Extension\Extension;
+use Drupal\Core\Extension\InfoParserException;
+use Drupal\Core\Extension\ModuleExtensionList;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\Form\FormBase;
@@ -16,6 +17,7 @@ use Drupal\Core\Render\Element;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\PermissionHandlerInterface;
 use Drupal\Core\Url;
+use Drupal\system\ModuleDependencyMessageTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,8 +27,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * each module's name, description, and information about which modules it
  * requires. See \Drupal\Core\Extension\InfoParser for info on module.info.yml
  * descriptors.
+ *
+ * @internal
  */
 class ModulesListForm extends FormBase {
+
+  use ModuleDependencyMessageTrait;
 
   /**
    * The current user.
@@ -64,6 +70,13 @@ class ModulesListForm extends FormBase {
   protected $permissionHandler;
 
   /**
+   * The module extension list.
+   *
+   * @var \Drupal\Core\Extension\ModuleExtensionList
+   */
+  protected $moduleExtensionList;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -73,7 +86,8 @@ class ModulesListForm extends FormBase {
       $container->get('keyvalue.expirable')->get('module_list'),
       $container->get('access_manager'),
       $container->get('current_user'),
-      $container->get('user.permissions')
+      $container->get('user.permissions'),
+      $container->get('extension.list.module')
     );
   }
 
@@ -92,8 +106,11 @@ class ModulesListForm extends FormBase {
    *   The current user.
    * @param \Drupal\user\PermissionHandlerInterface $permission_handler
    *   The permission handler.
+   * @param \Drupal\Core\Extension\ModuleExtensionList $extension_list_module
+   *   The module extension list.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, KeyValueStoreExpirableInterface $key_value_expirable, AccessManagerInterface $access_manager, AccountInterface $current_user, PermissionHandlerInterface $permission_handler) {
+  public function __construct(ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, KeyValueStoreExpirableInterface $key_value_expirable, AccessManagerInterface $access_manager, AccountInterface $current_user, PermissionHandlerInterface $permission_handler, ModuleExtensionList $extension_list_module) {
+    $this->moduleExtensionList = $extension_list_module;
     $this->moduleHandler = $module_handler;
     $this->moduleInstaller = $module_installer;
     $this->keyValueExpirable = $key_value_expirable;
@@ -119,30 +136,38 @@ class ModulesListForm extends FormBase {
     // Include system.admin.inc so we can use the sort callbacks.
     $this->moduleHandler->loadInclude('system', 'inc', 'system.admin');
 
-    $form['filters'] = array(
+    $form['filters'] = [
       '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('table-filter', 'js-show'),
-      ),
-    );
+      '#attributes' => [
+        'class' => ['table-filter', 'js-show'],
+      ],
+    ];
 
-    $form['filters']['text'] = array(
+    $form['filters']['text'] = [
       '#type' => 'search',
       '#title' => $this->t('Filter modules'),
       '#title_display' => 'invisible',
       '#size' => 30,
       '#placeholder' => $this->t('Filter by name or description'),
       '#description' => $this->t('Enter a part of the module name or description'),
-      '#attributes' => array(
-        'class' => array('table-filter-text'),
+      '#attributes' => [
+        'class' => ['table-filter-text'],
         'data-table' => '#system-modules',
         'autocomplete' => 'off',
-      ),
-    );
+      ],
+    ];
 
     // Sort all modules by their names.
-    $modules = system_rebuild_module_data();
-    uasort($modules, 'system_sort_modules_by_info_name');
+    try {
+      // The module list needs to be reset so that it can re-scan and include
+      // any new modules that may have been added directly into the filesystem.
+      $modules = $this->moduleExtensionList->reset()->getList();
+      uasort($modules, 'system_sort_modules_by_info_name');
+    }
+    catch (InfoParserException $e) {
+      $this->messenger()->addError($this->t('Modules could not be listed due to an error: %error', ['%error' => $e->getMessage()]));
+      $modules = [];
+    }
 
     // Iterate over each of the modules.
     $form['modules']['#tree'] = TRUE;
@@ -150,20 +175,21 @@ class ModulesListForm extends FormBase {
       if (empty($module->info['hidden'])) {
         $package = $module->info['package'];
         $form['modules'][$package][$filename] = $this->buildRow($modules, $module, $distribution);
+        $form['modules'][$package][$filename]['#parents'] = ['modules', $filename];
       }
     }
 
     // Add a wrapper around every package.
     foreach (Element::children($form['modules']) as $package) {
-      $form['modules'][$package] += array(
+      $form['modules'][$package] += [
         '#type' => 'details',
         '#title' => $this->t($package),
         '#open' => TRUE,
         '#theme' => 'system_modules_details',
-        '#attributes' => array('class' => array('package-listing')),
+        '#attributes' => ['class' => ['package-listing']],
         // Ensure that the "Core" package comes first.
         '#weight' => $package == 'Core' ? -10 : NULL,
-      );
+      ];
     }
 
     // If testing modules are shown, collapse the corresponding package by
@@ -173,15 +199,16 @@ class ModulesListForm extends FormBase {
     }
 
     // Lastly, sort all packages by title.
-    uasort($form['modules'], array('\Drupal\Component\Utility\SortArray', 'sortByTitleProperty'));
+    uasort($form['modules'], ['\Drupal\Component\Utility\SortArray', 'sortByTitleProperty']);
 
+    $form['#attached']['library'][] = 'core/drupal.tableresponsive';
     $form['#attached']['library'][] = 'system/drupal.system.modules';
-    $form['actions'] = array('#type' => 'actions');
-    $form['actions']['submit'] = array(
+    $form['actions'] = ['#type' => 'actions'];
+    $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Install'),
       '#button_type' => 'primary',
-    );
+    ];
 
     return $form;
   }
@@ -200,9 +227,9 @@ class ModulesListForm extends FormBase {
    */
   protected function buildRow(array $modules, Extension $module, $distribution) {
     // Set the basic properties.
-    $row['#required'] = array();
-    $row['#requires'] = array();
-    $row['#required_by'] = array();
+    $row['#required'] = [];
+    $row['#requires'] = [];
+    $row['#required_by'] = [];
 
     $row['name']['#markup'] = $module->info['name'];
     $row['description']['#markup'] = $this->t($module->info['description']);
@@ -212,48 +239,48 @@ class ModulesListForm extends FormBase {
     // implementation exists then the module provides an overview page, rather
     // than checking to see if the page exists, which is costly.
     if ($this->moduleHandler->moduleExists('help') && $module->status && in_array($module->getName(), $this->moduleHandler->getImplementations('help'))) {
-      $row['links']['help'] = array(
+      $row['links']['help'] = [
         '#type' => 'link',
         '#title' => $this->t('Help'),
         '#url' => Url::fromRoute('help.page', ['name' => $module->getName()]),
-        '#options' => array('attributes' => array('class' => array('module-link', 'module-link-help'), 'title' => $this->t('Help'))),
-      );
+        '#options' => ['attributes' => ['class' => ['module-link', 'module-link-help'], 'title' => $this->t('Help')]],
+      ];
     }
 
     // Generate link for module's permission, if the user has access to it.
     if ($module->status && $this->currentUser->hasPermission('administer permissions') && $this->permissionHandler->moduleProvidesPermissions($module->getName())) {
-      $row['links']['permissions'] = array(
+      $row['links']['permissions'] = [
         '#type' => 'link',
         '#title' => $this->t('Permissions'),
         '#url' => Url::fromRoute('user.admin_permissions'),
-        '#options' => array('fragment' => 'module-' . $module->getName(), 'attributes' => array('class' => array('module-link', 'module-link-permissions'), 'title' => $this->t('Configure permissions'))),
-      );
+        '#options' => ['fragment' => 'module-' . $module->getName(), 'attributes' => ['class' => ['module-link', 'module-link-permissions'], 'title' => $this->t('Configure permissions')]],
+      ];
     }
 
     // Generate link for module's configuration page, if it has one.
     if ($module->status && isset($module->info['configure'])) {
-      $route_parameters = isset($module->info['configure_parameters']) ? $module->info['configure_parameters'] : array();
+      $route_parameters = isset($module->info['configure_parameters']) ? $module->info['configure_parameters'] : [];
       if ($this->accessManager->checkNamedRoute($module->info['configure'], $route_parameters, $this->currentUser)) {
-        $row['links']['configure'] = array(
+        $row['links']['configure'] = [
           '#type' => 'link',
           '#title' => $this->t('Configure <span class="visually-hidden">the @module module</span>', ['@module' => $module->info['name']]),
           '#url' => Url::fromRoute($module->info['configure'], $route_parameters),
-          '#options' => array(
-            'attributes' => array(
-              'class' => array('module-link', 'module-link-configure'),
-            ),
-          ),
-        );
+          '#options' => [
+            'attributes' => [
+              'class' => ['module-link', 'module-link-configure'],
+            ],
+          ],
+        ];
       }
     }
 
     // Present a checkbox for installing and indicating the status of a module.
-    $row['enable'] = array(
+    $row['enable'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Install'),
       '#default_value' => (bool) $module->status,
       '#disabled' => (bool) $module->status,
-    );
+    ];
 
     // Disable the checkbox for required modules.
     if (!empty($module->info['required'])) {
@@ -267,24 +294,28 @@ class ModulesListForm extends FormBase {
 
     // Initialize an empty array of reasons why the module is incompatible. Add
     // each reason as a separate element of the array.
-    $reasons = array();
+    $reasons = [];
 
     // Check the core compatibility.
-    if ($module->info['core'] != \Drupal::CORE_COMPATIBILITY) {
+    if ($module->info['core_incompatible']) {
       $compatible = FALSE;
-      $reasons[] = $this->t('This version is not compatible with Drupal @core_version and should be replaced.', array(
-        '@core_version' => \Drupal::CORE_COMPATIBILITY,
-      ));
+      $reasons[] = $this->t('This version is not compatible with Drupal @core_version and should be replaced.', [
+        '@core_version' => \Drupal::VERSION,
+      ]);
+      $row['#requires']['core'] = $this->t('Drupal Core (@core_requirement) (<span class="admin-missing">incompatible with</span> version @core_version)', [
+        '@core_requirement' => isset($module->info['core_version_requirement']) ? $module->info['core_version_requirement'] : $module->info['core'],
+        '@core_version' => \Drupal::VERSION,
+      ]);
     }
 
     // Ensure this module is compatible with the currently installed version of PHP.
     if (version_compare(phpversion(), $module->info['php']) < 0) {
       $compatible = FALSE;
       $required = $module->info['php'] . (substr_count($module->info['php'], '.') < 2 ? '.*' : '');
-      $reasons[] = $this->t('This module requires PHP version @php_required and is incompatible with PHP version @php_version.', array(
+      $reasons[] = $this->t('This module requires PHP version @php_required and is incompatible with PHP version @php_version.', [
         '@php_required' => $required,
         '@php_version' => phpversion(),
-      ));
+      ]);
     }
 
     // If this module is not compatible, disable the checkbox.
@@ -296,38 +327,18 @@ class ModulesListForm extends FormBase {
     }
 
     // If this module requires other modules, add them to the array.
-    foreach ($module->requires as $dependency => $version) {
-      if (!isset($modules[$dependency])) {
-        $row['#requires'][$dependency] = $this->t('@module (<span class="admin-missing">missing</span>)', array('@module' => Unicode::ucfirst($dependency)));
+    /** @var \Drupal\Core\Extension\Dependency $dependency_object */
+    foreach ($module->requires as $dependency => $dependency_object) {
+      // @todo Add logic for not displaying hidden modules in
+      //   https://drupal.org/node/3117829.
+      if ($incompatible = $this->checkDependencyMessage($modules, $dependency, $dependency_object)) {
+        $row['#requires'][$dependency] = $incompatible;
         $row['enable']['#disabled'] = TRUE;
+        continue;
       }
-      // Only display visible modules.
-      elseif (empty($modules[$dependency]->hidden)) {
-        $name = $modules[$dependency]->info['name'];
-        // Disable the module's checkbox if it is incompatible with the
-        // dependency's version.
-        if ($incompatible_version = drupal_check_incompatibility($version, str_replace(\Drupal::CORE_COMPATIBILITY . '-', '', $modules[$dependency]->info['version']))) {
-          $row['#requires'][$dependency] = $this->t('@module (<span class="admin-missing">incompatible with</span> version @version)', array(
-            '@module' => $name . $incompatible_version,
-            '@version' => $modules[$dependency]->info['version'],
-          ));
-          $row['enable']['#disabled'] = TRUE;
-        }
-        // Disable the checkbox if the dependency is incompatible with this
-        // version of Drupal core.
-        elseif ($modules[$dependency]->info['core'] != \Drupal::CORE_COMPATIBILITY) {
-          $row['#requires'][$dependency] = $this->t('@module (<span class="admin-missing">incompatible with</span> this version of Drupal core)', array(
-            '@module' => $name,
-          ));
-          $row['enable']['#disabled'] = TRUE;
-        }
-        elseif ($modules[$dependency]->status) {
-          $row['#requires'][$dependency] = $this->t('@module', array('@module' => $name));
-        }
-        else {
-          $row['#requires'][$dependency] = $this->t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => $name));
-        }
-      }
+
+      $name = $modules[$dependency]->info['name'];
+      $row['#requires'][$dependency] = $modules[$dependency]->status ? $this->t('@module', ['@module' => $name]) : $this->t('@module (<span class="admin-disabled">disabled</span>)', ['@module' => $name]);
     }
 
     // If this module is required by other modules, list those, and then make it
@@ -335,11 +346,11 @@ class ModulesListForm extends FormBase {
     foreach ($module->required_by as $dependent => $version) {
       if (isset($modules[$dependent]) && empty($modules[$dependent]->info['hidden'])) {
         if ($modules[$dependent]->status == 1 && $module->status == 1) {
-          $row['#required_by'][$dependent] = $this->t('@module', array('@module' => $modules[$dependent]->info['name']));
+          $row['#required_by'][$dependent] = $this->t('@module', ['@module' => $modules[$dependent]->info['name']]);
           $row['enable']['#disabled'] = TRUE;
         }
         else {
-          $row['#required_by'][$dependent] = $this->t('@module (<span class="admin-disabled">disabled</span>)', array('@module' => $modules[$dependent]->info['name']));
+          $row['#required_by'][$dependent] = $this->t('@module (<span class="admin-disabled">disabled</span>)', ['@module' => $modules[$dependent]->info['name']]);
         }
       }
     }
@@ -357,39 +368,35 @@ class ModulesListForm extends FormBase {
    *   An array of modules to install and their dependencies.
    */
   protected function buildModuleList(FormStateInterface $form_state) {
-    $packages = $form_state->getValue('modules');
-
     // Build a list of modules to install.
-    $modules = array(
-      'install' => array(),
-      'dependencies' => array(),
+    $modules = [
+      'install' => [],
+      'dependencies' => [],
       'experimental' => [],
-    );
+    ];
 
-    // Required modules have to be installed.
-    // @todo This should really not be handled here.
-    $data = system_rebuild_module_data();
+    $data = $this->moduleExtensionList->getList();
     foreach ($data as $name => $module) {
-      if (!empty($module->required) && !$this->moduleHandler->moduleExists($name)) {
+      // If the module is installed there is nothing to do.
+      if ($this->moduleHandler->moduleExists($name)) {
+        continue;
+      }
+      // Required modules have to be installed.
+      if (!empty($module->required)) {
         $modules['install'][$name] = $module->info['name'];
       }
-    }
-
-    // First, build a list of all modules that were selected.
-    foreach ($packages as $package => $items) {
-      foreach ($items as $name => $checkbox) {
-        if ($checkbox['enable'] && !$this->moduleHandler->moduleExists($name)) {
-          $modules['install'][$name] = $data[$name]->info['name'];
-          // Identify experimental modules.
-          if ($package == 'Core (Experimental)') {
-            $modules['experimental'][$name] = $data[$name]->info['name'];
-          }
+      // Selected modules should be installed.
+      elseif (($checkbox = $form_state->getValue(['modules', $name], FALSE)) && $checkbox['enable']) {
+        $modules['install'][$name] = $data[$name]->info['name'];
+        // Identify experimental modules.
+        if ($data[$name]->info['package'] == 'Core (Experimental)') {
+          $modules['experimental'][$name] = $data[$name]->info['name'];
         }
       }
     }
 
     // Add all dependencies to a list.
-    while (list($module) = each($modules['install'])) {
+    foreach ($modules['install'] as $module => $value) {
       foreach (array_keys($data[$module]->requires) as $dependency) {
         if (!isset($modules['install'][$dependency]) && !$this->moduleHandler->moduleExists($dependency)) {
           $modules['dependencies'][$module][$dependency] = $data[$dependency]->info['name'];
@@ -411,6 +418,7 @@ class ModulesListForm extends FormBase {
     foreach (array_keys($modules['install']) as $module) {
       if (!drupal_check_module($module)) {
         unset($modules['install'][$module]);
+        unset($modules['experimental'][$module]);
         foreach (array_keys($data[$module]->required_by) as $dependent) {
           unset($modules['install'][$dependent]);
           unset($modules['dependencies'][$dependent]);
@@ -449,30 +457,28 @@ class ModulesListForm extends FormBase {
       try {
         $this->moduleInstaller->install(array_keys($modules['install']));
         $module_names = array_values($modules['install']);
-        drupal_set_message($this->formatPlural(count($module_names), 'Module %name has been enabled.', '@count modules have been enabled: %names.', array(
+        $this->messenger()->addStatus($this->formatPlural(count($module_names), 'Module %name has been enabled.', '@count modules have been enabled: %names.', [
           '%name' => $module_names[0],
           '%names' => implode(', ', $module_names),
-        )));
+        ]));
       }
       catch (PreExistingConfigException $e) {
         $config_objects = $e->flattenConfigObjects($e->getConfigObjects());
-        drupal_set_message(
+        $this->messenger()->addError(
           $this->formatPlural(
             count($config_objects),
             'Unable to install @extension, %config_names already exists in active configuration.',
             'Unable to install @extension, %config_names already exist in active configuration.',
-            array(
+            [
               '%config_names' => implode(', ', $config_objects),
-              '@extension' => $modules['install'][$e->getExtension()]
-            )),
-          'error'
+              '@extension' => $modules['install'][$e->getExtension()],
+            ])
         );
         return;
       }
       catch (UnmetDependenciesException $e) {
-        drupal_set_message(
-          $e->getTranslatedMessage($this->getStringTranslation(), $modules['install'][$e->getExtension()]),
-          'error'
+        $this->messenger()->addError(
+          $e->getTranslatedMessage($this->getStringTranslation(), $modules['install'][$e->getExtension()])
         );
         return;
       }

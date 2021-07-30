@@ -125,20 +125,20 @@ class ForumController extends ControllerBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $container->get('entity.manager');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = $container->get('entity_type.manager');
 
     return new static(
       $container->get('forum_manager'),
-      $entity_manager->getStorage('taxonomy_vocabulary'),
-      $entity_manager->getStorage('taxonomy_term'),
+      $entity_type_manager->getStorage('taxonomy_vocabulary'),
+      $entity_type_manager->getStorage('taxonomy_term'),
       $container->get('current_user'),
-      $entity_manager->getAccessControlHandler('node'),
-      $entity_manager->getFieldMap(),
-      $entity_manager->getStorage('node_type'),
+      $entity_type_manager->getAccessControlHandler('node'),
+      $container->get('entity_field.manager')->getFieldMap(),
+      $entity_type_manager->getStorage('node_type'),
       $container->get('renderer'),
-      $entity_manager->getDefinition('node'),
-      $entity_manager->getDefinition('comment')
+      $entity_type_manager->getDefinition('node'),
+      $entity_type_manager->getDefinition('comment')
     );
   }
 
@@ -154,7 +154,7 @@ class ForumController extends ControllerBase {
   public function forumPage(TermInterface $taxonomy_term) {
     // Get forum details.
     $taxonomy_term->forums = $this->forumManager->getChildren($this->config('forum.settings')->get('vocabulary'), $taxonomy_term->id());
-    $taxonomy_term->parents = $this->forumManager->getParents($taxonomy_term->id());
+    $taxonomy_term->parents = $this->termStorage->loadAllParents($taxonomy_term->id());
 
     if (empty($taxonomy_term->forum_container->value)) {
       $build = $this->forumManager->getTopics($taxonomy_term->id(), $this->currentUser());
@@ -207,9 +207,9 @@ class ForumController extends ControllerBase {
    * @return array
    *   A render array.
    */
-  protected function build($forums, TermInterface $term, $topics = array(), $parents = array(), $header = array()) {
+  protected function build($forums, TermInterface $term, $topics = [], $parents = [], $header = []) {
     $config = $this->config('forum.settings');
-    $build = array(
+    $build = [
       '#theme' => 'forums',
       '#forums' => $forums,
       '#topics' => $topics,
@@ -218,9 +218,9 @@ class ForumController extends ControllerBase {
       '#term' => $term,
       '#sortby' => $config->get('topics.order'),
       '#forums_per_page' => $config->get('topics.page_limit'),
-    );
+    ];
     if (empty($term->forum_container->value)) {
-      $build['#attached']['feed'][] = array('taxonomy/term/' . $term->id() . '/feed', 'RSS - ' . $term->getName());
+      $build['#attached']['feed'][] = ['taxonomy/term/' . $term->id() . '/feed', 'RSS - ' . $term->getName()];
     }
     $this->renderer->addCacheableDependency($build, $config);
 
@@ -252,10 +252,10 @@ class ForumController extends ControllerBase {
    */
   public function addForum() {
     $vid = $this->config('forum.settings')->get('vocabulary');
-    $taxonomy_term = $this->termStorage->create(array(
+    $taxonomy_term = $this->termStorage->create([
       'vid' => $vid,
       'forum_controller' => 0,
-    ));
+    ]);
     return $this->entityFormBuilder()->getForm($taxonomy_term, 'forum');
   }
 
@@ -267,10 +267,10 @@ class ForumController extends ControllerBase {
    */
   public function addContainer() {
     $vid = $this->config('forum.settings')->get('vocabulary');
-    $taxonomy_term = $this->termStorage->create(array(
+    $taxonomy_term = $this->termStorage->create([
       'vid' => $vid,
       'forum_container' => 1,
-    ));
+    ]);
     return $this->entityFormBuilder()->getForm($taxonomy_term, 'container');
   }
 
@@ -325,10 +325,10 @@ class ForumController extends ControllerBase {
         $links['login'] = [
           '#attributes' => ['class' => ['action-links']],
           '#theme' => 'menu_local_action',
-          '#link' => array(
+          '#link' => [
             'title' => $this->t('Log in to post new content in the forum.'),
             'url' => Url::fromRoute('user.login', [], ['query' => $this->getDestinationArray()]),
-          ),
+          ],
         ];
       }
     }

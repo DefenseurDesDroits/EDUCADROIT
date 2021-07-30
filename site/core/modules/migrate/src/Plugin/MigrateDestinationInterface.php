@@ -11,7 +11,7 @@ use Drupal\migrate\Row;
  * Destinations are responsible for persisting source data into the destination
  * Drupal.
  *
- * @see \Drupal\migrate\Plugin\destination\DestinationBase
+ * @see \Drupal\migrate\Plugin\migrate\destination\DestinationBase
  * @see \Drupal\migrate\Plugin\MigrateDestinationPluginManager
  * @see \Drupal\migrate\Annotation\MigrateDestination
  * @see plugin_api
@@ -83,11 +83,8 @@ interface MigrateDestinationInterface extends PluginInspectionInterface {
    * Derived classes must implement fields(), returning a list of available
    * destination fields.
    *
-   * @todo Review the cases where we need the Migration parameter, can we avoid
-   *   that? To be resolved with https://www.drupal.org/node/2543568.
-   *
    * @param \Drupal\migrate\Plugin\MigrationInterface $migration
-   *   (optional) The migration containing this destination. Defaults to NULL.
+   *   Unused, will be removed before Drupal 9.0.x. Defaults to NULL.
    *
    * @return array
    *   - Keys: machine names of the fields
@@ -106,10 +103,13 @@ interface MigrateDestinationInterface extends PluginInspectionInterface {
    * @param array $old_destination_id_values
    *   (optional) The old destination IDs. Defaults to an empty array.
    *
-   * @return mixed
-   *   The entity ID or an indication of success.
+   * @return array|bool
+   *   An indexed array of destination IDs in the same order as defined in the
+   *   plugin's getIds() method if the plugin wants to save the IDs to the ID
+   *   map, TRUE to indicate success without saving IDs to the ID map, or
+   *   FALSE to indicate a failure.
    */
-  public function import(Row $row, array $old_destination_id_values = array());
+  public function import(Row $row, array $old_destination_id_values = []);
 
   /**
    * Delete the specified destination object from the target Drupal.
@@ -135,5 +135,13 @@ interface MigrateDestinationInterface extends PluginInspectionInterface {
    *   item should be handled on rollback.
    */
   public function rollbackAction();
+
+  /**
+   * Gets the destination module handling the destination data.
+   *
+   * @return string|null
+   *   The destination module or NULL if not found.
+   */
+  public function getDestinationModule();
 
 }

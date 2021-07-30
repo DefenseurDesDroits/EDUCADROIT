@@ -19,7 +19,14 @@ class FieldAccessTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['entity_test', 'field', 'system', 'text', 'filter', 'user'];
+  public static $modules = [
+    'entity_test',
+    'field',
+    'system',
+    'text',
+    'filter',
+    'user',
+  ];
 
   /**
    * Holds the currently active global user ID that initiated the test run.
@@ -34,7 +41,16 @@ class FieldAccessTest extends KernelTestBase {
   protected function setUp() {
     parent::setUp();
     // Install field configuration.
-    $this->installConfig(array('field'));
+    $this->installConfig(['field']);
+
+    $this->installEntitySchema('entity_test');
+    $this->installEntitySchema('entity_test_mul');
+    $this->installEntitySchema('entity_test_mul_langcode_key');
+    $this->installEntitySchema('entity_test_mul_changed');
+    $this->installEntitySchema('entity_test_rev');
+    $this->installEntitySchema('entity_test_mulrev');
+    $this->installEntitySchema('entity_test_mulrev_changed');
+
     // The users table is needed for creating dummy user accounts.
     $this->installEntitySchema('user');
     // Register entity_test text field.
@@ -48,19 +64,19 @@ class FieldAccessTest extends KernelTestBase {
    * @see entity_test_entity_field_access()
    * @see entity_test_entity_field_access_alter()
    */
-  function testFieldAccess() {
-    $values = array(
+  public function testFieldAccess() {
+    $values = [
       'name' => $this->randomMachineName(),
       'user_id' => 1,
-      'field_test_text' => array(
+      'field_test_text' => [
         'value' => 'no access value',
         'format' => 'full_html',
-      ),
-    );
+      ],
+    ];
     $entity = EntityTest::create($values);
 
     // Create a dummy user account for testing access with.
-    $values = array('name' => 'test');
+    $values = ['name' => 'test'];
     $account = User::create($values);
 
     $this->assertFalse($entity->field_test_text->access('view', $account), 'Access to the field was denied.');

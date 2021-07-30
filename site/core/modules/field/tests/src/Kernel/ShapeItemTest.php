@@ -20,7 +20,7 @@ class ShapeItemTest extends FieldKernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('field_test');
+  public static $modules = ['field_test'];
 
   /**
    * The name of the field to use in this test.
@@ -33,11 +33,11 @@ class ShapeItemTest extends FieldKernelTestBase {
     parent::setUp();
 
     // Create a 'shape' field and storage for validation.
-    FieldStorageConfig::create(array(
+    FieldStorageConfig::create([
       'field_name' => $this->fieldName,
       'entity_type' => 'entity_test',
       'type' => 'shape',
-    ))->save();
+    ])->save();
     FieldConfig::create([
       'entity_type' => 'entity_test',
       'field_name' => $this->fieldName,
@@ -61,8 +61,8 @@ class ShapeItemTest extends FieldKernelTestBase {
     // Verify entity has been created properly.
     $id = $entity->id();
     $entity = EntityTest::load($id);
-    $this->assertTrue($entity->{$this->fieldName} instanceof FieldItemListInterface, 'Field implements interface.');
-    $this->assertTrue($entity->{$this->fieldName}[0] instanceof FieldItemInterface, 'Field item implements interface.');
+    $this->assertInstanceOf(FieldItemListInterface::class, $entity->{$this->fieldName});
+    $this->assertInstanceOf(FieldItemInterface::class, $entity->{$this->fieldName}[0]);
     $this->assertEqual($entity->{$this->fieldName}->shape, $shape);
     $this->assertEqual($entity->{$this->fieldName}->color, $color);
     $this->assertEqual($entity->{$this->fieldName}[0]->shape, $shape);

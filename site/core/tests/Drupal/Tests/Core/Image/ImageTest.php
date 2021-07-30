@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\Core\Image;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Image\Image;
 use Drupal\Core\ImageToolkit\ImageToolkitInterface;
 use Drupal\Tests\UnitTestCase;
@@ -56,11 +57,11 @@ class ImageTest extends UnitTestCase {
    * @param array $stubs
    *   (optional) Array containing methods to be replaced with stubs.
    *
-   * @return \PHPUnit_Framework_MockObject_MockObject
+   * @return \PHPUnit\Framework\MockObject\MockObject
    */
-  protected function getToolkitMock(array $stubs = array()) {
+  protected function getToolkitMock(array $stubs = []) {
     $mock_builder = $this->getMockBuilder('Drupal\system\Plugin\ImageToolkit\GDToolkit');
-    $stubs = array_merge(array('getPluginId', 'save'), $stubs);
+    $stubs = array_merge(['getPluginId', 'save'], $stubs);
     return $mock_builder
       ->disableOriginalConstructor()
       ->setMethods($stubs)
@@ -72,17 +73,17 @@ class ImageTest extends UnitTestCase {
    *
    * @param string $class_name
    *   The name of the GD toolkit operation class to be mocked.
-   * @param ImageToolkitInterface $toolkit
+   * @param \Drupal\Core\Image\ImageToolkitInterface $toolkit
    *   The image toolkit object.
    *
-   * @return \PHPUnit_Framework_MockObject_MockObject
+   * @return \PHPUnit\Framework\MockObject\MockObject
    */
   protected function getToolkitOperationMock($class_name, ImageToolkitInterface $toolkit) {
     $mock_builder = $this->getMockBuilder('Drupal\system\Plugin\ImageToolkit\Operation\gd\\' . $class_name);
-    $logger = $this->getMock('Psr\Log\LoggerInterface');
+    $logger = $this->createMock('Psr\Log\LoggerInterface');
     return $mock_builder
-      ->setMethods(array('execute'))
-      ->setConstructorArgs(array(array(), '', array(), $toolkit, $logger))
+      ->setMethods(['execute'])
+      ->setConstructorArgs([[], '', [], $toolkit, $logger])
       ->getMock();
   }
 
@@ -98,9 +99,9 @@ class ImageTest extends UnitTestCase {
    * @return \Drupal\Core\Image\Image
    *   An image object.
    */
-  protected function getTestImage($load_expected = TRUE, array $stubs = array()) {
+  protected function getTestImage($load_expected = TRUE, array $stubs = []) {
     if (!$load_expected && !in_array('load', $stubs)) {
-      $stubs = array_merge(array('load'), $stubs);
+      $stubs = array_merge(['load'], $stubs);
     }
 
     $this->toolkit = $this->getToolkitMock($stubs);
@@ -127,7 +128,7 @@ class ImageTest extends UnitTestCase {
    *   An image object.
    */
   protected function getTestImageForOperation($class_name) {
-    $this->toolkit = $this->getToolkitMock(array('getToolkitOperation'));
+    $this->toolkit = $this->getToolkitMock(['getToolkitOperation']);
     $this->toolkitOperation = $this->getToolkitOperationMock($class_name, $this->toolkit);
 
     $this->toolkit->expects($this->any())
@@ -187,7 +188,7 @@ class ImageTest extends UnitTestCase {
   public function testIsValid() {
     $this->getTestImage(FALSE);
     $this->assertTrue($this->image->isValid());
-    $this->assertTrue(is_readable($this->image->getSource()));
+    $this->assertFileIsReadable($this->image->getSource());
   }
 
   /**
@@ -209,10 +210,23 @@ class ImageTest extends UnitTestCase {
       ->method('save')
       ->will($this->returnValue(TRUE));
 
-    $image = $this->getMock('Drupal\Core\Image\Image', array('chmod'), array($toolkit, $this->image->getSource()));
-    $image->expects($this->any())
-      ->method('chmod')
-      ->will($this->returnValue(TRUE));
+    $image = $this->getMockBuilder('Drupal\Core\Image\Image')
+      ->setMethods(['chmod'])
+      ->setConstructorArgs([$toolkit, $this->image->getSource()])
+      ->getMock();
+
+    $file_system = $this->prophesize(FileSystemInterface::class);
+    $file_system->chmod($this->image->getSource())
+      ->willReturn(TRUE);
+
+    $container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerBuilder')
+      ->setMethods(['get'])
+      ->getMock();
+    $container->expects($this->once())
+      ->method('get')
+      ->with('file_system')
+      ->willReturn($file_system->reveal());
+    \Drupal::setContainer($container);
 
     $image->save();
   }
@@ -241,10 +255,23 @@ class ImageTest extends UnitTestCase {
       ->method('save')
       ->will($this->returnValue(TRUE));
 
-    $image = $this->getMock('Drupal\Core\Image\Image', array('chmod'), array($toolkit, $this->image->getSource()));
-    $image->expects($this->any())
-      ->method('chmod')
-      ->will($this->returnValue(FALSE));
+    $image = $this->getMockBuilder('Drupal\Core\Image\Image')
+      ->setMethods(['chmod'])
+      ->setConstructorArgs([$toolkit, $this->image->getSource()])
+      ->getMock();
+
+    $file_system = $this->prophesize(FileSystemInterface::class);
+    $file_system->chmod($this->image->getSource())
+      ->willReturn(FALSE);
+
+    $container = $this->getMockBuilder('Symfony\Component\DependencyInjection\ContainerBuilder')
+      ->setMethods(['get'])
+      ->getMock();
+    $container->expects($this->once())
+      ->method('get')
+      ->with('file_system')
+      ->willReturn($file_system->reveal());
+    \Drupal::setContainer($container);
 
     $this->assertFalse($image->save());
   }

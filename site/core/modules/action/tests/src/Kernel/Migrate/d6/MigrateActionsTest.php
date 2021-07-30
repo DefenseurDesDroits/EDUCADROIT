@@ -40,7 +40,7 @@ class MigrateActionsTest extends MigrateDrupal6TestBase {
     $this->assertEntity('send_e_mail', 'Send e-mail', 'system', [
       "recipient" => "test@example.com",
       "subject" => "Drupal migration test",
-      "message" => "Drupal migration test"
+      "message" => "Drupal migration test",
     ]);
     $this->assertEntity('redirect_to_url', 'Redirect to URL', 'system', ["url" => "https://www.drupal.org"]);
 
@@ -61,7 +61,7 @@ class MigrateActionsTest extends MigrateDrupal6TestBase {
   protected function assertEntity($id, $label, $type, $configuration) {
     $action = Action::load($id);
 
-    $this->assertTrue($action instanceof Action);
+    $this->assertInstanceOf(Action::class, $action);
     /** @var \Drupal\system\Entity\Action $action */
     $this->assertIdentical($id, $action->id());
     $this->assertIdentical($label, $action->label());

@@ -24,9 +24,10 @@ class TextWithSummaryItem extends TextItemBase {
    * {@inheritdoc}
    */
   public static function defaultFieldSettings() {
-    return array(
+    return [
       'display_summary' => 0,
-    ) + parent::defaultFieldSettings();
+      'required_summary' => FALSE,
+    ] + parent::defaultFieldSettings();
   }
 
   /**
@@ -52,25 +53,25 @@ class TextWithSummaryItem extends TextItemBase {
    * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
-    return array(
-      'columns' => array(
-        'value' => array(
+    return [
+      'columns' => [
+        'value' => [
           'type' => 'text',
           'size' => 'big',
-        ),
-        'summary' => array(
+        ],
+        'summary' => [
           'type' => 'text',
           'size' => 'big',
-        ),
-        'format' => array(
+        ],
+        'format' => [
           'type' => 'varchar_ascii',
           'length' => 255,
-        ),
-      ),
-      'indexes' => array(
-        'format' => array('format'),
-      ),
-    );
+        ],
+      ],
+      'indexes' => [
+        'format' => ['format'],
+      ],
+    ];
   }
 
   /**
@@ -85,17 +86,42 @@ class TextWithSummaryItem extends TextItemBase {
    * {@inheritdoc}
    */
   public function fieldSettingsForm(array $form, FormStateInterface $form_state) {
-    $element = array();
+    $element = [];
     $settings = $this->getSettings();
 
-    $element['display_summary'] = array(
+    $element['display_summary'] = [
       '#type' => 'checkbox',
       '#title' => t('Summary input'),
       '#default_value' => $settings['display_summary'],
       '#description' => t('This allows authors to input an explicit summary, to be displayed instead of the automatically trimmed text when using the "Summary or trimmed" display type.'),
-    );
+    ];
+
+    $element['required_summary'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Require summary'),
+      '#description' => t('The summary will also be visible when marked as required.'),
+      '#default_value' => $settings['required_summary'],
+    ];
 
     return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getConstraints() {
+    $constraints = parent::getConstraints();
+    if ($this->getSetting('required_summary')) {
+      $manager = $this->getTypedDataManager()->getValidationConstraintManager();
+      $constraints[] = $manager->create('ComplexData', [
+        'summary' => [
+          'NotNull' => [
+            'message' => $this->t('The summary field is required for @name', ['@name' => $this->getFieldDefinition()->getLabel()]),
+          ],
+        ],
+      ]);
+    }
+    return $constraints;
   }
 
 }

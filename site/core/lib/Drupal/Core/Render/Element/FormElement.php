@@ -60,7 +60,7 @@ use Drupal\Core\Url;
  * - #required: (bool) Whether or not input is required on the element.
  * - #states: (array) Information about JavaScript states, such as when to
  *   hide or show the element based on input on other elements.
- *   See drupal_process_states() for documentation.
+ *   See \Drupal\Core\Form\FormHelper::processStates() for documentation.
  * - #title: (string) Title of the form element. Should be translated.
  * - #title_display: (string) Where and how to display the #title. Possible
  *   values:
@@ -108,7 +108,7 @@ abstract class FormElement extends RenderElement implements FormElementInterface
   public static function processPattern(&$element, FormStateInterface $form_state, &$complete_form) {
     if (isset($element['#pattern']) && !isset($element['#attributes']['pattern'])) {
       $element['#attributes']['pattern'] = $element['#pattern'];
-      $element['#element_validate'][] = array(get_called_class(), 'validatePattern');
+      $element['#element_validate'][] = [get_called_class(), 'validatePattern'];
     }
 
     return $element;
@@ -136,7 +136,7 @@ abstract class FormElement extends RenderElement implements FormElementInterface
       $pattern = '{^(?:' . $element['#pattern'] . ')$}';
 
       if (!preg_match($pattern, $element['#value'])) {
-        $form_state->setError($element, t('%name field is not in the right format.', array('%name' => $element['#title'])));
+        $form_state->setError($element, t('%name field is not in the right format.', ['%name' => $element['#title']]));
       }
     }
   }
@@ -178,7 +178,7 @@ abstract class FormElement extends RenderElement implements FormElementInterface
     $access = FALSE;
 
     if (!empty($element['#autocomplete_route_name'])) {
-      $parameters = isset($element['#autocomplete_route_parameters']) ? $element['#autocomplete_route_parameters'] : array();
+      $parameters = isset($element['#autocomplete_route_parameters']) ? $element['#autocomplete_route_parameters'] : [];
       $url = Url::fromRoute($element['#autocomplete_route_name'], $parameters)->toString(TRUE);
       /** @var \Drupal\Core\Access\AccessManagerInterface $access_manager */
       $access_manager = \Drupal::service('access_manager');

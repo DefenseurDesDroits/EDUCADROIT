@@ -3,11 +3,12 @@
 namespace Drupal\node;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\RevisionableEntityBundleInterface;
 
 /**
  * Provides an interface defining a node type entity.
  */
-interface NodeTypeInterface extends ConfigEntityInterface {
+interface NodeTypeInterface extends ConfigEntityInterface, RevisionableEntityBundleInterface {
 
   /**
    * Determines whether the node type is locked.
@@ -22,13 +23,19 @@ interface NodeTypeInterface extends ConfigEntityInterface {
    *
    * @return bool
    *   TRUE if a new revision should be created by default.
+   *
+   * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0. Use
+   *   Drupal\Core\Entity\RevisionableEntityBundleInterface::shouldCreateNewRevision()
+   *   instead.
+   *
+   * @see https://www.drupal.org/node/3067365
    */
   public function isNewRevision();
 
   /**
    * Sets whether a new revision should be created by default.
    *
-   * @param bool $new_revision_
+   * @param bool $new_revision
    *   TRUE if a new revision should be created by default.
    */
   public function setNewRevision($new_revision);

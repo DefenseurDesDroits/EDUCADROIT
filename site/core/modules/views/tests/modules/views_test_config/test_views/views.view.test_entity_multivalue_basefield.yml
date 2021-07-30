@@ -10,7 +10,6 @@ description: ''
 tag: ''
 base_table: entity_test_multivalue_basefield
 base_field: id
-core: '8'
 display:
   default:
     display_plugin: default
@@ -30,7 +29,7 @@ display:
         name:
           id: name
           table: entity_test_multivalue_basefield__name
-          field: name
+          field: name_value
           plugin_id: field
           entity_type: entity_test_multivalue_basefield
           entity_field: name

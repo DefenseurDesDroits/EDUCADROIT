@@ -13,6 +13,7 @@ class TestDerivativeDiscoveryWithObject implements DeriverInterface {
    * {@inheritdoc}
    * @param string $derivative_id
    * @param array $base_plugin_definition
+   *
    * @return array
    */
   public function getDerivativeDefinition($derivative_id, $base_plugin_definition) {
@@ -23,10 +24,11 @@ class TestDerivativeDiscoveryWithObject implements DeriverInterface {
   /**
    * {@inheritdoc}
    * @param array $base_plugin_definition
+   *
    * @return array
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
-    $plugins = array();
+    $plugins = [];
     for ($i = 0; $i < 2; $i++) {
       $plugins['test_discovery_' . $i] = $base_plugin_definition;
     }

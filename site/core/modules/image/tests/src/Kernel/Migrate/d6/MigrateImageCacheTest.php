@@ -28,22 +28,17 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
    */
   public function testMissingTable() {
     $this->sourceDatabase->update('system')
-      ->fields(array(
+      ->fields([
         'status' => 0,
-      ))
+      ])
       ->condition('name', 'imagecache')
       ->condition('type', 'module')
       ->execute();
 
-    try {
-      $this->getMigration('d6_imagecache_presets')
-        ->getSourcePlugin()
-        ->checkRequirements();
-      $this->fail('Did not catch expected RequirementsException.');
-    }
-    catch (RequirementsException $e) {
-      $this->pass('Caught expected RequirementsException: ' . $e->getMessage());
-    }
+    $this->expectException(RequirementsException::class);
+    $this->getMigration('d6_imagecache_presets')
+      ->getSourcePlugin()
+      ->checkRequirements();
   }
 
   /**
@@ -88,14 +83,14 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
    */
   public function testMissingEffectPlugin() {
     Database::getConnection('default', 'migrate')->insert("imagecache_action")
-       ->fields([
+      ->fields([
        'presetid',
        'weight',
        'module',
        'action',
        'data',
      ])
-       ->values([
+      ->values([
        'presetid' => '1',
        'weight' => '0',
        'module' => 'imagecache',
@@ -105,15 +100,10 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
 
     $this->startCollectingMessages();
     $this->executeMigration('d6_imagecache_presets');
-    $messages = $this->migration->getIdMap()->getMessageIterator();
-    $count = 0;
-    foreach ($messages as $message) {
-      $count++;
-      $this->assertEqual($message->message, 'The "image_deprecated_scale" plugin does not exist.');
-      $this->assertEqual($message->level, MigrationInterface::MESSAGE_ERROR);
-    }
-    // There should be only the one message.
-    $this->assertEqual($count, 1);
+    $messages = iterator_to_array($this->migration->getIdMap()->getMessages());
+    $this->assertCount(1, $messages);
+    $this->assertStringContainsString('The "image_deprecated_scale" plugin does not exist.', $messages[0]->message);
+    $this->assertEqual($messages[0]->level, MigrationInterface::MESSAGE_ERROR);
   }
 
   /**
@@ -121,14 +111,14 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
    */
   public function testInvalidCropValues() {
     Database::getConnection('default', 'migrate')->insert("imagecache_action")
-       ->fields([
+      ->fields([
        'presetid',
        'weight',
        'module',
        'action',
        'data',
      ])
-       ->values([
+      ->values([
        'presetid' => '1',
        'weight' => '0',
        'module' => 'imagecache',
@@ -141,9 +131,11 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
 
     $this->startCollectingMessages();
     $this->executeMigration('d6_imagecache_presets');
-    $this->assertEqual(['error' => [
-     'The Drupal 8 image crop effect does not support numeric values for x and y offsets. Use keywords to set crop effect offsets instead.'
-    ]], $this->migrateMessages);
+    $this->assertEqual([
+      'error' => [
+        'The Drupal 8 image crop effect does not support numeric values for x and y offsets. Use keywords to set crop effect offsets instead.',
+      ],
+    ], $this->migrateMessages);
   }
 
   /**
@@ -165,7 +157,7 @@ class MigrateImageCacheTest extends MigrateDrupal6TestBase {
 
       if ($effect_config['id'] == $id && $effect_config['data'] == $config) {
         // We found this effect so succeed and return.
-        return $this->pass('Effect ' . $id . ' imported correctly');
+        return TRUE;
       }
     }
     // The loop did not find the effect so we it was not imported correctly.

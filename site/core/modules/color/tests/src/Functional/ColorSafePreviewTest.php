@@ -20,6 +20,11 @@ class ColorSafePreviewTest extends BrowserTestBase {
   public static $modules = ['color', 'color_test'];
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * A user with administrative permissions.
    *
    * @var \Drupal\user\UserInterface
@@ -39,9 +44,9 @@ class ColorSafePreviewTest extends BrowserTestBase {
   /**
    * Ensures color preview.html is sanitized.
    */
-  function testColorPreview() {
+  public function testColorPreview() {
     // Install the color test theme.
-    \Drupal::service('theme_handler')->install(['color_test_theme']);
+    \Drupal::service('theme_installer')->install(['color_test_theme']);
     $this->drupalLogin($this->bigUser);
 
     // Markup is being printed from a HTML file located in:

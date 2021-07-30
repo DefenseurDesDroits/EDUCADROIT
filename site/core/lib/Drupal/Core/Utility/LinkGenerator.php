@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\GeneratedLink;
+use Drupal\Core\GeneratedButton;
 use Drupal\Core\GeneratedNoLink;
 use Drupal\Core\Link;
 use Drupal\Core\Render\RendererInterface;
@@ -76,6 +77,11 @@ class LinkGenerator implements LinkGeneratorInterface {
    * @see system_page_attachments()
    */
   public function generate($text, Url $url) {
+    // The link generator should not modify the original URL object, this
+    // ensures consistent rendering.
+    // @see https://www.drupal.org/node/2842399
+    $url = clone $url;
+
     // Performance: avoid Url::toString() needing to retrieve the URL generator
     // service from the container.
     $url->setUrlGenerator($this->urlGenerator);
@@ -85,20 +91,20 @@ class LinkGenerator implements LinkGeneratorInterface {
     }
 
     // Start building a structured representation of our link to be altered later.
-    $variables = array(
+    $variables = [
       'text' => $text,
       'url' => $url,
       'options' => $url->getOptions(),
-    );
+    ];
 
     // Merge in default options.
-    $variables['options'] += array(
-      'attributes' => array(),
-      'query' => array(),
+    $variables['options'] += [
+      'attributes' => [],
+      'query' => [],
       'language' => NULL,
       'set_active_class' => FALSE,
       'absolute' => FALSE,
-    );
+    ];
 
     // Add a hreflang attribute if we know the language of this link's url and
     // hreflang has not already been set.
@@ -107,7 +113,7 @@ class LinkGenerator implements LinkGeneratorInterface {
     }
 
     // Ensure that query values are strings.
-    array_walk($variables['options']['query'], function(&$value) {
+    array_walk($variables['options']['query'], function (&$value) {
       if ($value instanceof MarkupInterface) {
         $value = (string) $value;
       }
@@ -128,8 +134,15 @@ class LinkGenerator implements LinkGeneratorInterface {
       if ($url->isRouted() && !isset($variables['options']['attributes']['data-drupal-link-system-path'])) {
         // @todo System path is deprecated - use the route name and parameters.
         $system_path = $url->getInternalPath();
+
         // Special case for the front page.
-        $variables['options']['attributes']['data-drupal-link-system-path'] = $system_path == '' ? '<front>' : $system_path;
+        if ($url->getRouteName() === '<front>') {
+          $system_path = '<front>';
+        }
+
+        if (!empty($system_path)) {
+          $variables['options']['attributes']['data-drupal-link-system-path'] = $system_path;
+        }
       }
     }
 
@@ -145,7 +158,7 @@ class LinkGenerator implements LinkGeneratorInterface {
 
     // Move attributes out of options since generateFromRoute() doesn't need
     // them. Make sure the "href" comes first for testing purposes.
-    $attributes = array('href' => '') + $variables['options']['attributes'];
+    $attributes = ['href' => ''] + $variables['options']['attributes'];
     unset($variables['options']['attributes']);
     $url->setOptions($variables['options']);
 
@@ -153,19 +166,41 @@ class LinkGenerator implements LinkGeneratorInterface {
     if ($url->isExternal()) {
       $generated_link = new GeneratedLink();
       $attributes['href'] = $url->toString(FALSE);
+      return $this->doGenerate($generated_link, $attributes, $variables);
     }
-    elseif ($url->isRouted() && $url->getRouteName() === '<nolink>') {
+    if ($url->isRouted() && $url->getRouteName() === '<nolink>') {
       $generated_link = new GeneratedNoLink();
       unset($attributes['href']);
+      return $this->doGenerate($generated_link, $attributes, $variables);
     }
-    else {
-      $generated_url = $url->toString(TRUE);
-      $generated_link = GeneratedLink::createFromObject($generated_url);
-      // The result of the URL generator is a plain-text URL to use as the href
-      // attribute, and it is escaped by \Drupal\Core\Template\Attribute.
-      $attributes['href'] = $generated_url->getGeneratedUrl();
+    if ($url->isRouted() && $url->getRouteName() === '<button>') {
+      $generated_link = new GeneratedButton();
+      $attributes['type'] = 'button';
+      unset($attributes['href']);
+      return $this->doGenerate($generated_link, $attributes, $variables);
     }
+    $generated_url = $url->toString(TRUE);
+    $generated_link = GeneratedLink::createFromObject($generated_url);
+    // The result of the URL generator is a plain-text URL to use as the href
+    // attribute, and it is escaped by \Drupal\Core\Template\Attribute.
+    $attributes['href'] = $generated_url->getGeneratedUrl();
+    return $this->doGenerate($generated_link, $attributes, $variables);
+  }
 
+  /**
+   * Generates the link.
+   *
+   * @param Drupal\Core\GeneratedLink $generated_link
+   *   The generated link, along with its associated cacheability metadata.
+   * @param array $attributes
+   *   The attributes of the generated link.
+   * @param array $variables
+   *   The link text, url, and other options.
+   *
+   * @return Drupal\Core\GeneratedLink
+   *   The generated link, along with its associated cacheability metadata.
+   */
+  protected function doGenerate($generated_link, $attributes, $variables) {
     if (!($variables['text'] instanceof MarkupInterface)) {
       $variables['text'] = Html::escape($variables['text']);
     }

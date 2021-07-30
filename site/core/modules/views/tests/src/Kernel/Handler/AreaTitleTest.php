@@ -18,7 +18,7 @@ class AreaTitleTest extends ViewsKernelTestBase {
    *
    * @var array
    */
-  public static $testViews = array('test_area_title');
+  public static $testViews = ['test_area_title'];
 
   /**
    * Tests the title area handler.
@@ -29,12 +29,12 @@ class AreaTitleTest extends ViewsKernelTestBase {
     $view->setDisplay('default');
     $this->executeView($view);
     $view->render();
-    $this->assertFalse($view->getTitle(), 'The title area does not override the title if the view is not empty.');
+    $this->assertEmpty($view->getTitle(), 'The title area does not override the title if the view is not empty.');
     $view->destroy();
 
     $view->setDisplay('default');
     $this->executeView($view);
-    $view->result = array();
+    $view->result = [];
     $view->render();
     $this->assertEqual($view->getTitle(), 'test_title_empty', 'The title area should override the title if the result is empty.');
     $view->destroy();
@@ -47,7 +47,7 @@ class AreaTitleTest extends ViewsKernelTestBase {
 
     $view->setDisplay('page_1');
     $this->executeView($view);
-    $view->result = array();
+    $view->result = [];
     $view->render();
     $this->assertEqual($view->getTitle(), 'test_title_empty', 'The title area should override the title if the result is empty.');
     $view->destroy();

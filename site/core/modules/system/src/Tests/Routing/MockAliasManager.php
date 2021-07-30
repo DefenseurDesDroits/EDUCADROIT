@@ -2,7 +2,7 @@
 
 namespace Drupal\system\Tests\Routing;
 
-use Drupal\Core\Path\AliasManagerInterface;
+use Drupal\path_alias\AliasManagerInterface;
 
 /**
  * An easily configurable mock alias manager.
@@ -14,21 +14,21 @@ class MockAliasManager implements AliasManagerInterface {
    *
    * @var array
    */
-  protected $aliases = array();
+  protected $aliases = [];
 
   /**
    * Array of mocked aliases. Keys are aliases, followed by language.
    *
    * @var array
    */
-  protected $systemPaths = array();
+  protected $systemPaths = [];
 
   /**
    * An index of aliases that have been requested.
    *
    * @var array
    */
-  protected $lookedUp = array();
+  protected $lookedUp = [];
 
   /**
    * The language to assume a path alias is for if not specified.
@@ -73,6 +73,7 @@ class MockAliasManager implements AliasManagerInterface {
    * {@inheritdoc}
    * @param $path
    * @param null $langcode
+   *
    * @return
    */
   public function getAliasByPath($path, $langcode = NULL) {

@@ -20,11 +20,12 @@ function _batch_test_nested_drupal_form_submit_callback($value) {
  * Batch 0: Does nothing.
  */
 function _batch_test_batch_0() {
-  $batch = array(
-    'operations' => array(),
+  $batch = [
+    'operations' => [],
     'finished' => '_batch_test_finished_0',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_0',
+  ];
   return $batch;
 }
 
@@ -38,15 +39,16 @@ function _batch_test_batch_1() {
   $total = 10;
   $sleep = (1000000 / $total) * 2;
 
-  $operations = array();
+  $operations = [];
   for ($i = 1; $i <= $total; $i++) {
-    $operations[] = array('_batch_test_callback_1', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_1', [$i, $sleep]];
   }
-  $batch = array(
+  $batch = [
     'operations' => $operations,
     'finished' => '_batch_test_finished_1',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_1',
+  ];
   return $batch;
 }
 
@@ -60,14 +62,15 @@ function _batch_test_batch_2() {
   $total = 10;
   $sleep = (1000000 / $total) * 2;
 
-  $operations = array(
-    array('_batch_test_callback_2', array(1, $total, $sleep)),
-  );
-  $batch = array(
+  $operations = [
+    ['_batch_test_callback_2', [1, $total, $sleep]],
+  ];
+  $batch = [
     'operations' => $operations,
     'finished' => '_batch_test_finished_2',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_2',
+  ];
   return $batch;
 }
 
@@ -85,20 +88,21 @@ function _batch_test_batch_3() {
   $total = 10;
   $sleep = (1000000 / $total) * 2;
 
-  $operations = array();
+  $operations = [];
   for ($i = 1; $i <= round($total / 2); $i++) {
-    $operations[] = array('_batch_test_callback_1', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_1', [$i, $sleep]];
   }
-  $operations[] = array('_batch_test_callback_2', array(1, $total / 2, $sleep));
+  $operations[] = ['_batch_test_callback_2', [1, $total / 2, $sleep]];
   for ($i = round($total / 2) + 1; $i <= $total; $i++) {
-    $operations[] = array('_batch_test_callback_1', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_1', [$i, $sleep]];
   }
-  $operations[] = array('_batch_test_callback_2', array(6, $total / 2, $sleep));
-  $batch = array(
+  $operations[] = ['_batch_test_callback_2', [6, $total / 2, $sleep]];
+  $batch = [
     'operations' => $operations,
     'finished' => '_batch_test_finished_3',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_3',
+  ];
   return $batch;
 }
 
@@ -115,19 +119,20 @@ function _batch_test_batch_4() {
   $total = 10;
   $sleep = (1000000 / $total) * 2;
 
-  $operations = array();
+  $operations = [];
   for ($i = 1; $i <= round($total / 2); $i++) {
-    $operations[] = array('_batch_test_callback_1', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_1', [$i, $sleep]];
   }
-  $operations[] = array('_batch_test_nested_batch_callback', array());
+  $operations[] = ['_batch_test_nested_batch_callback', [[2]]];
   for ($i = round($total / 2) + 1; $i <= $total; $i++) {
-    $operations[] = array('_batch_test_callback_1', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_1', [$i, $sleep]];
   }
-  $batch = array(
+  $batch = [
     'operations' => $operations,
     'finished' => '_batch_test_finished_4',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_4',
+  ];
   return $batch;
 }
 
@@ -141,15 +146,70 @@ function _batch_test_batch_5() {
   $total = 10;
   $sleep = (1000000 / $total) * 2;
 
-  $operations = array();
+  $operations = [];
   for ($i = 1; $i <= $total; $i++) {
-    $operations[] = array('_batch_test_callback_5', array($i, $sleep));
+    $operations[] = ['_batch_test_callback_5', [$i, $sleep]];
   }
-  $batch = array(
+  $batch = [
     'operations' => $operations,
     'finished' => '_batch_test_finished_5',
     'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
-  );
+    'batch_test_id' => 'batch_5',
+  ];
+  return $batch;
+}
+
+/**
+ * Batch 6: Repeats a simple operation.
+ *
+ * Operations: op 6 from 1 to 10.
+ */
+function _batch_test_batch_6() {
+  // Ensure the batch takes at least two iterations.
+  $total = 10;
+  $sleep = (1000000 / $total) * 2;
+
+  $operations = [];
+  for ($i = 1; $i <= $total; $i++) {
+    $operations[] = ['_batch_test_callback_6', [$i, $sleep]];
+  }
+  $batch = [
+    'operations' => $operations,
+    'finished' => '_batch_test_finished_6',
+    'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
+    'batch_test_id' => 'batch_6',
+  ];
+  return $batch;
+}
+
+/**
+ * Batch 7: Performs two batches within a batch.
+ *
+ * Operations:
+ * - op 7 from 1 to 5,
+ * - set batch 5 (op 5 from 1 to 10, should run at the end before batch 2)
+ * - set batch 6 (op 6 from 1 to 10, should run at the end after batch 1)
+ * - op 7 from 6 to 10,
+ */
+function _batch_test_batch_7() {
+  // Ensure the batch takes at least two iterations.
+  $total = 10;
+  $sleep = (1000000 / $total) * 2;
+
+  $operations = [];
+  for ($i = 1; $i <= $total / 2; $i++) {
+    $operations[] = ['_batch_test_callback_7', [$i, $sleep]];
+  }
+  $operations[] = ['_batch_test_nested_batch_callback', [[6, 5]]];
+  for ($i = ($total / 2) + 1; $i <= $total; $i++) {
+    $operations[] = ['_batch_test_callback_7', [$i, $sleep]];
+  }
+  $batch = [
+    'operations' => $operations,
+    'finished' => '_batch_test_finished_7',
+    'file' => drupal_get_path('module', 'batch_test') . '/batch_test.callbacks.inc',
+    'batch_test_id' => 'batch_7',
+  ];
   return $batch;
 }
 
@@ -187,13 +247,14 @@ function _batch_test_title_callback() {
  * Helper function: Stores or retrieves traced execution data.
  */
 function batch_test_stack($data = NULL, $reset = FALSE) {
+  $state = \Drupal::state();
   if ($reset) {
-    \Drupal::state()->delete('batch_test.stack');
+    $state->delete('batch_test.stack');
   }
   if (!isset($data)) {
-    return \Drupal::state()->get('batch_test.stack');
+    return $state->get('batch_test.stack');
   }
-  $stack = \Drupal::state()->get('batch_test.stack');
+  $stack = $state->get('batch_test.stack');
   $stack[] = $data;
-  \Drupal::state()->set('batch_test.stack', $stack);
+  $state->set('batch_test.stack', $stack);
 }

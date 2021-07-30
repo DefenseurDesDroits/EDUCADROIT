@@ -1,0 +1,23 @@
+uuid: 6daff13b-a232-4112-8d7b-ec2f444f12ca
+langcode: fr
+status: true
+dependencies:
+  config:
+    - facets.facet.format
+  module:
+    - facets
+  theme:
+    - ddd
+id: format
+theme: ddd
+region: facets
+weight: 0
+provider: null
+plugin: 'facet_block:format'
+settings:
+  id: 'facet_block:format'
+  label: Format
+  provider: facets
+  label_display: visible
+  block_id: format
+visibility: {  }

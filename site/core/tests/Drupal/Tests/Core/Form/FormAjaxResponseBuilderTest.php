@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * @coversDefaultClass \Drupal\Core\Form\FormAjaxResponseBuilder
@@ -17,12 +18,12 @@ use Symfony\Component\HttpFoundation\Request;
 class FormAjaxResponseBuilderTest extends UnitTestCase {
 
   /**
-   * @var \Drupal\Core\Render\MainContent\MainContentRendererInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Render\MainContent\MainContentRendererInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $renderer;
 
   /**
-   * @var \Drupal\Core\Routing\RouteMatchInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Routing\RouteMatchInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $routeMatch;
 
@@ -36,15 +37,13 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->renderer = $this->getMock('Drupal\Core\Render\MainContent\MainContentRendererInterface');
-    $this->routeMatch = $this->getMock('Drupal\Core\Routing\RouteMatchInterface');
+    $this->renderer = $this->createMock('Drupal\Core\Render\MainContent\MainContentRendererInterface');
+    $this->routeMatch = $this->createMock('Drupal\Core\Routing\RouteMatchInterface');
     $this->formAjaxResponseBuilder = new FormAjaxResponseBuilder($this->renderer, $this->routeMatch);
   }
 
   /**
    * @covers ::buildResponse
-   *
-   * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function testBuildResponseNoTriggeringElement() {
     $this->renderer->expects($this->never())
@@ -55,14 +54,12 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
     $form_state = new FormState();
     $commands = [];
 
-    $expected = [];
-    $this->assertSame($expected, $this->formAjaxResponseBuilder->buildResponse($request, $form, $form_state, $commands));
+    $this->expectException(HttpException::class);
+    $this->formAjaxResponseBuilder->buildResponse($request, $form, $form_state, $commands);
   }
 
   /**
    * @covers ::buildResponse
-   *
-   * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
    */
   public function testBuildResponseNoCallable() {
     $this->renderer->expects($this->never())
@@ -75,8 +72,8 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
     $form_state->setTriggeringElement($triggering_element);
     $commands = [];
 
-    $expected = [];
-    $this->assertSame($expected, $this->formAjaxResponseBuilder->buildResponse($request, $form, $form_state, $commands));
+    $this->expectException(HttpException::class);
+    $this->formAjaxResponseBuilder->buildResponse($request, $form, $form_state, $commands);
   }
 
   /**
@@ -87,7 +84,7 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
       '#ajax' => [
         'callback' => function (array $form, FormStateInterface $form_state) {
           return $form['test'];
-        }
+        },
       ],
     ];
     $request = new Request();
@@ -118,7 +115,7 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
       '#ajax' => [
         'callback' => function (array $form, FormStateInterface $form_state) {
           return new AjaxResponse([]);
-        }
+        },
       ],
     ];
     $request = new Request();
@@ -143,7 +140,7 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
       '#ajax' => [
         'callback' => function (array $form, FormStateInterface $form_state) {
           return new AjaxResponse([]);
-        }
+        },
       ],
     ];
     $request = new Request();
@@ -176,7 +173,7 @@ class FormAjaxResponseBuilderTest extends UnitTestCase {
       '#ajax' => [
         'callback' => function (array $form, FormStateInterface $form_state) {
           return new AjaxResponse([]);
-        }
+        },
       ],
     ];
     $request = new Request();

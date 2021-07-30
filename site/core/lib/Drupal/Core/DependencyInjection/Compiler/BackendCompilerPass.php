@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * Defines a compiler pass to allow automatic override per backend.
  *
- * A module developer has to tag his backend service with "backend_overridable":
+ * A module developer has to tag a backend service with "backend_overridable":
  * @code
  * custom_service:
  *   class: ...
@@ -55,7 +55,6 @@ class BackendCompilerPass implements CompilerPassInterface {
         return;
       }
     }
-
 
     foreach ($container->findTaggedServiceIds('backend_overridable') as $id => $attributes) {
       // If the service is already an alias it is not the original backend, so

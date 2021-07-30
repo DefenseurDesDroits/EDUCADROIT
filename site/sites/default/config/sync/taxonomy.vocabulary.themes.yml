@@ -5,5 +5,4 @@ dependencies: {  }
 name: Thèmes
 vid: themes
 description: 'Themes ressources'
-hierarchy: 0
 weight: -7

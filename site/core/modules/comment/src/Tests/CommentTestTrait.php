@@ -34,86 +34,89 @@ trait CommentTestTrait {
    *   Defaults to 'full'.
    */
   public function addDefaultCommentField($entity_type, $bundle, $field_name = 'comment', $default_value = CommentItemInterface::OPEN, $comment_type_id = 'comment', $comment_view_mode = 'full') {
-    $entity_manager = \Drupal::entityManager();
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $entity_display_repository = \Drupal::service('entity_display.repository');
+    /** @var \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager */
+    $entity_field_manager = \Drupal::service('entity_field.manager');
     // Create the comment type if needed.
-    $comment_type_storage = $entity_manager->getStorage('comment_type');
+    $comment_type_storage = $entity_type_manager->getStorage('comment_type');
     if ($comment_type = $comment_type_storage->load($comment_type_id)) {
       if ($comment_type->getTargetEntityTypeId() !== $entity_type) {
         throw new \InvalidArgumentException("The given comment type id $comment_type_id can only be used with the $entity_type entity type");
       }
     }
     else {
-      $comment_type_storage->create(array(
+      $comment_type_storage->create([
         'id' => $comment_type_id,
         'label' => Unicode::ucfirst($comment_type_id),
         'target_entity_type_id' => $entity_type,
         'description' => 'Default comment field',
-      ))->save();
+      ])->save();
     }
     // Add a body field to the comment type.
     \Drupal::service('comment.manager')->addBodyField($comment_type_id);
 
     // Add a comment field to the host entity type. Create the field storage if
     // needed.
-    if (!array_key_exists($field_name, $entity_manager->getFieldStorageDefinitions($entity_type))) {
-      $entity_manager->getStorage('field_storage_config')->create(array(
+    if (!array_key_exists($field_name, $entity_field_manager->getFieldStorageDefinitions($entity_type))) {
+      $entity_type_manager->getStorage('field_storage_config')->create([
         'entity_type' => $entity_type,
         'field_name' => $field_name,
         'type' => 'comment',
         'translatable' => TRUE,
-        'settings' => array(
+        'settings' => [
           'comment_type' => $comment_type_id,
-        ),
-      ))->save();
+        ],
+      ])->save();
     }
     // Create the field if needed, and configure its form and view displays.
-    if (!array_key_exists($field_name, $entity_manager->getFieldDefinitions($entity_type, $bundle))) {
-      $entity_manager->getStorage('field_config')->create(array(
+    if (!array_key_exists($field_name, $entity_field_manager->getFieldDefinitions($entity_type, $bundle))) {
+      $entity_type_manager->getStorage('field_config')->create([
         'label' => 'Comments',
         'description' => '',
         'field_name' => $field_name,
         'entity_type' => $entity_type,
         'bundle' => $bundle,
         'required' => 1,
-        'default_value' => array(
-          array(
+        'default_value' => [
+          [
             'status' => $default_value,
             'cid' => 0,
             'last_comment_name' => '',
             'last_comment_timestamp' => 0,
             'last_comment_uid' => 0,
-          ),
-        ),
-      ))->save();
+          ],
+        ],
+      ])->save();
 
-      // Entity form displays: assign widget settings for the 'default' form
+      // Entity form displays: assign widget settings for the default form
       // mode, and hide the field in all other form modes.
-      entity_get_form_display($entity_type, $bundle, 'default')
-        ->setComponent($field_name, array(
+      $entity_display_repository->getFormDisplay($entity_type, $bundle)
+        ->setComponent($field_name, [
           'type' => 'comment_default',
           'weight' => 20,
-        ))
+        ])
         ->save();
-      foreach ($entity_manager->getFormModes($entity_type) as $id => $form_mode) {
-        $display = entity_get_form_display($entity_type, $bundle, $id);
+      foreach ($entity_display_repository->getFormModes($entity_type) as $id => $form_mode) {
+        $display = $entity_display_repository->getFormDisplay($entity_type, $bundle, $id);
         // Only update existing displays.
         if ($display && !$display->isNew()) {
           $display->removeComponent($field_name)->save();
         }
       }
 
-      // Entity view displays: assign widget settings for the 'default' view
+      // Entity view displays: assign widget settings for the default view
       // mode, and hide the field in all other view modes.
-      entity_get_display($entity_type, $bundle, 'default')
-        ->setComponent($field_name, array(
+      $entity_display_repository->getViewDisplay($entity_type, $bundle)
+        ->setComponent($field_name, [
           'label' => 'above',
           'type' => 'comment_default',
           'weight' => 20,
-          'settings' => array('view_mode' => $comment_view_mode),
-        ))
+          'settings' => ['view_mode' => $comment_view_mode],
+        ])
         ->save();
-      foreach ($entity_manager->getViewModes($entity_type) as $id => $view_mode) {
-        $display = entity_get_display($entity_type, $bundle, $id);
+      foreach ($entity_display_repository->getViewModes($entity_type) as $id => $view_mode) {
+        $display = $entity_display_repository->getViewDisplay($entity_type, $bundle, $id);
         // Only update existing displays.
         if ($display && !$display->isNew()) {
           $display->removeComponent($field_name)->save();

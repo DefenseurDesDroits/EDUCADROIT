@@ -17,7 +17,16 @@ class DbImportCommandTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['system', 'config', 'dblog', 'menu_link_content', 'link', 'block_content', 'file', 'user'];
+  public static $modules = [
+    'system',
+    'config',
+    'dblog',
+    'menu_link_content',
+    'link',
+    'block_content',
+    'file',
+    'user',
+  ];
 
   /**
    * Tables that should be part of the exported script.
@@ -51,10 +60,10 @@ class DbImportCommandTest extends KernelTestBase {
    * @requires extension pdo_sqlite
    */
   public function testDbImportCommand() {
-    $connection_info = array(
+    $connection_info = [
       'driver' => 'sqlite',
       'database' => ':memory:',
-    );
+    ];
     Database::addConnectionInfo($this->databasePrefix, 'default', $connection_info);
 
     $command = new DbImportCommand();

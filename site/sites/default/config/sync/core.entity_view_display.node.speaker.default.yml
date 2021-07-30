@@ -25,12 +25,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: text_default
+    region: content
   field_description:
     weight: 104
     label: visually_hidden
     settings: {  }
     third_party_settings: {  }
     type: text_default
+    region: content
   field_paragraphs:
     weight: 106
     label: above
@@ -39,6 +41,7 @@ content:
       link: ''
     third_party_settings: {  }
     type: entity_reference_revisions_entity_view
+    region: content
   field_region:
     weight: 101
     label: visually_hidden
@@ -46,6 +49,7 @@ content:
       link: false
     third_party_settings: {  }
     type: entity_reference_label
+    region: content
   field_speaker_type:
     weight: 102
     label: visually_hidden
@@ -53,6 +57,7 @@ content:
       link: false
     third_party_settings: {  }
     type: entity_reference_label
+    region: content
   field_speciality:
     weight: 103
     label: visually_hidden
@@ -60,9 +65,11 @@ content:
       link: false
     third_party_settings: {  }
     type: entity_reference_label
+    region: content
   links:
     weight: 100
     settings: {  }
     third_party_settings: {  }
+    region: content
 hidden:
   langcode: true

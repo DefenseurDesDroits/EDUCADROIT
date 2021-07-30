@@ -13,13 +13,13 @@ use Drupal\Core\Cache\MemoryBackend;
 class BackendChainTest extends GenericCacheBackendUnitTestBase {
 
   protected function createCacheBackend($bin) {
-    $chain = new BackendChain($bin);
+    $chain = new BackendChain();
 
     // We need to create some various backends in the chain.
     $chain
-      ->appendBackend(new MemoryBackend('foo'))
-      ->prependBackend(new MemoryBackend('bar'))
-      ->appendBackend(new MemoryBackend('baz'));
+      ->appendBackend(new MemoryBackend())
+      ->prependBackend(new MemoryBackend())
+      ->appendBackend(new MemoryBackend());
 
     \Drupal::service('cache_tags.invalidator')->addInvalidator($chain);
 

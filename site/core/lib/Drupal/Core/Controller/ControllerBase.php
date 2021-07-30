@@ -8,7 +8,10 @@ use Drupal\Core\Routing\LinkGeneratorTrait;
 use Drupal\Core\Routing\RedirectDestinationTrait;
 use Drupal\Core\Routing\UrlGeneratorTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Messenger\MessengerTrait;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Utility base class for thin controllers.
@@ -19,8 +22,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * difficult to unit test. Therefore this base class should only be used by
  * controller classes that contain only trivial glue code.  Controllers that
  * contain sufficiently complex logic that it's worth testing should not use
- * this base class but use ContainerInjectionInterface instead, or even better be
- * refactored to be trivial glue code.
+ * this base class but use ContainerInjectionInterface instead, or even
+ * better be refactored to be trivial glue code.
  *
  * The services exposed here are those that it is reasonable for a well-behaved
  * controller to leverage. A controller that needs other services may
@@ -35,6 +38,7 @@ abstract class ControllerBase implements ContainerInjectionInterface {
 
   use LinkGeneratorTrait;
   use LoggerChannelTrait;
+  use MessengerTrait;
   use RedirectDestinationTrait;
   use StringTranslationTrait;
   use UrlGeneratorTrait;
@@ -70,7 +74,7 @@ abstract class ControllerBase implements ContainerInjectionInterface {
   /**
    * The configuration factory.
    *
-   * @var \Drupal\Core\Config\Config
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
@@ -91,7 +95,7 @@ abstract class ControllerBase implements ContainerInjectionInterface {
   /**
    * The state service.
    *
-   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   * @var \Drupal\Core\State\StateInterface
    */
   protected $stateService;
 
@@ -122,11 +126,12 @@ abstract class ControllerBase implements ContainerInjectionInterface {
    * @return \Drupal\Core\Entity\EntityManagerInterface
    *   The entity manager service.
    *
-   * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
    *   Most of the time static::entityTypeManager() is supposed to be used
    *   instead.
    */
   protected function entityManager() {
+    @trigger_error('ControllerBase::getEntityManager() is deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0. Use ::getEntityTypeManager() instead. See https://www.drupal.org/node/2549139.', E_USER_DEPRECATED);
     if (!$this->entityManager) {
       $this->entityManager = $this->container()->get('entity.manager');
     }
@@ -220,7 +225,7 @@ abstract class ControllerBase implements ContainerInjectionInterface {
    * needs to be the same across development, production, etc. environments
    * (for example, the system maintenance message) should use config() instead.
    *
-   * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   * @return \Drupal\Core\State\StateInterface
    */
   protected function state() {
     if (!$this->stateService) {
@@ -280,6 +285,27 @@ abstract class ControllerBase implements ContainerInjectionInterface {
   }
 
   /**
+   * Returns a redirect response object for the specified route.
+   *
+   * @param string $route_name
+   *   The name of the route to which to redirect.
+   * @param array $route_parameters
+   *   (optional) Parameters for the route.
+   * @param array $options
+   *   (optional) An associative array of additional options.
+   * @param int $status
+   *   (optional) The HTTP redirect status code for the redirect. The default is
+   *   302 Found.
+   *
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   A redirect response object that may be returned by the controller.
+   */
+  protected function redirect($route_name, array $route_parameters = [], array $options = [], $status = 302) {
+    $options['absolute'] = TRUE;
+    return new RedirectResponse(Url::fromRoute($route_name, $route_parameters, $options)->toString(), $status);
+  }
+
+  /**
    * Returns the service container.
    *
    * This method is marked private to prevent sub-classes from retrieving
@@ -287,7 +313,7 @@ abstract class ControllerBase implements ContainerInjectionInterface {
    * \Drupal\Core\DependencyInjection\ContainerInjectionInterface should be used
    * for injecting services.
    *
-   * @return \Symfony\Component\DependencyInjection\ContainerInterface $container
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface
    *   The service container.
    */
   private function container() {

@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\Core\Routing;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Routing\RedirectDestination;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ class RedirectDestinationTest extends UnitTestCase {
   /**
    * The mocked URL generator.
    *
-   * @var \Drupal\Core\Routing\UrlGeneratorInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Routing\UrlGeneratorInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $urlGenerator;
 
@@ -41,17 +42,17 @@ class RedirectDestinationTest extends UnitTestCase {
     parent::setUp();
 
     $this->requestStack = new RequestStack();
-    $this->urlGenerator = $this->getMock('Drupal\Core\Routing\UrlGeneratorInterface');
+    $this->urlGenerator = $this->createMock('Drupal\Core\Routing\UrlGeneratorInterface');
     $this->redirectDestination = new RedirectDestination($this->requestStack, $this->urlGenerator);
   }
 
   protected function setupUrlGenerator() {
     $this->urlGenerator->expects($this->any())
       ->method('generateFromRoute')
-      ->willReturnCallback(function($route, $parameters, $options) {
+      ->willReturnCallback(function ($route, $parameters, $options) {
         $query_string = '';
         if (!empty($options['query'])) {
-          $query_string = '?' . $options['query'];
+          $query_string = '?' . UrlHelper::buildQuery($options['query']);
         }
 
         return '/current-path' . $query_string;

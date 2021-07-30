@@ -16,14 +16,41 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  *
  * DrupalDateTime::createFromArray( array('year' => 2010, 'month' => 9, 'day' => 28) )
  *
- * @see \Drupal/Component/Datetime/DateTimePlus.php
+ * @see \Drupal\Component\Datetime\DateTimePlus
  */
 class DrupalDateTime extends DateTimePlus {
 
   use StringTranslationTrait;
 
   /**
-   * Format string translation cache.
+   * Formatted strings translation cache.
+   *
+   * Translation cache represents an instance storage for formatted date
+   * strings. It contains a multidimensional array where:
+   * - first level keys - are drupal language codes;
+   * - second level keys - are each symbols of given format string (like 'F');
+   * - third level keys - are original matched strings related to the symbol;
+   * - values - are translated or not-translated original strings (depends on
+   *   if a particular symbol represents translatable value according to PHP's
+   *   date() format character).
+   *
+   * For example:
+   * @code
+   *   [
+   *     'en' => [
+   *       'F' => [
+   *         'November' => t('November'),
+   *         'December' => t('December'),
+   *       ],
+   *       'd' => [
+   *         '10' => '10',
+   *         '31' => '31',
+   *       ],
+   *     ],
+   *   ]
+   * @endcode
+   *
+   * @var array
    */
   protected $formatTranslationCache;
 
@@ -34,7 +61,11 @@ class DrupalDateTime extends DateTimePlus {
    *   A date/input_time_adjusted string. Defaults to 'now'.
    * @param mixed $timezone
    *   PHP DateTimeZone object, string or NULL allowed.
-   *   Defaults to NULL.
+   *   Defaults to NULL. Note that the $timezone parameter and the current
+   *   timezone are ignored when the $time parameter either is a UNIX timestamp
+   *   (e.g. @946684800) or specifies a timezone
+   *   (e.g. 2010-01-28T15:00:00+02:00).
+   *   @see http://php.net/manual/datetime.construct.php
    * @param array $settings
    *   - validate_format: (optional) Boolean choice to validate the
    *     created date using the input format. The format used in
@@ -48,7 +79,7 @@ class DrupalDateTime extends DateTimePlus {
    *   - debug: (optional) Boolean choice to leave debug values in the
    *     date object for debugging purposes. Defaults to FALSE.
    */
-  public function __construct($time = 'now', $timezone = NULL, $settings = array()) {
+  public function __construct($time = 'now', $timezone = NULL, $settings = []) {
     if (!isset($settings['langcode'])) {
       $settings['langcode'] = \Drupal::languageManager()->getCurrentLanguage()->getId();
     }
@@ -67,7 +98,7 @@ class DrupalDateTime extends DateTimePlus {
   protected function prepareTimezone($timezone) {
     if (empty($timezone)) {
       // Fallback to user or system default timezone.
-      $timezone = drupal_get_user_timezone();
+      $timezone = date_default_timezone_get();
     }
     return parent::prepareTimezone($timezone);
   }
@@ -87,7 +118,7 @@ class DrupalDateTime extends DateTimePlus {
    *   The formatted value of the date. Since the format may contain user input,
    *   this value should be escaped when output.
    */
-  public function format($format, $settings = array()) {
+  public function format($format, $settings = []) {
     $langcode = !empty($settings['langcode']) ? $settings['langcode'] : $this->langcode;
     $value = '';
     // Format the date and catch errors.
@@ -98,17 +129,17 @@ class DrupalDateTime extends DateTimePlus {
       // Paired backslashes are isolated to prevent errors in
       // read-ahead evaluation. The read-ahead expression ensures that
       // A matches, but not \A.
-      $format = preg_replace(array('/\\\\\\\\/', '/(?<!\\\\)([AaeDlMTF])/'), array("\xEF\\\\\\\\\xFF", "\xEF\\\\\$1\$1\xFF"), $format);
+      $format = preg_replace(['/\\\\\\\\/', '/(?<!\\\\)([AaeDlMTF])/'], ["\xEF\\\\\\\\\xFF", "\xEF\\\\\$1\$1\xFF"], $format);
 
       // Call date_format().
       $format = parent::format($format, $settings);
 
       // Translates a formatted date string.
-      $translation_callback = function($matches) use ($langcode) {
+      $translation_callback = function ($matches) use ($langcode) {
         $code = $matches[1];
         $string = $matches[2];
         if (!isset($this->formatTranslationCache[$langcode][$code][$string])) {
-          $options = array('langcode' => $langcode);
+          $options = ['langcode' => $langcode];
           if ($code == 'F') {
             $options['context'] = 'Long month name';
           }
@@ -117,7 +148,7 @@ class DrupalDateTime extends DateTimePlus {
             $this->formatTranslationCache[$langcode][$code][$string] = $string;
           }
           else {
-            $this->formatTranslationCache[$langcode][$code][$string] = $this->t($string, array(), $options);
+            $this->formatTranslationCache[$langcode][$code][$string] = $this->t($string, [], $options);
           }
         }
         return $this->formatTranslationCache[$langcode][$code][$string];

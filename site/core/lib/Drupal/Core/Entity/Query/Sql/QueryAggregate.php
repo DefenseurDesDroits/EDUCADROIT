@@ -15,7 +15,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
    * @var array
    *   An array of expressions.
    */
-  protected $sqlExpressions = array();
+  protected $sqlExpressions = [];
 
   /**
    * {@inheritdoc}
@@ -39,7 +39,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   public function prepare() {
     parent::prepare();
     // Throw away the id fields.
-    $this->sqlFields = array();
+    $this->sqlFields = [];
     return $this;
   }
 
@@ -65,11 +65,10 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     return $this->conditionAggregate->notExists($field, $function, $langcode);
   }
 
-
   /**
    * Adds the aggregations to the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addAggregate() {
@@ -85,7 +84,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Builds the aggregation conditions part of the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function compileAggregate() {
@@ -96,7 +95,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Adds the groupby values to the actual query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addGroupBy() {
@@ -105,7 +104,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
       $sql_field = $this->getSqlField($field, $group_by['langcode']);
       $this->sqlGroupBy[$sql_field] = $sql_field;
       list($table, $real_sql_field) = explode('.', $sql_field);
-      $this->sqlFields[$sql_field] = array($table, $real_sql_field, $this->createSqlAlias($field, $real_sql_field));
+      $this->sqlFields[$sql_field] = [$table, $real_sql_field, $this->createSqlAlias($field, $real_sql_field)];
     }
 
     return $this;
@@ -114,7 +113,7 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
   /**
    * Builds the aggregation sort part of the query.
    *
-   * @return \Drupal\Core\Entity\Query\Sql\QueryAggregate
+   * @return $this
    *   Returns the called object.
    */
   protected function addSortAggregate() {
@@ -125,7 +124,6 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     }
     return $this;
   }
-
 
   /**
    * Overrides \Drupal\Core\Entity\Query\Sql\Query::finish().
@@ -146,12 +144,13 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
    *   The field as passed in by the caller.
    * @param string $sql_field
    *   The sql field as returned by getSqlField.
+   *
    * @return string
    *   The SQL alias expected in the return value. The dots in $sql_field are
    *   replaced with underscores and if a default fallback to .value happened,
    *   the _value is stripped.
    */
-  function createSqlAlias($field, $sql_field) {
+  public function createSqlAlias($field, $sql_field) {
     $alias = str_replace('.', '_', $sql_field);
     // If the alias contains of field_*_value remove the _value at the end.
     if (substr($alias, 0, 6) === 'field_' && substr($field, -6) !== '_value' && substr($alias, -6) === '_value') {
@@ -170,9 +169,9 @@ class QueryAggregate extends Query implements QueryAggregateInterface {
     if ($this->count) {
       return parent::result();
     }
-    $return = array();
+    $return = [];
     foreach ($this->sqlQuery->execute() as $row) {
-      $return[] = (array)$row;
+      $return[] = (array) $row;
     }
     return $return;
   }

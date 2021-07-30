@@ -5,5 +5,4 @@ dependencies: {  }
 name: 'Point clé'
 vid: key_points
 description: 'Point clé ressource'
-hierarchy: 0
 weight: -9

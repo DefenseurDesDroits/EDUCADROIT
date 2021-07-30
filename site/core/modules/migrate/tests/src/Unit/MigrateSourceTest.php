@@ -12,6 +12,7 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
+use Drupal\migrate\MigrateException;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateSkipRowException;
 use Drupal\migrate\Plugin\migrate\source\SourcePluginBase;
@@ -81,16 +82,16 @@ class MigrateSourceTest extends MigrateTestCase {
     $container = new ContainerBuilder();
     \Drupal::setContainer($container);
 
-    $key_value = $this->getMock(KeyValueStoreInterface::class);
+    $key_value = $this->createMock(KeyValueStoreInterface::class);
 
-    $key_value_factory = $this->getMock(KeyValueFactoryInterface::class);
+    $key_value_factory = $this->createMock(KeyValueFactoryInterface::class);
     $key_value_factory
       ->method('get')
       ->with('migrate:high_water')
       ->willReturn($key_value);
     $container->set('keyvalue', $key_value_factory);
 
-    $container->set('cache.migrate', $this->getMock(CacheBackendInterface::class));
+    $container->set('cache.migrate', $this->createMock(CacheBackendInterface::class));
 
     $this->migrationConfiguration = $this->defaultMigrationConfiguration + $migrate_config;
     $this->migration = parent::getMigration();
@@ -107,7 +108,10 @@ class MigrateSourceTest extends MigrateTestCase {
 
     $constructor_args = [$configuration, 'd6_action', [], $this->migration];
     $methods = ['getModuleHandler', 'fields', 'getIds', '__toString', 'prepareRow', 'initializeIterator'];
-    $source_plugin = $this->getMock(SourcePluginBase::class, $methods, $constructor_args);
+    $source_plugin = $this->getMockBuilder(SourcePluginBase::class)
+      ->setMethods($methods)
+      ->setConstructorArgs($constructor_args)
+      ->getMock();
 
     $source_plugin
       ->method('fields')
@@ -135,7 +139,7 @@ class MigrateSourceTest extends MigrateTestCase {
       ->method('initializeIterator')
       ->willReturn($iterator);
 
-    $module_handler = $this->getMock(ModuleHandlerInterface::class);
+    $module_handler = $this->createMock(ModuleHandlerInterface::class);
     $source_plugin
       ->method('getModuleHandler')
       ->willReturn($module_handler);
@@ -149,10 +153,10 @@ class MigrateSourceTest extends MigrateTestCase {
 
   /**
    * @covers ::__construct
-   * @expectedException \Drupal\migrate\MigrateException
    */
   public function testHighwaterTrackChangesIncompatible() {
     $source_config = ['track_changes' => TRUE, 'high_water_property' => ['name' => 'something']];
+    $this->expectException(MigrateException::class);
     $this->getSource($source_config);
   }
 
@@ -164,9 +168,9 @@ class MigrateSourceTest extends MigrateTestCase {
   public function testCount() {
     // Mock the cache to validate set() receives appropriate arguments.
     $container = new ContainerBuilder();
-    $cache = $this->getMock(CacheBackendInterface::class);
+    $cache = $this->createMock(CacheBackendInterface::class);
     $cache->expects($this->any())->method('set')
-        ->with($this->isType('string'), $this->isType('int'), $this->isType('int'));
+      ->with($this->isType('string'), $this->isType('int'), $this->isType('int'));
     $container->set('cache.migrate', $cache);
     \Drupal::setContainer($container);
 
@@ -202,9 +206,9 @@ class MigrateSourceTest extends MigrateTestCase {
   public function testCountCacheKey() {
     // Mock the cache to validate set() receives appropriate arguments.
     $container = new ContainerBuilder();
-    $cache = $this->getMock(CacheBackendInterface::class);
+    $cache = $this->createMock(CacheBackendInterface::class);
     $cache->expects($this->any())->method('set')
-        ->with('test_key', $this->isType('int'), $this->isType('int'));
+      ->with('test_key', $this->isType('int'), $this->isType('int'));
     $container->set('cache.migrate', $cache);
     \Drupal::setContainer($container);
 
@@ -272,7 +276,7 @@ class MigrateSourceTest extends MigrateTestCase {
     $source = $this->getSource($configuration, [], MigrateIdMapInterface::STATUS_IMPORTED, $this->row['timestamp'] - 1);
 
     $source->rewind();
-    $this->assertInstanceOf(Row::class, $source->current(), 'Incoming row timestamp is greater than current highwater mark so we have a row.');
+    $this->assertInstanceOf(Row::class, $source->current());
   }
 
   /**
@@ -439,9 +443,9 @@ class MigrateSourceTest extends MigrateTestCase {
    */
   protected function getMigrateExecutable($migration) {
     /** @var \Drupal\migrate\MigrateMessageInterface $message */
-    $message = $this->getMock('Drupal\migrate\MigrateMessageInterface');
+    $message = $this->createMock('Drupal\migrate\MigrateMessageInterface');
     /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher */
-    $event_dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+    $event_dispatcher = $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
     return new MigrateExecutable($migration, $message, $event_dispatcher);
   }
 

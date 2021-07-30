@@ -3,10 +3,8 @@
 namespace Drupal\Core\Config;
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\Entity\ConfigDependencyManager;
-use Drupal\Core\Config\Entity\ConfigEntityDependency;
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Installer\InstallerKernel;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ConfigInstaller implements ConfigInstallerInterface {
@@ -61,6 +59,13 @@ class ConfigInstaller implements ConfigInstallerInterface {
   protected $isSyncing = FALSE;
 
   /**
+   * The name of the currently active installation profile.
+   *
+   * @var string
+   */
+  protected $installProfile;
+
+  /**
    * Constructs the configuration installer.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -73,13 +78,16 @@ class ConfigInstaller implements ConfigInstallerInterface {
    *   The configuration manager.
    * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
    *   The event dispatcher.
+   * @param string $install_profile
+   *   The name of the currently active installation profile.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, StorageInterface $active_storage, TypedConfigManagerInterface $typed_config, ConfigManagerInterface $config_manager, EventDispatcherInterface $event_dispatcher) {
+  public function __construct(ConfigFactoryInterface $config_factory, StorageInterface $active_storage, TypedConfigManagerInterface $typed_config, ConfigManagerInterface $config_manager, EventDispatcherInterface $event_dispatcher, $install_profile) {
     $this->configFactory = $config_factory;
     $this->activeStorages[$active_storage->getCollectionName()] = $active_storage;
     $this->typedConfig = $typed_config;
     $this->configManager = $config_manager;
     $this->eventDispatcher = $event_dispatcher;
+    $this->installProfile = $install_profile;
   }
 
   /**
@@ -115,10 +123,14 @@ class ConfigInstaller implements ConfigInstallerInterface {
       $collection_info = $this->configManager->getConfigCollectionInfo();
       foreach ($collection_info->getCollectionNames() as $collection) {
         $config_to_create = $this->getConfigToCreate($storage, $collection, $prefix, $profile_storages);
-        // If we're installing a profile ensure configuration that is overriding
-        // is excluded.
         if ($name == $this->drupalGetProfile()) {
-          $existing_configuration = $this->getActiveStorages($collection)->listAll();
+          // If we're installing a profile ensure simple configuration that
+          // already exists is excluded as it will have already been written.
+          // This means that if the configuration is changed by something else
+          // during the install it will not be overwritten again.
+          $existing_configuration = array_filter($this->getActiveStorages($collection)->listAll(), function ($config_name) {
+            return !$this->configManager->getEntityTypeIdByName($config_name);
+          });
           $config_to_create = array_diff_key($config_to_create, array_flip($existing_configuration));
         }
         if (!empty($config_to_create)) {
@@ -130,7 +142,7 @@ class ConfigInstaller implements ConfigInstallerInterface {
     // During a drupal installation optional configuration is installed at the
     // end of the installation process.
     // @see install_install_profile()
-    if (!$this->isSyncing() && !$this->drupalInstallationAttempted()) {
+    if (!$this->isSyncing() && !InstallerKernel::installationAttempted()) {
       $optional_install_path = $extension_path . '/' . InstallStorage::CONFIG_OPTIONAL_DIRECTORY;
       if (is_dir($optional_install_path)) {
         // Install any optional config the module provides.
@@ -140,7 +152,7 @@ class ConfigInstaller implements ConfigInstallerInterface {
       // Install any optional configuration entities whose dependencies can now
       // be met. This searches all the installed modules config/optional
       // directories.
-      $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_OPTIONAL_DIRECTORY, StorageInterface::DEFAULT_COLLECTION, FALSE);
+      $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_OPTIONAL_DIRECTORY, StorageInterface::DEFAULT_COLLECTION, FALSE, $this->installProfile);
       $this->installOptionalConfig($storage, [$type => $name]);
     }
 
@@ -153,18 +165,20 @@ class ConfigInstaller implements ConfigInstallerInterface {
    */
   public function installOptionalConfig(StorageInterface $storage = NULL, $dependency = []) {
     $profile = $this->drupalGetProfile();
-    $optional_profile_config = [];
+    $enabled_extensions = $this->getEnabledExtensions();
+    $existing_config = $this->getActiveStorages()->listAll();
+
+    // Create the storages to read configuration from.
     if (!$storage) {
       // Search the install profile's optional configuration too.
-      $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_OPTIONAL_DIRECTORY, StorageInterface::DEFAULT_COLLECTION, TRUE);
+      $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_OPTIONAL_DIRECTORY, StorageInterface::DEFAULT_COLLECTION, TRUE, $this->installProfile);
       // The extension install storage ensures that overrides are used.
       $profile_storage = NULL;
     }
-    elseif (isset($profile)) {
+    elseif (!empty($profile)) {
       // Creates a profile storage to search for overrides.
       $profile_install_path = $this->drupalGetPath('module', $profile) . '/' . InstallStorage::CONFIG_OPTIONAL_DIRECTORY;
       $profile_storage = new FileStorage($profile_install_path, StorageInterface::DEFAULT_COLLECTION);
-      $optional_profile_config = $profile_storage->listAll();
     }
     else {
       // Profile has not been set yet. For example during the first steps of the
@@ -172,11 +186,18 @@ class ConfigInstaller implements ConfigInstallerInterface {
       $profile_storage = NULL;
     }
 
-    $enabled_extensions = $this->getEnabledExtensions();
-    $existing_config = $this->getActiveStorages()->listAll();
+    // Build the list of possible configuration to create.
+    $list = $storage->listAll();
+    if ($profile_storage && !empty($dependency)) {
+      // Only add the optional profile configuration into the list if we are
+      // have a dependency to check. This ensures that optional profile
+      // configuration is not unexpectedly re-created after being deleted.
+      $list = array_unique(array_merge($list, $profile_storage->listAll()));
+    }
 
-    $list = array_unique(array_merge($storage->listAll(), $optional_profile_config));
-    $list = array_filter($list, function($config_name) use ($existing_config) {
+    // Filter the list of configuration to only include configuration that
+    // should be created.
+    $list = array_filter($list, function ($config_name) use ($existing_config) {
       // Only list configuration that:
       // - does not already exist
       // - is a configuration entity (this also excludes config that has an
@@ -196,16 +217,19 @@ class ConfigInstaller implements ConfigInstallerInterface {
     $dependency_manager = new ConfigDependencyManager();
     $dependency_manager->setData($config_to_create);
     $config_to_create = array_merge(array_flip($dependency_manager->sortAll()), $config_to_create);
+    if (!empty($dependency)) {
+      // In order to work out dependencies we need the full config graph.
+      $dependency_manager->setData($this->getActiveStorages()->readMultiple($existing_config) + $config_to_create);
+      $dependencies = $dependency_manager->getDependentEntities(key($dependency), reset($dependency));
+    }
 
     foreach ($config_to_create as $config_name => $data) {
       // Remove configuration where its dependencies cannot be met.
       $remove = !$this->validateDependencies($config_name, $data, $enabled_extensions, $all_config);
-      // If $dependency is defined, remove configuration that does not have a
-      // matching dependency.
+      // Remove configuration that is not dependent on $dependency, if it is
+      // defined.
       if (!$remove && !empty($dependency)) {
-        // Create a light weight dependency object to check dependencies.
-        $config_entity = new ConfigEntityDependency($config_name, $data);
-        $remove = !$config_entity->hasDependency(key($dependency), reset($dependency));
+        $remove = !isset($dependencies[$config_name]);
       }
 
       if ($remove) {
@@ -216,6 +240,8 @@ class ConfigInstaller implements ConfigInstallerInterface {
         unset($all_config[$config_name]);
       }
     }
+
+    // Create the optional configuration if there is any left after filtering.
     if (!empty($config_to_create)) {
       $this->createConfiguration(StorageInterface::DEFAULT_COLLECTION, $config_to_create, TRUE);
     }
@@ -244,12 +270,35 @@ class ConfigInstaller implements ConfigInstallerInterface {
     }
     $data = $storage->readMultiple($storage->listAll($prefix));
 
-    // Check to see if the corresponding override storage has any overrides.
+    // Check to see if configuration provided by the install profile has any
+    // overrides.
     foreach ($profile_storages as $profile_storage) {
       if ($profile_storage->getCollectionName() != $collection) {
         $profile_storage = $profile_storage->createCollection($collection);
       }
-      $data = $profile_storage->readMultiple(array_keys($data)) + $data;
+      $profile_overrides = $profile_storage->readMultiple(array_keys($data));
+      if (InstallerKernel::installationAttempted()) {
+        // During installation overrides of simple configuration are applied
+        // immediately. Configuration entities that are overridden will be
+        // updated when the profile is installed. This allows install profiles
+        // to provide configuration entity overrides that have dependencies that
+        // cannot be met when the module provided configuration entity is
+        // created.
+        foreach ($profile_overrides as $name => $override_data) {
+          // The only way to determine if they are configuration entities is the
+          // presence of a dependencies key.
+          if (!isset($override_data['dependencies'])) {
+            $data[$name] = $override_data;
+          }
+        }
+      }
+      else {
+        // Allow install profiles to provide overridden configuration for new
+        // extensions that are being enabled after Drupal has already been
+        // installed. This allows profiles to ship new extensions in version
+        // updates without requiring additional code to apply the overrides.
+        $data = $profile_overrides + $data;
+      }
     }
     return $data;
   }
@@ -305,12 +354,13 @@ class ConfigInstaller implements ConfigInstallerInterface {
         }
         /** @var \Drupal\Core\Config\Entity\ConfigEntityStorageInterface $entity_storage */
         $entity_storage = $this->configManager
-          ->getEntityManager()
+          ->getEntityTypeManager()
           ->getStorage($entity_type);
+
+        $id = $entity_storage->getIDFromConfigName($name, $entity_storage->getEntityType()->getConfigPrefix());
         // It is possible that secondary writes can occur during configuration
         // creation. Updates of such configuration are allowed.
         if ($this->getActiveStorages($collection)->exists($name)) {
-          $id = $entity_storage->getIDFromConfigName($name, $entity_storage->getEntityType()->getConfigPrefix());
           $entity = $entity_storage->load($id);
           $entity = $entity_storage->updateFromStorageRecord($entity, $new_config->get());
         }
@@ -319,6 +369,9 @@ class ConfigInstaller implements ConfigInstallerInterface {
         }
         if ($entity->isInstallable()) {
           $entity->trustData()->save();
+          if ($id !== $entity->id()) {
+            trigger_error(sprintf('The configuration name "%s" does not match the ID "%s"', $name, $entity->id()), E_USER_WARNING);
+          }
         }
       }
       else {
@@ -331,11 +384,11 @@ class ConfigInstaller implements ConfigInstallerInterface {
    * {@inheritdoc}
    */
   public function installCollectionDefaultConfig($collection) {
-    $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_INSTALL_DIRECTORY, $collection, $this->drupalInstallationAttempted());
+    $storage = new ExtensionInstallStorage($this->getActiveStorages(StorageInterface::DEFAULT_COLLECTION), InstallStorage::CONFIG_INSTALL_DIRECTORY, $collection, InstallerKernel::installationAttempted(), $this->installProfile);
     // Only install configuration for enabled extensions.
     $enabled_extensions = $this->getEnabledExtensions();
     $config_to_install = array_filter($storage->listAll(), function ($config_name) use ($enabled_extensions) {
-      $provider = Unicode::substr($config_name, 0, strpos($config_name, '.'));
+      $provider = mb_substr($config_name, 0, strpos($config_name, '.'));
       return in_array($provider, $enabled_extensions);
     });
     if (!empty($config_to_install)) {
@@ -354,11 +407,7 @@ class ConfigInstaller implements ConfigInstallerInterface {
   }
 
   /**
-   * Gets the configuration storage that provides the default configuration.
-   *
-   * @return \Drupal\Core\Config\StorageInterface|null
-   *   The configuration storage that provides the default configuration.
-   *   Returns null if the source storage has not been set.
+   * {@inheritdoc}
    */
   public function getSourceStorage() {
     return $this->sourceStorage;
@@ -416,7 +465,7 @@ class ConfigInstaller implements ConfigInstallerInterface {
    *   collection.
    */
   protected function findPreExistingConfiguration(StorageInterface $storage) {
-    $existing_configuration = array();
+    $existing_configuration = [];
     // Gather information about all the supported collections.
     $collection_info = $this->configManager->getConfigCollectionInfo();
 
@@ -455,9 +504,9 @@ class ConfigInstaller implements ConfigInstallerInterface {
     $profile_storages = $this->getProfileStorages($name);
 
     // Check the dependencies of configuration provided by the module.
-    $invalid_default_config = $this->findDefaultConfigWithUnmetDependencies($storage, $enabled_extensions, $profile_storages);
+    list($invalid_default_config, $missing_dependencies) = $this->findDefaultConfigWithUnmetDependencies($storage, $enabled_extensions, $profile_storages);
     if (!empty($invalid_default_config)) {
-      throw UnmetDependenciesException::create($name, $invalid_default_config);
+      throw UnmetDependenciesException::create($name, array_unique($missing_dependencies, SORT_REGULAR));
     }
 
     // Install profiles can not have config clashes. Configuration that
@@ -485,14 +534,24 @@ class ConfigInstaller implements ConfigInstallerInterface {
    *   for overrides.
    *
    * @return array
-   *   List of configuration that has unmet dependencies
+   *   An array containing:
+   *     - A list of configuration that has unmet dependencies.
+   *     - An array that will be filled with the missing dependency names, keyed
+   *       by the dependents' names.
    */
   protected function findDefaultConfigWithUnmetDependencies(StorageInterface $storage, array $enabled_extensions, array $profile_storages = []) {
+    $missing_dependencies = [];
     $config_to_create = $this->getConfigToCreate($storage, StorageInterface::DEFAULT_COLLECTION, '', $profile_storages);
     $all_config = array_merge($this->configFactory->listAll(), array_keys($config_to_create));
-    return array_filter(array_keys($config_to_create), function($config_name) use ($enabled_extensions, $all_config, $config_to_create) {
-      return !$this->validateDependencies($config_name, $config_to_create[$config_name], $enabled_extensions, $all_config);
-    });
+    foreach ($config_to_create as $config_name => $config) {
+      if ($missing = $this->getMissingDependencies($config_name, $config, $enabled_extensions, $all_config)) {
+        $missing_dependencies[$config_name] = $missing;
+      }
+    }
+    return [
+      array_intersect_key($config_to_create, $missing_dependencies),
+      $missing_dependencies,
+    ];
   }
 
   /**
@@ -508,11 +567,38 @@ class ConfigInstaller implements ConfigInstallerInterface {
    *   A list of all the active configuration names.
    *
    * @return bool
-   *   TRUE if the dependencies are met, FALSE if not.
+   *   TRUE if all dependencies are present, FALSE otherwise.
    */
   protected function validateDependencies($config_name, array $data, array $enabled_extensions, array $all_config) {
-    list($provider) = explode('.', $config_name, 2);
+    if (!isset($data['dependencies'])) {
+      // Simple config or a config entity without dependencies.
+      list($provider) = explode('.', $config_name, 2);
+      return in_array($provider, $enabled_extensions, TRUE);
+    }
+
+    $missing = $this->getMissingDependencies($config_name, $data, $enabled_extensions, $all_config);
+    return empty($missing);
+  }
+
+  /**
+   * Returns an array of missing dependencies for a config object.
+   *
+   * @param string $config_name
+   *   The name of the configuration object that is being validated.
+   * @param array $data
+   *   Configuration data.
+   * @param array $enabled_extensions
+   *   A list of all the currently enabled modules and themes.
+   * @param array $all_config
+   *   A list of all the active configuration names.
+   *
+   * @return array
+   *   A list of missing config dependencies.
+   */
+  protected function getMissingDependencies($config_name, array $data, array $enabled_extensions, array $all_config) {
+    $missing = [];
     if (isset($data['dependencies'])) {
+      list($provider) = explode('.', $config_name, 2);
       $all_dependencies = $data['dependencies'];
 
       // Ensure enforced dependencies are included.
@@ -522,10 +608,7 @@ class ConfigInstaller implements ConfigInstallerInterface {
       }
       // Ensure the configuration entity type provider is in the list of
       // dependencies.
-      if (!isset($all_dependencies['module'])) {
-        $all_dependencies['module'][] = $provider;
-      }
-      elseif (!in_array($provider, $all_dependencies['module'])) {
+      if (!isset($all_dependencies['module']) || !in_array($provider, $all_dependencies['module'])) {
         $all_dependencies['module'][] = $provider;
       }
 
@@ -536,23 +619,18 @@ class ConfigInstaller implements ConfigInstallerInterface {
           case 'theme':
             $list_to_check = $enabled_extensions;
             break;
+
           case 'config':
             $list_to_check = $all_config;
             break;
         }
         if (!empty($list_to_check)) {
-          $missing = array_diff($dependencies, $list_to_check);
-          if (!empty($missing)) {
-            return FALSE;
-          }
+          $missing = array_merge($missing, array_diff($dependencies, $list_to_check));
         }
       }
     }
-    else {
-      // Simple config or a config entity without dependencies.
-      return in_array($provider, $enabled_extensions, TRUE);
-    }
-    return TRUE;
+
+    return $missing;
   }
 
   /**
@@ -638,15 +716,13 @@ class ConfigInstaller implements ConfigInstallerInterface {
   /**
    * Gets the install profile from settings.
    *
-   * @return string|null $profile
+   * @return string|null
    *   The name of the installation profile or NULL if no installation profile
    *   is currently active. This is the case for example during the first steps
    *   of the installer or during unit tests.
    */
   protected function drupalGetProfile() {
-    // Settings is safe to use because settings.php is written before any module
-    // is installed.
-    return Settings::get('install_profile');
+    return $this->installProfile;
   }
 
   /**
@@ -654,9 +730,17 @@ class ConfigInstaller implements ConfigInstallerInterface {
    *
    * @return bool
    *   TRUE if a Drupal installation is currently being attempted.
+   *
+   * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0.
+   *   Use \Drupal\Core\Installer\InstallerKernel::installationAttempted()
+   *   instead.
+   *
+   * @see https://www.drupal.org/node/3052704
+   * @see \Drupal\Core\Installer\InstallerKernel::installationAttempted()
    */
   protected function drupalInstallationAttempted() {
-    return drupal_installation_attempted();
+    @trigger_error(__METHOD__ . '() is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use \Drupal\Core\Installer\InstallerKernel::installationAttempted() instead. See https://www.drupal.org/node/3052704', E_USER_DEPRECATED);
+    return InstallerKernel::installationAttempted();
   }
 
 }

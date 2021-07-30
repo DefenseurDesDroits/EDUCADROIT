@@ -11,7 +11,7 @@ use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 /**
  * Base class for Migrate module source unit tests.
  *
- * @deprecated in Drupal 8.2.0, will be removed before Drupal 9.0.0. Use
+ * @deprecated in drupal:8.2.0 and is removed from drupal:9.0.0. Use
  * \Drupal\Tests\migrate\Kernel\MigrateSqlSourceTestBase instead.
  */
 abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
@@ -19,7 +19,7 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
   /**
    * The tested source plugin.
    *
-   * @var \Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase.
+   * @var \Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase
    */
   protected $source;
 
@@ -33,7 +33,7 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
    *
    * @var array
    */
-  protected $databaseContents = array();
+  protected $databaseContents = [];
 
   /**
    * The plugin class under test.
@@ -60,7 +60,7 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
    *
    * @var array
    */
-  protected $expectedResults = array();
+  protected $expectedResults = [];
 
   /**
    * Expected count of source rows.
@@ -80,17 +80,17 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
    * {@inheritdoc}
    */
   protected function setUp() {
-    $module_handler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
-    $state = $this->getMock('Drupal\Core\State\StateInterface');
-    $entity_manager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
+    $module_handler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $state = $this->createMock('Drupal\Core\State\StateInterface');
+    $entity_manager = $this->createMock('Drupal\Core\Entity\EntityManagerInterface');
 
     // Mock a key-value store to return high-water values.
-    $key_value = $this->getMock(KeyValueStoreInterface::class);
+    $key_value = $this->createMock(KeyValueStoreInterface::class);
 
     // SourcePluginBase does not yet support full dependency injection so we
     // need to make sure that \Drupal::keyValue() works as expected by mocking
     // the keyvalue service.
-    $key_value_factory = $this->getMock(KeyValueFactoryInterface::class);
+    $key_value_factory = $this->createMock(KeyValueFactoryInterface::class);
     $key_value_factory
       ->method('get')
       ->with('migrate:high_water')
@@ -106,13 +106,16 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
     \Drupal::setContainer($container);
 
     $migration = $this->getMigration();
-    $migration->expects($this->any())
-      ->method('getHighWater')
-      ->will($this->returnValue(static::ORIGINAL_HIGH_WATER));
+
+    // Set the high water value.
+    \Drupal::keyValue('migrate:high_water')
+      ->expects($this->any())
+      ->method('get')
+      ->willReturn(static::ORIGINAL_HIGH_WATER);
 
     // Setup the plugin.
     $plugin_class = static::PLUGIN_CLASS;
-    $plugin = new $plugin_class($this->migrationConfiguration['source'], $this->migrationConfiguration['source']['plugin'], array(), $migration, $state, $entity_manager);
+    $plugin = new $plugin_class($this->migrationConfiguration['source'], $this->migrationConfiguration['source']['plugin'], [], $migration, $state, $entity_manager);
 
     // Do some reflection to set the database and moduleHandler.
     $plugin_reflection = new \ReflectionClass($plugin);
@@ -122,7 +125,7 @@ abstract class MigrateSqlSourceTestCase extends MigrateTestCase {
     $module_handler_property->setAccessible(TRUE);
 
     // Set the database and the module handler onto our plugin.
-    $database_property->setValue($plugin, $this->getDatabase($this->databaseContents + array('test_map' => array())));
+    $database_property->setValue($plugin, $this->getDatabase($this->databaseContents + ['test_map' => []]));
     $module_handler_property->setValue($plugin, $module_handler);
 
     $plugin->setStringTranslation($this->getStringTranslationStub());

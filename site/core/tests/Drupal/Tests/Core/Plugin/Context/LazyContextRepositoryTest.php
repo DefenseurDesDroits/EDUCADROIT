@@ -66,11 +66,11 @@ class LazyContextRepositoryTest extends UnitTestCase {
 
   /**
    * @covers ::getRuntimeContexts
-   * @expectedException \InvalidArgumentException
-   * @expectedExceptionMessage You must provide the context IDs in the @{service_id}:{unqualified_context_id} format.
    */
   public function testInvalidContextId() {
     $lazy_context_repository = new LazyContextRepository($this->container, ['test_provider']);
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessage('You must provide the context IDs in the @{service_id}:{unqualified_context_id} format.');
     $lazy_context_repository->getRuntimeContexts(['test_context', '@test_provider:test_context1']);
   }
 

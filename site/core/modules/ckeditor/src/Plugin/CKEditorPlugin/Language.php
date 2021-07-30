@@ -8,7 +8,6 @@ use Drupal\ckeditor\CKEditorPluginCssInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\Core\Url;
 use Drupal\editor\Entity\Editor;
 
 /**
@@ -82,12 +81,13 @@ class Language extends CKEditorPluginBase implements CKEditorPluginConfigurableI
    * {@inheritdoc}
    */
   public function getButtons() {
+    $label = $this->t('Language');
     return [
       'Language' => [
-        'label' => $this->t('Language'),
+        'label' => $label,
         'image_alternative' => [
           '#type' => 'inline_template',
-          '#template' => '<a href="#" class="cke-icon-only" role="button" title="' . $this->t('Language') . '" aria-label="' . $this->t('Language') . '"><span class="cke_button_icon cke_button__language_icon">' . $this->t('Language') . '</span></a>',
+          '#template' => '<a href="#" class="cke-icon-only" role="button" title="' . $label . '" aria-label="' . $label . '"><span class="cke_button_icon cke_button__language_icon">' . $label . '</span></a>',
         ],
       ],
     ];
@@ -105,7 +105,7 @@ class Language extends CKEditorPluginBase implements CKEditorPluginConfigurableI
     }
 
     $predefined_languages = LanguageManager::getStandardLanguageList();
-    $form['language_list'] = array(
+    $form['language_list'] = [
       '#title' => $this->t('Language list'),
       '#title_display' => 'invisible',
       '#type' => 'select',
@@ -115,11 +115,11 @@ class Language extends CKEditorPluginBase implements CKEditorPluginConfigurableI
       ],
       '#default_value' => $config['language_list'],
       '#description' => $this->t('The list of languages to show in the language dropdown. The basic list will only show the <a href=":url">six official languages of the UN</a>. The extended list will show all @count languages that are available in Drupal.', [
-        ':url' => Url::fromUri('http://www.un.org/en/aboutun/languages.shtml/')->toString(),
+        ':url' => 'https://www.un.org/en/sections/about-un/official-languages',
         '@count' => count($predefined_languages),
       ]),
       '#attached' => ['library' => ['ckeditor/drupal.ckeditor.language.admin']],
-    );
+    ];
 
     return $form;
   }
@@ -127,10 +127,10 @@ class Language extends CKEditorPluginBase implements CKEditorPluginConfigurableI
   /**
    * {@inheritdoc}
    */
-  function getCssFiles(Editor $editor) {
-    return array(
-        drupal_get_path('module', 'ckeditor') . '/css/plugins/language/ckeditor.language.css'
-    );
+  public function getCssFiles(Editor $editor) {
+    return [
+        drupal_get_path('module', 'ckeditor') . '/css/plugins/language/ckeditor.language.css',
+    ];
   }
 
 }

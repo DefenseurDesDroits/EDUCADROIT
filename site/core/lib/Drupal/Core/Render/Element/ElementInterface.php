@@ -17,6 +17,9 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
  * Some render elements are specifically form input elements; see
  * \Drupal\Core\Render\Element\FormElementInterface for more information.
  *
+ * The public API of these objects must be designed with security in mind as
+ * render elements process raw user input.
+ *
  * @see \Drupal\Core\Render\ElementInfoManager
  * @see \Drupal\Core\Render\Annotation\RenderElement
  * @see \Drupal\Core\Render\Element\RenderElement
@@ -24,7 +27,7 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
  *
  * @ingroup theme_render
  */
-interface ElementInterface extends PluginInspectionInterface {
+interface ElementInterface extends PluginInspectionInterface, RenderCallbackInterface {
 
   /**
    * Returns the element properties for this element.
@@ -47,6 +50,6 @@ interface ElementInterface extends PluginInspectionInterface {
    * @param array $class
    *   Array of new class names to be added.
    */
-  public static function setAttributes(&$element, $class = array());
+  public static function setAttributes(&$element, $class = []);
 
 }

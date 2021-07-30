@@ -18,6 +18,7 @@
  *
  * @param \Drupal\file\FileInterface $file
  *   The file entity being validated.
+ *
  * @return array
  *   An array of error messages. If there are no problems with the file return
  *   an empty array.
@@ -25,7 +26,7 @@
  * @see file_validate()
  */
 function hook_file_validate(Drupal\file\FileInterface $file) {
-  $errors = array();
+  $errors = [];
 
   if (!$file->getFilename()) {
     $errors[] = t("The file's name is empty. Please give a name to the file.");
@@ -53,7 +54,7 @@ function hook_file_copy(Drupal\file\FileInterface $file, Drupal\file\FileInterfa
     $file->setFilename($file->getOwner()->name . '_' . $file->getFilename());
     $file->save();
 
-    \Drupal::logger('file')->notice('Copied file %source has been renamed to %destination', array('%source' => $source->filename, '%destination' => $file->getFilename()));
+    \Drupal::logger('file')->notice('Copied file %source has been renamed to %destination', ['%source' => $source->filename, '%destination' => $file->getFilename()]);
   }
 }
 
@@ -73,7 +74,7 @@ function hook_file_move(Drupal\file\FileInterface $file, Drupal\file\FileInterfa
     $file->setFilename($file->getOwner()->name . '_' . $file->getFilename());
     $file->save();
 
-    \Drupal::logger('file')->notice('Moved file %source has been renamed to %destination', array('%source' => $source->filename, '%destination' => $file->getFilename()));
+    \Drupal::logger('file')->notice('Moved file %source has been renamed to %destination', ['%source' => $source->filename, '%destination' => $file->getFilename()]);
   }
 }
 

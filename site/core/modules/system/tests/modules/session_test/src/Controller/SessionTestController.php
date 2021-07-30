@@ -3,6 +3,7 @@
 namespace Drupal\session_test\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\session_test\Session\TestSessionBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +22,7 @@ class SessionTestController extends ControllerBase {
   public function get() {
     return empty($_SESSION['session_test_value'])
       ? []
-      : ['#markup' => $this->t('The current value of the stored session variable is: %val', array('%val' => $_SESSION['session_test_value']))];
+      : ['#markup' => $this->t('The current value of the stored session variable is: %val', ['%val' => $_SESSION['session_test_value']])];
   }
 
   /**
@@ -37,7 +38,7 @@ class SessionTestController extends ControllerBase {
     $value = $request->getSession()->get("session_test_key");
     return empty($value)
       ? []
-      : ['#markup' => $this->t('The current value of the stored session variable is: %val', array('%val' => $value))];
+      : ['#markup' => $this->t('The current value of the stored session variable is: %val', ['%val' => $value])];
   }
 
   /**
@@ -84,7 +85,7 @@ class SessionTestController extends ControllerBase {
   public function set($test_value) {
     $_SESSION['session_test_value'] = $test_value;
 
-    return ['#markup' => $this->t('The current value of the stored session variable has been set to %val', array('%val' => $test_value))];
+    return ['#markup' => $this->t('The current value of the stored session variable has been set to %val', ['%val' => $test_value])];
   }
 
   /**
@@ -100,7 +101,7 @@ class SessionTestController extends ControllerBase {
   public function noSet($test_value) {
     \Drupal::service('session_handler.write_safe')->setSessionWritable(FALSE);
     $this->set($test_value);
-    return ['#markup' => $this->t('session saving was disabled, and then %val was set', array('%val' => $test_value))];
+    return ['#markup' => $this->t('session saving was disabled, and then %val was set', ['%val' => $test_value])];
   }
 
   /**
@@ -110,7 +111,7 @@ class SessionTestController extends ControllerBase {
    *   A notification message.
    */
   public function setMessage() {
-    drupal_set_message($this->t('This is a dummy message.'));
+    $this->messenger()->addStatus($this->t('This is a dummy message.'));
     return new Response($this->t('A message was set.'));
     // Do not return anything, so the current request does not result in a themed
     // page with messages. The message will be displayed in the following request
@@ -123,7 +124,7 @@ class SessionTestController extends ControllerBase {
    * @return string
    *   A notification message.
    */
-  public function setMessageButDontSave() {
+  public function setMessageButDoNotSave() {
     \Drupal::service('session_handler.write_safe')->setSessionWritable(FALSE);
     $this->setMessage();
     return ['#markup' => ''];
@@ -193,6 +194,56 @@ class SessionTestController extends ControllerBase {
     $session = $request->getSession();
     $session->set('test_value', $test_value);
     return new JsonResponse(['session' => $session->all(), 'user' => $this->currentUser()->id()]);
+  }
+
+  /**
+   * Sets the test flag in the session test bag.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response object.
+   */
+  public function setSessionBagFlag(Request $request) {
+    /** @var \Drupal\session_test\Session\TestSessionBag */
+    $bag = $request->getSession()->getBag(TestSessionBag::BAG_NAME);
+    $bag->setFlag();
+    return new Response();
+  }
+
+  /**
+   * Clears the test flag from the session test bag.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response object.
+   */
+  public function clearSessionBagFlag(Request $request) {
+    /** @var \Drupal\session_test\Session\TestSessionBag */
+    $bag = $request->getSession()->getBag(TestSessionBag::BAG_NAME);
+    $bag->clearFlag();
+    return new Response();
+  }
+
+  /**
+   * Prints a message if the flag in the session bag is set.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The request object.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response object.
+   */
+  public function hasSessionBagFlag(Request $request) {
+    /** @var \Drupal\session_test\Session\TestSessionBag */
+    $bag = $request->getSession()->getBag(TestSessionBag::BAG_NAME);
+    return new Response(empty($bag->hasFlag())
+      ? $this->t('Flag is absent from session bag')
+      : $this->t('Flag is present in session bag')
+    );
   }
 
 }

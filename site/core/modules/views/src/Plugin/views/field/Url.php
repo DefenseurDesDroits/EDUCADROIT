@@ -3,6 +3,7 @@
 namespace Drupal\views\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url as CoreUrl;
 use Drupal\views\ResultRow;
 
@@ -21,7 +22,7 @@ class Url extends FieldPluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['display_as_link'] = array('default' => TRUE);
+    $options['display_as_link'] = ['default' => TRUE];
 
     return $options;
   }
@@ -30,11 +31,11 @@ class Url extends FieldPluginBase {
    * Provide link to the page being visited.
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    $form['display_as_link'] = array(
+    $form['display_as_link'] = [
       '#title' => $this->t('Display as link'),
       '#type' => 'checkbox',
       '#default_value' => !empty($this->options['display_as_link']),
-    );
+    ];
     parent::buildOptionsForm($form, $form_state);
   }
 
@@ -46,7 +47,7 @@ class Url extends FieldPluginBase {
     if (!empty($this->options['display_as_link'])) {
       // @todo Views should expect and store a leading /. See:
       //   https://www.drupal.org/node/2423913
-      return \Drupal::l($this->sanitizeValue($value), CoreUrl::fromUserInput('/' . $value));
+      return Link::fromTextAndUrl($this->sanitizeValue($value), CoreUrl::fromUserInput('/' . $value))->toString();
     }
     else {
       return $this->sanitizeValue($value, 'url');

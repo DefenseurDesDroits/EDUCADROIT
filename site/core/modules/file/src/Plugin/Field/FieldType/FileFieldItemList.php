@@ -13,7 +13,7 @@ class FileFieldItemList extends EntityReferenceFieldItemList {
   /**
    * {@inheritdoc}
    */
-  public function defaultValuesForm(array &$form, FormStateInterface $form_state) { }
+  public function defaultValuesForm(array &$form, FormStateInterface $form_state) {}
 
   /**
    * {@inheritdoc}
@@ -30,7 +30,7 @@ class FileFieldItemList extends EntityReferenceFieldItemList {
     else {
       // Get current target file entities and file IDs.
       $files = $this->referencedEntities();
-      $ids = array();
+      $ids = [];
 
       /** @var \Drupal\file\FileInterface $file */
       foreach ($files as $file) {
@@ -48,7 +48,7 @@ class FileFieldItemList extends EntityReferenceFieldItemList {
 
       // Get the file IDs attached to the field before this update.
       $field_name = $this->getFieldDefinition()->getName();
-      $original_ids = array();
+      $original_ids = [];
       $langcode = $this->getLangcode();
       $original = $entity->original;
       if ($original->hasTranslation($langcode)) {
@@ -60,7 +60,7 @@ class FileFieldItemList extends EntityReferenceFieldItemList {
 
       // Decrement file usage by 1 for files that were removed from the field.
       $removed_ids = array_filter(array_diff($original_ids, $ids));
-      $removed_files = \Drupal::entityManager()->getStorage('file')->loadMultiple($removed_ids);
+      $removed_files = \Drupal::entityTypeManager()->getStorage('file')->loadMultiple($removed_ids);
       foreach ($removed_files as $file) {
         \Drupal::service('file.usage')->delete($file, 'file', $entity->getEntityTypeId(), $entity->id());
       }

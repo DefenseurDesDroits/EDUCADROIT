@@ -2,14 +2,16 @@
 
 namespace Drupal\Core\Access;
 
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface;
 use Symfony\Component\Routing\Route;
 
 /**
  * Processes the outbound route to handle the CSRF token.
  */
-class RouteProcessorCsrf implements OutboundRouteProcessorInterface {
+class RouteProcessorCsrf implements OutboundRouteProcessorInterface, TrustedCallbackInterface {
 
   /**
    * The CSRF token generator.
@@ -24,7 +26,7 @@ class RouteProcessorCsrf implements OutboundRouteProcessorInterface {
    * @param \Drupal\Core\Access\CsrfTokenGenerator $csrf_token
    *   The CSRF token generator.
    */
-  function __construct(CsrfTokenGenerator $csrf_token) {
+  public function __construct(CsrfTokenGenerator $csrf_token) {
     $this->csrfToken = $csrf_token;
   }
 
@@ -45,7 +47,7 @@ class RouteProcessorCsrf implements OutboundRouteProcessorInterface {
       }
       else {
         // Generate a placeholder and a render array to replace it.
-        $placeholder = hash('sha1', $path);
+        $placeholder = Crypt::hashBase64($path);
         $placeholder_render_array = [
           '#lazy_builder' => ['route_processor_csrf:renderPlaceholderCsrfToken', [$path]],
         ];
@@ -78,6 +80,13 @@ class RouteProcessorCsrf implements OutboundRouteProcessorInterface {
         ],
       ],
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['renderPlaceholderCsrfToken'];
   }
 
 }

@@ -19,9 +19,9 @@ class Drupal6SqlBaseTest extends MigrateTestCase {
   /**
    * Define bare minimum migration configuration.
    */
-  protected $migrationConfiguration = array(
+  protected $migrationConfiguration = [
     'id' => 'Drupal6SqlBase',
-  );
+  ];
 
   /**
    * @var \Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase
@@ -31,37 +31,37 @@ class Drupal6SqlBaseTest extends MigrateTestCase {
   /**
    * Minimum database contents needed to test Drupal6SqlBase.
    */
-  protected $databaseContents = array(
-    'system' => array(
-      array(
+  protected $databaseContents = [
+    'system' => [
+      [
         'filename' => 'sites/all/modules/module1',
         'name' => 'module1',
         'type' => 'module',
         'status' => 1,
         'schema_version' => -1,
-      ),
-      array(
+      ],
+      [
         'filename' => 'sites/all/modules/module2',
         'name' => 'module2',
         'type' => 'module',
         'status' => 0,
         'schema_version' => 7201,
-      ),
-      array(
+      ],
+      [
         'filename' => 'sites/all/modules/test2',
         'name' => 'test2',
         'type' => 'theme',
         'status' => 1,
         'schema_version' => -1,
-      ),
-    ),
-    'variable' => array(
-      array(
+      ],
+    ],
+    'variable' => [
+      [
         'name' => 'my_variable',
         'value' => 'b:1;',
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
   /**
    * {@inheritdoc}
@@ -69,10 +69,10 @@ class Drupal6SqlBaseTest extends MigrateTestCase {
   protected function setUp() {
     $plugin = 'placeholder_id';
     /** @var \Drupal\Core\State\StateInterface $state */
-    $state = $this->getMock('Drupal\Core\State\StateInterface');
-    /** @var \Drupal\Core\Entity\EntityManagerInterface $entity_manager */
-    $entity_manager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
-    $this->base = new TestDrupal6SqlBase($this->migrationConfiguration, $plugin, array(), $this->getMigration(), $state, $entity_manager);
+    $state = $this->createMock('Drupal\Core\State\StateInterface');
+    /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+    $entity_type_manager = $this->createMock('Drupal\Core\Entity\EntityTypeManagerInterface');
+    $this->base = new TestDrupal6SqlBase($this->migrationConfiguration, $plugin, [], $this->getMigration(), $state, $entity_type_manager);
     $this->base->setDatabase($this->getDatabase($this->databaseContents));
   }
 
@@ -82,8 +82,8 @@ class Drupal6SqlBaseTest extends MigrateTestCase {
   public function testGetSystemData() {
     $system_data = $this->base->getSystemData();
     // Should be 1 theme and 2 modules.
-    $this->assertEquals(1, count($system_data['theme']));
-    $this->assertEquals(2, count($system_data['module']));
+    $this->assertCount(1, $system_data['theme']);
+    $this->assertCount(2, $system_data['module']);
 
     // Calling again should be identical.
     $this->assertSame($system_data, $this->base->getSystemData());
@@ -143,18 +143,18 @@ class TestDrupal6SqlBase extends DrupalSqlBase {
    * {@inheritdoc}
    */
   public function fields() {
-    return array(
+    return [
       'filename' => t('The path of the primary file for this item.'),
       'name' => t('The name of the item; e.g. node.'),
       'type' => t('The type of the item, either module, theme, or theme_engine.'),
       'owner' => t("A theme's 'parent'. Can be either a theme or an engine."),
       'status' => t('Boolean indicating whether or not this item is enabled.'),
       'throttle' => t('Boolean indicating whether this item is disabled when the throttle.module disables throttleable items.'),
-      'bootstrap' => t('Boolean indicating whether this module is loaded during Drupal\'s early bootstrapping phase (e.g. even before the page cache is consulted).'),
-      'schema_version' => t('The module\'s database schema version number.'),
-      'weight' => t('The order in which this module\'s hooks should be invoked.'),
-      'info' => t('A serialized array containing information from the module\'s .info file.'),
-    );
+      'bootstrap' => t("Boolean indicating whether this module is loaded during Drupal's early bootstrapping phase (e.g. even before the page cache is consulted)."),
+      'schema_version' => t("The module's database schema version number."),
+      'weight' => t("The order in which this module's hooks should be invoked."),
+      'info' => t("A serialized array containing information from the module's .info file."),
+    ];
   }
 
   /**
@@ -163,7 +163,7 @@ class TestDrupal6SqlBase extends DrupalSqlBase {
   public function query() {
     $query = $this->database
       ->select('system', 's')
-      ->fields('s', array('filename', 'name', 'schema_version'));
+      ->fields('s', ['filename', 'name', 'schema_version']);
     return $query;
   }
 
@@ -216,7 +216,7 @@ class TestDrupal6SqlBase extends DrupalSqlBase {
    * {@inheritdoc}
    */
   public function getIds() {
-    return array();
+    return [];
   }
 
 }

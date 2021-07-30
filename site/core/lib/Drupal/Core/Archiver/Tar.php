@@ -52,12 +52,12 @@ class Tar implements ArchiverInterface {
   /**
    * {@inheritdoc}
    */
-  public function extract($path, array $files = array()) {
+  public function extract($path, array $files = []) {
     if ($files) {
-      $this->tar->extractList($files, $path);
+      $this->tar->extractList($files, $path, '', FALSE, FALSE);
     }
     else {
-      $this->tar->extract($path);
+      $this->tar->extract($path, FALSE, FALSE);
     }
 
     return $this;
@@ -67,7 +67,7 @@ class Tar implements ArchiverInterface {
    * {@inheritdoc}
    */
   public function listContents() {
-    $files = array();
+    $files = [];
     foreach ($this->tar->listContent() as $file_data) {
       $files[] = $file_data['filename'];
     }

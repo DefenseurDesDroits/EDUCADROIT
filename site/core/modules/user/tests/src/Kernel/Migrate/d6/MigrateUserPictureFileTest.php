@@ -29,7 +29,7 @@ class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
    * Tests the Drupal 6 user pictures to Drupal 8 migration.
    */
   public function testUserPictures() {
-    $file_ids = array();
+    $file_ids = [];
     foreach ($this->migration->getIdMap() as $destination_ids) {
       $file_ids[] = reset($destination_ids);
     }
@@ -46,7 +46,7 @@ class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
     $this->assertIdentical('image-test.png', $file->getFilename());
     $this->assertIdentical('public://image-test.png', $file->getFileUri());
     $this->assertIdentical('8', $file->getOwnerId());
-    $this->assertFalse($files);
+    $this->assertEmpty($files);
   }
 
 }

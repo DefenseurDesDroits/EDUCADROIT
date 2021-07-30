@@ -23,7 +23,7 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
   /**
    * Test rendering fields with EntityDisplay build().
    */
-  function testEntityDisplayBuild() {
+  public function testEntityDisplayBuild() {
     $this->createFieldWithStorage('_2');
 
     $entity_type = 'entity_test';
@@ -39,26 +39,27 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
 
     // Simple formatter, label displayed.
     $entity = clone($entity_init);
-    $display = entity_get_display($entity_type, $entity->bundle(), 'full');
+    $display = \Drupal::service('entity_display.repository')
+      ->getViewDisplay($entity_type, $entity->bundle(), 'full');
 
     $formatter_setting = $this->randomMachineName();
-    $display_options = array(
+    $display_options = [
       'label' => 'above',
       'type' => 'field_test_default',
-      'settings' => array(
+      'settings' => [
         'test_formatter_setting' => $formatter_setting,
-      ),
-    );
+      ],
+    ];
     $display->setComponent($this->fieldTestData->field_name, $display_options);
 
     $formatter_setting_2 = $this->randomMachineName();
-    $display_options_2 = array(
+    $display_options_2 = [
       'label' => 'above',
       'type' => 'field_test_default',
-      'settings' => array(
+      'settings' => [
         'test_formatter_setting' => $formatter_setting_2,
-      ),
-    );
+      ],
+    ];
     $display->setComponent($this->fieldTestData->field_name_2, $display_options_2);
 
     // View all fields.
@@ -94,13 +95,13 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     // Multiple formatter.
     $entity = clone($entity_init);
     $formatter_setting = $this->randomMachineName();
-    $display->setComponent($this->fieldTestData->field_name, array(
+    $display->setComponent($this->fieldTestData->field_name, [
       'label' => 'above',
       'type' => 'field_test_multiple',
-      'settings' => array(
+      'settings' => [
         'test_formatter_setting_multiple' => $formatter_setting,
-      ),
-    ));
+      ],
+    ]);
     $content = $display->build($entity);
     $this->render($content);
     $expected_output = $formatter_setting;
@@ -112,13 +113,13 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     // Test a formatter that uses hook_field_formatter_prepare_view().
     $entity = clone($entity_init);
     $formatter_setting = $this->randomMachineName();
-    $display->setComponent($this->fieldTestData->field_name, array(
+    $display->setComponent($this->fieldTestData->field_name, [
       'label' => 'above',
       'type' => 'field_test_with_prepare_view',
-      'settings' => array(
+      'settings' => [
         'test_formatter_setting_additional' => $formatter_setting,
-      ),
-    ));
+      ],
+    ]);
     $content = $display->build($entity);
     $this->render($content);
     foreach ($values as $delta => $value) {
@@ -133,21 +134,22 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
   /**
    * Tests rendering fields with EntityDisplay::buildMultiple().
    */
-  function testEntityDisplayViewMultiple() {
+  public function testEntityDisplayViewMultiple() {
     // Use a formatter that has a prepareView() step.
-    $display = entity_get_display('entity_test', 'entity_test', 'full')
-      ->setComponent($this->fieldTestData->field_name, array(
+    $display = \Drupal::service('entity_display.repository')
+      ->getViewDisplay('entity_test', 'entity_test', 'full')
+      ->setComponent($this->fieldTestData->field_name, [
         'type' => 'field_test_with_prepare_view',
-      ));
+      ]);
 
     // Create two entities.
-    $entity1 = EntityTest::create(array('id' => 1, 'type' => 'entity_test'));
+    $entity1 = EntityTest::create(['id' => 1, 'type' => 'entity_test']);
     $entity1->{$this->fieldTestData->field_name}->setValue($this->_generateTestFieldValues(1));
-    $entity2 = EntityTest::create(array('id' => 2, 'type' => 'entity_test'));
+    $entity2 = EntityTest::create(['id' => 2, 'type' => 'entity_test']);
     $entity2->{$this->fieldTestData->field_name}->setValue($this->_generateTestFieldValues(1));
 
     // Run buildMultiple(), and check that the entities come out as expected.
-    $display->buildMultiple(array($entity1, $entity2));
+    $display->buildMultiple([$entity1, $entity2]);
     $item1 = $entity1->{$this->fieldTestData->field_name}[0];
     $this->assertEqual($item1->additional_formatter_value, $item1->value + 1, 'Entity 1 ran through the prepareView() formatter method.');
     $item2 = $entity2->{$this->fieldTestData->field_name}[0];
@@ -160,9 +162,9 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
    * Complements unit test coverage in
    * \Drupal\Tests\Core\Entity\Sql\SqlContentEntityStorageTest.
    */
-  function testEntityCache() {
+  public function testEntityCache() {
     // Initialize random values and a test entity.
-    $entity_init = EntityTest::create(array('type' => $this->fieldTestData->field->getTargetBundle()));
+    $entity_init = EntityTest::create(['type' => $this->fieldTestData->field->getTargetBundle()]);
     $values = $this->_generateTestFieldValues($this->fieldTestData->field_storage->getCardinality());
 
     // Non-cacheable entity type.
@@ -185,9 +187,9 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
 
     $entity_init = $this->container->get('entity_type.manager')
       ->getStorage($entity_type)
-      ->create(array(
+      ->create([
         'type' => $entity_type,
-      ));
+      ]);
 
     // Check that no initial cache entry is present.
     $cid = "values:$entity_type:" . $entity->id();
@@ -201,7 +203,7 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
 
     $this->assertFalse(\Drupal::cache('entity')->get($cid), 'Cached: no cache entry on insert');
     // Load, and check that a cache entry is present with the expected values.
-    $controller = $this->container->get('entity.manager')->getStorage($entity->getEntityTypeId());
+    $controller = $this->container->get('entity_type.manager')->getStorage($entity->getEntityTypeId());
     $controller->resetCache();
     $cached_entity = $controller->load($entity->id());
     $cache = \Drupal::cache('entity')->get($cid);
@@ -243,15 +245,22 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
    * This could be much more thorough, but it does verify that the correct
    * widgets show up.
    */
-  function testEntityFormDisplayBuildForm() {
+  public function testEntityFormDisplayBuildForm() {
     $this->createFieldWithStorage('_2');
 
     $entity_type = 'entity_test';
-    $entity = entity_create($entity_type, array('id' => 1, 'revision_id' => 1, 'type' => $this->fieldTestData->field->getTargetBundle()));
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->create([
+      'id' => 1,
+      'revision_id' => 1,
+      'type' => $this->fieldTestData->field->getTargetBundle(),
+    ]);
+
+    /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $display_repository */
+    $display_repository = \Drupal::service('entity_display.repository');
 
     // Test generating widgets for all fields.
-    $display = entity_get_form_display($entity_type, $this->fieldTestData->field->getTargetBundle(), 'default');
-    $form = array();
+    $display = $display_repository->getFormDisplay($entity_type, $this->fieldTestData->field->getTargetBundle());
+    $form = [];
     $form_state = new FormState();
     $display->buildForm($entity, $form, $form_state);
 
@@ -267,13 +276,13 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     }
 
     // Test generating widgets for all fields.
-    $display = entity_get_form_display($entity_type, $this->fieldTestData->field->getTargetBundle(), 'default');
+    $display = $display_repository->getFormDisplay($entity_type, $this->fieldTestData->field->getTargetBundle());
     foreach ($display->getComponents() as $name => $options) {
       if ($name != $this->fieldTestData->field_name_2) {
         $display->removeComponent($name);
       }
     }
-    $form = array();
+    $form = [];
     $form_state = new FormState();
     $display->buildForm($entity, $form, $form_state);
 
@@ -288,24 +297,25 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
   /**
    * Tests \Drupal\Core\Entity\Display\EntityFormDisplayInterface::extractFormValues().
    */
-  function testEntityFormDisplayExtractFormValues() {
+  public function testEntityFormDisplayExtractFormValues() {
     $this->createFieldWithStorage('_2');
 
     $entity_type = 'entity_test';
     $entity_init = $this->container->get('entity_type.manager')
       ->getStorage($entity_type)
-      ->create(array('id' => 1, 'revision_id' => 1, 'type' => $this->fieldTestData->field->getTargetBundle()));
+      ->create(['id' => 1, 'revision_id' => 1, 'type' => $this->fieldTestData->field->getTargetBundle()]);
 
     // Build the form for all fields.
-    $display = entity_get_form_display($entity_type, $this->fieldTestData->field->getTargetBundle(), 'default');
-    $form = array();
+    $display = \Drupal::service('entity_display.repository')
+      ->getFormDisplay($entity_type, $this->fieldTestData->field->getTargetBundle());
+    $form = [];
     $form_state = new FormState();
     $display->buildForm($entity_init, $form, $form_state);
 
     // Simulate incoming values.
     // First field.
-    $values = array();
-    $weights = array();
+    $values = [];
+    $weights = [];
     for ($delta = 0; $delta < $this->fieldTestData->field_storage->getCardinality(); $delta++) {
       $values[$delta]['value'] = mt_rand(1, 127);
       // Assign random weight.
@@ -318,8 +328,8 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     // Leave an empty value. 'field_test' fields are empty if empty().
     $values[1]['value'] = 0;
     // Second field.
-    $values_2 = array();
-    $weights_2 = array();
+    $values_2 = [];
+    $weights_2 = [];
     for ($delta = 0; $delta < $this->fieldTestData->field_storage_2->getCardinality(); $delta++) {
       $values_2[$delta]['value'] = mt_rand(1, 127);
       // Assign random weight.
@@ -333,7 +343,7 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     $values_2[1]['value'] = 0;
 
     // Pretend the form has been built.
-    $form_state->setFormObject(\Drupal::entityManager()->getFormObject($entity_type, 'default'));
+    $form_state->setFormObject(\Drupal::entityTypeManager()->getFormObject($entity_type, 'default'));
     \Drupal::formBuilder()->prepareForm('field_test_entity_form', $form, $form_state);
     \Drupal::formBuilder()->processForm('field_test_entity_form', $form, $form_state);
     $form_state->setValue($this->fieldTestData->field_name, $values);
@@ -345,17 +355,17 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
 
     asort($weights);
     asort($weights_2);
-    $expected_values = array();
-    $expected_values_2 = array();
+    $expected_values = [];
+    $expected_values_2 = [];
     foreach ($weights as $key => $value) {
       if ($key != 1) {
-        $expected_values[] = array('value' => $values[$key]['value']);
+        $expected_values[] = ['value' => $values[$key]['value']];
       }
     }
     $this->assertIdentical($entity->{$this->fieldTestData->field_name}->getValue(), $expected_values, 'Submit filters empty values');
     foreach ($weights_2 as $key => $value) {
       if ($key != 1) {
-        $expected_values_2[] = array('value' => $values_2[$key]['value']);
+        $expected_values_2[] = ['value' => $values_2[$key]['value']];
       }
     }
     $this->assertIdentical($entity->{$this->fieldTestData->field_name_2}->getValue(), $expected_values_2, 'Submit filters empty values');
@@ -368,10 +378,10 @@ class FieldAttachOtherTest extends FieldKernelTestBase {
     }
     $entity = clone($entity_init);
     $display->extractFormValues($entity, $form, $form_state);
-    $expected_values_2 = array();
+    $expected_values_2 = [];
     foreach ($weights_2 as $key => $value) {
       if ($key != 1) {
-        $expected_values_2[] = array('value' => $values_2[$key]['value']);
+        $expected_values_2[] = ['value' => $values_2[$key]['value']];
       }
     }
     $this->assertTrue($entity->{$this->fieldTestData->field_name}->isEmpty(), 'The first field is empty in the entity object');

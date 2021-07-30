@@ -20,6 +20,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_video:
     weight: 1
     label: visually_hidden
@@ -30,6 +31,7 @@ content:
       responsive: false
     third_party_settings: {  }
     type: video_embed_field_video
+    region: content
 hidden:
   created: true
   uid: true

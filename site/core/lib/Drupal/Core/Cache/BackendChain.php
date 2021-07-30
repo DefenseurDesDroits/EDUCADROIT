@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\Core\Cache;
+
 /**
  * Defines a chained cache implementation for combining multiple cache backends.
  *
@@ -26,15 +27,21 @@ class BackendChain implements CacheBackendInterface, CacheTagsInvalidatorInterfa
    *
    * @var array
    */
-  protected $backends = array();
+  protected $backends = [];
 
   /**
-   * Constructs a DatabaseBackend object.
+   * Constructs a new backend chain service instance.
    *
-   * @param string $bin
-   *   The cache bin for which the object is created.
+   * @param string|null $bin
+   *   (deprecated) The cache bin for which the object is created. The $bin
+   *   parameter is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0.
+   *
+   * @see https://www.drupal.org/node/3061125
    */
-  public function __construct($bin) {
+  public function __construct($bin = NULL) {
+    if ($bin) {
+      @trigger_error('The $bin parameter is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Omit the first parameter. See https://www.drupal.org/node/3061125', E_USER_DEPRECATED);
+    }
   }
 
   /**
@@ -43,7 +50,7 @@ class BackendChain implements CacheBackendInterface, CacheTagsInvalidatorInterfa
    * @param CacheBackendInterface $backend
    *   The cache backend to be appended to the cache chain.
    *
-   * @return \Drupal\Core\Cache\BackendChain
+   * @return $this
    *   The called object.
    */
   public function appendBackend(CacheBackendInterface $backend) {
@@ -58,7 +65,7 @@ class BackendChain implements CacheBackendInterface, CacheTagsInvalidatorInterfa
    * @param CacheBackendInterface $backend
    *   The backend to be prepended to the cache chain.
    *
-   * @return \Drupal\Core\Cache\BackendChain
+   * @return $this
    *   The called object.
    */
   public function prependBackend(CacheBackendInterface $backend) {
@@ -91,7 +98,7 @@ class BackendChain implements CacheBackendInterface, CacheTagsInvalidatorInterfa
    * {@inheritdoc}
    */
   public function getMultiple(&$cids, $allow_invalid = FALSE) {
-    $return = array();
+    $return = [];
 
     foreach ($this->backends as $index => $backend) {
       $items = $backend->getMultiple($cids, $allow_invalid);
@@ -121,7 +128,7 @@ class BackendChain implements CacheBackendInterface, CacheTagsInvalidatorInterfa
   /**
    * {@inheritdoc}
    */
-  public function set($cid, $data, $expire = Cache::PERMANENT, array $tags = array()) {
+  public function set($cid, $data, $expire = Cache::PERMANENT, array $tags = []) {
     foreach ($this->backends as $backend) {
       $backend->set($cid, $data, $expire, $tags);
     }

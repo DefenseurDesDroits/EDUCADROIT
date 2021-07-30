@@ -22,7 +22,7 @@ class ModuleImplementsAlterTest extends KernelTestBase {
    * @see \Drupal\Core\Extension\ModuleHandler::buildImplementationInfo()
    * @see module_test_module_implements_alter()
    */
-  function testModuleImplementsAlter() {
+  public function testModuleImplementsAlter() {
 
     // Get an instance of the module handler, to observe how it is going to be
     // replaced.
@@ -32,7 +32,7 @@ class ModuleImplementsAlterTest extends KernelTestBase {
       'Module handler instance is still the same.');
 
     // Install the module_test module.
-    \Drupal::service('module_installer')->install(array('module_test'));
+    \Drupal::service('module_installer')->install(['module_test']);
 
     // Assert that the \Drupal::moduleHandler() instance has been replaced.
     $this->assertFalse($module_handler === \Drupal::moduleHandler(),
@@ -42,13 +42,12 @@ class ModuleImplementsAlterTest extends KernelTestBase {
     $this->assertTrue(function_exists('module_test_modules_installed'),
       'The file module_test.module was successfully included.');
 
-    $this->assertTrue(array_key_exists('module_test', \Drupal::moduleHandler()->getModuleList()),
-      'module_test is in the module list.');
+    $this->assertArrayHasKey('module_test', \Drupal::moduleHandler()->getModuleList());
 
-    $this->assertTrue(in_array('module_test', \Drupal::moduleHandler()->getImplementations('modules_installed')),
+    $this->assertContains('module_test', \Drupal::moduleHandler()->getImplementations('modules_installed'),
       'module_test implements hook_modules_installed().');
 
-    $this->assertTrue(in_array('module_test', \Drupal::moduleHandler()->getImplementations('module_implements_alter')),
+    $this->assertContains('module_test', \Drupal::moduleHandler()->getImplementations('module_implements_alter'),
       'module_test implements hook_module_implements_alter().');
 
     // Assert that module_test.implementations.inc is not included yet.
@@ -58,7 +57,7 @@ class ModuleImplementsAlterTest extends KernelTestBase {
     // Trigger hook discovery for hook_altered_test_hook().
     // Assert that module_test_module_implements_alter(*, 'altered_test_hook')
     // has added an implementation.
-    $this->assertTrue(in_array('module_test', \Drupal::moduleHandler()->getImplementations('altered_test_hook')),
+    $this->assertContains('module_test', \Drupal::moduleHandler()->getImplementations('altered_test_hook'),
       'module_test implements hook_altered_test_hook().');
 
     // Assert that module_test.implementations.inc was included as part of the process.
@@ -73,20 +72,15 @@ class ModuleImplementsAlterTest extends KernelTestBase {
    * @see \Drupal\Core\Extension\ModuleHandler::buildImplementationInfo()
    * @see module_test_module_implements_alter()
    */
-  function testModuleImplementsAlterNonExistingImplementation() {
+  public function testModuleImplementsAlterNonExistingImplementation() {
 
     // Install the module_test module.
-    \Drupal::service('module_installer')->install(array('module_test'));
+    \Drupal::service('module_installer')->install(['module_test']);
 
-    try {
-      // Trigger hook discovery.
-      \Drupal::moduleHandler()->getImplementations('unimplemented_test_hook');
-      $this->fail('An exception should be thrown for the non-existing implementation.');
-    }
-    catch (\RuntimeException $e) {
-      $this->pass('An exception should be thrown for the non-existing implementation.');
-      $this->assertEqual($e->getMessage(), 'An invalid implementation module_test_unimplemented_test_hook was added by hook_module_implements_alter()');
-    }
+    // Trigger hook discovery.
+    $this->expectException(\RuntimeException::class);
+    $this->expectExceptionMessage('An invalid implementation module_test_unimplemented_test_hook was added by hook_module_implements_alter()');
+    \Drupal::moduleHandler()->getImplementations('unimplemented_test_hook');
   }
 
 }

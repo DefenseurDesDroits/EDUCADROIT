@@ -2,7 +2,6 @@
 
 namespace Drupal\Core\Database;
 
-
 /**
  * Empty implementation of a database statement.
  *
@@ -26,7 +25,7 @@ class StatementEmpty implements \Iterator, StatementInterface {
   /**
    * {@inheritdoc}
    */
-  public function execute($args = array(), $options = array()) {
+  public function execute($args = [], $options = []) {
     return FALSE;
   }
 
@@ -50,9 +49,7 @@ class StatementEmpty implements \Iterator, StatementInterface {
   /**
    * {@inheritdoc}
    */
-  public function setFetchMode($mode, $a1 = NULL, $a2 = array()) {
-    return;
-  }
+  public function setFetchMode($mode, $a1 = NULL, $a2 = []) {}
 
   /**
    * {@inheritdoc}
@@ -86,28 +83,28 @@ class StatementEmpty implements \Iterator, StatementInterface {
    * {@inheritdoc}
    */
   public function fetchAll($mode = NULL, $column_index = NULL, $constructor_arguments = NULL) {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function fetchCol($index = 0) {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function fetchAllAssoc($key, $fetch = NULL) {
-    return array();
+    return [];
   }
 
   /**

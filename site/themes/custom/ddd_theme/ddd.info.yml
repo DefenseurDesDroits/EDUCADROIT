@@ -10,6 +10,7 @@ regions:
   breadcrumb: Breadcrumb
   content: Content
   footer: Footer
+  facets: Facets
 libraries:
   - ddd/ddd-styling
 

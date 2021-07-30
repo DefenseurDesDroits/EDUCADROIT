@@ -20,6 +20,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   field_logos:
     type: entity_reference_revisions_entity_view
     weight: 2
@@ -28,6 +29,7 @@ content:
       view_mode: default
       link: ''
     third_party_settings: {  }
+    region: content
   field_title:
     weight: 0
     label: visually_hidden
@@ -35,6 +37,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
 hidden:
   created: true
   uid: true

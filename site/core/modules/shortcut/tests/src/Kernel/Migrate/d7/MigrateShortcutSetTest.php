@@ -18,12 +18,12 @@ class MigrateShortcutSetTest extends MigrateDrupal7TestBase {
    *
    * @var array
    */
-  public static $modules = array(
+  public static $modules = [
     'link',
     'field',
     'shortcut',
     'menu_link_content',
-  );
+  ];
 
   /**
    * {@inheritdoc}
@@ -59,7 +59,7 @@ class MigrateShortcutSetTest extends MigrateDrupal7TestBase {
    */
   protected function assertEntity($id, $label, $expected_size) {
     $shortcut_set = ShortcutSet::load($id);
-    $this->assertTrue($shortcut_set instanceof ShortcutSetInterface);
+    $this->assertInstanceOf(ShortcutSetInterface::class, $shortcut_set);
     /** @var \Drupal\shortcut\ShortcutSetInterface $shortcut_set */
     $this->assertIdentical($id, $shortcut_set->id());
     $this->assertIdentical($label, $shortcut_set->label());

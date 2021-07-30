@@ -22,7 +22,18 @@ class FieldSettings extends ProcessPluginBase {
     switch ($row->getSourceProperty('type')) {
       case 'image':
         if (!is_array($value['default_image'])) {
-          $value['default_image'] = array('uuid' => '');
+          $value['default_image'] = ['uuid' => ''];
+        }
+        break;
+
+      case 'date':
+      case 'datetime':
+      case 'datestamp':
+        $collected_date_attributes = is_numeric(array_keys($value['granularity'])[0])
+          ? $value['granularity']
+          : array_keys(array_filter($value['granularity']));
+        if (empty(array_intersect($collected_date_attributes, ['hour', 'minute', 'second']))) {
+          $value['datetime_type'] = 'date';
         }
         break;
 

@@ -13,22 +13,22 @@ class AlterTest extends DatabaseTestBase {
   /**
    * Tests that we can do basic alters.
    */
-  function testSimpleAlter() {
-    $query = db_select('test');
+  public function testSimpleAlter() {
+    $query = $this->connection->select('test');
     $query->addField('test', 'name');
     $query->addField('test', 'age', 'age');
     $query->addTag('database_test_alter_add_range');
 
     $result = $query->execute()->fetchAll();
 
-    $this->assertEqual(count($result), 2, 'Returned the correct number of rows.');
+    $this->assertCount(2, $result, 'Returned the correct number of rows.');
   }
 
   /**
    * Tests that we can alter the joins on a query.
    */
-  function testAlterWithJoin() {
-    $query = db_select('test_task');
+  public function testAlterWithJoin() {
+    $query = $this->connection->select('test_task');
     $tid_field = $query->addField('test_task', 'tid');
     $task_field = $query->addField('test_task', 'task');
     $query->orderBy($task_field);
@@ -38,7 +38,7 @@ class AlterTest extends DatabaseTestBase {
 
     $records = $result->fetchAll();
 
-    $this->assertEqual(count($records), 2, 'Returned the correct number of rows.');
+    $this->assertCount(2, $records, 'Returned the correct number of rows.');
 
     $this->assertEqual($records[0]->name, 'George', 'Correct data retrieved.');
     $this->assertEqual($records[0]->$tid_field, 4, 'Correct data retrieved.');
@@ -51,8 +51,8 @@ class AlterTest extends DatabaseTestBase {
   /**
    * Tests that we can alter a query's conditionals.
    */
-  function testAlterChangeConditional() {
-    $query = db_select('test_task');
+  public function testAlterChangeConditional() {
+    $query = $this->connection->select('test_task');
     $tid_field = $query->addField('test_task', 'tid');
     $pid_field = $query->addField('test_task', 'pid');
     $task_field = $query->addField('test_task', 'task');
@@ -66,7 +66,7 @@ class AlterTest extends DatabaseTestBase {
 
     $records = $result->fetchAll();
 
-    $this->assertEqual(count($records), 1, 'Returned the correct number of rows.');
+    $this->assertCount(1, $records, 'Returned the correct number of rows.');
     $this->assertEqual($records[0]->$name_field, 'John', 'Correct data retrieved.');
     $this->assertEqual($records[0]->$tid_field, 2, 'Correct data retrieved.');
     $this->assertEqual($records[0]->$pid_field, 1, 'Correct data retrieved.');
@@ -76,8 +76,8 @@ class AlterTest extends DatabaseTestBase {
   /**
    * Tests that we can alter the fields of a query.
    */
-  function testAlterChangeFields() {
-    $query = db_select('test');
+  public function testAlterChangeFields() {
+    $query = $this->connection->select('test');
     $name_field = $query->addField('test', 'name');
     $age_field = $query->addField('test', 'age', 'age');
     $query->orderBy('name');
@@ -91,8 +91,8 @@ class AlterTest extends DatabaseTestBase {
   /**
    * Tests that we can alter expressions in the query.
    */
-  function testAlterExpression() {
-    $query = db_select('test');
+  public function testAlterExpression() {
+    $query = $this->connection->select('test');
     $name_field = $query->addField('test', 'name');
     $age_field = $query->addExpression("age*2", 'double_age');
     $query->condition('age', 27);
@@ -111,8 +111,8 @@ class AlterTest extends DatabaseTestBase {
    *
    * This also tests hook_query_TAG_alter().
    */
-  function testAlterRemoveRange() {
-    $query = db_select('test');
+  public function testAlterRemoveRange() {
+    $query = $this->connection->select('test');
     $query->addField('test', 'name');
     $query->addField('test', 'age', 'age');
     $query->range(0, 2);
@@ -126,9 +126,9 @@ class AlterTest extends DatabaseTestBase {
   /**
    * Tests that we can do basic alters on subqueries.
    */
-  function testSimpleAlterSubquery() {
+  public function testSimpleAlterSubquery() {
     // Create a sub-query with an alter tag.
-    $subquery = db_select('test', 'p');
+    $subquery = $this->connection->select('test', 'p');
     $subquery->addField('p', 'name');
     $subquery->addField('p', 'id');
     // Pick out George.
@@ -138,7 +138,7 @@ class AlterTest extends DatabaseTestBase {
     $subquery->addTag('database_test_alter_change_expressions');
 
     // Create a main query and join to sub-query.
-    $query = db_select('test_task', 'tt');
+    $query = $this->connection->select('test_task', 'tt');
     $query->join($subquery, 'pq', 'pq.id = tt.pid');
     $age_field = $query->addField('pq', 'double_age');
     $name_field = $query->addField('pq', 'name');

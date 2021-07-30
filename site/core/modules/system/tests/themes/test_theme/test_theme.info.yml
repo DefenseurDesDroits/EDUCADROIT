@@ -14,8 +14,7 @@ description: 'Theme for testing the theme system'
 version: VERSION
 base theme: classy
 core: 8.x
-stylesheets-remove:
-  - '@system/css/js.module.css'
+logo: images/logo2.svg
 libraries:
   - test_theme/global-styling
 libraries-override:
@@ -36,6 +35,10 @@ libraries-override:
     css:
       component:
         css/components/dialog.css: false
+  system/base:
+    css:
+      component:
+        /core/themes/stable/css/system/components/js.module.css: false
   # It works for JS as well.
   core/jquery:
     js:

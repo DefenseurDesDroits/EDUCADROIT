@@ -4,6 +4,7 @@ namespace Drupal\KernelTests\Core\Routing;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\KernelTests\KernelTestBase;
+use Drupal\Tests\Traits\Core\PathAliasTestTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,10 +15,21 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ContentNegotiationRoutingTest extends KernelTestBase {
 
+  use PathAliasTestTrait;
+
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['conneg_test'];
+  public static $modules = ['conneg_test', 'path_alias'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    $this->installEntitySchema('path_alias');
+  }
 
   /**
    * {@inheritdoc}
@@ -27,8 +39,8 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
 
     // \Drupal\KernelTests\KernelTestBase::register() removes the alias path
     // processor.
-    if ($container->hasDefinition('path_processor_alias')) {
-      $definition = $container->getDefinition('path_processor_alias');
+    if ($container->hasDefinition('path_alias.path_processor')) {
+      $definition = $container->getDefinition('path_alias.path_processor');
       $definition->addTag('path_processor_inbound', ['priority' => 100])->addTag('path_processor_outbound', ['priority' => 300]);
     }
   }
@@ -36,14 +48,12 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
   /**
    * Tests the content negotiation aspect of routing.
    */
-  function testContentRouting() {
-    /** @var \Drupal\Core\Path\AliasStorageInterface $path_alias_storage */
-    $path_alias_storage = $this->container->get('path.alias_storage');
+  public function testContentRouting() {
     // Alias with extension pointing to no extension/constant content-type.
-    $path_alias_storage->save('/conneg/html', '/alias.html');
+    $this->createPathAlias('/conneg/html', '/alias.html');
 
     // Alias with extension pointing to dynamic extension/linked content-type.
-    $path_alias_storage->save('/conneg/html?_format=json', '/alias.json');
+    $this->createPathAlias('/conneg/html?_format=json', '/alias.json');
 
     $tests = [
       // ['path', 'accept', 'content-type'],
@@ -98,7 +108,7 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
       // see the error.
       $this->assertTrue(TRUE, $message);
       $this->assertEqual($response->getStatusCode(), Response::HTTP_OK);
-      $this->assertTrue(strpos($response->headers->get('Content-type'), $content_type) !== FALSE);
+      $this->assertStringContainsString($content_type, $response->headers->get('Content-type'));
     }
   }
 
@@ -111,8 +121,10 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
     $tests = [
       // ['path', 'accept', 'content-type'],
 
-      ['conneg/negotiate', '', 'text/html'], // 406?
-      ['conneg/negotiate', '', 'text/html'], // 406?
+      // 406?
+      ['conneg/negotiate', '', 'text/html'],
+      // 406?
+      ['conneg/negotiate', '', 'text/html'],
       // ['conneg/negotiate', '*/*', '??'],
       ['conneg/negotiate', 'application/json', 'application/json'],
       ['conneg/negotiate', 'application/xml', 'application/xml'],
@@ -124,17 +136,13 @@ class ContentNegotiationRoutingTest extends KernelTestBase {
       $path = $test[0];
       $accept_header = $test[1];
       $content_type = $test[2];
-      $message = "Testing path:$path Accept:$accept_header Content-type:$content_type";
       $request = Request::create('/' . $path);
       $request->headers->set('Accept', $accept_header);
 
       /** @var \Symfony\Component\HttpKernel\HttpKernelInterface $kernel */
       $kernel = \Drupal::getContainer()->get('http_kernel');
       $response = $kernel->handle($request);
-      // Verbose message since simpletest doesn't let us provide a message and
-      // see the error.
-      $this->pass($message);
-      $this->assertEqual($response->getStatusCode(), Response::HTTP_OK);
+      $this->assertEqual($response->getStatusCode(), Response::HTTP_OK, "Testing path:$path Accept:$accept_header Content-type:$content_type");
     }
   }
 

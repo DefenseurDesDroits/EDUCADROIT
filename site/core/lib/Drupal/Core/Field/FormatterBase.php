@@ -4,14 +4,16 @@ namespace Drupal\Core\Field;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Base class for 'Field formatter' plugin implementations.
  *
  * @ingroup field_formatter
  */
-abstract class FormatterBase extends PluginSettingsBase implements FormatterInterface {
+abstract class FormatterBase extends PluginSettingsBase implements FormatterInterface, ContainerFactoryPluginInterface {
 
   /**
    * The field definition.
@@ -60,13 +62,20 @@ abstract class FormatterBase extends PluginSettingsBase implements FormatterInte
    *   Any third party settings.
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings) {
-    parent::__construct(array(), $plugin_id, $plugin_definition);
+    parent::__construct([], $plugin_id, $plugin_definition);
 
     $this->fieldDefinition = $field_definition;
     $this->settings = $settings;
     $this->label = $label;
     $this->viewMode = $view_mode;
     $this->thirdPartySettings = $third_party_settings;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($plugin_id, $plugin_definition, $configuration['field_definition'], $configuration['settings'], $configuration['label'], $configuration['view_mode'], $configuration['third_party_settings']);
   }
 
   /**
@@ -85,7 +94,7 @@ abstract class FormatterBase extends PluginSettingsBase implements FormatterInte
       $entity = $items->getEntity();
       $entity_type = $entity->getEntityTypeId();
       $field_name = $this->fieldDefinition->getName();
-      $info = array(
+      $info = [
         '#theme' => 'field',
         '#title' => $this->fieldDefinition->getLabel(),
         '#label_display' => $this->label,
@@ -100,7 +109,8 @@ abstract class FormatterBase extends PluginSettingsBase implements FormatterInte
         '#items' => $items,
         '#formatter' => $this->getPluginId(),
         '#is_multiple' => $this->fieldDefinition->getFieldStorageDefinition()->isMultiple(),
-      );
+        '#third_party_settings' => $this->getThirdPartySettings(),
+      ];
 
       $elements = array_merge($info, $elements);
     }
@@ -112,20 +122,20 @@ abstract class FormatterBase extends PluginSettingsBase implements FormatterInte
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function prepareView(array $entities_items) { }
+  public function prepareView(array $entities_items) {}
 
   /**
    * Returns the array of field settings.

@@ -2,6 +2,7 @@
 
 namespace Drupal\editor;
 
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\editor\Entity\Editor;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\Component\Plugin\PluginManagerInterface;
@@ -10,7 +11,7 @@ use Drupal\Core\Render\BubbleableMetadata;
 /**
  * Defines a service for Text Editor's render elements.
  */
-class Element {
+class Element implements TrustedCallbackInterface {
 
   /**
    * The Text Editor plugin manager service.
@@ -30,18 +31,25 @@ class Element {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['preRenderTextFormat'];
+  }
+
+  /**
    * Additional #pre_render callback for 'text_format' elements.
    */
-  function preRenderTextFormat(array $element) {
+  public function preRenderTextFormat(array $element) {
     // Allow modules to programmatically enforce no client-side editor by
     // setting the #editor property to FALSE.
     if (isset($element['#editor']) && !$element['#editor']) {
       return $element;
     }
 
-    // filter_process_format() copies properties to the expanded 'value' child
-    // element, including the #pre_render property. Skip this text format
-    // widget, if it contains no 'format'.
+    // \Drupal\filter\Element\TextFormat::processFormat() copies properties to
+    // the expanded 'value' to the child element, including the #pre_render
+    // property. Skip this text format widget, if it contains no 'format'.
     if (!isset($element['format'])) {
       return $element;
     }
@@ -64,14 +72,14 @@ class Element {
     if (!$element['format']['format']['#access']) {
       // Use the first (and only) available text format.
       $format_id = $format_ids[0];
-      $element['format']['editor'] = array(
+      $element['format']['editor'] = [
         '#type' => 'hidden',
         '#name' => $element['format']['format']['#name'],
         '#value' => $format_id,
-        '#attributes' => array(
+        '#attributes' => [
           'data-editor-for' => $field_id,
-        ),
-      );
+        ],
+      ];
     }
     // Otherwise, attach to text format selector.
     else {

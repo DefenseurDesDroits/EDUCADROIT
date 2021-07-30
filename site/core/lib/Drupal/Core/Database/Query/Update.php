@@ -26,14 +26,14 @@ class Update extends Query implements ConditionInterface {
    *
    * @var array
    */
-  protected $fields = array();
+  protected $fields = [];
 
   /**
    * An array of values to update to.
    *
    * @var array
    */
-  protected $arguments = array();
+  protected $arguments = [];
 
   /**
    * Array of fields to update to an expression in case of a duplicate record.
@@ -48,7 +48,7 @@ class Update extends Query implements ConditionInterface {
    *
    * @var array
    */
-  protected $expressionFields = array();
+  protected $expressionFields = [];
 
   /**
    * Constructs an Update query object.
@@ -60,12 +60,12 @@ class Update extends Query implements ConditionInterface {
    * @param array $options
    *   Array of database options.
    */
-  public function __construct(Connection $connection, $table, array $options = array()) {
+  public function __construct(Connection $connection, $table, array $options = []) {
     $options['return'] = Database::RETURN_AFFECTED;
     parent::__construct($connection, $options);
     $this->table = $table;
 
-    $this->condition = new Condition('AND');
+    $this->condition = $this->connection->condition('AND');
   }
 
   /**
@@ -75,7 +75,7 @@ class Update extends Query implements ConditionInterface {
    *   An associative array of fields to write into the database. The array keys
    *   are the field names and the values are the values to which to set them.
    *
-   * @return \Drupal\Core\Database\Query\Update
+   * @return $this
    *   The called object.
    */
   public function fields(array $fields) {
@@ -98,14 +98,14 @@ class Update extends Query implements ConditionInterface {
    *   If specified, this is an array of key/value pairs for named placeholders
    *   corresponding to the expression.
    *
-   * @return \Drupal\Core\Database\Query\Update
+   * @return $this
    *   The called object.
    */
   public function expression($field, $expression, array $arguments = NULL) {
-    $this->expressionFields[$field] = array(
+    $this->expressionFields[$field] = [
       'expression' => $expression,
       'arguments' => $arguments,
-    );
+    ];
 
     return $this;
   }
@@ -121,7 +121,7 @@ class Update extends Query implements ConditionInterface {
     // Expressions take priority over literal fields, so we process those first
     // and remove any literal fields that conflict.
     $fields = $this->fields;
-    $update_values = array();
+    $update_values = [];
     foreach ($this->expressionFields as $field => $data) {
       if (!empty($data['arguments'])) {
         $update_values += $data['arguments'];
@@ -161,7 +161,7 @@ class Update extends Query implements ConditionInterface {
     // Expressions take priority over literal fields, so we process those first
     // and remove any literal fields that conflict.
     $fields = $this->fields;
-    $update_fields = array();
+    $update_fields = [];
     foreach ($this->expressionFields as $field => $data) {
       if ($data['expression'] instanceof SelectInterface) {
         // Compile and cast expression subquery to a string.

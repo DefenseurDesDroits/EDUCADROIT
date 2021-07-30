@@ -10,7 +10,7 @@ use Drupal\Core\Session\AccountInterface;
 /**
  * Defines the access control handler for the language entity type.
  *
- * @see \Drupal\language\Entity\Language
+ * @see \Drupal\language\Entity\ConfigurableLanguage
  */
 class LanguageAccessControlHandler extends EntityAccessControlHandler {
 
@@ -19,6 +19,9 @@ class LanguageAccessControlHandler extends EntityAccessControlHandler {
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {
+      case 'view':
+        return parent::checkAccess($entity, $operation, $account);
+
       case 'update':
         /* @var \Drupal\Core\Language\LanguageInterface $entity */
         return AccessResult::allowedIf(!$entity->isLocked())->addCacheableDependency($entity)

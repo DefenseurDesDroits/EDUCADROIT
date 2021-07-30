@@ -187,7 +187,7 @@ class EntityDisplayRepository implements EntityDisplayRepositoryInterface {
    *   An array of display mode labels, keyed by the display mode ID.
    */
   protected function getDisplayModeOptions($display_type, $entity_type_id) {
-    $options = array('default' => t('Default'));
+    $options = ['default' => t('Default')];
     foreach ($this->getDisplayModesByEntityType($display_type, $entity_type_id) as $mode => $settings) {
       $options[$mode] = $settings['label'];
     }
@@ -213,7 +213,7 @@ class EntityDisplayRepository implements EntityDisplayRepositoryInterface {
 
     // Filter out modes for which the entity display is disabled
     // (or non-existent).
-    $load_ids = array();
+    $load_ids = [];
     // Get the list of available entity displays for the current bundle.
     foreach (array_keys($options) as $mode) {
       $load_ids[] = $entity_type_id . '.' . $bundle . '.' . $mode;
@@ -241,6 +241,52 @@ class EntityDisplayRepository implements EntityDisplayRepositoryInterface {
   public function clearDisplayModeInfo() {
     $this->displayModeInfo = [];
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getViewDisplay($entity_type, $bundle, $view_mode = self::DEFAULT_DISPLAY_MODE) {
+    $storage = $this->entityTypeManager->getStorage('entity_view_display');
+
+    // Try loading the display from configuration; if not found, create a fresh
+    // display object. We do not preemptively create new entity_view_display
+    // configuration entries for each existing entity type and bundle whenever a
+    // new view mode becomes available. Instead, configuration entries are only
+    // created when a display object is explicitly configured and saved.
+    $entity_view_display = $storage->load($entity_type . '.' . $bundle . '.' . $view_mode);
+    if (!$entity_view_display) {
+      $entity_view_display = $storage->create([
+        'targetEntityType' => $entity_type,
+        'bundle' => $bundle,
+        'mode' => $view_mode,
+        'status' => TRUE,
+      ]);
+    }
+    return $entity_view_display;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormDisplay($entity_type, $bundle, $form_mode = self::DEFAULT_DISPLAY_MODE) {
+    $storage = $this->entityTypeManager->getStorage('entity_form_display');
+
+    // Try loading the entity from configuration; if not found, create a fresh
+    // entity object. We do not preemptively create new entity form display
+    // configuration entries for each existing entity type and bundle whenever a
+    // new form mode becomes available. Instead, configuration entries are only
+    // created when an entity form display is explicitly configured and saved.
+    $entity_form_display = $storage->load($entity_type . '.' . $bundle . '.' . $form_mode);
+    if (!$entity_form_display) {
+      $entity_form_display = $storage->create([
+        'targetEntityType' => $entity_type,
+        'bundle' => $bundle,
+        'mode' => $form_mode,
+        'status' => TRUE,
+      ]);
+    }
+    return $entity_form_display;
   }
 
 }

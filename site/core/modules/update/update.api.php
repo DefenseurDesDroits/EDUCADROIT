@@ -5,6 +5,8 @@
  * Hooks provided by the Update Manager module.
  */
 
+use Drupal\update\UpdateFetcherInterface;
+
 /**
  * @addtogroup hooks
  * @{
@@ -27,11 +29,11 @@
  *   Reference to an array of the projects installed on the system. This
  *   includes all the metadata documented in the comments below for each project
  *   (either module or theme) that is currently enabled. The array is initially
- *   populated inside \Drupal\Update\UpdateManager::getProjects() with the help
+ *   populated inside \Drupal\update\UpdateManager::getProjects() with the help
  *   of \Drupal\Core\Utility\ProjectInfo->processInfoList(), so look there for
  *   examples of how to populate the array with real values.
  *
- * @see \Drupal\Update\UpdateManager::getProjects()
+ * @see \Drupal\update\UpdateManager::getProjects()
  * @see \Drupal\Core\Utility\ProjectInfo::processInfoList()
  */
 function hook_update_projects_alter(&$projects) {
@@ -40,11 +42,11 @@ function hook_update_projects_alter(&$projects) {
 
   // Add a disabled module to the list.
   // The key for the array should be the machine-readable project "short name".
-  $projects['disabled_project_name'] = array(
+  $projects['disabled_project_name'] = [
     // Machine-readable project short name (same as the array key above).
     'name' => 'disabled_project_name',
     // Array of values from the main .info.yml file for this project.
-    'info' => array(
+    'info' => [
       'name' => 'Some disabled module',
       'description' => 'A module not enabled on the site that you want to see in the available updates report.',
       'version' => '8.x-1.0',
@@ -52,7 +54,7 @@ function hook_update_projects_alter(&$projects) {
       // The maximum file change time (the "ctime" returned by the filectime()
       // PHP method) for all of the .info.yml files included in this project.
       '_info_file_ctime' => 1243888165,
-    ),
+    ],
     // The date stamp when the project was released, if known. If the disabled
     // project was an officially packaged release from drupal.org, this will
     // be included in the .info.yml file as the 'datestamp' field. This only
@@ -62,15 +64,15 @@ function hook_update_projects_alter(&$projects) {
     // Any modules (or themes) included in this project. Keyed by machine-
     // readable "short name", value is the human-readable project name printed
     // in the UI.
-    'includes' => array(
+    'includes' => [
       'disabled_project' => 'Disabled module',
       'disabled_project_helper' => 'Disabled module helper module',
       'disabled_project_foo' => 'Disabled module foo add-on module',
-    ),
+    ],
     // Does this project contain a 'module', 'theme', 'disabled-module', or
     // 'disabled-theme'?
     'project_type' => 'disabled-module',
-  );
+  ];
 }
 
 /**
@@ -89,14 +91,14 @@ function hook_update_status_alter(&$projects) {
         ($settings[$project]['check'] == 'never' ||
           (isset($project_info['recommended']) &&
             $settings[$project]['check'] === $project_info['recommended']))) {
-      $projects[$project]['status'] = UPDATE_NOT_CHECKED;
+      $projects[$project]['status'] = UpdateFetcherInterface::NOT_CHECKED;
       $projects[$project]['reason'] = t('Ignored from settings');
       if (!empty($settings[$project]['notes'])) {
-        $projects[$project]['extra'][] = array(
-          'class' => array('admin-note'),
+        $projects[$project]['extra'][] = [
+          'class' => ['admin-note'],
           'label' => t('Administrator note'),
           'data' => $settings[$project]['notes'],
-        );
+        ];
       }
     }
   }
@@ -120,9 +122,9 @@ function hook_update_status_alter(&$projects) {
  * @ingroup update_manager_file
  */
 function hook_verify_update_archive($project, $archive_file, $directory) {
-  $errors = array();
+  $errors = [];
   if (!file_exists($directory)) {
-    $errors[] = t('The %directory does not exist.', array('%directory' => $directory));
+    $errors[] = t('The %directory does not exist.', ['%directory' => $directory]);
   }
   // Add other checks on the archive integrity here.
   return $errors;

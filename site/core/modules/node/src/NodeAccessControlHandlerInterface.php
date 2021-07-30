@@ -23,7 +23,7 @@ interface NodeAccessControlHandlerInterface {
    * @param \Drupal\node\NodeInterface $node
    *   The $node to acquire grants for.
    *
-   * @return array $grants
+   * @return array
    *   The access rules for the node.
    */
   public function acquireGrants(NodeInterface $node);
@@ -44,7 +44,7 @@ interface NodeAccessControlHandlerInterface {
    *   purposes, and assumes the caller has already performed a mass delete of
    *   some form. Defaults to TRUE.
    *
-   * @deprecated in Drupal 8.x, will be removed before Drupal 9.0.
+   * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
    *   Use \Drupal\node\NodeAccessControlHandlerInterface::acquireGrants().
    */
   public function writeGrants(NodeInterface $node, $delete = TRUE);
@@ -74,7 +74,7 @@ interface NodeAccessControlHandlerInterface {
    *   A user object representing the user for whom the operation is to be
    *   performed.
    *
-   * @return int.
+   * @return int
    *   Status of the access check.
    */
   public function checkAllGrants(AccountInterface $account);

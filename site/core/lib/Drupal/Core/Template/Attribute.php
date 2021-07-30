@@ -4,6 +4,7 @@ namespace Drupal\Core\Template;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Collects, sanitizes, and renders HTML attributes.
@@ -69,7 +70,7 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
    *
    * @var \Drupal\Core\Template\AttributeValueBase[]
    */
-  protected $storage = array();
+  protected $storage = [];
 
   /**
    * Constructs a \Drupal\Core\Template\Attribute object.
@@ -77,7 +78,7 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
    * @param array $attributes
    *   An associative array of key-value pairs to be converted to attributes.
    */
-  public function __construct($attributes = array()) {
+  public function __construct($attributes = []) {
     foreach ($attributes as $name => $value) {
       $this->offsetSet($name, $value);
     }
@@ -170,7 +171,7 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
   public function addClass() {
     $args = func_get_args();
     if ($args) {
-      $classes = array();
+      $classes = [];
       foreach ($args as $arg) {
         // Merge the values passed in from the classes array.
         // The argument is cast to an array to support comma separated single
@@ -206,6 +207,19 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
     $this->offsetSet($attribute, $value);
 
     return $this;
+  }
+
+  /**
+   * Checks if the storage has an attribute with the given name.
+   *
+   * @param string $name
+   *   The name of the attribute to check for.
+   *
+   * @return bool
+   *   Returns TRUE if the attribute exists, or FALSE otherwise.
+   */
+  public function hasAttribute($name) {
+    return array_key_exists($name, $this->storage);
   }
 
   /**
@@ -245,7 +259,7 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
     // With no class attribute, there is no need to remove.
     if (isset($this->storage['class']) && $this->storage['class'] instanceof AttributeArray) {
       $args = func_get_args();
-      $classes = array();
+      $classes = [];
       foreach ($args as $arg) {
         // Merge the values passed in from the classes array.
         // The argument is cast to an array to support comma separated single
@@ -259,6 +273,20 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
       $this->storage['class']->exchangeArray($classes);
     }
     return $this;
+  }
+
+  /**
+   * Gets the class attribute value if set.
+   *
+   * This method is implemented to take precedence over hasClass() for Twig 2.0.
+   *
+   * @return \Drupal\Core\Template\AttributeValueBase
+   *   The class attribute value if set.
+   *
+   * @see twig_get_attribute()
+   */
+  public function getClass() {
+    return $this->offsetGet('class');
   }
 
   /**
@@ -340,6 +368,22 @@ class Attribute implements \ArrayAccess, \IteratorAggregate, MarkupInterface {
    */
   public function jsonSerialize() {
     return (string) $this;
+  }
+
+  /**
+   * Merges an Attribute object into the current storage.
+   *
+   * @param \Drupal\Core\Template\Attribute $collection
+   *   The Attribute object to merge.
+   *
+   * @return $this
+   */
+  public function merge(Attribute $collection) {
+    $merged_attributes = NestedArray::mergeDeep($this->toArray(), $collection->toArray());
+    foreach ($merged_attributes as $name => $value) {
+      $this->storage[$name] = $this->createAttributeValue($name, $value);
+    }
+    return $this;
   }
 
 }

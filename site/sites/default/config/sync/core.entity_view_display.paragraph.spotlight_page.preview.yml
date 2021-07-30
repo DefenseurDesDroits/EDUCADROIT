@@ -6,6 +6,7 @@ dependencies:
     - core.entity_view_mode.paragraph.preview
     - field.field.paragraph.spotlight_page.field_description
     - field.field.paragraph.spotlight_page.field_image
+    - field.field.paragraph.spotlight_page.field_page
     - image.style.thumbnail
     - paragraphs.paragraphs_type.spotlight_page
   module:
@@ -23,7 +24,9 @@ content:
       image_style: thumbnail
       image_link: ''
     third_party_settings: {  }
+    region: content
 hidden:
   created: true
   field_description: true
+  field_page: true
   uid: true

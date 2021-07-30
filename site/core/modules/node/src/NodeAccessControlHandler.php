@@ -3,6 +3,7 @@
 namespace Drupal\node;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\EntityHandlerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
@@ -50,7 +51,6 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
     );
   }
 
-
   /**
    * {@inheritdoc}
    */
@@ -62,17 +62,18 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
       return $return_as_object ? $result : $result->isAllowed();
     }
     if (!$account->hasPermission('access content')) {
-      $result = AccessResult::forbidden()->cachePerPermissions();
+      $result = AccessResult::forbidden("The 'access content' permission is required.")->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
     $result = parent::access($entity, $operation, $account, TRUE)->cachePerPermissions();
+
     return $return_as_object ? $result : $result->isAllowed();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function createAccess($entity_bundle = NULL, AccountInterface $account = NULL, array $context = array(), $return_as_object = FALSE) {
+  public function createAccess($entity_bundle = NULL, AccountInterface $account = NULL, array $context = [], $return_as_object = FALSE) {
     $account = $this->prepareUser($account);
 
     if ($account->hasPermission('bypass node access')) {
@@ -80,7 +81,7 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
       return $return_as_object ? $result : $result->isAllowed();
     }
     if (!$account->hasPermission('access content')) {
-      $result = AccessResult::forbidden()->cachePerPermissions();
+      $result = AccessResult::forbidden("The 'access content' permission is required.")->cachePerPermissions();
       return $return_as_object ? $result : $result->isAllowed();
     }
 
@@ -104,7 +105,16 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
     }
 
     // Evaluate node grants.
-    return $this->grantStorage->access($node, $operation, $account);
+    $access_result = $this->grantStorage->access($node, $operation, $account);
+    if ($operation === 'view' && $access_result instanceof RefinableCacheableDependencyInterface) {
+      // Node variations can affect the access to the node. For instance, the
+      // access result cache varies on the node's published status. Only the
+      // 'view' node grant can currently be cached. The 'update' and 'delete'
+      // grants are already marked as uncacheable in the node grant storage.
+      // @see \Drupal\node\NodeGrantDatabaseStorage::access()
+      $access_result->addCacheableDependency($node);
+    }
+    return $access_result;
   }
 
   /**
@@ -120,13 +130,13 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
   protected function checkFieldAccess($operation, FieldDefinitionInterface $field_definition, AccountInterface $account, FieldItemListInterface $items = NULL) {
     // Only users with the administer nodes permission can edit administrative
     // fields.
-    $administrative_fields = array('uid', 'status', 'created', 'promote', 'sticky');
+    $administrative_fields = ['uid', 'status', 'created', 'promote', 'sticky'];
     if ($operation == 'edit' && in_array($field_definition->getName(), $administrative_fields, TRUE)) {
       return AccessResult::allowedIfHasPermission($account, 'administer nodes');
     }
 
     // No user can change read only fields.
-    $read_only_fields = array('revision_timestamp', 'revision_uid');
+    $read_only_fields = ['revision_timestamp', 'revision_uid'];
     if ($operation == 'edit' && in_array($field_definition->getName(), $read_only_fields, TRUE)) {
       return AccessResult::forbidden();
     }
@@ -137,7 +147,7 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
       if ($account->hasPermission('administer nodes')) {
         return AccessResult::allowed()->cachePerPermissions();
       }
-      return AccessResult::allowedIf($items->getEntity()->type->entity->isNewRevision())->cachePerPermissions();
+      return AccessResult::allowedIf($items->getEntity()->type->entity->shouldCreateNewRevision())->cachePerPermissions();
     }
     return parent::checkFieldAccess($operation, $field_definition, $account, $items);
   }
@@ -146,12 +156,12 @@ class NodeAccessControlHandler extends EntityAccessControlHandler implements Nod
    * {@inheritdoc}
    */
   public function acquireGrants(NodeInterface $node) {
-    $grants = $this->moduleHandler->invokeAll('node_access_records', array($node));
+    $grants = $this->moduleHandler->invokeAll('node_access_records', [$node]);
     // Let modules alter the grants.
     $this->moduleHandler->alter('node_access_records', $grants, $node);
     // If no grants are set and the node is published, then use the default grant.
     if (empty($grants) && $node->isPublished()) {
-      $grants[] = array('realm' => 'all', 'gid' => 0, 'grant_view' => 1, 'grant_update' => 0, 'grant_delete' => 0);
+      $grants[] = ['realm' => 'all', 'gid' => 0, 'grant_view' => 1, 'grant_update' => 0, 'grant_delete' => 0];
     }
     return $grants;
   }

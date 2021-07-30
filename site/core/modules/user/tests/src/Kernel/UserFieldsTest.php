@@ -27,7 +27,7 @@ class UserFieldsTest extends KernelTestBase {
     $this->installEntitySchema('user');
 
     // Set up a test theme that prints the user's mail field.
-    \Drupal::service('theme_handler')->install(array('user_test_theme'));
+    \Drupal::service('theme_installer')->install(['user_test_theme']);
     \Drupal::theme()->setActiveTheme(\Drupal::service('theme.initialization')->initTheme('user_test_theme'));
     // Clear the theme registry.
     $this->container->set('theme.registry', NULL);
@@ -36,13 +36,15 @@ class UserFieldsTest extends KernelTestBase {
   /**
    * Tests account's available fields.
    */
-  function testUserFields() {
+  public function testUserFields() {
     // Create the user to test the user fields.
     $user = User::create([
       'name' => 'foobar',
       'mail' => 'foobar@example.com',
     ]);
-    $build = user_view($user);
+    $build = \Drupal::entityTypeManager()
+      ->getViewBuilder('user')
+      ->view($user);
     $output = \Drupal::service('renderer')->renderRoot($build);
     $this->setRawContent($output);
     $userEmail = $user->getEmail();

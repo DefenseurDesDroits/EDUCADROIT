@@ -77,16 +77,16 @@ class MenuTreeStorageTest extends KernelTestBase {
     // -- test2
     // --- test3
     $this->addMenuLink('test1', '');
-    $this->assertMenuLink('test1', array('has_children' => 0, 'depth' => 1));
+    $this->assertMenuLink('test1', ['has_children' => 0, 'depth' => 1]);
 
     $this->addMenuLink('test2', 'test1');
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), array('test2'));
-    $this->assertMenuLink('test2', array('has_children' => 0, 'depth' => 2), array('test1'));
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], ['test2']);
+    $this->assertMenuLink('test2', ['has_children' => 0, 'depth' => 2], ['test1']);
 
     $this->addMenuLink('test3', 'test2');
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), array('test2', 'test3'));
-    $this->assertMenuLink('test2', array('has_children' => 1, 'depth' => 2), array('test1'), array('test3'));
-    $this->assertMenuLink('test3', array('has_children' => 0, 'depth' => 3), array('test2', 'test1'));
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], ['test2', 'test3']);
+    $this->assertMenuLink('test2', ['has_children' => 1, 'depth' => 2], ['test1'], ['test3']);
+    $this->assertMenuLink('test3', ['has_children' => 0, 'depth' => 3], ['test2', 'test1']);
   }
 
   /**
@@ -109,11 +109,11 @@ class MenuTreeStorageTest extends KernelTestBase {
     $this->addMenuLink('test5', 'test4');
     $this->addMenuLink('test6', 'test5');
 
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), array('test2', 'test3'));
-    $this->assertMenuLink('test2', array('has_children' => 1, 'depth' => 2), array('test1'), array('test3'));
-    $this->assertMenuLink('test4', array('has_children' => 1, 'depth' => 1), array(), array('test5', 'test6'));
-    $this->assertMenuLink('test5', array('has_children' => 1, 'depth' => 2), array('test4'), array('test6'));
-    $this->assertMenuLink('test6', array('has_children' => 0, 'depth' => 3), array('test5', 'test4'));
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], ['test2', 'test3']);
+    $this->assertMenuLink('test2', ['has_children' => 1, 'depth' => 2], ['test1'], ['test3']);
+    $this->assertMenuLink('test4', ['has_children' => 1, 'depth' => 1], [], ['test5', 'test6']);
+    $this->assertMenuLink('test5', ['has_children' => 1, 'depth' => 2], ['test4'], ['test6']);
+    $this->assertMenuLink('test6', ['has_children' => 0, 'depth' => 3], ['test5', 'test4']);
 
     $this->moveMenuLink('test2', 'test5');
     // After the 1st move.
@@ -125,12 +125,12 @@ class MenuTreeStorageTest extends KernelTestBase {
     // ---- test3
     // --- test6
 
-    $this->assertMenuLink('test1', array('has_children' => 0, 'depth' => 1));
-    $this->assertMenuLink('test2', array('has_children' => 1, 'depth' => 3), array('test5', 'test4'), array('test3'));
-    $this->assertMenuLink('test3', array('has_children' => 0, 'depth' => 4), array('test2', 'test5', 'test4'));
-    $this->assertMenuLink('test4', array('has_children' => 1, 'depth' => 1), array(), array('test5', 'test2', 'test3', 'test6'));
-    $this->assertMenuLink('test5', array('has_children' => 1, 'depth' => 2), array('test4'), array('test2', 'test3', 'test6'));
-    $this->assertMenuLink('test6', array('has_children' => 0, 'depth' => 3), array('test5', 'test4'));
+    $this->assertMenuLink('test1', ['has_children' => 0, 'depth' => 1]);
+    $this->assertMenuLink('test2', ['has_children' => 1, 'depth' => 3], ['test5', 'test4'], ['test3']);
+    $this->assertMenuLink('test3', ['has_children' => 0, 'depth' => 4], ['test2', 'test5', 'test4']);
+    $this->assertMenuLink('test4', ['has_children' => 1, 'depth' => 1], [], ['test5', 'test2', 'test3', 'test6']);
+    $this->assertMenuLink('test5', ['has_children' => 1, 'depth' => 2], ['test4'], ['test2', 'test3', 'test6']);
+    $this->assertMenuLink('test6', ['has_children' => 0, 'depth' => 3], ['test5', 'test4']);
 
     $this->moveMenuLink('test4', 'test1');
     $this->moveMenuLink('test3', 'test1');
@@ -143,12 +143,12 @@ class MenuTreeStorageTest extends KernelTestBase {
     // ---- test2
     // ---- test6
 
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), array('test4', 'test5', 'test2', 'test3', 'test6'));
-    $this->assertMenuLink('test2', array('has_children' => 0, 'depth' => 4), array('test5', 'test4', 'test1'));
-    $this->assertMenuLink('test3', array('has_children' => 0, 'depth' => 2), array('test1'));
-    $this->assertMenuLink('test4', array('has_children' => 1, 'depth' => 2), array('test1'), array('test2', 'test5', 'test6'));
-    $this->assertMenuLink('test5', array('has_children' => 1, 'depth' => 3), array('test4', 'test1'), array('test2', 'test6'));
-    $this->assertMenuLink('test6', array('has_children' => 0, 'depth' => 4), array('test5', 'test4', 'test1'));
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], ['test4', 'test5', 'test2', 'test3', 'test6']);
+    $this->assertMenuLink('test2', ['has_children' => 0, 'depth' => 4], ['test5', 'test4', 'test1']);
+    $this->assertMenuLink('test3', ['has_children' => 0, 'depth' => 2], ['test1']);
+    $this->assertMenuLink('test4', ['has_children' => 1, 'depth' => 2], ['test1'], ['test2', 'test5', 'test6']);
+    $this->assertMenuLink('test5', ['has_children' => 1, 'depth' => 3], ['test4', 'test1'], ['test2', 'test6']);
+    $this->assertMenuLink('test6', ['has_children' => 0, 'depth' => 4], ['test5', 'test4', 'test1']);
 
     // Deleting a link in the middle should re-attach child links to the parent.
     $this->treeStorage->delete('test4');
@@ -159,12 +159,12 @@ class MenuTreeStorageTest extends KernelTestBase {
     // -- test5
     // --- test2
     // --- test6
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), array('test5', 'test2', 'test3', 'test6'));
-    $this->assertMenuLink('test2', array('has_children' => 0, 'depth' => 3), array('test5', 'test1'));
-    $this->assertMenuLink('test3', array('has_children' => 0, 'depth' => 2), array('test1'));
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], ['test5', 'test2', 'test3', 'test6']);
+    $this->assertMenuLink('test2', ['has_children' => 0, 'depth' => 3], ['test5', 'test1']);
+    $this->assertMenuLink('test3', ['has_children' => 0, 'depth' => 2], ['test1']);
     $this->assertFalse($this->treeStorage->load('test4'));
-    $this->assertMenuLink('test5', array('has_children' => 1, 'depth' => 2), array('test1'), array('test2', 'test6'));
-    $this->assertMenuLink('test6', array('has_children' => 0, 'depth' => 3), array('test5', 'test1'));
+    $this->assertMenuLink('test5', ['has_children' => 1, 'depth' => 2], ['test1'], ['test2', 'test6']);
+    $this->assertMenuLink('test6', ['has_children' => 0, 'depth' => 3], ['test5', 'test1']);
   }
 
   /**
@@ -177,12 +177,12 @@ class MenuTreeStorageTest extends KernelTestBase {
     // -- test2 (disabled)
 
     $this->addMenuLink('test1', '');
-    $this->assertMenuLink('test1', array('has_children' => 0, 'depth' => 1));
+    $this->assertMenuLink('test1', ['has_children' => 0, 'depth' => 1]);
 
-    $this->addMenuLink('test2', 'test1', '<front>', array(), 'tools', array('enabled' => 0));
+    $this->addMenuLink('test2', 'test1', '<front>', [], 'tools', ['enabled' => 0]);
     // The 1st link does not have any visible children, so has_children is 0.
-    $this->assertMenuLink('test1', array('has_children' => 0, 'depth' => 1));
-    $this->assertMenuLink('test2', array('has_children' => 0, 'depth' => 2, 'enabled' => 0), array('test1'));
+    $this->assertMenuLink('test1', ['has_children' => 0, 'depth' => 1]);
+    $this->assertMenuLink('test2', ['has_children' => 0, 'depth' => 2, 'enabled' => 0], ['test1']);
 
     // Add more links with parent on the previous one.
     // <footer>
@@ -198,8 +198,8 @@ class MenuTreeStorageTest extends KernelTestBase {
     // ------- test7
     // -------- test8
     // --------- test9
-    $this->addMenuLink('footerA', '', '<front>', array(), 'footer');
-    $visible_children = array();
+    $this->addMenuLink('footerA', '', '<front>', [], 'footer');
+    $visible_children = [];
     for ($i = 3; $i <= $this->treeStorage->maxDepth(); $i++) {
       $parent = $i - 1;
       $this->addMenuLink("test$i", "test$parent");
@@ -207,19 +207,19 @@ class MenuTreeStorageTest extends KernelTestBase {
     }
     // The 1st link does not have any visible children, so has_children is still
     // 0. However, it has visible links below it that will be found.
-    $this->assertMenuLink('test1', array('has_children' => 0, 'depth' => 1), array(), $visible_children);
+    $this->assertMenuLink('test1', ['has_children' => 0, 'depth' => 1], [], $visible_children);
     // This should fail since test9 would end up at greater than max depth.
     try {
       $this->moveMenuLink('test1', 'footerA');
       $this->fail('Exception was not thrown');
     }
     catch (PluginException $e) {
-      $this->pass($e->getMessage());
+      // Expected exception; just continue testing.
     }
     // The opposite move should work, and change the has_children flag.
     $this->moveMenuLink('footerA', 'test1');
     $visible_children[] = 'footerA';
-    $this->assertMenuLink('test1', array('has_children' => 1, 'depth' => 1), array(), $visible_children);
+    $this->assertMenuLink('test1', ['has_children' => 1, 'depth' => 1], [], $visible_children);
   }
 
   /**
@@ -234,32 +234,32 @@ class MenuTreeStorageTest extends KernelTestBase {
 
     $data = $this->treeStorage->loadTreeData('tools', new MenuTreeParameters());
     $tree = $data['tree'];
-    $this->assertEqual(count($tree['test1']['subtree']), 1);
-    $this->assertEqual(count($tree['test1']['subtree']['test2']['subtree']), 1);
-    $this->assertEqual(count($tree['test1']['subtree']['test2']['subtree']['test3']['subtree']), 0);
-    $this->assertEqual(count($tree['test4']['subtree']), 1);
-    $this->assertEqual(count($tree['test4']['subtree']['test5']['subtree']), 0);
+    $this->assertCount(1, $tree['test1']['subtree']);
+    $this->assertCount(1, $tree['test1']['subtree']['test2']['subtree']);
+    $this->assertCount(0, $tree['test1']['subtree']['test2']['subtree']['test3']['subtree']);
+    $this->assertCount(1, $tree['test4']['subtree']);
+    $this->assertCount(0, $tree['test4']['subtree']['test5']['subtree']);
 
     $parameters = new MenuTreeParameters();
-    $parameters->setActiveTrail(array('test4', 'test5'));
+    $parameters->setActiveTrail(['test4', 'test5']);
     $data = $this->treeStorage->loadTreeData('tools', $parameters);
     $tree = $data['tree'];
-    $this->assertEqual(count($tree['test1']['subtree']), 1);
+    $this->assertCount(1, $tree['test1']['subtree']);
     $this->assertFalse($tree['test1']['in_active_trail']);
-    $this->assertEqual(count($tree['test1']['subtree']['test2']['subtree']), 1);
+    $this->assertCount(1, $tree['test1']['subtree']['test2']['subtree']);
     $this->assertFalse($tree['test1']['subtree']['test2']['in_active_trail']);
-    $this->assertEqual(count($tree['test1']['subtree']['test2']['subtree']['test3']['subtree']), 0);
+    $this->assertCount(0, $tree['test1']['subtree']['test2']['subtree']['test3']['subtree']);
     $this->assertFalse($tree['test1']['subtree']['test2']['subtree']['test3']['in_active_trail']);
-    $this->assertEqual(count($tree['test4']['subtree']), 1);
+    $this->assertCount(1, $tree['test4']['subtree']);
     $this->assertTrue($tree['test4']['in_active_trail']);
-    $this->assertEqual(count($tree['test4']['subtree']['test5']['subtree']), 0);
+    $this->assertCount(0, $tree['test4']['subtree']['test5']['subtree']);
     $this->assertTrue($tree['test4']['subtree']['test5']['in_active_trail']);
 
     // Add some conditions to ensure that conditions work as expected.
     $parameters = new MenuTreeParameters();
     $parameters->addCondition('parent', 'test1');
     $data = $this->treeStorage->loadTreeData('tools', $parameters);
-    $this->assertEqual(count($data['tree']), 1);
+    $this->assertCount(1, $data['tree']);
     $this->assertEqual($data['tree']['test2']['definition']['id'], 'test2');
     $this->assertEqual($data['tree']['test2']['subtree'], []);
 
@@ -277,9 +277,9 @@ class MenuTreeStorageTest extends KernelTestBase {
     $parameters = new MenuTreeParameters();
     $parameters->onlyEnabledLinks();
     $data = $this->treeStorage->loadTreeData('tools', $parameters);
-    $this->assertEqual(count($data['tree']), 1);
+    $this->assertCount(1, $data['tree']);
     $this->assertEqual($data['tree']['test1']['definition']['id'], 'test1');
-    $this->assertEqual(count($data['tree']['test1']['subtree']), 1);
+    $this->assertCount(1, $data['tree']['test1']['subtree']);
     $this->assertEqual($data['tree']['test1']['subtree']['test2']['definition']['id'], 'test2');
     $this->assertEqual($data['tree']['test1']['subtree']['test2']['subtree'], []);
 
@@ -342,10 +342,10 @@ class MenuTreeStorageTest extends KernelTestBase {
    * Tests MenuTreeStorage::loadByProperties().
    */
   public function testLoadByProperties() {
-    $tests = array(
-      array('foo' => 'bar'),
-      array(0 => 'wrong'),
-    );
+    $tests = [
+      ['foo' => 'bar'],
+      [0 => 'wrong'],
+    ];
     $message = 'An invalid property name throws an exception.';
     foreach ($tests as $properties) {
       try {
@@ -353,12 +353,11 @@ class MenuTreeStorageTest extends KernelTestBase {
         $this->fail($message);
       }
       catch (\InvalidArgumentException $e) {
-        $this->assertTrue(preg_match('/^An invalid property name, .+ was specified. Allowed property names are:/', $e->getMessage()), 'Found expected exception message.');
-        $this->pass($message);
+        $this->assertRegExp('/^An invalid property name, .+ was specified. Allowed property names are:/', $e->getMessage(), 'Found expected exception message.');
       }
     }
-    $this->addMenuLink('test_link.1', '', 'test', array(), 'menu1');
-    $properties = array('menu_name' => 'menu1');
+    $this->addMenuLink('test_link.1', '', 'test', [], 'menu1');
+    $properties = ['menu_name' => 'menu1'];
     $links = $this->treeStorage->loadByProperties($properties);
     $this->assertEqual('menu1', $links['test_link.1']['menu_name']);
     $this->assertEqual('test', $links['test_link.1']['route_name']);
@@ -367,17 +366,17 @@ class MenuTreeStorageTest extends KernelTestBase {
   /**
    * Adds a link with the given ID and supply defaults.
    */
-  protected function addMenuLink($id, $parent = '', $route_name = 'test', $route_parameters = array(), $menu_name = 'tools', $extra = array()) {
-    $link = array(
+  protected function addMenuLink($id, $parent = '', $route_name = 'test', $route_parameters = [], $menu_name = 'tools', $extra = []) {
+    $link = [
       'id' => $id,
       'menu_name' => $menu_name,
       'route_name' => $route_name,
       'route_parameters' => $route_parameters,
       'title' => 'test',
       'parent' => $parent,
-      'options' => array(),
-      'metadata' => array(),
-    ) + $extra;
+      'options' => [],
+      'metadata' => [],
+    ] + $extra;
     $this->treeStorage->save($link);
   }
 
@@ -407,7 +406,7 @@ class MenuTreeStorageTest extends KernelTestBase {
    * @param array $children
    *   Array of child IDs that are visible (enabled == 1).
    */
-  protected function assertMenuLink($id, array $expected_properties, array $parents = array(), array $children = array()) {
+  protected function assertMenuLink($id, array $expected_properties, array $parents = [], array $children = []) {
     $query = $this->connection->select('menu_tree');
     $query->fields('menu_tree');
     $query->condition('id', $id);
@@ -415,14 +414,14 @@ class MenuTreeStorageTest extends KernelTestBase {
       $query->condition($field, $value);
     }
     $all = $query->execute()->fetchAll(\PDO::FETCH_ASSOC);
-    $this->assertEqual(count($all), 1, "Found link $id matching all the expected properties");
+    $this->assertCount(1, $all, "Found link $id matching all the expected properties");
     $raw = reset($all);
 
     // Put the current link onto the front.
     array_unshift($parents, $raw['id']);
 
     $query = $this->connection->select('menu_tree');
-    $query->fields('menu_tree', array('id', 'mlid'));
+    $query->fields('menu_tree', ['id', 'mlid']);
     $query->condition('id', $parents, 'IN');
     $found_parents = $query->execute()->fetchAllKeyed(0, 1);
 

@@ -2,8 +2,10 @@
 
 namespace Drupal\Core;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\Security\TrustedCallbackInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -13,8 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines an object that holds information about a URL.
+ *
+ * In most cases, these should be created with the following methods:
+ * - \Drupal\Core\Url::fromRoute()
+ * - \Drupal\Core\Url::fromRouteMatch()
+ * - \Drupal\Core\Url::fromUri()
+ * - \Drupal\Core\Url::fromUserInput()
+ *
+ * @see \Drupal\Core\Entity\EntityBase::toUrl()
  */
-class Url {
+class Url implements TrustedCallbackInterface {
   use DependencySerializationTrait;
 
   /**
@@ -50,7 +60,7 @@ class Url {
    *
    * @var array
    */
-  protected $routeParameters = array();
+  protected $routeParameters = [];
 
   /**
    * The URL options.
@@ -59,7 +69,7 @@ class Url {
    *
    * @var array
    */
-  protected $options = array();
+  protected $options = [];
 
   /**
    * Indicates whether this object contains an external URL.
@@ -111,7 +121,7 @@ class Url {
    * @todo Update this documentation for non-routed URIs in
    *   https://www.drupal.org/node/2346787
    */
-  public function __construct($route_name, $route_parameters = array(), $options = array()) {
+  public function __construct($route_name, $route_parameters = [], $options = []) {
     $this->routeName = $route_name;
     $this->routeParameters = $route_parameters;
     $this->options = $options;
@@ -131,13 +141,13 @@ class Url {
    * @param array $options
    *   See \Drupal\Core\Url::fromUri() for details.
    *
-   * @return \Drupal\Core\Url
+   * @return static
    *   A new Url object for a routed (internal to Drupal) URL.
    *
    * @see \Drupal\Core\Url::fromUserInput()
    * @see \Drupal\Core\Url::fromUri()
    */
-  public static function fromRoute($route_name, $route_parameters = array(), $options = array()) {
+  public static function fromRoute($route_name, $route_parameters = [], $options = []) {
     return new static($route_name, $route_parameters, $options);
   }
 
@@ -147,7 +157,7 @@ class Url {
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
    *
-   * @return $this
+   * @return static
    */
   public static function fromRouteMatch(RouteMatchInterface $route_match) {
     if ($route_match->getRouteObject()) {
@@ -252,7 +262,7 @@ class Url {
    *     defined, the current scheme is used, so the user stays on HTTP or HTTPS
    *     respectively. TRUE enforces HTTPS and FALSE enforces HTTP.
    *
-   * @return \Drupal\Core\Url
+   * @return static
    *   A new Url object with properties depending on the URI scheme. Call the
    *   access() method on this to do access checking.
    *
@@ -287,7 +297,7 @@ class Url {
     // Extract query parameters and fragment and merge them into $uri_options,
     // but preserve the original $options for the fallback case.
     $uri_options = $options;
-    if (isset($uri_parts['fragment'])) {
+    if (isset($uri_parts['fragment']) && $uri_parts['fragment'] !== '') {
       $uri_options += ['fragment' => $uri_parts['fragment']];
       unset($uri_parts['fragment']);
     }
@@ -309,7 +319,7 @@ class Url {
       $url = static::fromRouteUri($uri_parts, $uri_options, $uri);
     }
     else {
-      $url = new static($uri, array(), $options);
+      $url = new static($uri, [], $options);
       if ($uri_parts['scheme'] !== 'base') {
         $url->external = TRUE;
         $url->setOption('external', TRUE);
@@ -331,7 +341,7 @@ class Url {
    * @param string $uri
    *   The original entered URI.
    *
-   * @return \Drupal\Core\Url
+   * @return static
    *   A new Url object for an entity's canonical route.
    *
    * @throws \InvalidArgumentException
@@ -381,7 +391,7 @@ class Url {
    * @param array $options
    *   An array of options, see \Drupal\Core\Url::fromUri() for details.
    *
-   * @return \Drupal\Core\Url
+   * @return static
    *   A new Url object for a 'internal:' URI.
    *
    * @throws \InvalidArgumentException
@@ -430,7 +440,7 @@ class Url {
    * @param string $uri
    *   The original passed in URI.
    *
-   * @return \Drupal\Core\Url
+   * @return static
    *   A new Url object for a 'route:' URI.
    *
    * @throws \InvalidArgumentException
@@ -493,7 +503,7 @@ class Url {
     $this->uri = $this->routeName;
     // Set empty route name and parameters.
     $this->routeName = NULL;
-    $this->routeParameters = array();
+    $this->routeParameters = [];
     return $this;
   }
 
@@ -671,6 +681,23 @@ class Url {
    */
   public function setOption($name, $value) {
     $this->options[$name] = $value;
+    return $this;
+  }
+
+  /**
+   * Merges the URL options with any currently set.
+   *
+   * In the case of conflict with existing options, the new options will replace
+   * the existing options.
+   *
+   * @param array $options
+   *   The array of options. See \Drupal\Core\Url::fromUri() for details on what
+   *   it contains.
+   *
+   * @return $this
+   */
+  public function mergeOptions($options) {
+    $this->options = NestedArray::mergeDeep($this->options, $options);
     return $this;
   }
 
@@ -867,6 +894,13 @@ class Url {
   public function setUnroutedUrlAssembler(UnroutedUrlAssemblerInterface $url_assembler) {
     $this->urlAssembler = $url_assembler;
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['renderAccess'];
   }
 
 }

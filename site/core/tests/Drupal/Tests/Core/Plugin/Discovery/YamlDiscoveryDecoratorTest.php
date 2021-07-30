@@ -24,39 +24,39 @@ class YamlDiscoveryDecoratorTest extends UnitTestCase {
    *
    * @var array
    */
-  protected $expectedKeys = array(
+  protected $expectedKeys = [
     'test_1' => 'test_1_a',
     'another_provider_1' => 'test_1_b',
     'another_provider_2' => 'test_2_a',
     'test_2' => 'test_2_b',
     'decorated_1' => 'decorated_test_1',
     'decorated_2' => 'decorated_test_2',
-  );
+  ];
 
   protected function setUp() {
     parent::setUp();
 
     $base_path = __DIR__ . '/Fixtures';
     // Set up the directories to search.
-    $directories = array(
+    $directories = [
       'test_1' => $base_path . '/test_1',
       'test_2' => $base_path . '/test_2',
-    );
+    ];
 
-    $definitions = array(
-      'decorated_test_1' => array(
+    $definitions = [
+      'decorated_test_1' => [
         'id' => 'decorated_test_1',
         'name' => 'Decorated test 1',
         'provider' => 'decorated_1',
-      ),
-      'decorated_test_2' => array(
+      ],
+      'decorated_test_2' => [
         'id' => 'decorated_test_2',
         'name' => 'Decorated test 1',
         'provider' => 'decorated_2',
-      ),
-    );
+      ],
+    ];
 
-    $decorated = $this->getMock('Drupal\Component\Plugin\Discovery\DiscoveryInterface');
+    $decorated = $this->createMock('Drupal\Component\Plugin\Discovery\DiscoveryInterface');
     $decorated->expects($this->once())
       ->method('getDefinitions')
       ->will($this->returnValue($definitions));
@@ -70,7 +70,7 @@ class YamlDiscoveryDecoratorTest extends UnitTestCase {
   public function testGetDefinitions() {
     $definitions = $this->discoveryDecorator->getDefinitions();
 
-    $this->assertInternalType('array', $definitions);
+    $this->assertIsArray($definitions);
     $this->assertCount(6, $definitions);
 
     foreach ($this->expectedKeys as $expected_key) {
@@ -78,7 +78,7 @@ class YamlDiscoveryDecoratorTest extends UnitTestCase {
     }
 
     foreach ($definitions as $id => $definition) {
-      foreach (array('name', 'id', 'provider') as $key) {
+      foreach (['name', 'id', 'provider'] as $key) {
         $this->assertArrayHasKey($key, $definition);
       }
       $this->assertEquals($id, $definition['id']);

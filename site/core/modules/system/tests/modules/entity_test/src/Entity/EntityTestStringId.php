@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\entity_test\Entity;
+
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\EntityTypeInterface;
 
@@ -15,7 +16,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *     "form" = {
  *       "default" = "Drupal\entity_test\EntityTestForm"
  *     },
- *     "translation" = "Drupal\content_translation\ContentTranslationHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
@@ -25,7 +25,8 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
- *     "bundle" = "type"
+ *     "bundle" = "type",
+ *     "label" = "name",
  *   },
  *   links = {
  *     "canonical" = "/entity_test_string_id/manage/{entity_test_string_id}",

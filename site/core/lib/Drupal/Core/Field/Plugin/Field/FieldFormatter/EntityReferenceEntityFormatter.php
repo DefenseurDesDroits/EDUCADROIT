@@ -47,7 +47,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
   protected $entityTypeManager;
 
   /**
-   * The entity type manager.
+   * The entity display repository.
    *
    * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
    */
@@ -82,7 +82,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
    *   The view mode.
    * @param array $third_party_settings
    *   Any third party settings settings.
-   * @param LoggerChannelFactoryInterface $logger_factory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -118,23 +118,23 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'view_mode' => 'default',
       'link' => FALSE,
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $elements['view_mode'] = array(
+    $elements['view_mode'] = [
       '#type' => 'select',
       '#options' => $this->entityDisplayRepository->getViewModeOptions($this->getFieldSetting('target_type')),
       '#title' => t('View mode'),
       '#default_value' => $this->getSetting('view_mode'),
       '#required' => TRUE,
-    );
+    ];
 
     return $elements;
   }
@@ -143,11 +143,11 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
 
     $view_modes = $this->entityDisplayRepository->getViewModeOptions($this->getFieldSetting('target_type'));
     $view_mode = $this->getSetting('view_mode');
-    $summary[] = t('Rendered as @mode', array('@mode' => isset($view_modes[$view_mode]) ? $view_modes[$view_mode] : $view_mode));
+    $summary[] = t('Rendered as @mode', ['@mode' => isset($view_modes[$view_mode]) ? $view_modes[$view_mode] : $view_mode]);
 
     return $summary;
   }
@@ -157,7 +157,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $view_mode = $this->getSetting('view_mode');
-    $elements = array();
+    $elements = [];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       // Due to render caching and delayed calls, the viewElements() method
@@ -168,6 +168,10 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
       $recursive_render_id = $items->getFieldDefinition()->getTargetEntityTypeId()
         . $items->getFieldDefinition()->getTargetBundle()
         . $items->getName()
+        // We include the referencing entity, so we can render default images
+        // without hitting recursive protections.
+        . $items->getEntity()->id()
+        . $entity->getEntityTypeId()
         . $entity->id();
 
       if (isset(static::$recursiveRenderDepth[$recursive_render_id])) {
@@ -179,11 +183,13 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
 
       // Protect ourselves from recursive rendering.
       if (static::$recursiveRenderDepth[$recursive_render_id] > static::RECURSIVE_RENDER_LIMIT) {
-        $this->loggerFactory->get('entity')->error('Recursive rendering detected when rendering entity %entity_type: %entity_id, using the %field_name field on the %bundle_name bundle. Aborting rendering.', [
+        $this->loggerFactory->get('entity')->error('Recursive rendering detected when rendering entity %entity_type: %entity_id, using the %field_name field on the %parent_entity_type:%parent_bundle %parent_entity_id entity. Aborting rendering.', [
           '%entity_type' => $entity->getEntityTypeId(),
           '%entity_id' => $entity->id(),
           '%field_name' => $items->getName(),
-          '%bundle_name' => $items->getFieldDefinition()->getTargetBundle(),
+          '%parent_entity_type' => $items->getFieldDefinition()->getTargetEntityTypeId(),
+          '%parent_bundle' => $items->getFieldDefinition()->getTargetBundle(),
+          '%parent_entity_id' => $items->getEntity()->id(),
         ]);
         return $elements;
       }
@@ -195,7 +201,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
       // entity's url. Since we don't know what the markup of the entity will
       // be, we shouldn't rely on it for structured data such as RDFa.
       if (!empty($items[$delta]->_attributes) && !$entity->isNew() && $entity->hasLinkTemplate('canonical')) {
-        $items[$delta]->_attributes += array('resource' => $entity->toUrl()->toString());
+        $items[$delta]->_attributes += ['resource' => $entity->toUrl()->toString()];
       }
     }
 
@@ -209,7 +215,7 @@ class EntityReferenceEntityFormatter extends EntityReferenceFormatterBase implem
     // This formatter is only available for entity types that have a view
     // builder.
     $target_type = $field_definition->getFieldStorageDefinition()->getSetting('target_type');
-    return \Drupal::entityManager()->getDefinition($target_type)->hasViewBuilderClass();
+    return \Drupal::entityTypeManager()->getDefinition($target_type)->hasViewBuilderClass();
   }
 
 }

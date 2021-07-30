@@ -2,16 +2,18 @@
 
 namespace Drupal\Core\Render;
 
+use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
+
 /**
  * Collects available render array element types.
  */
-interface ElementInfoManagerInterface {
+interface ElementInfoManagerInterface extends DiscoveryInterface {
 
   /**
    * Retrieves the default properties for the defined element type.
    *
-   * Each of the form element types defined by this hook is assumed to have
-   * a matching theme hook, which should be registered with hook_theme() as
+   * Each of the element types defined by this hook is assumed to have a
+   * matching theme hook, which should be registered with hook_theme() as
    * normal.
    *
    * For more information about custom element types see the explanation at
@@ -55,7 +57,7 @@ interface ElementInfoManagerInterface {
    *   (Optional) The value to return if the element type does not specify a
    *   value for the property. Defaults to NULL.
    *
-   * @return string
+   * @return mixed
    *   The property value of the defined element type. Or the provided
    *   default value, which can be NULL.
    */

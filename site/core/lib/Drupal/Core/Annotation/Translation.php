@@ -23,7 +23,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *
  * To provide replacement values for placeholders, use the "arguments" array:
  * @code
- *   title = @ Translation("Bundle !title", arguments = {"!title" = "Foo"}),
+ *   title = @ Translation("Bundle @title", arguments = {"@title" = "Foo"}),
  * @endcode
  *
  * It is also possible to provide a context with the text, similar to t():
@@ -74,12 +74,12 @@ class Translation extends AnnotationBase {
    */
   public function __construct(array $values) {
     $string = $values['value'];
-    $arguments = isset($values['arguments']) ? $values['arguments'] : array();
-    $options = array();
+    $arguments = isset($values['arguments']) ? $values['arguments'] : [];
+    $options = [];
     if (!empty($values['context'])) {
-      $options = array(
+      $options = [
         'context' => $values['context'],
-      );
+      ];
     }
     $this->translation = new TranslatableMarkup($string, $arguments, $options);
   }

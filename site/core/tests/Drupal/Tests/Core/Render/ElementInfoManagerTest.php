@@ -27,28 +27,28 @@ class ElementInfoManagerTest extends UnitTestCase {
   /**
    * The cache backend to use.
    *
-   * @var \Drupal\Core\Cache\CacheBackendInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Cache\CacheBackendInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $cache;
 
   /**
    * The mocked module handler.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $moduleHandler;
 
   /**
    * The mocked theme manager.
    *
-   * @var \Drupal\Core\Theme\ThemeManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Theme\ThemeManagerInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $themeManager;
 
   /**
    * The cache tags invalidator.
    *
-   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $cacheTagsInvalidator;
 
@@ -60,10 +60,10 @@ class ElementInfoManagerTest extends UnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    $this->cache = $this->getMock('Drupal\Core\Cache\CacheBackendInterface');
-    $this->cacheTagsInvalidator = $this->getMock('Drupal\Core\Cache\CacheTagsInvalidatorInterface');
-    $this->moduleHandler = $this->getMock('Drupal\Core\Extension\ModuleHandlerInterface');
-    $this->themeManager = $this->getMock('Drupal\Core\Theme\ThemeManagerInterface');
+    $this->cache = $this->createMock('Drupal\Core\Cache\CacheBackendInterface');
+    $this->cacheTagsInvalidator = $this->createMock('Drupal\Core\Cache\CacheTagsInvalidatorInterface');
+    $this->moduleHandler = $this->createMock('Drupal\Core\Extension\ModuleHandlerInterface');
+    $this->themeManager = $this->createMock('Drupal\Core\Theme\ThemeManagerInterface');
 
     $this->elementInfo = new ElementInfoManager(new \ArrayObject(), $this->cache, $this->cacheTagsInvalidator, $this->moduleHandler, $this->themeManager);
   }
@@ -82,16 +82,16 @@ class ElementInfoManagerTest extends UnitTestCase {
       ->with('element_info', $this->anything())
       ->will($this->returnArgument(0));
 
-    $plugin = $this->getMock($plugin_class);
+    $plugin = $this->createMock($plugin_class);
     $plugin->expects($this->once())
       ->method('getInfo')
-      ->willReturn(array(
+      ->willReturn([
         '#theme' => 'page',
-      ));
+      ]);
 
     $element_info = $this->getMockBuilder('Drupal\Core\Render\ElementInfoManager')
-      ->setConstructorArgs(array(new \ArrayObject(), $this->cache, $this->cacheTagsInvalidator, $this->moduleHandler, $this->themeManager))
-      ->setMethods(array('getDefinitions', 'createInstance'))
+      ->setConstructorArgs([new \ArrayObject(), $this->cache, $this->cacheTagsInvalidator, $this->moduleHandler, $this->themeManager])
+      ->setMethods(['getDefinitions', 'createInstance'])
       ->getMock();
 
     $this->themeManager->expects($this->any())
@@ -104,9 +104,9 @@ class ElementInfoManagerTest extends UnitTestCase {
       ->willReturn($plugin);
     $element_info->expects($this->once())
       ->method('getDefinitions')
-      ->willReturn(array(
-        'page' => array('class' => 'TestElementPlugin'),
-      ));
+      ->willReturn([
+        'page' => ['class' => 'TestElementPlugin'],
+      ]);
 
     $this->assertEquals($expected_info, $element_info->getInfo('page'));
   }
@@ -117,26 +117,26 @@ class ElementInfoManagerTest extends UnitTestCase {
    * @return array
    */
   public function providerTestGetInfoElementPlugin() {
-    $data = array();
-    $data[] = array(
+    $data = [];
+    $data[] = [
       'Drupal\Core\Render\Element\ElementInterface',
-      array(
+      [
         '#type' => 'page',
         '#theme' => 'page',
         '#defaults_loaded' => TRUE,
-      ),
-    );
+      ],
+    ];
 
-    $data[] = array(
+    $data[] = [
       'Drupal\Core\Render\Element\FormElementInterface',
-      array(
+      [
         '#type' => 'page',
         '#theme' => 'page',
         '#input' => TRUE,
-        '#value_callback' => array('TestElementPlugin', 'valueCallback'),
+        '#value_callback' => ['TestElementPlugin', 'valueCallback'],
         '#defaults_loaded' => TRUE,
-      ),
-    );
+      ],
+    ];
     return $data;
   }
 
@@ -164,12 +164,12 @@ class TestElementInfoManager extends ElementInfoManager {
   /**
    * {@inheritdoc}
    */
-  protected $elementInfo = array(
-    'test' => array(
-      'foo' => array(
+  protected $elementInfo = [
+    'test' => [
+      'foo' => [
         '#bar' => 'baz',
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
 }

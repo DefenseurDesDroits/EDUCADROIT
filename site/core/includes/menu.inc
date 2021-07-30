@@ -10,9 +10,8 @@
  * @{
  */
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Render\Element;
-
 
 /**
  * Prepares variables for single local task link templates.
@@ -28,27 +27,27 @@ use Drupal\Core\Render\Element;
  */
 function template_preprocess_menu_local_task(&$variables) {
   $link = $variables['element']['#link'];
-  $link += array(
-    'localized_options' => array(),
-  );
+  $link += [
+    'localized_options' => [],
+  ];
   $link_text = $link['title'];
 
   if (!empty($variables['element']['#active'])) {
     $variables['is_active'] = TRUE;
 
     // Add text to indicate active tab for non-visual users.
-    $active = SafeMarkup::format('<span class="visually-hidden">@label</span>', array('@label' => t('(active tab)')));
-    $link_text = t('@local-task-title@active', array('@local-task-title' => $link_text, '@active' => $active));
+    $active = new FormattableMarkup('<span class="visually-hidden">@label</span>', ['@label' => t('(active tab)')]);
+    $link_text = t('@local-task-title@active', ['@local-task-title' => $link_text, '@active' => $active]);
   }
 
   $link['localized_options']['set_active_class'] = TRUE;
 
-  $variables['link'] = array(
+  $variables['link'] = [
     '#type' => 'link',
     '#title' => $link_text,
     '#url' => $link['url'],
     '#options' => $link['localized_options'],
-  );
+  ];
 }
 
 /**
@@ -64,32 +63,32 @@ function template_preprocess_menu_local_task(&$variables) {
  */
 function template_preprocess_menu_local_action(&$variables) {
   $link = $variables['element']['#link'];
-  $link += array(
-    'localized_options' => array(),
-  );
+  $link += [
+    'localized_options' => [],
+  ];
   $link['localized_options']['attributes']['class'][] = 'button';
   $link['localized_options']['attributes']['class'][] = 'button-action';
   $link['localized_options']['set_active_class'] = TRUE;
 
-  $variables['link'] = array(
+  $variables['link'] = [
     '#type' => 'link',
     '#title' => $link['title'],
     '#options' => $link['localized_options'],
     '#url' => $link['url'],
-  );
+  ];
 }
 
 /**
  * Returns an array containing the names of system-defined (default) menus.
  */
 function menu_list_system_menus() {
-  return array(
+  return [
     'tools' => 'Tools',
     'admin' => 'Administration',
     'account' => 'User account menu',
     'main' => 'Main navigation',
     'footer' => 'Footer menu',
-  );
+  ];
 }
 
 /**
@@ -105,8 +104,9 @@ function menu_list_system_menus() {
  *     tasks.
  *
  * @see hook_menu_local_tasks_alter()
+ * @see https://www.drupal.org/node/2544940
  *
- * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
  */
 function menu_local_tasks($level = 0) {
   /** @var \Drupal\Core\Menu\LocalTaskManagerInterface $manager */
@@ -117,9 +117,13 @@ function menu_local_tasks($level = 0) {
 /**
  * Returns the rendered local tasks at the top level.
  *
- * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal\Core\Menu\LocalTaskManagerInterface::getLocalTasks() instead.
+ *
+ * @see https://www.drupal.org/node/2874695
  */
 function menu_primary_local_tasks() {
+  @trigger_error(__FUNCTION__ . '() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use \Drupal\Core\Menu\LocalTaskManagerInterface::getLocalTasks() instead. See https://www.drupal.org/node/2874695', E_USER_DEPRECATED);
   /** @var \Drupal\Core\Menu\LocalTaskManagerInterface $manager */
   $manager = \Drupal::service('plugin.manager.menu.local_task');
   $links = $manager->getLocalTasks(\Drupal::routeMatch()->getRouteName(), 0);
@@ -130,9 +134,13 @@ function menu_primary_local_tasks() {
 /**
  * Returns the rendered local tasks at the second level.
  *
- * @deprecated in Drupal 8.0.0, will be removed before Drupal 9.0.0.
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal\Core\Menu\LocalTaskManagerInterface::getLocalTasks() instead.
+ *
+ * @see https://www.drupal.org/node/2874695
  */
 function menu_secondary_local_tasks() {
+  @trigger_error(__FUNCTION__ . '() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use \Drupal\Core\Menu\LocalTaskManagerInterface::getLocalTasks() instead. See https://www.drupal.org/node/2874695', E_USER_DEPRECATED);
   /** @var \Drupal\Core\Menu\LocalTaskManagerInterface $manager */
   $manager = \Drupal::service('plugin.manager.menu.local_task');
   $links = $manager->getLocalTasks(\Drupal::routeMatch()->getRouteName(), 1);
@@ -142,14 +150,20 @@ function menu_secondary_local_tasks() {
 
 /**
  * Returns a renderable element for the primary and secondary tabs.
+ *
+ * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use
+ *   local_tasks_block block or inline theming instead.
+ *
+ * @see https://www.drupal.org/node/2874695
  */
 function menu_local_tabs() {
-  $build = array(
+  @trigger_error(__FUNCTION__ . '() is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use local_tasks_block block or inline theming instead. See https://www.drupal.org/node/2874695', E_USER_DEPRECATED);
+  $build = [
     '#theme' => 'menu_local_tasks',
     '#primary' => menu_primary_local_tasks(),
     '#secondary' => menu_secondary_local_tasks(),
-  );
-  return !empty($build['#primary']) || !empty($build['#secondary']) ? $build : array();
+  ];
+  return !empty($build['#primary']) || !empty($build['#secondary']) ? $build : [];
 }
 
 /**
@@ -157,8 +171,14 @@ function menu_local_tabs() {
  *
  * This should be called any time broad changes
  * might have been made to the router items or menu links.
+ *
+ * @deprecated in drupal:8.6.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal::cache('menu')->invalidateAll() instead.
+ *
+ * @see https://www.drupal.org/node/2989138
  */
 function menu_cache_clear_all() {
+  @trigger_error("menu_cache_clear_all() is deprecated in Drupal 8.6.0 and will be removed before Drupal 9.0.0. Use \Drupal::cache('menu')->invalidateAll() instead. See https://www.drupal.org/node/2989138", E_USER_DEPRECATED);
   \Drupal::cache('menu')->invalidateAll();
 }
 

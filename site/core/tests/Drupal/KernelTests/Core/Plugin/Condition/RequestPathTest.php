@@ -42,12 +42,12 @@ class RequestPathTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('system', 'user', 'field', 'path');
+  public static $modules = ['system', 'user', 'field', 'path'];
 
   /**
    * The current path.
    *
-   * @var \Drupal\Core\Path\CurrentPathStack|\PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\Core\Path\CurrentPathStack|\PHPUnit\Framework\MockObject\MockObject
    */
   protected $currentPath;
 
@@ -57,13 +57,13 @@ class RequestPathTest extends KernelTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->installSchema('system', array('sequences'));
+    $this->installSchema('system', ['sequences']);
 
     $this->pluginManager = $this->container->get('plugin.manager.condition');
 
     // Set a mock alias manager in the container.
     $this->aliasManager = new MockAliasManager();
-    $this->container->set('path.alias_manager', $this->aliasManager);
+    $this->container->set('path_alias.manager', $this->aliasManager);
 
     // Set the test request stack in the container.
     $this->requestStack = new RequestStack();

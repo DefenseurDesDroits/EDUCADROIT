@@ -3,6 +3,7 @@
 namespace Drupal\rest\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Plugin\DefaultSingleLazyPluginCollection;
 use Drupal\rest\RestResourceConfigInterface;
 
@@ -12,6 +13,13 @@ use Drupal\rest\RestResourceConfigInterface;
  * @ConfigEntityType(
  *   id = "rest_resource_config",
  *   label = @Translation("REST resource configuration"),
+ *   label_collection = @Translation("REST resource configurations"),
+ *   label_singular = @Translation("REST resource configuration"),
+ *   label_plural = @Translation("REST resource configurations"),
+ *   label_count = @PluralTranslation(
+ *     singular = "@count REST resource configuration",
+ *     plural = "@count REST resource configurations",
+ *   ),
  *   config_prefix = "resource",
  *   admin_permission = "administer rest resources",
  *   label_callback = "getLabelFromPlugin",
@@ -117,8 +125,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getMethodsForMethodGranularity();
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['methods'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -142,8 +152,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getAuthenticationProvidersForMethodGranularity($method);
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['authentication'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -173,8 +185,10 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
     switch ($this->granularity) {
       case RestResourceConfigInterface::METHOD_GRANULARITY:
         return $this->getFormatsForMethodGranularity($method);
+
       case RestResourceConfigInterface::RESOURCE_GRANULARITY:
         return $this->configuration['formats'];
+
       default:
         throw new \InvalidArgumentException('Invalid granularity specified.');
     }
@@ -202,12 +216,12 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
    */
   public function getPluginCollections() {
     return [
-      'resource' => new DefaultSingleLazyPluginCollection($this->getResourcePluginManager(), $this->plugin_id, [])
+      'resource' => new DefaultSingleLazyPluginCollection($this->getResourcePluginManager(), $this->plugin_id, []),
     ];
   }
 
   /**
-   * (@inheritdoc)
+   * {@inheritdoc}
    */
   public function calculateDependencies() {
     parent::calculateDependencies();
@@ -243,24 +257,34 @@ class RestResourceConfig extends ConfigEntityBase implements RestResourceConfigI
   }
 
   /**
-   * Normalizes the method to upper case and check validity.
+   * Normalizes the method.
    *
    * @param string $method
    *   The request method.
    *
    * @return string
-   *   The normalised request method.
-   *
-   * @throws \InvalidArgumentException
-   *   If the method is not supported.
+   *   The normalized request method.
    */
   protected function normalizeRestMethod($method) {
-    $valid_methods = ['GET', 'POST', 'PATCH', 'DELETE'];
-    $normalised_method = strtoupper($method);
-    if (!in_array($normalised_method, $valid_methods)) {
-      throw new \InvalidArgumentException('The method is not supported.');
-    }
-    return $normalised_method;
+    return strtoupper($method);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    \Drupal::service('router.builder')->setRebuildNeeded();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function postDelete(EntityStorageInterface $storage, array $entities) {
+    parent::postDelete($storage, $entities);
+
+    \Drupal::service('router.builder')->setRebuildNeeded();
   }
 
 }

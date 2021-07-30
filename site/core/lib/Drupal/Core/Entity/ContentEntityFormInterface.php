@@ -16,7 +16,7 @@ interface ContentEntityFormInterface extends EntityFormInterface {
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface.
+   * @return \Drupal\Core\Entity\Display\EntityFormDisplayInterface
    *   The current form display.
    */
   public function getFormDisplay(FormStateInterface $form_state);
@@ -70,7 +70,7 @@ interface ContentEntityFormInterface extends EntityFormInterface {
    * For more information about entity validation, see
    * https://www.drupal.org/node/2015613.
    *
-   * @return \Drupal\Core\Entity\ContentEntityTypeInterface
+   * @return \Drupal\Core\Entity\ContentEntityInterface
    *   The built entity.
    */
   public function validateForm(array &$form, FormStateInterface $form_state);

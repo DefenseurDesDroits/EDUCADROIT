@@ -2,7 +2,6 @@
 
 namespace Drupal\system;
 
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Menu\MenuActiveTrailInterface;
 use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Menu\MenuLinkInterface;
@@ -79,7 +78,7 @@ class SystemManager {
    * @param \Drupal\Core\Menu\MenuActiveTrailInterface $menu_active_trail
    *   The active menu trail service.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, EntityManagerInterface $entity_manager, RequestStack $request_stack, MenuLinkTreeInterface $menu_tree, MenuActiveTrailInterface $menu_active_trail) {
+  public function __construct(ModuleHandlerInterface $module_handler, $entity_manager, RequestStack $request_stack, MenuLinkTreeInterface $menu_tree, MenuActiveTrailInterface $menu_active_trail) {
     $this->moduleHandler = $module_handler;
     $this->requestStack = $request_stack;
     $this->menuTree = $menu_tree;
@@ -109,8 +108,8 @@ class SystemManager {
     drupal_load_updates();
 
     // Check run-time requirements and status information.
-    $requirements = $this->moduleHandler->invokeAll('requirements', array('runtime'));
-    usort($requirements, function($a, $b) {
+    $requirements = $this->moduleHandler->invokeAll('requirements', ['runtime']);
+    uasort($requirements, function ($a, $b) {
       if (!isset($a['weight'])) {
         if (!isset($b['weight'])) {
           return strcasecmp($a['title'], $b['title']);
@@ -152,22 +151,23 @@ class SystemManager {
    * hidden, so we supply the contents of the block.
    *
    * @return array
-   *   A render array suitable for drupal_render.
+   *   A render array suitable for
+   *   \Drupal\Core\Render\RendererInterface::render().
    */
   public function getBlockContents() {
     // We hard-code the menu name here since otherwise a link in the tools menu
     // or elsewhere could give us a blank block.
     $link = $this->menuActiveTrail->getActiveLink('admin');
     if ($link && $content = $this->getAdminBlock($link)) {
-      $output = array(
+      $output = [
         '#theme' => 'admin_block_content',
         '#content' => $content,
-      );
+      ];
     }
     else {
-      $output = array(
+      $output = [
         '#markup' => t('You do not have any administrative items.'),
-      );
+      ];
     }
     return $output;
   }
@@ -182,16 +182,16 @@ class SystemManager {
    *   An array of menu items, as expected by admin-block-content.html.twig.
    */
   public function getAdminBlock(MenuLinkInterface $instance) {
-    $content = array();
+    $content = [];
     // Only find the children of this link.
     $link_id = $instance->getPluginId();
     $parameters = new MenuTreeParameters();
     $parameters->setRoot($link_id)->excludeRoot()->setTopLevelOnly()->onlyEnabledLinks();
     $tree = $this->menuTree->load(NULL, $parameters);
-    $manipulators = array(
-      array('callable' => 'menu.default_tree_manipulators:checkAccess'),
-      array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
-    );
+    $manipulators = [
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+      ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+    ];
     $tree = $this->menuTree->transform($tree, $manipulators);
     foreach ($tree as $key => $element) {
       // Only render accessible links.

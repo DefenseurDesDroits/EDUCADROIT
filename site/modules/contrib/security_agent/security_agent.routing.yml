@@ -1,0 +1,14 @@
+security_agent.get:
+  path: 'system/gaya/security/get'
+  defaults:
+    _controller: '\Drupal\security_agent\Controller\SecurityAgentController::get'
+  requirements:
+    _permission: 'access content'
+
+security_agent.form:
+ path: 'admin/config/system/security_agent'
+ defaults:
+   _title: 'Security agent'
+   _form: '\Drupal\security_agent\Form\SecurityAgentForm'
+ requirements:
+   _permission: 'administer security_agent settings'

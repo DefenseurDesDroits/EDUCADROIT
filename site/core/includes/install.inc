@@ -5,13 +5,16 @@
  * API functions for installing modules and themes.
  */
 
-use Drupal\Component\Utility\Unicode;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\OpCodeCache;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Extension\Dependency;
 use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Installer\InstallerKernel;
 use Drupal\Core\Site\Settings;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Requirement severity -- Informational message only.
@@ -77,9 +80,13 @@ const FILE_NOT_EXECUTABLE = 128;
  * Loads .install files for installed modules to initialize the update system.
  */
 function drupal_load_updates() {
+  /** @var \Drupal\Core\Extension\ModuleExtensionList $extension_list_module */
+  $extension_list_module = \Drupal::service('extension.list.module');
   foreach (drupal_get_installed_schema_version(NULL, FALSE, TRUE) as $module => $schema_version) {
-    if ($schema_version > -1) {
-      module_load_install($module);
+    if ($extension_list_module->exists($module) && !$extension_list_module->checkIncompatibility($module)) {
+      if ($schema_version > -1) {
+        module_load_install($module);
+      }
     }
   }
 }
@@ -96,8 +103,8 @@ function drupal_load_updates() {
 function drupal_install_profile_distribution_name() {
   // During installation, the profile information is stored in the global
   // installation state (it might not be saved anywhere yet).
-  $info = array();
-  if (drupal_installation_attempted()) {
+  $info = [];
+  if (InstallerKernel::installationAttempted()) {
     global $install_state;
     if (isset($install_state['profile_info'])) {
       $info = $install_state['profile_info'];
@@ -105,8 +112,8 @@ function drupal_install_profile_distribution_name() {
   }
   // At all other times, we load the profile via standard methods.
   else {
-    $profile = drupal_get_profile();
-    $info = system_get_info('module', $profile);
+    $profile = \Drupal::installProfile();
+    $info = \Drupal::service('extension.list.profile')->getExtensionInfo($profile);
   }
   return isset($info['distribution']['name']) ? $info['distribution']['name'] : 'Drupal';
 }
@@ -114,23 +121,24 @@ function drupal_install_profile_distribution_name() {
 /**
  * Loads the installation profile, extracting its defined version.
  *
- * @return string Distribution version defined in the profile's .info.yml file.
- *   Defaults to \Drupal::VERSION if no version is explicitly provided
- *   by the installation profile.
+ * @return string
+ *   Distribution version defined in the profile's .info.yml file.
+ *   Defaults to \Drupal::VERSION if no version is explicitly provided by the
+ *   installation profile.
  *
  * @see install_profile_info()
  */
 function drupal_install_profile_distribution_version() {
   // During installation, the profile information is stored in the global
   // installation state (it might not be saved anywhere yet).
-  if (drupal_installation_attempted()) {
+  if (InstallerKernel::installationAttempted()) {
     global $install_state;
     return isset($install_state['profile_info']['version']) ? $install_state['profile_info']['version'] : \Drupal::VERSION;
   }
   // At all other times, we load the profile via standard methods.
   else {
-    $profile = drupal_get_profile();
-    $info = system_get_info('module', $profile);
+    $profile = \Drupal::installProfile();
+    $info = \Drupal::service('extension.list.profile')->getExtensionInfo($profile);
     return $info['version'];
   }
 }
@@ -158,22 +166,58 @@ function drupal_detect_database_types() {
  *   An array of available database driver installer objects.
  */
 function drupal_get_database_types() {
-  $databases = array();
-  $drivers = array();
+  $databases = [];
+  $drivers = [];
 
   // The internal database driver name is any valid PHP identifier.
-  $mask = '/^' . DRUPAL_PHP_FUNCTION_PATTERN . '$/';
-  $files = file_scan_directory(DRUPAL_ROOT . '/core/lib/Drupal/Core/Database/Driver', $mask, array('recurse' => FALSE));
+  $mask = ExtensionDiscovery::PHP_FUNCTION_PATTERN;
+
+  // Find drivers in the Drupal\Core and Drupal\Driver namespaces.
+  /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+  $file_system = \Drupal::service('file_system');
+  $files = $file_system->scanDirectory(DRUPAL_ROOT . '/core/lib/Drupal/Core/Database/Driver', $mask, ['recurse' => FALSE]);
   if (is_dir(DRUPAL_ROOT . '/drivers/lib/Drupal/Driver/Database')) {
-    $files += file_scan_directory(DRUPAL_ROOT . '/drivers/lib/Drupal/Driver/Database/', $mask, array('recurse' => FALSE));
+    $files += $file_system->scanDirectory(DRUPAL_ROOT . '/drivers/lib/Drupal/Driver/Database/', $mask, ['recurse' => FALSE]);
   }
   foreach ($files as $file) {
     if (file_exists($file->uri . '/Install/Tasks.php')) {
-      $drivers[$file->filename] = $file->uri;
+      // The namespace doesn't need to be added here, because
+      // db_installer_object() will find it.
+      $drivers[$file->filename] = NULL;
     }
   }
-  foreach ($drivers as $driver => $file) {
-    $installer = db_installer_object($driver);
+
+  // Find drivers in Drupal module namespaces.
+  /** @var \Composer\Autoload\ClassLoader $class_loader */
+  $class_loader = \Drupal::service('class_loader');
+  // We cannot use the file cache because it does not always exist.
+  $extension_discovery = new ExtensionDiscovery(DRUPAL_ROOT, FALSE, []);
+  $modules = $extension_discovery->scan('module');
+  foreach ($modules as $module) {
+    $module_driver_path = DRUPAL_ROOT . '/' . $module->getPath() . '/src/Driver/Database';
+    if (is_dir($module_driver_path)) {
+      $driver_files = $file_system->scanDirectory($module_driver_path, $mask, ['recurse' => FALSE]);
+      foreach ($driver_files as $driver_file) {
+        $tasks_file = $module_driver_path . '/' . $driver_file->filename . '/Install/Tasks.php';
+        if (file_exists($tasks_file)) {
+          $namespace = 'Drupal\\' . $module->getName() . '\\Driver\\Database\\' . $driver_file->filename;
+
+          // The namespace needs to be added for db_installer_object() to find
+          // it.
+          $drivers[$driver_file->filename] = $namespace;
+
+          // The directory needs to be added to the autoloader, because this is
+          // early in the installation process: the module hasn't been enabled
+          // yet and the database connection info array (including its 'autoload'
+          // key) hasn't been created yet.
+          $class_loader->addPsr4($namespace . '\\', $module->getPath() . '/src/Driver/Database/' . $driver_file->filename);
+        }
+      }
+    }
+  }
+
+  foreach ($drivers as $driver => $namespace) {
+    $installer = db_installer_object($driver, $namespace);
     if ($installer->installable()) {
       $databases[$driver] = $installer;
     }
@@ -183,7 +227,7 @@ function drupal_get_database_types() {
   if (isset($databases['mysql'])) {
     $mysql_database = $databases['mysql'];
     unset($databases['mysql']);
-    $databases = array('mysql' => $mysql_database) + $databases;
+    $databases = ['mysql' => $mysql_database] + $databases;
   }
 
   return $databases;
@@ -201,25 +245,23 @@ function drupal_get_database_types() {
  *   are dumped up to a stdClass object. The object can have value, required
  *   and comment properties.
  *   @code
- *   $settings['config_directories'] = array(
- *     CONFIG_SYNC_DIRECTORY => (object) array(
- *       'value' => 'config_hash/sync',
- *       'required' => TRUE,
- *     ),
+ *   $settings['settings']['config_sync_directory'] = (object) array(
+ *     'value' => 'config_hash/sync',
+ *     'required' => TRUE,
  *   );
  *   @endcode
  *   gets dumped as:
  *   @code
- *   $config_directories['sync'] = 'config_hash/sync'
+ *   $settings['config_sync_directory'] = 'config_hash/sync'
  *   @endcode
  */
-function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
+function drupal_rewrite_settings($settings = [], $settings_file = NULL) {
   if (!isset($settings_file)) {
     $settings_file = \Drupal::service('site.path') . '/settings.php';
   }
   // Build list of setting names and insert the values into the global namespace.
-  $variable_names = array();
-  $settings_settings = array();
+  $variable_names = [];
+  $settings_settings = [];
   foreach ($settings as $setting => $data) {
     if ($setting != 'settings') {
       _drupal_rewrite_settings_global($GLOBALS[$setting], $data);
@@ -248,7 +290,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
         $value = $token;
       }
       // Do not operate on whitespace.
-      if (!in_array($type, array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT))) {
+      if (!in_array($type, [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
         switch ($state) {
           case 'default':
             if ($type === T_VARIABLE && isset($variable_names[$value])) {
@@ -261,6 +303,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
               $state = 'candidate_left';
             }
             break;
+
           case 'candidate_left':
             if ($value == '[') {
               $state = 'array_index';
@@ -269,6 +312,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
               $state = 'candidate_right';
             }
             break;
+
           case 'array_index':
             if (_drupal_rewrite_settings_is_array_index($type, $value)) {
               $index = trim($value, '\'"');
@@ -279,6 +323,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
               throw new Exception('invalid array index');
             }
             break;
+
           case 'right_bracket':
             if ($value == ']') {
               if (isset($current[$index])) {
@@ -297,6 +342,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
               throw new Exception('] expected');
             }
             break;
+
           case 'candidate_right':
             if (_drupal_rewrite_settings_is_simple($type, $value)) {
               $value = _drupal_rewrite_settings_dump_one($current);
@@ -309,11 +355,13 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
               $state = 'wait_for_semicolon';
             }
             break;
+
           case 'wait_for_semicolon':
             if ($value == ';') {
               $state = 'default';
             }
             break;
+
           case 'semicolon_skip':
             if ($value == ';') {
               $value = '';
@@ -335,7 +383,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
 
     // Write the new settings file.
     if (file_put_contents($settings_file, $buffer) === FALSE) {
-      throw new Exception(t('Failed to modify %settings. Verify the file permissions.', array('%settings' => $settings_file)));
+      throw new Exception("Failed to modify '$settings_file'. Verify the file permissions.");
     }
     else {
       // In case any $settings variables were written, import them into the
@@ -352,7 +400,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
     }
   }
   else {
-    throw new Exception(t('Failed to open %settings. Verify the file permissions.', array('%settings' => $settings_file)));
+    throw new Exception("Failed to open '$settings_file'. Verify the file permissions.");
   }
 }
 
@@ -375,10 +423,9 @@ function _drupal_rewrite_settings_is_simple($type, $value) {
   $is_integer = $type == T_LNUMBER;
   $is_float = $type == T_DNUMBER;
   $is_string = $type == T_CONSTANT_ENCAPSED_STRING;
-  $is_boolean_or_null = $type == T_STRING && in_array(strtoupper($value), array('TRUE', 'FALSE', 'NULL'));
+  $is_boolean_or_null = $type == T_STRING && in_array(strtoupper($value), ['TRUE', 'FALSE', 'NULL']);
   return $is_integer || $is_float || $is_string || $is_boolean_or_null;
 }
-
 
 /**
  * Helper for drupal_rewrite_settings().
@@ -431,6 +478,7 @@ function _drupal_rewrite_settings_global(&$ref, $variable) {
  *   The container for variable values.
  * @param string $variable_name
  *   Name of variable.
+ *
  * @return string
  *   A string containing valid PHP code of the variable suitable for placing
  *   into settings.php.
@@ -450,7 +498,6 @@ function _drupal_rewrite_settings_dump($variable, $variable_name) {
   return $return;
 }
 
-
 /**
  * Helper for drupal_rewrite_settings().
  *
@@ -462,6 +509,7 @@ function _drupal_rewrite_settings_dump($variable, $variable_name) {
  *   A string to prepend to the variable's value.
  * @param string $suffix
  *   A string to append to the variable's value.
+ *
  * @return string
  *   A string containing valid PHP code of the variable suitable for placing
  *   into settings.php.
@@ -478,16 +526,27 @@ function _drupal_rewrite_settings_dump_one(\stdClass $variable, $prefix = '', $s
 /**
  * Creates the config directory and ensures it is operational.
  *
- * @see install_settings_form_submit()
- * @see update_prepare_d8_bootstrap()
+ * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. There is no
+ *   replacement.
+ *
+ * @see https://www.drupal.org/node/3018145
  */
 function drupal_install_config_directories() {
-  global $config_directories;
+  @trigger_error('drupal_install_config_directories() is deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. There is no replacement. See https://www.drupal.org/node/3018145.', E_USER_DEPRECATED);
+  global $config_directories, $install_state;
 
-  // Add a randomized config directory name to settings.php, unless it was
-  // manually defined in the existing already.
+  // If settings.php does not contain a config sync directory name we need to
+  // configure one.
   if (empty($config_directories[CONFIG_SYNC_DIRECTORY])) {
-    $config_directories[CONFIG_SYNC_DIRECTORY] = \Drupal::service('site.path') . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
+    if (empty($install_state['config_install_path'])) {
+      // Add a randomized config directory name to settings.php
+      $config_directories[CONFIG_SYNC_DIRECTORY] = \Drupal::service('site.path') . '/files/config_' . Crypt::randomBytesBase64(55) . '/sync';
+    }
+    else {
+      // Install profiles can contain a config sync directory. If they do,
+      // 'config_install_path' is a path to the directory.
+      $config_directories[CONFIG_SYNC_DIRECTORY] = $install_state['config_install_path'];
+    }
     $settings['config_directories'][CONFIG_SYNC_DIRECTORY] = (object) [
       'value' => $config_directories[CONFIG_SYNC_DIRECTORY],
       'required' => TRUE,
@@ -502,12 +561,9 @@ function drupal_install_config_directories() {
   // public files directory, which has already been verified to be writable
   // itself. But if it somehow fails anyway, the installation cannot proceed.
   // Bail out using a similar error message as in system_requirements().
-  if (!file_prepare_directory($config_directories[CONFIG_SYNC_DIRECTORY], FILE_CREATE_DIRECTORY)
+  if (!\Drupal::service('file_system')->prepareDirectory($config_directories[CONFIG_SYNC_DIRECTORY], FileSystemInterface::CREATE_DIRECTORY)
     && !file_exists($config_directories[CONFIG_SYNC_DIRECTORY])) {
-    throw new Exception(t('The directory %directory could not be created. To proceed with the installation, either create the directory or ensure that the installer has the permissions to create it automatically. For more information, see the <a href=":handbook_url">online handbook</a>.', array(
-      '%directory' => config_get_config_directory(CONFIG_SYNC_DIRECTORY),
-      ':handbook_url' => 'https://www.drupal.org/server-permissions',
-    )));
+    throw new Exception("The directory '" . config_get_config_directory(CONFIG_SYNC_DIRECTORY) . "' could not be created. To proceed with the installation, either create the directory or ensure that the installer has the permissions to create it automatically. For more information, see the <a href='https://www.drupal.org/server-permissions'>online handbook</a>.");
   }
   elseif (is_writable($config_directories[CONFIG_SYNC_DIRECTORY])) {
     // Put a README.txt into the sync config directory. This is required so that
@@ -515,7 +571,7 @@ function drupal_install_config_directories() {
     // have to write out the README rather than just adding it to the drupal core
     // repo.
     $text = 'This directory contains configuration to be imported into your Drupal site. To make this configuration active, visit admin/config/development/configuration/sync.' . ' For information about deploying configuration between servers, see https://www.drupal.org/documentation/administer/config';
-    file_put_contents(config_get_config_directory(CONFIG_SYNC_DIRECTORY) . '/README.txt', $text);
+    file_put_contents(config_get_config_directory(CONFIG_SYNC_DIRECTORY) . '/README.txt', "$text\n");
   }
 }
 
@@ -528,10 +584,14 @@ function drupal_install_config_directories() {
  * @return bool
  *   TRUE if the config directory exists and is writable.
  *
- * @deprecated in Drupal 8.1.x, will be removed before Drupal 9.0.x. Use
- *   config_get_config_directory() and file_prepare_directory() instead.
+ * @deprecated in drupal:8.1.0 and is removed from drupal:9.0.0. Use
+ *   config_get_config_directory() and
+ *  \Drupal\Core\File\FileSystemInterface::prepareDirectory() instead.
+ *
+ * @see https://www.drupal.org/node/2501187
  */
 function install_ensure_config_directory($type) {
+  @trigger_error('install_ensure_config_directory() is deprecated in Drupal 8.1.0 and will be removed before Drupal 9.0.0. Use config_get_config_directory() and \Drupal\Core\File\FileSystemInterface::prepareDirectory() instead. See https://www.drupal.org/node/2501187.', E_USER_DEPRECATED);
   // The config directory must be defined in settings.php.
   global $config_directories;
   if (!isset($config_directories[$type])) {
@@ -541,7 +601,7 @@ function install_ensure_config_directory($type) {
   // directories that the installer creates.
   else {
     $config_directory = config_get_config_directory($type);
-    return file_prepare_directory($config_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+    return \Drupal::service('file_system')->prepareDirectory($config_directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
   }
 }
 
@@ -560,7 +620,7 @@ function drupal_verify_profile($install_state) {
 
   // Get the list of available modules for the selected installation profile.
   $listing = new ExtensionDiscovery(\Drupal::root());
-  $present_modules = array();
+  $present_modules = [];
   foreach ($listing->scan('module') as $present_module) {
     $present_modules[] = $present_module->getName();
   }
@@ -570,9 +630,9 @@ function drupal_verify_profile($install_state) {
   $present_modules[] = $profile;
 
   // Verify that all of the profile's required modules are present.
-  $missing_modules = array_diff($info['dependencies'], $present_modules);
+  $missing_modules = array_diff($info['install'], $present_modules);
 
-  $requirements = array();
+  $requirements = [];
 
   if ($missing_modules) {
     $build = [
@@ -581,16 +641,16 @@ function drupal_verify_profile($install_state) {
     ];
 
     foreach ($missing_modules as $module) {
-      $build['#items'][] = array('#markup' => '<span class="admin-missing">' . Unicode::ucfirst($module) . '</span>');
+      $build['#items'][] = ['#markup' => '<span class="admin-missing">' . Unicode::ucfirst($module) . '</span>'];
     }
 
     $modules_list = \Drupal::service('renderer')->renderPlain($build);
-    $requirements['required_modules'] = array(
+    $requirements['required_modules'] = [
       'title' => t('Required modules'),
       'value' => t('Required modules not found.'),
       'severity' => REQUIREMENT_ERROR,
-      'description' => t('The following modules are required but were not found. Move them into the appropriate modules subdirectory, such as <em>/modules</em>. Missing modules: @modules', array('@modules' => $modules_list)),
-    );
+      'description' => t('The following modules are required but were not found. Move them into the appropriate modules subdirectory, such as <em>/modules</em>. Missing modules: @modules', ['@modules' => $modules_list]),
+    ];
   }
   return $requirements;
 }
@@ -608,7 +668,10 @@ function drupal_verify_profile($install_state) {
 function drupal_install_system($install_state) {
   // Remove the service provider of the early installer.
   unset($GLOBALS['conf']['container_service_providers']['InstallerServiceProvider']);
+  // Add the normal installer service provider.
+  $GLOBALS['conf']['container_service_providers']['InstallerServiceProvider'] = 'Drupal\Core\Installer\NormalInstallerServiceProvider';
 
+  // Get the existing request.
   $request = \Drupal::request();
   // Reboot into a full production environment to continue the installation.
   /** @var \Drupal\Core\Installer\InstallerKernel $kernel */
@@ -616,13 +679,32 @@ function drupal_install_system($install_state) {
   $kernel->shutdown();
   // Have installer rebuild from the disk, rather then building from scratch.
   $kernel->rebuildContainer(FALSE);
-  $kernel->prepareLegacyRequest($request);
+  // Reboot the kernel with new container.
+  $kernel->boot();
+  $kernel->preHandle($request);
+  // Ensure our request includes the session if appropriate.
+  if (PHP_SAPI !== 'cli') {
+    $request->setSession($kernel->getContainer()->get('session'));
+  }
+
+  // Before having installed the system module and being able to do a module
+  // rebuild, prime the \Drupal\Core\Extension\ModuleExtensionList static cache
+  // with the module's location.
+  // @todo Try to install system as any other module, see
+  //   https://www.drupal.org/node/2719315.
+  \Drupal::service('extension.list.module')->setPathname('system', 'core/modules/system/system.info.yml');
 
   // Install base system configuration.
   \Drupal::service('config.installer')->installDefaultConfig('core', 'core');
 
+  // Store the installation profile in configuration to populate the
+  // 'install_profile' container parameter.
+  \Drupal::configFactory()->getEditable('core.extension')
+    ->set('profile', $install_state['parameters']['profile'])
+    ->save();
+
   // Install System module and rebuild the newly available routes.
-  $kernel->getContainer()->get('module_installer')->install(array('system'), FALSE);
+  $kernel->getContainer()->get('module_installer')->install(['system'], FALSE);
   \Drupal::service('router.builder')->rebuild();
 
   // Ensure default language is saved.
@@ -643,11 +725,14 @@ function drupal_install_system($install_state) {
  *   An optional bitmask created from various FILE_* constants.
  * @param $type
  *   The type of file. Can be file (default), dir, or link.
+ * @param bool $autofix
+ *   (optional) Determines whether to attempt fixing the permissions according
+ *   to the provided $mask. Defaults to TRUE.
  *
  * @return
  *   TRUE on success or FALSE on failure. A message is set for the latter.
  */
-function drupal_verify_install_file($file, $mask = NULL, $type = 'file') {
+function drupal_verify_install_file($file, $mask = NULL, $type = 'file', $autofix = TRUE) {
   $return = TRUE;
   // Check for files that shouldn't be there.
   if (isset($mask) && ($mask & FILE_NOT_EXIST) && file_exists($file)) {
@@ -663,13 +748,13 @@ function drupal_verify_install_file($file, $mask = NULL, $type = 'file') {
 
   // Verify file permissions.
   if (isset($mask)) {
-    $masks = array(FILE_EXIST, FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE);
+    $masks = [FILE_EXIST, FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE];
     foreach ($masks as $current_mask) {
       if ($mask & $current_mask) {
         switch ($current_mask) {
           case FILE_EXIST:
             if (!file_exists($file)) {
-              if ($type == 'dir') {
+              if ($type == 'dir' && $autofix) {
                 drupal_install_mkdir($file, $mask);
               }
               if (!file_exists($file)) {
@@ -677,39 +762,48 @@ function drupal_verify_install_file($file, $mask = NULL, $type = 'file') {
               }
             }
             break;
+
           case FILE_READABLE:
-            if (!is_readable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (!is_readable($file)) {
               $return = FALSE;
             }
             break;
+
           case FILE_WRITABLE:
-            if (!is_writable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (!is_writable($file)) {
               $return = FALSE;
             }
             break;
+
           case FILE_EXECUTABLE:
-            if (!is_executable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (!is_executable($file)) {
               $return = FALSE;
             }
             break;
+
           case FILE_NOT_READABLE:
-            if (is_readable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (is_readable($file)) {
               $return = FALSE;
             }
             break;
+
           case FILE_NOT_WRITABLE:
-            if (is_writable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (is_writable($file)) {
               $return = FALSE;
             }
             break;
+
           case FILE_NOT_EXECUTABLE:
-            if (is_executable($file) && !drupal_install_fix_file($file, $mask)) {
+            if (is_executable($file)) {
               $return = FALSE;
             }
             break;
         }
       }
     }
+  }
+  if (!$return && $autofix) {
+    return drupal_install_fix_file($file, $mask);
   }
   return $return;
 }
@@ -729,16 +823,18 @@ function drupal_verify_install_file($file, $mask = NULL, $type = 'file') {
  */
 function drupal_install_mkdir($file, $mask, $message = TRUE) {
   $mod = 0;
-  $masks = array(FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE);
+  $masks = [FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE];
   foreach ($masks as $m) {
     if ($mask & $m) {
       switch ($m) {
         case FILE_READABLE:
           $mod |= 0444;
           break;
+
         case FILE_WRITABLE:
           $mod |= 0222;
           break;
+
         case FILE_EXECUTABLE:
           $mod |= 0111;
           break;
@@ -746,7 +842,7 @@ function drupal_install_mkdir($file, $mask, $message = TRUE) {
     }
   }
 
-  if (@drupal_mkdir($file, $mod)) {
+  if (@\Drupal::service('file_system')->mkdir($file, $mod)) {
     return TRUE;
   }
   else {
@@ -783,7 +879,7 @@ function drupal_install_fix_file($file, $mask, $message = TRUE) {
   }
 
   $mod = fileperms($file) & 0777;
-  $masks = array(FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE);
+  $masks = [FILE_READABLE, FILE_WRITABLE, FILE_EXECUTABLE, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_NOT_EXECUTABLE];
 
   // FILE_READABLE, FILE_WRITABLE, and FILE_EXECUTABLE permission strings
   // can theoretically be 0400, 0200, and 0100 respectively, but to be safe
@@ -797,26 +893,31 @@ function drupal_install_fix_file($file, $mask, $message = TRUE) {
             $mod |= 0444;
           }
           break;
+
         case FILE_WRITABLE:
           if (!is_writable($file)) {
             $mod |= 0222;
           }
           break;
+
         case FILE_EXECUTABLE:
           if (!is_executable($file)) {
             $mod |= 0111;
           }
           break;
+
         case FILE_NOT_READABLE:
           if (is_readable($file)) {
             $mod &= ~0444;
           }
           break;
+
         case FILE_NOT_WRITABLE:
           if (is_writable($file)) {
             $mod &= ~0222;
           }
           break;
+
         case FILE_NOT_EXECUTABLE:
           if (is_executable($file)) {
             $mod &= ~0111;
@@ -845,10 +946,10 @@ function drupal_install_fix_file($file, $mask, $message = TRUE) {
  */
 function install_goto($path) {
   global $base_url;
-  $headers = array(
+  $headers = [
     // Not a permanent redirect.
     'Cache-Control' => 'no-cache',
-  );
+  ];
   $response = new RedirectResponse($base_url . '/' . $path, 302, $headers);
   $response->send();
 }
@@ -880,7 +981,7 @@ function install_goto($path) {
  * @see drupal_requirements_url()
  * @see Drupal\Component\Utility\UrlHelper::filterBadProtocol()
  */
-function drupal_current_script_url($query = array()) {
+function drupal_current_script_url($query = []) {
   $uri = $_SERVER['SCRIPT_NAME'];
   $query = array_merge(UrlHelper::filterQueryParameters(\Drupal::request()->query->all()), $query);
   if (!empty($query)) {
@@ -910,7 +1011,7 @@ function drupal_current_script_url($query = array()) {
  * @see \Drupal\Component\Utility\UrlHelper::filterBadProtocol()
  */
 function drupal_requirements_url($severity) {
-  $query = array();
+  $query = [];
   // If there are no errors, only warnings, append 'continue=1' to the URL so
   // the user can bypass this screen on the next page load.
   if ($severity == REQUIREMENT_WARNING) {
@@ -931,14 +1032,14 @@ function drupal_requirements_url($severity) {
 function drupal_check_profile($profile) {
   $info = install_profile_info($profile);
   // Collect requirement testing results.
-  $requirements = array();
+  $requirements = [];
   // Performs an ExtensionDiscovery scan as the system module is unavailable and
   // we don't yet know where all the modules are located.
   // @todo Remove as part of https://www.drupal.org/node/2186491
   $drupal_root = \Drupal::root();
   $module_list = (new ExtensionDiscovery($drupal_root))->scan('module');
 
-  foreach ($info['dependencies'] as $module) {
+  foreach ($info['install'] as $module) {
     // If the module is in the module list we know it exists and we can continue
     // including and registering it.
     // @see \Drupal\Core\Extension\ExtensionDiscovery::scanDirectory()
@@ -951,12 +1052,18 @@ function drupal_check_profile($profile) {
         require_once $install_file;
       }
 
-      drupal_classloader_register($module, $module_path);
+      \Drupal::service('class_loader')->addPsr4('Drupal\\' . $module . '\\', \Drupal::root() . "/$module_path/src");
 
       if (function_exists($function)) {
         $requirements = array_merge($requirements, $function('install'));
       }
     }
+  }
+
+  // Add the profile requirements.
+  $function = $profile . '_requirements';
+  if (function_exists($function)) {
+    $requirements = array_merge($requirements, $function('install'));
   }
 
   return $requirements;
@@ -994,16 +1101,16 @@ function drupal_requirements_severity(&$requirements) {
 function drupal_check_module($module) {
   module_load_install($module);
   // Check requirements
-  $requirements = \Drupal::moduleHandler()->invoke($module, 'requirements', array('install'));
+  $requirements = \Drupal::moduleHandler()->invoke($module, 'requirements', ['install']);
   if (is_array($requirements) && drupal_requirements_severity($requirements) == REQUIREMENT_ERROR) {
     // Print any error messages
     foreach ($requirements as $requirement) {
       if (isset($requirement['severity']) && $requirement['severity'] == REQUIREMENT_ERROR) {
         $message = $requirement['description'];
         if (isset($requirement['value']) && $requirement['value']) {
-          $message = t('@requirements_message (Currently using @item version @version)', array('@requirements_message' => $requirement['description'], '@item' => $requirement['title'], '@version' => $requirement['value']));
+          $message = t('@requirements_message (Currently using @item version @version)', ['@requirements_message' => $requirement['description'], '@item' => $requirement['title'], '@version' => $requirement['value']]);
         }
-        drupal_set_message($message, 'error');
+        \Drupal::messenger()->addError($message);
       }
     }
     return FALSE;
@@ -1020,6 +1127,8 @@ function drupal_check_module($module) {
  * - description: A brief description of the profile.
  * - dependencies: An array of shortnames of other modules that this install
  *   profile requires.
+ * - install: An array of shortname of other modules to install that are not
+ *   required by this install profile.
  *
  * Additional, less commonly-used information that can appear in a
  * profile.info.yml file but not in a normal Drupal module .info.yml file
@@ -1037,17 +1146,21 @@ function drupal_check_module($module) {
  *   - install: Optional parameters to override the installer:
  *     - theme: The machine name of a theme to use in the installer instead of
  *       Drupal's default installer theme.
+ *     - finish_url: A destination to visit after the installation of the
+ *       distribution is finished
  *
  * Note that this function does an expensive file system scan to get info file
  * information for dependencies. If you only need information from the info
- * file itself, use system_get_info().
+ * file itself, use
+ * \Drupal::service('extension.list.profile')->getExtensionInfo().
  *
  * Example of .info.yml file:
  * @code
- *    name = Minimal
- *    description = Start fresh, with only a few modules enabled.
- *    dependencies[] = block
- *    dependencies[] = dblog
+ *    name: Minimal
+ *    description: Start fresh, with only a few modules enabled.
+ *    install:
+ *      - block
+ *      - dblog
  * @endcode
  *
  * @param $profile
@@ -1059,30 +1172,47 @@ function drupal_check_module($module) {
  *   The info array.
  */
 function install_profile_info($profile, $langcode = 'en') {
-  $cache = &drupal_static(__FUNCTION__, array());
+  static $cache = [];
 
   if (!isset($cache[$profile][$langcode])) {
     // Set defaults for module info.
-    $defaults = array(
-      'dependencies' => array(),
-      'themes' => array('stark'),
+    $defaults = [
+      'dependencies' => [],
+      'install' => [],
+      'themes' => ['stark'],
       'description' => '',
       'version' => NULL,
       'hidden' => FALSE,
       'php' => DRUPAL_MINIMUM_PHP,
-    );
-    $profile_file = drupal_get_path('profile', $profile) . "/$profile.info.yml";
-    $info = \Drupal::service('info_parser')->parse($profile_file);
+      'config_install_path' => NULL,
+    ];
+    $profile_path = drupal_get_path('profile', $profile);
+    $info = \Drupal::service('info_parser')->parse("$profile_path/$profile.info.yml");
     $info += $defaults;
+
+    $dependency_name_function = function ($dependency) {
+      return Dependency::createFromString($dependency)->getName();
+    };
+    // Convert dependencies in [project:module] format.
+    $info['dependencies'] = array_map($dependency_name_function, $info['dependencies']);
+
+    // Convert install key in [project:module] format.
+    $info['install'] = array_map($dependency_name_function, $info['install']);
 
     // drupal_required_modules() includes the current profile as a dependency.
     // Remove that dependency, since a module cannot depend on itself.
-    $required = array_diff(drupal_required_modules(), array($profile));
+    $required = array_diff(drupal_required_modules(), [$profile]);
 
-    $locale = !empty($langcode) && $langcode != 'en' ? array('locale') : array();
+    $locale = !empty($langcode) && $langcode != 'en' ? ['locale'] : [];
 
-    $info['dependencies'] = array_unique(array_merge($required, $info['dependencies'], $locale));
+    // Merge dependencies, required modules and locale into install list and
+    // remove any duplicates.
+    $info['install'] = array_unique(array_merge($info['install'], $required, $info['dependencies'], $locale));
 
+    // If the profile has a config/sync directory use that to install drupal.
+    if (is_dir($profile_path . '/config/sync')) {
+      $info['config_install_path'] = $profile_path . '/config/sync';
+    }
     $cache[$profile][$langcode] = $info;
   }
   return $cache[$profile][$langcode];
@@ -1091,21 +1221,36 @@ function install_profile_info($profile, $langcode = 'en') {
 /**
  * Returns a database installer object.
  *
+ * Before calling this function it is important the database installer object
+ * is autoloadable. Database drivers provided by contributed modules are added
+ * to the autoloader in drupal_get_database_types() and Settings::initialize().
+ *
  * @param $driver
  *   The name of the driver.
+ * @param string $namespace
+ *   (optional) The database driver namespace.
  *
  * @return \Drupal\Core\Database\Install\Tasks
  *   A class defining the requirements and tasks for installing the database.
+ *
+ * @see drupal_get_database_types()
+ * @see \Drupal\Core\Site\Settings::initialize()
  */
-function db_installer_object($driver) {
+function db_installer_object($driver, $namespace = NULL) {
   // We cannot use Database::getConnection->getDriverClass() here, because
   // the connection object is not yet functional.
-  $task_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Install\\Tasks";
+  if ($namespace) {
+    $task_class = $namespace . "\\Install\\Tasks";
+    return new $task_class();
+  }
+  // Old Drupal 8 style contrib namespace.
+  $task_class = "Drupal\\Driver\\Database\\{$driver}\\Install\\Tasks";
   if (class_exists($task_class)) {
     return new $task_class();
   }
   else {
-    $task_class = "Drupal\\Driver\\Database\\{$driver}\\Install\\Tasks";
+    // Core provided driver.
+    $task_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Install\\Tasks";
     return new $task_class();
   }
 }

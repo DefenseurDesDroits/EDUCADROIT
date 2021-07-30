@@ -16,12 +16,12 @@ class ConfigDiffTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('config_test', 'system');
+  public static $modules = ['config_test', 'system'];
 
   /**
    * Tests calculating the difference between two sets of configuration.
    */
-  function testDiff() {
+  public function testDiff() {
     $active = $this->container->get('config.storage');
     $sync = $this->container->get('config.storage.sync');
     $config_name = 'config_test.system';
@@ -32,7 +32,7 @@ class ConfigDiffTest extends KernelTestBase {
     $change_data = 'foobar';
 
     // Install the default config.
-    $this->installConfig(array('config_test'));
+    $this->installConfig(['config_test']);
     $original_data = \Drupal::config($config_name)->get();
 
     // Change a configuration value in sync.
@@ -75,10 +75,10 @@ class ConfigDiffTest extends KernelTestBase {
 
     // Test diffing a renamed config entity.
     $test_entity_id = $this->randomMachineName();
-    $test_entity = entity_create('config_test', array(
+    $test_entity = \Drupal::entityTypeManager()->getStorage('config_test')->create([
       'id' => $test_entity_id,
       'label' => $this->randomMachineName(),
-    ));
+    ]);
     $test_entity->save();
     $data = $active->read('config_test.dynamic.' . $test_entity_id);
     $sync->write('config_test.dynamic.' . $test_entity_id, $data);
@@ -87,7 +87,7 @@ class ConfigDiffTest extends KernelTestBase {
     // Prove the fields match.
     $edits = $diff->getEdits();
     $this->assertEqual($edits[0]->type, 'copy', 'The first item in the diff is a copy.');
-    $this->assertEqual(count($edits), 1, 'There is one item in the diff');
+    $this->assertCount(1, $edits, 'There is one item in the diff');
 
     // Rename the entity.
     $new_test_entity_id = $this->randomMachineName();
@@ -102,13 +102,13 @@ class ConfigDiffTest extends KernelTestBase {
       ['id: ' . $test_entity_id]);
     $this->assertYamlEdit($edits, 'label', 'copy');
     $this->assertEqual($edits[2]->type, 'copy', 'The third item in the diff is a copy.');
-    $this->assertEqual(count($edits), 3, 'There are three items in the diff.');
+    $this->assertCount(3, $edits, 'There are three items in the diff.');
   }
 
   /**
    * Tests calculating the difference between two sets of config collections.
    */
-  function testCollectionDiff() {
+  public function testCollectionDiff() {
     /** @var \Drupal\Core\Config\StorageInterface $active */
     $active = $this->container->get('config.storage');
     /** @var \Drupal\Core\Config\StorageInterface $sync */
@@ -117,18 +117,18 @@ class ConfigDiffTest extends KernelTestBase {
     $sync_test_collection = $sync->createCollection('test');
 
     $config_name = 'config_test.test';
-    $data = array('foo' => 'bar');
+    $data = ['foo' => 'bar'];
 
     $active->write($config_name, $data);
     $sync->write($config_name, $data);
     $active_test_collection->write($config_name, $data);
-    $sync_test_collection->write($config_name, array('foo' => 'baz'));
+    $sync_test_collection->write($config_name, ['foo' => 'baz']);
 
     // Test the fields match in the default collection diff.
     $diff = \Drupal::service('config.manager')->diff($active, $sync, $config_name);
     $edits = $diff->getEdits();
     $this->assertEqual($edits[0]->type, 'copy', 'The first item in the diff is a copy.');
-    $this->assertEqual(count($edits), 1, 'There is one item in the diff');
+    $this->assertCount(1, $edits, 'There is one item in the diff');
 
     // Test that the differences are detected when diffing the collection.
     $diff = \Drupal::service('config.manager')->diff($active, $sync, $config_name, NULL, 'test');
@@ -146,11 +146,11 @@ class ConfigDiffTest extends KernelTestBase {
    * @param string $type
    *   The type of edit that is being asserted.
    * @param mixed $orig
-   *   (optional) The original value of of the edit. If not supplied, assertion
-   *   is skipped.
+   *   (optional) The original value of the edit. If not supplied, assertion is
+   *   skipped.
    * @param mixed $closing
-   *   (optional) The closing value of of the edit. If not supplied, assertion
-   *   is skipped.
+   *   (optional) The closing value of the edit. If not supplied, assertion is
+   *   skipped.
    */
   protected function assertYamlEdit(array $edits, $field, $type, $orig = NULL, $closing = NULL) {
     $match = FALSE;

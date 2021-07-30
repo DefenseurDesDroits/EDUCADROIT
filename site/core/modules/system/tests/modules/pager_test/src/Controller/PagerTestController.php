@@ -3,11 +3,40 @@
 namespace Drupal\pager_test\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Query\PagerSelectExtender;
+use Drupal\Core\Pager\PagerParametersInterface;
+use Drupal\Core\Security\TrustedCallbackInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Controller routine for testing the pager.
  */
-class PagerTestController extends ControllerBase {
+class PagerTestController extends ControllerBase implements TrustedCallbackInterface {
+
+  /**
+   * The pager request service.
+   *
+   * @var \Drupal\Core\Pager\PagerParametersInterface
+   */
+  protected $pagerParams;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static($container->get('pager.parameters'));
+  }
+
+  /**
+   * Construct a new PagerTestController object.
+   *
+   * @param \Drupal\Core\Pager\PagerParametersInterface $pager_params
+   *   The pager parameters.
+   */
+  public function __construct(PagerParametersInterface $pager_params) {
+    $this->pagerParams = $pager_params;
+  }
 
   /**
    * Builds a render array for a pageable test table.
@@ -26,9 +55,9 @@ class PagerTestController extends ControllerBase {
       ['data' => 'type'],
       ['data' => 'timestamp'],
     ];
-    $query = db_select('watchdog', 'd')->extend('Drupal\Core\Database\Query\PagerSelectExtender')->element($element);
+    $query = Database::getConnection()->select('watchdog', 'd')->extend(PagerSelectExtender::class)->element($element);
     $result = $query
-      ->fields('d', array('wid', 'type', 'timestamp'))
+      ->fields('d', ['wid', 'type', 'timestamp'])
       ->limit($limit)
       ->orderBy('d.wid')
       ->execute();
@@ -56,21 +85,21 @@ class PagerTestController extends ControllerBase {
     $build['pager_table_0'] = $this->buildTestTable(0, 5);
 
     // Counter of calls to the current pager.
-    $query_params = pager_get_query_parameters();
+    $query_params = $this->pagerParams->getQueryParameters();
     $pager_calls = isset($query_params['pager_calls']) ? ($query_params['pager_calls'] ? $query_params['pager_calls'] : 0) : 0;
-    $build['l_pager_pager_0'] = array('#markup' => $this->t('Pager calls: @pager_calls', array('@pager_calls' => $pager_calls)));
+    $build['l_pager_pager_0'] = ['#markup' => $this->t('Pager calls: @pager_calls', ['@pager_calls' => $pager_calls])];
 
     // Pager.
-    $build['pager_pager_0'] = array(
+    $build['pager_pager_0'] = [
       '#type' => 'pager',
       '#element' => 0,
-      '#parameters' => array(
+      '#parameters' => [
         'pager_calls' => ++$pager_calls,
-      ),
+      ],
       '#pre_render' => [
         'Drupal\pager_test\Controller\PagerTestController::showPagerCacheContext',
-      ]
-    );
+      ],
+    ];
 
     return $build;
   }
@@ -82,34 +111,34 @@ class PagerTestController extends ControllerBase {
 
     // Build three tables with same query and different pagers.
     $build['pager_table_0'] = $this->buildTestTable(0, 20);
-    $build['pager_pager_0'] = array(
+    $build['pager_pager_0'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['test-pager-0']],
       'pager' => [
         '#type' => 'pager',
         '#element' => 0,
       ],
-    );
+    ];
 
     $build['pager_table_1'] = $this->buildTestTable(1, 20);
-    $build['pager_pager_1'] = array(
+    $build['pager_pager_1'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['test-pager-1']],
       'pager' => [
         '#type' => 'pager',
         '#element' => 1,
       ],
-    );
+    ];
 
     $build['pager_table_4'] = $this->buildTestTable(4, 20);
-    $build['pager_pager_4'] = array(
+    $build['pager_pager_4'] = [
       '#type' => 'container',
       '#attributes' => ['class' => ['test-pager-4']],
       'pager' => [
         '#type' => 'pager',
         '#element' => 4,
       ],
-    );
+    ];
 
     return $build;
   }
@@ -118,8 +147,15 @@ class PagerTestController extends ControllerBase {
    * #pre_render callback for #type => pager that shows the pager cache context.
    */
   public static function showPagerCacheContext(array $pager) {
-    drupal_set_message(\Drupal::service('cache_contexts_manager')->convertTokensToKeys(['url.query_args.pagers:' . $pager['#element']])->getKeys()[0]);
+    \Drupal::messenger()->addStatus(\Drupal::service('cache_contexts_manager')->convertTokensToKeys(['url.query_args.pagers:' . $pager['#element']])->getKeys()[0]);
     return $pager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function trustedCallbacks() {
+    return ['showPagerCacheContext'];
   }
 
 }

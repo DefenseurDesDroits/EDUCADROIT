@@ -5,6 +5,8 @@
  * Hooks related to the File management system.
  */
 
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
+
 /**
  * @addtogroup hooks
  * @{
@@ -20,22 +22,23 @@
  *
  * @param $uri
  *   The URI of the file.
+ *
  * @return
  *   If the user does not have permission to access the file, return -1. If the
  *   user has permission, return an array with the appropriate headers. If the
  *   file is not controlled by the current module, the return value should be
  *   NULL.
  *
- * @see file_download()
+ * @see \Drupal\system\FileDownloadController::download()
  */
 function hook_file_download($uri) {
   // Check to see if this is a config download.
-  $scheme = file_uri_scheme($uri);
-  $target = file_uri_target($uri);
+  $scheme = StreamWrapperManager::getScheme($uri);
+  $target = StreamWrapperManager::getTarget($uri);
   if ($scheme == 'temporary' && $target == 'config.tar.gz') {
-    return array(
+    return [
       'Content-disposition' => 'attachment; filename="config.tar.gz"',
-    );
+    ];
   }
 }
 
@@ -64,13 +67,16 @@ function hook_file_url_alter(&$uri) {
 
   $cdn1 = 'http://cdn1.example.com';
   $cdn2 = 'http://cdn2.example.com';
-  $cdn_extensions = array('css', 'js', 'gif', 'jpg', 'jpeg', 'png');
+  $cdn_extensions = ['css', 'js', 'gif', 'jpg', 'jpeg', 'png'];
 
   // Most CDNs don't support private file transfers without a lot of hassle,
   // so don't support this in the common case.
-  $schemes = array('public');
+  $schemes = ['public'];
 
-  $scheme = file_uri_scheme($uri);
+  /** @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager */
+  $stream_wrapper_manager = \Drupal::service('stream_wrapper_manager');
+
+  $scheme = $stream_wrapper_manager::getScheme($uri);
 
   // Only serve shipped files and public created files from the CDN.
   if (!$scheme || in_array($scheme, $schemes)) {
@@ -80,8 +86,8 @@ function hook_file_url_alter(&$uri) {
     }
     // Public created files.
     else {
-      $wrapper = \Drupal::service('stream_wrapper_manager')->getViaScheme($scheme);
-      $path = $wrapper->getDirectoryPath() . '/' . file_uri_target($uri);
+      $wrapper = $stream_wrapper_manager->getViaScheme($scheme);
+      $path = $wrapper->getDirectoryPath() . '/' . $stream_wrapper_manager::getTarget($uri);
     }
 
     // Clean up Windows paths.
@@ -166,11 +172,11 @@ function hook_archiver_info_alter(&$info) {
  * @see drupal_get_filetransfer_info()
  */
 function hook_filetransfer_info() {
-  $info['sftp'] = array(
+  $info['sftp'] = [
     'title' => t('SFTP (Secure FTP)'),
     'class' => 'Drupal\Core\FileTransfer\SFTP',
     'weight' => 10,
-  );
+  ];
   return $info;
 }
 

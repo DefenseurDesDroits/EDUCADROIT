@@ -120,9 +120,6 @@ class ChainedPlaceholderStrategyTest extends UnitTestCase {
 
   /**
    * @covers ::processPlaceholders
-   *
-   * @expectedException \AssertionError
-   * @expectedExceptionMessage At least one placeholder strategy must be present; by default the fallback strategy \Drupal\Core\Render\Placeholder\SingleFlushStrategy is always present.
    */
   public function testProcessPlaceholdersNoStrategies() {
     // Placeholders but no strategies defined.
@@ -131,14 +128,13 @@ class ChainedPlaceholderStrategyTest extends UnitTestCase {
     ];
 
     $chained_placeholder_strategy = new ChainedPlaceholderStrategy();
+    $this->expectException(\AssertionError::class);
+    $this->expectExceptionMessage('At least one placeholder strategy must be present; by default the fallback strategy \Drupal\Core\Render\Placeholder\SingleFlushStrategy is always present.');
     $chained_placeholder_strategy->processPlaceholders($placeholders);
   }
 
   /**
    * @covers ::processPlaceholders
-   *
-   * @expectedException \AssertionError
-   * @expectedExceptionMessage Processed placeholders must be a subset of all placeholders.
    */
   public function testProcessPlaceholdersWithRoguePlaceholderStrategy() {
     // Placeholders but no strategies defined.
@@ -157,6 +153,8 @@ class ChainedPlaceholderStrategyTest extends UnitTestCase {
 
     $chained_placeholder_strategy = new ChainedPlaceholderStrategy();
     $chained_placeholder_strategy->addPlaceholderStrategy($rogue_strategy);
+    $this->expectException(\AssertionError::class);
+    $this->expectExceptionMessage('Processed placeholders must be a subset of all placeholders.');
     $chained_placeholder_strategy->processPlaceholders($placeholders);
   }
 

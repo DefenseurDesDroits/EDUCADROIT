@@ -263,13 +263,16 @@ abstract class UnishTestCase extends \PHPUnit_Framework_TestCase {
     return parse_url(UNISH_DB_URL, PHP_URL_SCHEME);
   }
 
-  function defaultInstallationVerion() {
+  function defaultInstallationVersion() {
+    // There's a leading dot in UNISH_DRUPAL_MINOR_VERSION
     return UNISH_DRUPAL_MAJOR_VERSION . UNISH_DRUPAL_MINOR_VERSION;
   }
 
   function setUpDrupal($num_sites = 1, $install = FALSE, $version_string = NULL, $profile = NULL) {
+    $version_type = 'requested';
     if (!$version_string) {
-      $version_string = UNISH_DRUPAL_MAJOR_VERSION;
+      $version_type = 'default';
+      $version_string = $this->defaultInstallationVersion();
     }
     $sites_subdirs_all = array('dev', 'stage', 'prod', 'retired', 'elderly', 'dead', 'dust');
     $sites_subdirs = array_slice($sites_subdirs_all, 0, $num_sites);
@@ -305,9 +308,19 @@ abstract class UnishTestCase extends \PHPUnit_Framework_TestCase {
     }
     // Write an empty sites.php if we are on D7+. Needed for multi-site on D8 and
     // used on D7 in \Unish\saCase::testBackendHonorsAliasOverride.
-    if ($major_version >= 7 && !file_exists($root . '/sites/sites.php')) {
+    // Skip if there is no example.sites.php, e.g. in Drupal 9.
+    if ($major_version >= 7 && !file_exists($root . '/sites/sites.php') && file_exists($root . '/sites/example.sites.php')) {
       copy($root . '/sites/example.sites.php', $root . '/sites/sites.php');
     }
+
+    // Print the result of a run of 'drush status' on the Drupal we are testing against
+    $options = array(
+      'root' => $this->webroot(),
+      'uri' => reset($sites_subdirs),
+    );
+    $this->drush('core-status', array('Drupal version'), $options);
+    $header = "\nTesting on ";
+    fwrite(STDERR, $header . $this->getOutput() . " given $version_type version $version_string\n\n");
 
     // Stash details about each site.
     foreach ($sites_subdirs as $subdir) {
@@ -337,6 +350,11 @@ abstract class UnishTestCase extends \PHPUnit_Framework_TestCase {
     }
 
     // Download Drupal if not already present.
+    if (!file_exists($root) && (substr($version_string, 0, 1) == 6)) {
+      if (!$this->downloadDrupal6($version_string, $root)) {
+        $this->markTestSkipped("Could not download d6lts.");
+      }
+    }
     if (!file_exists($root)) {
       $options += array(
         'destination' => dirname($root),
@@ -362,11 +380,54 @@ abstract class UnishTestCase extends \PHPUnit_Framework_TestCase {
       $this->drush('site-install', array($profile), $options);
       // Give us our write perms back.
       chmod($site, 0777);
+      chmod("$site/settings.php", 0777);
     }
     else {
       @mkdir($site);
       touch("$site/settings.php");
     }
+  }
+
+  // pm-download cannot download from d6lts, so we will rough in our own download function
+  function downloadDrupal6($drupal_6_test_version, $root) {
+    if (($drupal_6_test_version == '6') || ($drupal_6_test_version == '6.x')) {
+      $drupal_6_test_version = '6.46';
+    }
+    return $this->downloadFromGitHub('d6lts/drupal', $drupal_6_test_version, $root, "drupal-$drupal_6_test_version");
+  }
+
+  function downloadFromGitHub($project, $version, $target, $rootDirToRemove = '') {
+    $url = "https://github.com/{$project}/archive/{$version}.zip";
+    $tarPath = dirname($target) . '/' . basename($url);
+    if (!$this->cachedDownload($url, $tarPath)) {
+      return false;
+    }
+    $zipDir = $target;
+    if (!empty($rootDirToRemove)) {
+      $zipDir = dirname($zipDir);
+    }
+    passthru("unzip -od $zipDir $tarPath >/dev/null 2>&1", $status);
+    if ($status != 0) {
+      return false;
+    }
+    if (!empty($rootDirToRemove)) {
+      rename("$zipDir/$rootDirToRemove", $zipDir . '/' . basename($target));
+    }
+    return file_exists($target);
+  }
+
+  function cachedDownload($url, $target) {
+    $dlCacheDir = $this->directory_cache('dl');
+    @mkdir($dlCacheDir);
+    $cacheFile = $dlCacheDir . '/' . basename($target);
+    if (!file_exists($cacheFile)) {
+        passthru("curl -L --output $cacheFile $url >/dev/null 2>&1", $status);
+        if ($status != 0) {
+          return false;
+        }
+    }
+    copy($cacheFile, $target);
+    return file_exists($target);
   }
 
   function writeSiteAlias($name, $root, $uri) {

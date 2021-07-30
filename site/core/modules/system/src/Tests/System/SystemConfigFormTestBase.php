@@ -2,6 +2,9 @@
 
 namespace Drupal\system\Tests\System;
 
+@trigger_error('\Drupal\system\Tests\System\SystemConfigFormTestBase is deprecated in Drupal 8.6.0 and will be removed before Drupal 9.0.0. Use \Drupal\KernelTests\ConfigFormTestBase instead.', E_USER_DEPRECATED);
+
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Form\FormState;
 use Drupal\simpletest\WebTestBase;
 
@@ -10,12 +13,17 @@ use Drupal\simpletest\WebTestBase;
  *
  * @see UserAdminSettingsFormTest
  *   For a full working implementation.
+ *
+ * @deprecated in drupal:8.6.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal\KernelTests\ConfigFormTestBase instead.
+ *
+ * @see https://www.drupal.org/node/2941907
  */
 abstract class SystemConfigFormTestBase extends WebTestBase {
   /**
    * Form ID to use for testing.
    *
-   * @var \Drupal\Core\Form\FormInterface.
+   * @var \Drupal\Core\Form\FormInterface
    */
   protected $form;
 
@@ -43,7 +51,7 @@ abstract class SystemConfigFormTestBase extends WebTestBase {
    */
   public function testConfigForm() {
     // Programmatically submit the given values.
-    $values = array();
+    $values = [];
     foreach ($this->values as $form_key => $data) {
       $values[$form_key] = $data['#value'];
     }
@@ -53,11 +61,11 @@ abstract class SystemConfigFormTestBase extends WebTestBase {
     // Check that the form returns an error when expected, and vice versa.
     $errors = $form_state->getErrors();
     $valid_form = empty($errors);
-    $args = array(
+    $args = [
       '%values' => print_r($values, TRUE),
       '%errors' => $valid_form ? t('None') : implode(' ', $errors),
-    );
-    $this->assertTrue($valid_form, format_string('Input values: %values<br/>Validation handler errors: %errors', $args));
+    ];
+    $this->assertTrue($valid_form, new FormattableMarkup('Input values: %values<br/>Validation handler errors: %errors', $args));
 
     foreach ($this->values as $data) {
       $this->assertEqual($data['#value'], $this->config($data['#config_name'])->get($data['#config_key']));

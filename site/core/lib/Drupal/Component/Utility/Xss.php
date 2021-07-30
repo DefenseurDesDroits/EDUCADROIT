@@ -16,7 +16,7 @@ class Xss {
    *
    * @see \Drupal\Component\Utility\Xss::filterAdmin()
    */
-  protected static $adminTags = array('a', 'abbr', 'acronym', 'address', 'article', 'aside', 'b', 'bdi', 'bdo', 'big', 'blockquote', 'br', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'figcaption', 'figure', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'i', 'img', 'ins', 'kbd', 'li', 'mark', 'menu', 'meter', 'nav', 'ol', 'output', 'p', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'small', 'span', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr', 'tt', 'u', 'ul', 'var', 'wbr');
+  protected static $adminTags = ['a', 'abbr', 'acronym', 'address', 'article', 'aside', 'b', 'bdi', 'bdo', 'big', 'blockquote', 'br', 'caption', 'cite', 'code', 'col', 'colgroup', 'command', 'dd', 'del', 'details', 'dfn', 'div', 'dl', 'dt', 'em', 'figcaption', 'figure', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'i', 'img', 'ins', 'kbd', 'li', 'mark', 'menu', 'meter', 'nav', 'ol', 'output', 'p', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'small', 'span', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr', 'tt', 'u', 'ul', 'var', 'wbr'];
 
   /**
    * The default list of HTML tags allowed by filter().
@@ -25,7 +25,7 @@ class Xss {
    *
    * @see \Drupal\Component\Utility\Xss::filter()
    */
-  protected static $htmlTags = array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd');
+  protected static $htmlTags = ['a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'];
 
   /**
    * Filters HTML to prevent cross-site-scripting (XSS) vulnerabilities.
@@ -70,7 +70,7 @@ class Xss {
 
     // Defuse all HTML entities.
     $string = str_replace('&', '&amp;', $string);
-    // Change back only well-formed entities in our whitelist:
+    // Change back only well-formed entities in our list of allowed html tags:
     // Decimal numeric entities.
     $string = preg_replace('/&amp;#([0-9]+;)/', '&#\1', $string);
     // Hexadecimal numeric entities.
@@ -83,7 +83,7 @@ class Xss {
     $splitter = function ($matches) use ($html_tags, $class) {
       return $class::split($matches[1], $html_tags, $class);
     };
-    // Strip any tags that are not in the whitelist.
+    // Strip any tags that are not in the list of allowed html tags.
     return preg_replace_callback('%
       (
       <(?=[^a-zA-Z!/])  # a lone <
@@ -161,7 +161,9 @@ class Xss {
       $elem = '!--';
     }
 
-    // When in whitelist mode, an element is disallowed when not listed.
+    // Defer to the ::needsRemoval() method to decide if the element is to be
+    // removed. This allows the list of tags to be treated as either a list of
+    // allowed tags or a list of denied tags.
     if ($class::needsRemoval($html_tags, $elem)) {
       return '';
     }
@@ -196,7 +198,7 @@ class Xss {
    *   Cleaned up version of the HTML attributes.
    */
   protected static function attributes($attributes) {
-    $attributes_array = array();
+    $attributes_array = [];
     $mode = 0;
     $attribute_name = '';
     $skip = FALSE;
@@ -221,12 +223,12 @@ class Xss {
             // such attributes.
             // @see \Drupal\Component\Utility\UrlHelper::filterBadProtocol()
             // @see http://www.w3.org/TR/html4/index/attributes.html
-            $skip_protocol_filtering = substr($attribute_name, 0, 5) === 'data-' || in_array($attribute_name, array(
+            $skip_protocol_filtering = substr($attribute_name, 0, 5) === 'data-' || in_array($attribute_name, [
               'title',
               'alt',
               'rel',
               'property',
-            ));
+            ]);
 
             $working = $mode = 1;
             $attributes = preg_replace('/^[-a-zA-Z][-a-zA-Z0-9]*/', '', $attributes);

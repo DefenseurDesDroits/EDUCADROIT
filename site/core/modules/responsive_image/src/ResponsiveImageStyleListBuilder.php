@@ -15,7 +15,6 @@ class ResponsiveImageStyleListBuilder extends ConfigEntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = t('Label');
-    $header['id'] = t('Machine name');
     return $header + parent::buildHeader();
   }
 
@@ -24,7 +23,6 @@ class ResponsiveImageStyleListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
-    $row['id'] = $entity->id();
     return $row + parent::buildRow($entity);
   }
 
@@ -33,11 +31,11 @@ class ResponsiveImageStyleListBuilder extends ConfigEntityListBuilder {
    */
   public function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
-    $operations['duplicate'] = array(
+    $operations['duplicate'] = [
       'title' => t('Duplicate'),
       'weight' => 15,
-      'url' => $entity->urlInfo('duplicate-form'),
-    );
+      'url' => $entity->toUrl('duplicate-form'),
+    ];
     return $operations;
   }
 

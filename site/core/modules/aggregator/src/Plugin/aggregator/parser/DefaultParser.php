@@ -4,8 +4,9 @@ namespace Drupal\aggregator\Plugin\aggregator\parser;
 
 use Drupal\aggregator\Plugin\ParserInterface;
 use Drupal\aggregator\FeedInterface;
-use Zend\Feed\Reader\Reader;
-use Zend\Feed\Reader\Exception\ExceptionInterface;
+use Drupal\Core\Messenger\MessengerTrait;
+use Laminas\Feed\Reader\Reader;
+use Laminas\Feed\Reader\Exception\ExceptionInterface;
 
 /**
  * Defines a default parser implementation.
@@ -20,18 +21,20 @@ use Zend\Feed\Reader\Exception\ExceptionInterface;
  */
 class DefaultParser implements ParserInterface {
 
+  use MessengerTrait;
+
   /**
    * {@inheritdoc}
    */
   public function parse(FeedInterface $feed) {
-    // Set our bridge extension manager to Zend Feed.
+    // Set our bridge extension manager to Laminas Feed.
     Reader::setExtensionManager(\Drupal::service('feed.bridge.reader'));
     try {
       $channel = Reader::importString($feed->source_string);
     }
     catch (ExceptionInterface $e) {
       watchdog_exception('aggregator', $e);
-      drupal_set_message(t('The feed from %site seems to be broken because of error "%error".', array('%site' => $feed->label(), '%error' => $e->getMessage())), 'error');
+      $this->messenger()->addError(t('The feed from %site seems to be broken because of error "%error".', ['%site' => $feed->label(), '%error' => $e->getMessage()]));
 
       return FALSE;
     }
@@ -42,10 +45,10 @@ class DefaultParser implements ParserInterface {
       $feed->setImage($image['uri']);
     }
     // Initialize items array.
-    $feed->items = array();
+    $feed->items = [];
     foreach ($channel as $item) {
       // Reset the parsed item.
-      $parsed_item = array();
+      $parsed_item = [];
       // Move the values to an array as expected by processors.
       $parsed_item['title'] = $item->getTitle();
       $parsed_item['guid'] = $item->getId();

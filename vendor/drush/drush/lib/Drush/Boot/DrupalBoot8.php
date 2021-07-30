@@ -10,6 +10,10 @@ use Drush\Drupal\DrushServiceModifier;
 
 use Drush\Log\LogLevel;
 
+/**
+ * Drupal 8 and Drupal 9 are so similar at the moment that we will use
+ * the same bootstrap class for each.
+ */
 class DrupalBoot8 extends DrupalBoot {
 
   /**
@@ -46,7 +50,11 @@ class DrupalBoot8 extends DrupalBoot {
   }
 
   function get_profile() {
-    return drupal_get_profile();
+    // Favor Drupal::installProfile() if it exists.
+    if (method_exists('Drupal', 'installProfile')) {
+      return \Drupal::installProfile();
+    }
+    return \drupal_get_profile();
   }
 
   function conf_path($require_settings = TRUE, $reset = FALSE, Request $request = NULL) {
@@ -144,7 +152,12 @@ class DrupalBoot8 extends DrupalBoot {
       ob_start();
     }
     $this->kernel->boot();
-    $this->kernel->prepareLegacyRequest($this->request);
+    if (method_exists($this->kernel, 'preHandle')) {
+      $this->kernel->preHandle($this->request);
+    }
+    else {
+      $this->kernel->prepareLegacyRequest($this->request);
+    }
     if (!drush_get_context('DRUSH_QUIET', FALSE)) {
       ob_end_clean();
     }
@@ -160,19 +173,23 @@ class DrupalBoot8 extends DrupalBoot {
     // The upshot is that the list of console commands is not available
     // until after $kernel->boot() is called.
     $container = \Drupal::getContainer();
-    $serviceCommandlist = $container->get('drush.service.consolecommands');
-    foreach ($serviceCommandlist->getCommandList() as $command) {
-      if (!$this->commandIgnored($command, $ignored_modules)) {
-        drush_log(dt('Add a command: !name', ['!name' => $command->getName()]), LogLevel::DEBUG);
-        annotationcommand_adapter_cache_module_console_commands($command);
+    if ($container->has('drush.service.consolecommands')) {
+      $serviceCommandlist = $container->get('drush.service.consolecommands');
+      foreach ($serviceCommandlist->getCommandList() as $command) {
+        if (!$this->commandIgnored($command, $ignored_modules)) {
+          drush_log(dt('Add a command: !name', ['!name' => $command->getName()]), LogLevel::DEBUG);
+          annotationcommand_adapter_cache_module_console_commands($command);
+        }
       }
     }
     // Do the same thing with the annotation commands.
-    $serviceCommandlist = $container->get('drush.service.consolidationcommands');
-    foreach ($serviceCommandlist->getCommandList() as $commandhandler) {
-      if (!$this->commandIgnored($commandhandler, $ignored_modules)) {
-        drush_log(dt('Add a commandhandler: !name', ['!name' => get_class($commandhandler)]), LogLevel::DEBUG);
-        annotationcommand_adapter_cache_module_service_commands($commandhandler);
+    if ($container->has('drush.service.consolidationcommands')) {
+      $serviceCommandlist = $container->get('drush.service.consolidationcommands');
+      foreach ($serviceCommandlist->getCommandList() as $commandhandler) {
+        if (!$this->commandIgnored($commandhandler, $ignored_modules)) {
+          drush_log(dt('Add a commandhandler: !name', ['!name' => get_class($commandhandler)]), LogLevel::DEBUG);
+          annotationcommand_adapter_cache_module_service_commands($commandhandler);
+        }
       }
     }
   }

@@ -31,10 +31,10 @@
  * 8 themes.
  *
  * For further information on theming in Drupal 8 see
- * https://www.drupal.org/theme-guide/8
+ * https://www.drupal.org/docs/8/theming
  *
  * For further Twig documentation see
- * http://twig.sensiolabs.org/doc/templates.html
+ * https://twig.symfony.com/doc/1.x/templates.html
  *
  * @section sec_theme_hooks Theme Hooks
  * The theme system is invoked in \Drupal\Core\Render\Renderer::doRender() by
@@ -223,14 +223,9 @@
  * same, which gives users fewer user interface patterns to learn.
  *
  * For further information on the Theme and Render APIs, see:
- * - https://www.drupal.org/documentation/theme
+ * - https://www.drupal.org/docs/8/theming
  * - https://www.drupal.org/developing/api/8/render
- * - https://www.drupal.org/node/722174
- * - https://www.drupal.org/node/933976
- * - https://www.drupal.org/node/930760
- *
- * @todo Check these links. Some are for Drupal 7, and might need updates for
- *   Drupal 8.
+ * - @link themeable Theme system overview @endlink.
  *
  * @section arrays Render arrays
  * The core structure of the Render API is the render array, which is a
@@ -254,13 +249,13 @@
  * form array, which specifies the form elements for an HTML form; see the
  * @link form_api Form generation topic @endlink for more information on forms.
  *
- * Render arrays (at each level in the hierarchy) will usually have one of the
- * following three properties defined:
+ * Render arrays (at any level of the hierarchy) will usually have one of the
+ * following properties defined:
  * - #type: Specifies that the array contains data and options for a particular
- *   type of "render element" (examples: 'form', for an HTML form; 'textfield',
- *   'submit', and other HTML form element types; 'table', for a table with
- *   rows, columns, and headers). See @ref elements below for more on render
- *   element types.
+ *   type of "render element" (for example, 'form', for an HTML form;
+ *   'textfield', 'submit', for HTML form element types; 'table', for a table
+ *   with rows, columns, and headers). See @ref elements below for more on
+ *   render element types.
  * - #theme: Specifies that the array contains data to be themed by a particular
  *   theme hook. Modules define theme hooks by implementing hook_theme(), which
  *   specifies the input "variables" used to provide data and options; if a
@@ -277,30 +272,29 @@
  *   can customize the markup. Note that the value is passed through
  *   \Drupal\Component\Utility\Xss::filterAdmin(), which strips known XSS
  *   vectors while allowing a permissive list of HTML tags that are not XSS
- *   vectors. (I.e, <script> and <style> are not allowed.) See
- *   \Drupal\Component\Utility\Xss::$adminTags for the list of tags that will
- *   be allowed. If your markup needs any of the tags that are not in this
- *   whitelist, then you can implement a theme hook and template file and/or
- *   an asset library. Aternatively, you can use the render array key
+ *   vectors. (For example, <script> and <style> are not allowed.) See
+ *   \Drupal\Component\Utility\Xss::$adminTags for the list of allowed tags. If
+ *   your markup needs any of the tags not in this list, then you can implement
+ *   a theme hook and/or an asset library. Alternatively, you can use the key
  *   #allowed_tags to alter which tags are filtered.
  * - #plain_text: Specifies that the array provides text that needs to be
- *   escaped. This value takes precedence over #markup if present.
- * - #allowed_tags: If #markup is supplied this can be used to change which tags
- *   are using to filter the markup. The value should be an array of tags that
- *   Xss::filter() would accept. If #plain_text is set this value is ignored.
+ *   escaped. This value takes precedence over #markup.
+ * - #allowed_tags: If #markup is supplied, this can be used to change which
+ *   tags are allowed in the markup. The value is an array of tags that
+ *   Xss::filter() would accept. If #plain_text is set, this value is ignored.
  *
  *   Usage example:
  *   @code
- *   $output['admin_filtered_string'] = array(
+ *   $output['admin_filtered_string'] = [
  *     '#markup' => '<em>This is filtered using the admin tag list</em>',
- *   );
- *   $output['filtered_string'] = array(
- *     '#markup' => '<em>This is filtered</em>',
- *     '#allowed_tags' => ['strong'],
- *   );
- *   $output['escaped_string'] = array(
+ *   ];
+ *   $output['filtered_string'] = [
+ *     '#markup' => '<video><source src="v.webm" type="video/webm"></video>',
+ *     '#allowed_tags' => ['video', 'source'],
+ *   ];
+ *   $output['escaped_string'] = [
  *     '#plain_text' => '<em>This is escaped</em>',
- *   );
+ *   ];
  *   @endcode
  *
  *   @see core.libraries.yml
@@ -370,7 +364,7 @@
  *   '#cache' => [
  *     'keys' => ['entity_view', 'node', $node->id()],
  *     'contexts' => ['languages'],
- *     'tags' => ['node:' . $node->id()],
+ *     'tags' => $node->getCacheTags(),
  *     'max-age' => Cache::PERMANENT,
  *   ],
  * @endcode
@@ -420,13 +414,16 @@
  * render array contained:
  * @code
  * $build['my_element'] = [
- *   '#attached' => ['placeholders' => ['@foo' => 'replacement']],
- *   '#markup' => ['Something about @foo'],
+ *   '#markup' => 'Something about @foo',
+ *   '#attached' => [
+ *     'placeholders' => [
+ *       '@foo' => ['#markup' => 'replacement'],
+ *     ],
  * ];
  * @endcode
  * then #markup would end up containing 'Something about replacement'.
  *
- * Note that each placeholder value can itself be a render array, which will be
+ * Note that each placeholder value *must* itself be a render array. It will be
  * rendered, and any cache tags generated during rendering will be added to the
  * cache tags for the markup.
  *
@@ -439,7 +436,7 @@
  *
  * There are in fact multiple render pipelines:
  * - Drupal always uses the Symfony render pipeline. See
- *   http://symfony.com/doc/2.7/components/http_kernel/introduction.html
+ *   https://symfony.com/doc/3.4/components/http_kernel.html
  * - Within the Symfony render pipeline, there is a Drupal render pipeline,
  *   which handles controllers that return render arrays. (Symfony's render
  *   pipeline only knows how to deal with Response objects; this pipeline
@@ -529,12 +526,12 @@
  */
 function hook_form_system_theme_settings_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
   // Add a checkbox to toggle the breadcrumb trail.
-  $form['toggle_breadcrumb'] = array(
+  $form['toggle_breadcrumb'] = [
     '#type' => 'checkbox',
     '#title' => t('Display the breadcrumb'),
     '#default_value' => theme_get_setting('features.breadcrumb'),
     '#description'   => t('Show a trail of links from the homepage to the current page.'),
-  );
+  ];
 }
 
 /**
@@ -604,7 +601,7 @@ function hook_preprocess(&$variables, $hook) {
 function hook_preprocess_HOOK(&$variables) {
   // This example is from rdf_preprocess_image(). It adds an RDF attribute
   // to the image hook's variables.
-  $variables['attributes']['typeof'] = array('foaf:Image');
+  $variables['attributes']['typeof'] = ['foaf:Image'];
 }
 
 /**
@@ -619,6 +616,10 @@ function hook_preprocess_HOOK(&$variables) {
  * hook called (in this case 'node__article') is available in
  * $variables['theme_hook_original'].
  *
+ * Implementations of this hook must be placed in *.module or *.theme files, or
+ * must otherwise make sure that the hook implementation is available at
+ * any given time.
+ *
  * @todo Add @code sample.
  *
  * @param array $variables
@@ -631,9 +632,9 @@ function hook_preprocess_HOOK(&$variables) {
  * @see hook_theme_suggestions_HOOK_alter()
  */
 function hook_theme_suggestions_HOOK(array $variables) {
-  $suggestions = array();
+  $suggestions = [];
 
-  $suggestions[] = 'node__' . $variables['elements']['#langcode'];
+  $suggestions[] = 'hookname__' . $variables['elements']['#langcode'];
 
   return $suggestions;
 }
@@ -700,6 +701,10 @@ function hook_theme_suggestions_alter(array &$suggestions, array $variables, $ho
  * hook called (in this case 'node__article') is available in
  * $variables['theme_hook_original'].
  *
+ * Implementations of this hook must be placed in *.module or *.theme files, or
+ * must otherwise make sure that the hook implementation is available at
+ * any given time.
+ *
  * @todo Add @code sample.
  *
  * @param array $suggestions
@@ -713,7 +718,7 @@ function hook_theme_suggestions_alter(array &$suggestions, array $variables, $ho
  */
 function hook_theme_suggestions_HOOK_alter(array &$suggestions, array $variables) {
   if (empty($variables['header'])) {
-    $suggestions[] = 'hookname__' . 'no_header';
+    $suggestions[] = 'hookname__no_header';
   }
 }
 
@@ -723,7 +728,7 @@ function hook_theme_suggestions_HOOK_alter(array &$suggestions, array $variables
  * @param array $theme_list
  *   Array containing the names of the themes being installed.
  *
- * @see \Drupal\Core\Extension\ThemeHandler::install()
+ * @see \Drupal\Core\Extension\ThemeInstallerInterface::install()
  */
 function hook_themes_installed($theme_list) {
   foreach ($theme_list as $theme) {
@@ -734,10 +739,10 @@ function hook_themes_installed($theme_list) {
 /**
  * Respond to themes being uninstalled.
  *
- * @param array $theme_list
+ * @param array $themes
  *   Array containing the names of the themes being uninstalled.
  *
- * @see \Drupal\Core\Extension\ThemeHandler::uninstall()
+ * @see \Drupal\Core\Extension\ThemeInstallerInterface::uninstall()
  */
 function hook_themes_uninstalled(array $themes) {
   // Remove some state entries depending on the theme.
@@ -762,6 +767,12 @@ function hook_extension() {
 
 /**
  * Render a template using the theme engine.
+ *
+ * It is the theme engine's responsibility to escape variables. The only
+ * exception is if a variable implements
+ * \Drupal\Component\Render\MarkupInterface. Drupal is inherently unsafe if
+ * other variables are not escaped. The helper function
+ * theme_render_and_autoescape() may be used for this.
  *
  * @param string $template_file
  *   The path (relative to the Drupal root directory) to the template to be
@@ -800,6 +811,24 @@ function hook_element_info_alter(array &$info) {
   if (isset($info['textfield']['#size'])) {
     $info['textfield']['#size'] = 40;
   }
+}
+
+/**
+ * Alter Element plugin definitions.
+ *
+ * Whenever possible, hook_element_info_alter() should be used to alter the
+ * default properties of an element type. Use this hook only when the plugin
+ * definition itself needs to be altered.
+ *
+ * @param array $definitions
+ *   An array of Element plugin definitions.
+ *
+ * @see \Drupal\Core\Render\ElementInfoManager
+ * @see \Drupal\Core\Render\Element\ElementInterface
+ */
+function hook_element_plugin_alter(array &$definitions) {
+  // Use a custom class for the LayoutBuilder element.
+  $definitions['layout_builder']['class'] = '\Drupal\mymodule\Element\MyLayoutBuilderElement';
 }
 
 /**
@@ -963,10 +992,10 @@ function hook_library_info_alter(&$libraries, $extension) {
       // relative to the original extension, specify an absolute path (relative
       // to DRUPAL_ROOT / base_path()) to the new location.
       $new_path = '/' . drupal_get_path('module', 'farbtastic_update') . '/js';
-      $new_js = array();
-      $replacements = array(
+      $new_js = [];
+      $replacements = [
         $old_path . '/farbtastic.js' => $new_path . '/farbtastic-2.0.js',
-      );
+      ];
       foreach ($libraries['jquery.farbtastic']['js'] as $source => $options) {
         if (isset($replacements[$source])) {
           $new_js[$replacements[$source]] = $options;
@@ -1014,7 +1043,7 @@ function hook_css_alter(&$css, \Drupal\Core\Asset\AttachedAssetsInterface $asset
  */
 function hook_page_attachments(array &$attachments) {
   // Unconditionally attach an asset to the page.
-  $attachments['#attached']['library'][] = 'core/domready';
+  $attachments['#attached']['library'][] = 'core/drupalSettings';
 
   // Conditionally attach an asset to the page.
   if (!\Drupal::currentUser()->hasPermission('may pet kittens')) {
@@ -1139,7 +1168,7 @@ function hook_page_bottom(array &$page_bottom) {
  *     Instead of this suggestion's implementation being used directly, the base
  *     hook will be invoked with this implementation as its first suggestion.
  *     The base hook's files will be included and the base hook's preprocess
- *     functions will be called in place of any suggestion's preprocess
+ *     functions will be called in addition to any suggestion's preprocess
  *     functions. If an implementation of hook_theme_suggestions_HOOK() (where
  *     HOOK is the base hook) changes the suggestion order, a different
  *     suggestion may be used in place of this suggestion. If after
@@ -1179,21 +1208,21 @@ function hook_page_bottom(array &$page_bottom) {
  * @see hook_theme_registry_alter()
  */
 function hook_theme($existing, $type, $theme, $path) {
-  return array(
-    'forum_display' => array(
-      'variables' => array('forums' => NULL, 'topics' => NULL, 'parents' => NULL, 'tid' => NULL, 'sortby' => NULL, 'forum_per_page' => NULL),
-    ),
-    'forum_list' => array(
-      'variables' => array('forums' => NULL, 'parents' => NULL, 'tid' => NULL),
-    ),
-    'forum_icon' => array(
-      'variables' => array('new_posts' => NULL, 'num_posts' => 0, 'comment_mode' => 0, 'sticky' => 0),
-    ),
-    'status_report' => array(
+  return [
+    'forum_display' => [
+      'variables' => ['forums' => NULL, 'topics' => NULL, 'parents' => NULL, 'tid' => NULL, 'sortby' => NULL, 'forum_per_page' => NULL],
+    ],
+    'forum_list' => [
+      'variables' => ['forums' => NULL, 'parents' => NULL, 'tid' => NULL],
+    ],
+    'forum_icon' => [
+      'variables' => ['new_posts' => NULL, 'num_posts' => 0, 'comment_mode' => 0, 'sticky' => 0],
+    ],
+    'status_report' => [
       'render element' => 'requirements',
       'file' => 'system.admin.inc',
-    ),
-  );
+    ],
+  ];
 }
 
 /**

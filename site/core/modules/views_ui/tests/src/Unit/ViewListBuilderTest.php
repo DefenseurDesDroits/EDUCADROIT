@@ -38,55 +38,54 @@ class ViewListBuilderTest extends UnitTestCase {
 
     $display_manager->expects($this->any())
       ->method('getDefinition')
-      ->will($this->returnValueMap(array(
-        array(
+      ->will($this->returnValueMap([
+        [
           'default',
           TRUE,
-          array(
+          [
             'id' => 'default',
             'title' => 'Master',
             'theme' => 'views_view',
             'no_ui' => TRUE,
             'admin' => '',
-          )
-        ),
-        array(
+          ],
+        ],
+        [
           'page',
           TRUE,
-          array(
+          [
             'id' => 'page',
             'title' => 'Page',
             'uses_menu_links' => TRUE,
             'uses_route' => TRUE,
-            'contextual_links_locations' => array('page'),
+            'contextual_links_locations' => ['page'],
             'theme' => 'views_view',
             'admin' => 'Page admin label',
-          )
-        ),
-        array(
+          ],
+        ],
+        [
           'embed',
           TRUE,
-          array(
+          [
             'id' => 'embed',
             'title' => 'embed',
             'theme' => 'views_view',
             'admin' => 'Embed admin label',
-          )
-        ),
-      )));
+          ],
+        ],
+      ]));
 
-
-    $default_display = $this->getMock('Drupal\views\Plugin\views\display\DefaultDisplay',
-      array('initDisplay'),
-      array(array(), 'default', $display_manager->getDefinition('default'))
-    );
-    $route_provider = $this->getMock('Drupal\Core\Routing\RouteProviderInterface');
-    $state = $this->getMock('\Drupal\Core\State\StateInterface');
-    $menu_storage = $this->getMock('\Drupal\Core\Entity\EntityStorageInterface');
-    $page_display = $this->getMock('Drupal\views\Plugin\views\display\Page',
-      array('initDisplay', 'getPath'),
-      array(array(), 'default', $display_manager->getDefinition('page'), $route_provider, $state, $menu_storage)
-    );
+    $default_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\DefaultDisplay')
+      ->setMethods(['initDisplay'])
+      ->setConstructorArgs([[], 'default', $display_manager->getDefinition('default')])
+      ->getMock();
+    $route_provider = $this->createMock('Drupal\Core\Routing\RouteProviderInterface');
+    $state = $this->createMock('\Drupal\Core\State\StateInterface');
+    $menu_storage = $this->createMock('\Drupal\Core\Entity\EntityStorageInterface');
+    $page_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\Page')
+      ->setMethods(['initDisplay', 'getPath'])
+      ->setConstructorArgs([[], 'default', $display_manager->getDefinition('page'), $route_provider, $state, $menu_storage])
+      ->getMock();
     $page_display->expects($this->any())
       ->method('getPath')
       ->will($this->onConsecutiveCalls(
@@ -94,11 +93,12 @@ class ViewListBuilderTest extends UnitTestCase {
         $this->returnValue('<object>malformed_path</object>'),
         $this->returnValue('<script>alert("placeholder_page/%")</script>')));
 
-    $embed_display = $this->getMock('Drupal\views\Plugin\views\display\Embed', array('initDisplay'),
-      array(array(), 'default', $display_manager->getDefinition('embed'))
-    );
+    $embed_display = $this->getMockBuilder('Drupal\views\Plugin\views\display\Embed')
+      ->setMethods(['initDisplay'])
+      ->setConstructorArgs([[], 'default', $display_manager->getDefinition('embed')])
+      ->getMock();
 
-    $values = array();
+    $values = [];
     $values['status'] = FALSE;
     $values['display']['default']['id'] = 'default';
     $values['display']['default']['display_title'] = 'Display';
@@ -125,22 +125,22 @@ class ViewListBuilderTest extends UnitTestCase {
 
     $display_manager->expects($this->any())
       ->method('createInstance')
-      ->will($this->returnValueMap(array(
-        array('default', $values['display']['default'], $default_display),
-        array('page', $values['display']['page_1'], $page_display),
-        array('page', $values['display']['page_2'], $page_display),
-        array('page', $values['display']['page_3'], $page_display),
-        array('embed', $values['display']['embed'], $embed_display),
-      )));
+      ->will($this->returnValueMap([
+        ['default', $values['display']['default'], $default_display],
+        ['page', $values['display']['page_1'], $page_display],
+        ['page', $values['display']['page_2'], $page_display],
+        ['page', $values['display']['page_3'], $page_display],
+        ['embed', $values['display']['embed'], $embed_display],
+      ]));
 
     $container = new ContainerBuilder();
-    $user = $this->getMock('Drupal\Core\Session\AccountInterface');
+    $user = $this->createMock('Drupal\Core\Session\AccountInterface');
     $request_stack = new RequestStack();
     $request_stack->push(new Request());
     $views_data = $this->getMockBuilder('Drupal\views\ViewsData')
       ->disableOriginalConstructor()
       ->getMock();
-    $route_provider = $this->getMock('Drupal\Core\Routing\RouteProviderInterface');
+    $route_provider = $this->createMock('Drupal\Core\Routing\RouteProviderInterface');
     $executable_factory = new ViewExecutableFactory($user, $request_stack, $views_data, $route_provider);
     $container->set('views.executable', $executable_factory);
     $container->set('plugin.manager.views.display', $display_manager);
@@ -148,25 +148,38 @@ class ViewListBuilderTest extends UnitTestCase {
 
     // Setup a view list builder with a mocked buildOperations method,
     // because t() is called on there.
-    $entity_type = $this->getMock('Drupal\Core\Entity\EntityTypeInterface');
+    $entity_type = $this->createMock('Drupal\Core\Entity\EntityTypeInterface');
     $view_list_builder = new TestViewListBuilder($entity_type, $storage, $display_manager);
     $view_list_builder->setStringTranslation($this->getStringTranslationStub());
 
+    // Create new view with test values.
     $view = new View($values, 'view');
 
+    // Get the row object created by ViewListBuilder for this test view.
     $row = $view_list_builder->buildRow($view);
 
-    $expected_displays = array(
-      'Embed admin label',
-      'Page admin label',
-      'Page admin label',
-      'Page admin label',
-    );
-    $this->assertEquals($expected_displays, $row['data']['view_name']['data']['#displays']);
+    // Expected output array for view's displays.
+    $expected_displays = [
+      '0' => [
+        'display' => 'Embed admin label',
+        'path' => FALSE,
+      ],
+      '1' => [
+        'display' => 'Page admin label',
+        'path' => '/<object>malformed_path</object>',
+      ],
+      '2' => [
+        'display' => 'Page admin label',
+        'path' => '/<script>alert("placeholder_page/%")</script>',
+      ],
+      '3' => [
+        'display' => 'Page admin label',
+        'path' => '/test_page',
+      ],
+    ];
 
-    $display_paths = $row['data']['path']['data']['#items'];
-    // These values will be escaped by Twig when rendered.
-    $this->assertEquals('/test_page, /<object>malformed_path</object>, /<script>alert("placeholder_page/%")</script>', implode(', ', $display_paths));
+    // Compare the expected and generated output.
+    $this->assertEquals($expected_displays, $row['data']['displays']['data']['#displays']);
   }
 
 }
@@ -174,7 +187,7 @@ class ViewListBuilderTest extends UnitTestCase {
 class TestViewListBuilder extends ViewListBuilder {
 
   public function buildOperations(EntityInterface $entity) {
-    return array();
+    return [];
   }
 
 }

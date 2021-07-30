@@ -5,6 +5,8 @@
  * Schema API handling functions.
  */
 
+use Drupal\Core\Entity\Sql\SqlContentEntityStorageSchema;
+
 /**
  * @addtogroup schemaapi
  * @{
@@ -28,9 +30,9 @@ const SCHEMA_UNINSTALLED = -1;
 function drupal_get_schema_versions($module) {
   $updates = &drupal_static(__FUNCTION__, NULL);
   if (!isset($updates[$module])) {
-    $updates = array();
+    $updates = [];
     foreach (\Drupal::moduleHandler()->getModuleList() as $loaded_module => $filename) {
-      $updates[$loaded_module] = array();
+      $updates[$loaded_module] = [];
     }
 
     // Prepare regular expression to match all possible defined hook_update_N().
@@ -74,15 +76,15 @@ function drupal_get_schema_versions($module) {
  *   module is not installed.
  */
 function drupal_get_installed_schema_version($module, $reset = FALSE, $array = FALSE) {
-  static $versions = array();
+  $versions = &drupal_static(__FUNCTION__, []);
 
   if ($reset) {
-    $versions = array();
+    $versions = [];
   }
 
   if (!$versions) {
     if (!$versions = \Drupal::keyValue('system.schema')->getAll()) {
-      $versions = array();
+      $versions = [];
     }
   }
 
@@ -119,7 +121,7 @@ function drupal_install_schema($module) {
   _drupal_schema_initialize($schema, $module, FALSE);
 
   foreach ($schema as $name => $table) {
-    db_create_table($name, $table);
+    \Drupal::database()->schema()->createTable($name, $table);
   }
 }
 
@@ -130,12 +132,12 @@ function drupal_install_schema($module) {
  *   The module for which the tables will be removed.
  */
 function drupal_uninstall_schema($module) {
-  $schema = drupal_get_module_schema($module);
-  _drupal_schema_initialize($schema, $module, FALSE);
-
-  foreach ($schema as $table) {
-    if (db_table_exists($table['name'])) {
-      db_drop_table($table['name']);
+  $tables = drupal_get_module_schema($module);
+  _drupal_schema_initialize($tables, $module, FALSE);
+  $schema = \Drupal::database()->schema();
+  foreach ($tables as $table) {
+    if ($schema->tableExists($table['name'])) {
+      $schema->dropTable($table['name']);
     }
   }
 }
@@ -162,12 +164,12 @@ function drupal_get_module_schema($module, $table = NULL) {
     if (isset($schema[$table])) {
       return $schema[$table];
     }
-    return array();
+    return [];
   }
   elseif (!empty($schema)) {
     return $schema;
   }
-  return array();
+  return [];
 }
 
 /**
@@ -202,7 +204,7 @@ function _drupal_schema_initialize(&$schema, $module, $remove_descriptions = TRU
 }
 
 /**
- * Typecasts values to proper datatypes.
+ * Typecasts values to proper data types.
  *
  * MySQL PDO silently casts, e.g. FALSE and '' to 0, when inserting the value
  * into an integer column, but PostgreSQL PDO does not. Look up the schema
@@ -215,21 +217,15 @@ function _drupal_schema_initialize(&$schema, $module, $remove_descriptions = TRU
  *
  * @return mixed
  *   The converted value.
+ *
+ * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal\Core\Entity\Sql\SqlContentEntityStorageSchema::castValue() instead.
+ *
+ * @see https://www.drupal.org/node/3051983
  */
 function drupal_schema_get_field_value(array $info, $value) {
-  // Preserve legal NULL values.
-  if (isset($value) || !empty($info['not null'])) {
-    if ($info['type'] == 'int' || $info['type'] == 'serial') {
-      $value = (int) $value;
-    }
-    elseif ($info['type'] == 'float') {
-      $value = (float) $value;
-    }
-    elseif (!is_array($value)) {
-      $value = (string) $value;
-    }
-  }
-  return $value;
+  @trigger_error('drupal_schema_get_field_value() is deprecated in drupal:8.8.0. It will be removed from drupal:9.0.0. Use \Drupal\Core\Entity\Sql\SqlContentEntityStorageSchema::castValue($info, $value) instead. See https://www.drupal.org/node/3051983', E_USER_DEPRECATED);
+  return SqlContentEntityStorageSchema::castValue($info, $value);
 }
 
 /**

@@ -19,6 +19,24 @@ namespace Drupal\Core\Config;
 class NullStorage implements StorageInterface {
 
   /**
+   * The storage collection.
+   *
+   * @var string
+   */
+  protected $collection;
+
+  /**
+   * Constructs a new NullStorage.
+   *
+   * @param string $collection
+   *   (optional) The collection to store configuration in. Defaults to the
+   *   default collection.
+   */
+  public function __construct($collection = StorageInterface::DEFAULT_COLLECTION) {
+    $this->collection = $collection;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function exists($name) {
@@ -29,14 +47,14 @@ class NullStorage implements StorageInterface {
    * {@inheritdoc}
    */
   public function read($name) {
-    return array();
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function readMultiple(array $names) {
-    return array();
+    return [];
   }
 
   /**
@@ -78,7 +96,7 @@ class NullStorage implements StorageInterface {
    * {@inheritdoc}
    */
   public function listAll($prefix = '') {
-    return array();
+    return [];
   }
 
   /**
@@ -92,21 +110,22 @@ class NullStorage implements StorageInterface {
    * {@inheritdoc}
    */
   public function createCollection($collection) {
-    // No op.
+    return new static($collection);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getAllCollectionNames() {
-    return array();
+    // Returns only non empty collections.
+    return [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getCollectionName() {
-    return '';
+    return $this->collection;
   }
 
 }

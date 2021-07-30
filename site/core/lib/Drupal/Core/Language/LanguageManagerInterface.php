@@ -58,7 +58,7 @@ interface LanguageManagerInterface {
    *   LanguageInterface::TYPE_INTERFACE, or NULL to reset all language types.
    *   Defaults to NULL.
    *
-   * @return \Drupal\Core\Language\LanguageManagerInterface
+   * @return $this
    *   The language manager that has been reset.
    */
   public function reset($type = NULL);
@@ -99,7 +99,7 @@ interface LanguageManagerInterface {
    * @param string $langcode
    *   The language code.
    *
-   * @return \Drupal\core\Language\LanguageInterface|null
+   * @return \Drupal\Core\Language\LanguageInterface|null
    *   A fully-populated language object or NULL.
    */
   public function getLanguage($langcode);
@@ -161,7 +161,7 @@ interface LanguageManagerInterface {
    *   An array of language codes sorted by priority: first values should be
    *   tried first.
    */
-  public function getFallbackCandidates(array $context = array());
+  public function getFallbackCandidates(array $context = []);
 
   /**
    * Returns the language switch links for the given language type.

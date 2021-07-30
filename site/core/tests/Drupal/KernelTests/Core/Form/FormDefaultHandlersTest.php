@@ -19,7 +19,7 @@ class FormDefaultHandlersTest extends KernelTestBase implements FormInterface {
    *
    * @var array
    */
-  public static $modules = array('system');
+  public static $modules = ['system'];
 
   /**
    * {@inheritdoc}
@@ -42,7 +42,7 @@ class FormDefaultHandlersTest extends KernelTestBase implements FormInterface {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#validate'][] = '::customValidateForm';
     $form['#submit'][] = '::customSubmitForm';
-    $form['submit'] = array('#type' => 'submit', '#value' => 'Save');
+    $form['submit'] = ['#type' => 'submit', '#value' => 'Save'];
     return $form;
   }
 
@@ -85,18 +85,18 @@ class FormDefaultHandlersTest extends KernelTestBase implements FormInterface {
   /**
    * Tests that default handlers are added even if custom are specified.
    */
-  function testDefaultAndCustomHandlers() {
+  public function testDefaultAndCustomHandlers() {
     $form_state = new FormState();
     $form_builder = $this->container->get('form_builder');
     $form_builder->submitForm($this, $form_state);
 
     $handlers = $form_state->get('test_handlers');
 
-    $this->assertIdentical(count($handlers['validate']), 2);
+    $this->assertCount(2, $handlers['validate']);
     $this->assertIdentical($handlers['validate'][0], 'customValidateForm');
     $this->assertIdentical($handlers['validate'][1], 'validateForm');
 
-    $this->assertIdentical(count($handlers['submit']), 2);
+    $this->assertCount(2, $handlers['submit']);
     $this->assertIdentical($handlers['submit'][0], 'customSubmitForm');
     $this->assertIdentical($handlers['submit'][1], 'submitForm');
   }

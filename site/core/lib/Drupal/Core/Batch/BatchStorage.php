@@ -3,7 +3,7 @@
 namespace Drupal\Core\Batch;
 
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\SchemaObjectExistsException;
+use Drupal\Core\Database\DatabaseException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Drupal\Core\Access\CsrfTokenGenerator;
 
@@ -58,10 +58,10 @@ class BatchStorage implements BatchStorageInterface {
     // Ensure that a session is started before using the CSRF token generator.
     $this->session->start();
     try {
-      $batch = $this->connection->query("SELECT batch FROM {batch} WHERE bid = :bid AND token = :token", array(
+      $batch = $this->connection->query("SELECT batch FROM {batch} WHERE bid = :bid AND token = :token", [
         ':bid' => $id,
         ':token' => $this->csrfToken->get($id),
-      ))->fetchField();
+      ])->fetchField();
     }
     catch (\Exception $e) {
       $this->catchException($e);
@@ -93,7 +93,7 @@ class BatchStorage implements BatchStorageInterface {
   public function update(array $batch) {
     try {
       $this->connection->update('batch')
-        ->fields(array('batch' => serialize($batch)))
+        ->fields(['batch' => serialize($batch)])
         ->condition('bid', $batch['id'])
         ->execute();
     }
@@ -150,12 +150,12 @@ class BatchStorage implements BatchStorageInterface {
    */
   protected function doCreate(array $batch) {
     $this->connection->insert('batch')
-      ->fields(array(
+      ->fields([
         'bid' => $batch['id'],
         'timestamp' => REQUEST_TIME,
         'token' => $this->csrfToken->get($batch['id']),
         'batch' => serialize($batch),
-      ))
+      ])
       ->execute();
   }
 
@@ -174,7 +174,7 @@ class BatchStorage implements BatchStorageInterface {
     // If another process has already created the batch table, attempting to
     // recreate it will throw an exception. In this case just catch the
     // exception and do nothing.
-    catch (SchemaObjectExistsException $e) {
+    catch (DatabaseException $e) {
       return TRUE;
     }
     return FALSE;
@@ -200,6 +200,8 @@ class BatchStorage implements BatchStorageInterface {
 
   /**
    * Defines the schema for the batch table.
+   *
+   * @internal
    */
   public function schemaDefinition() {
     return [

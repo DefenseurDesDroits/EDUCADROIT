@@ -8,16 +8,18 @@
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Component\Utility\Unicode;
+use Drupal\Core\Access\AccessibleInterface;
 use Drupal\Core\Asset\AttachedAssetsInterface;
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Url;
+use Drupal\image\Plugin\Field\FieldType\ImageItem;
 use Drupal\system\Entity\Action;
 use Drupal\user\Entity\Role;
 use Drupal\user\Entity\User;
@@ -28,22 +30,43 @@ use Drupal\user\UserInterface;
  * Maximum length of username text field.
  *
  * Keep this under 191 characters so we can use a unique constraint in MySQL.
+ *
+ * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\user\UserInterface::USERNAME_MAX_LENGTH instead.
+ *
+ * @see https://www.drupal.org/node/2831620
  */
 const USERNAME_MAX_LENGTH = 60;
 
 /**
  * Only administrators can create user accounts.
+ *
+ * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\user\UserInterface::REGISTER_ADMINISTRATORS_ONLY instead.
+ *
+ * @see https://www.drupal.org/node/2831620
  */
 const USER_REGISTER_ADMINISTRATORS_ONLY = 'admin_only';
 
 /**
  * Visitors can create their own accounts.
+ *
+ * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\user\UserInterface::REGISTER_VISITORS instead.
+ *
+ * @see https://www.drupal.org/node/2831620
  */
 const USER_REGISTER_VISITORS = 'visitors';
 
 /**
  * Visitors can create accounts, but they don't become active without
  * administrative approval.
+ *
+ * @deprecated in drupal:8.3.0 and is removed from drupal:9.0.0.
+ *   Use \Drupal\user\UserInterface::REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL
+ *   instead.
+ *
+ * @see https://www.drupal.org/node/2831620
  */
 const USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL = 'visitors_admin_approval';
 
@@ -55,19 +78,19 @@ function user_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.user':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The User module allows users to register, log in, and log out. It also allows users with proper permissions to manage user roles and permissions. For more information, see the <a href=":user_docs">online documentation for the User module</a>.', array(':user_docs' => 'https://www.drupal.org/documentation/modules/user')) . '</p>';
+      $output .= '<p>' . t('The User module allows users to register, log in, and log out. It also allows users with proper permissions to manage user roles and permissions. For more information, see the <a href=":user_docs">online documentation for the User module</a>.', [':user_docs' => 'https://www.drupal.org/documentation/modules/user']) . '</p>';
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<dl>';
       $output .= '<dt>' . t('Creating and managing users') . '</dt>';
-      $output .= '<dd>' . t('Through the <a href=":people">People administration page</a> you can add and cancel user accounts and assign users to roles. By editing one particular user you can change their username, email address, password, and information in other fields.', array(':people' => \Drupal::url('entity.user.collection'))) . '</dd>';
+      $output .= '<dd>' . t('Through the <a href=":people">People administration page</a> you can add and cancel user accounts and assign users to roles. By editing one particular user you can change their username, email address, password, and information in other fields.', [':people' => Url::fromRoute('entity.user.collection')->toString()]) . '</dd>';
       $output .= '<dt>' . t('Configuring user roles') . '</dt>';
-      $output .= '<dd>' . t('<em>Roles</em> are used to group and classify users; each user can be assigned one or more roles. Typically there are two pre-defined roles: <em>Anonymous user</em> (users that are not logged in), and <em>Authenticated user</em> (users that are registered and logged in). Depending on how your site was set up, an <em>Administrator</em> role may also be available: users with this role will automatically be assigned any new permissions whenever a module is enabled. You can create additional roles on the <a href=":roles">Roles administration page</a>.', array(':roles' => \Drupal::url('entity.user_role.collection'))) . '</dd>';
+      $output .= '<dd>' . t('<em>Roles</em> are used to group and classify users; each user can be assigned one or more roles. Typically there are two pre-defined roles: <em>Anonymous user</em> (users that are not logged in), and <em>Authenticated user</em> (users that are registered and logged in). Depending on how your site was set up, an <em>Administrator</em> role may also be available: users with this role will automatically be assigned any new permissions whenever a module is enabled. You can create additional roles on the <a href=":roles">Roles administration page</a>.', [':roles' => Url::fromRoute('entity.user_role.collection')->toString()]) . '</dd>';
       $output .= '<dt>' . t('Setting permissions') . '</dt>';
-      $output .= '<dd>' . t('After creating roles, you can set permissions for each role on the <a href=":permissions_user">Permissions page</a>. Granting a permission allows users who have been assigned a particular role to perform an action on the site, such as viewing content, editing or creating  a particular type of content, administering settings for a particular module, or using a particular function of the site (such as search).', array(':permissions_user' => \Drupal::url('user.admin_permissions'))) . '</dd>';
+      $output .= '<dd>' . t('After creating roles, you can set permissions for each role on the <a href=":permissions_user">Permissions page</a>. Granting a permission allows users who have been assigned a particular role to perform an action on the site, such as viewing content, editing or creating  a particular type of content, administering settings for a particular module, or using a particular function of the site (such as search).', [':permissions_user' => Url::fromRoute('user.admin_permissions')->toString()]) . '</dd>';
       $output .= '<dt>' . t('Managing account settings') . '</dt>';
-      $output .= '<dd>' . t('The <a href=":accounts">Account settings page</a> allows you to manage settings for the displayed name of the Anonymous user role, personal contact forms, user registration settings, and account cancellation settings. On this page you can also manage settings for account personalization, and adapt the text for the email messages that users receive when they register or request a password recovery. You may also set which role is automatically assigned new permissions whenever a module is enabled (the Administrator role).', array(':accounts'  => \Drupal::url('entity.user.admin_form'))) . '</dd>';
+      $output .= '<dd>' . t('The <a href=":accounts">Account settings page</a> allows you to manage settings for the displayed name of the Anonymous user role, personal contact forms, user registration settings, and account cancellation settings. On this page you can also manage settings for account personalization, and adapt the text for the email messages that users receive when they register or request a password recovery. You may also set which role is automatically assigned new permissions whenever a module is enabled (the Administrator role).', [':accounts' => Url::fromRoute('entity.user.admin_form')->toString()]) . '</dd>';
       $output .= '<dt>' . t('Managing user account fields') . '</dt>';
-      $output .= '<dd>' . t('Because User accounts are an entity type, you can extend them by adding fields through the Manage fields tab on the <a href=":accounts">Account settings page</a>. By adding fields for e.g., a picture, a biography, or address, you can a create a custom profile for the users of the website. For background information on entities and fields, see the <a href=":field_help">Field module help page</a>.', array(':field_help' => (\Drupal::moduleHandler()->moduleExists('field')) ? \Drupal::url('help.page', array('name' => 'field')) : '#', ':accounts' => \Drupal::url('entity.user.admin_form'))) . '</dd>';
+      $output .= '<dd>' . t('Because User accounts are an entity type, you can extend them by adding fields through the Manage fields tab on the <a href=":accounts">Account settings page</a>. By adding fields for e.g., a picture, a biography, or address, you can a create a custom profile for the users of the website. For background information on entities and fields, see the <a href=":field_help">Field module help page</a>.', [':field_help' => (\Drupal::moduleHandler()->moduleExists('field')) ? Url::fromRoute('help.page', ['name' => 'field'])->toString() : '#', ':accounts' => Url::fromRoute('entity.user.admin_form')->toString()]) . '</dd>';
       $output .= '</dl>';
       return $output;
 
@@ -75,10 +98,10 @@ function user_help($route_name, RouteMatchInterface $route_match) {
       return '<p>' . t("This web page allows administrators to register new users. Users' email addresses and usernames must be unique.") . '</p>';
 
     case 'user.admin_permissions':
-      return '<p>' . t('Permissions let you control what users can do and see on your site. You can define a specific set of permissions for each role. (See the <a href=":role">Roles</a> page to create a role.) Any permissions granted to the Authenticated user role will be given to any user who is logged in to your site. From the <a href=":settings">Account settings</a> page, you can make any role into an Administrator role for the site, meaning that role will be granted all new permissions automatically. You should be careful to ensure that only trusted users are given this access and level of control of your site.', array(':role' => \Drupal::url('entity.user_role.collection'), ':settings' => \Drupal::url('entity.user.admin_form'))) . '</p>';
+      return '<p>' . t('Permissions let you control what users can do and see on your site. You can define a specific set of permissions for each role. (See the <a href=":role">Roles</a> page to create a role.) Any permissions granted to the Authenticated user role will be given to any user who is logged in to your site. From the <a href=":settings">Account settings</a> page, you can make any role into an Administrator role for the site, meaning that role will be granted all new permissions automatically. You should be careful to ensure that only trusted users are given this access and level of control of your site.', [':role' => Url::fromRoute('entity.user_role.collection')->toString(), ':settings' => Url::fromRoute('entity.user.admin_form')->toString()]) . '</p>';
 
     case 'entity.user_role.collection':
-      return '<p>' . t('A role defines a group of users that have certain privileges. These privileges are defined on the <a href=":permissions">Permissions page</a>. Here, you can define the names and the display sort order of the roles on your site. It is recommended to order roles from least permissive (for example, Anonymous user) to most permissive (for example, Administrator user). Users who are not logged in have the Anonymous user role. Users who are logged in have the Authenticated user role, plus any other roles granted to their user account.', array(':permissions' => \Drupal::url('user.admin_permissions'))) . '</p>';
+      return '<p>' . t('A role defines a group of users that have certain privileges. These privileges are defined on the <a href=":permissions">Permissions page</a>. Here, you can define the names and the display sort order of the roles on your site. It is recommended to order roles from least permissive (for example, Anonymous user) to most permissive (for example, Administrator user). Users who are not logged in have the Anonymous user role. Users who are logged in have the Authenticated user role, plus any other roles granted to their user account.', [':permissions' => Url::fromRoute('user.admin_permissions')->toString()]) . '</p>';
 
     case 'entity.user.field_ui_fields':
       return '<p>' . t('This form lets administrators add and edit fields for storing user data.') . '</p>';
@@ -95,14 +118,14 @@ function user_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function user_theme() {
-  return array(
-    'user' => array(
+  return [
+    'user' => [
       'render element' => 'elements',
-    ),
-    'username' => array(
-      'variables' => array('account' => NULL, 'attributes' => array(), 'link_options' => array()),
-    ),
-  );
+    ],
+    'username' => [
+      'variables' => ['account' => NULL, 'attributes' => [], 'link_options' => []],
+    ],
+  ];
 }
 
 /**
@@ -128,7 +151,7 @@ function user_js_settings_alter(&$settings, AttachedAssetsInterface $assets) {
  * preprocess stage.
  */
 function user_picture_enabled() {
-  $field_definitions = \Drupal::entityManager()->getFieldDefinitions('user', 'user');
+  $field_definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('user', 'user');
   return isset($field_definitions['user_picture']);
 }
 
@@ -136,31 +159,44 @@ function user_picture_enabled() {
  * Implements hook_entity_extra_field_info().
  */
 function user_entity_extra_field_info() {
-  $fields['user']['user']['form']['account'] = array(
+  $fields['user']['user']['form']['account'] = [
     'label' => t('User name and password'),
     'description' => t('User module account form elements.'),
     'weight' => -10,
-  );
-  $fields['user']['user']['form']['language'] = array(
+  ];
+  $fields['user']['user']['form']['language'] = [
     'label' => t('Language settings'),
     'description' => t('User module form element.'),
     'weight' => 0,
-  );
+  ];
   if (\Drupal::config('system.date')->get('timezone.user.configurable')) {
-    $fields['user']['user']['form']['timezone'] = array(
+    $fields['user']['user']['form']['timezone'] = [
       'label' => t('Timezone'),
       'description' => t('System module form element.'),
       'weight' => 6,
-    );
+    ];
   }
 
-  $fields['user']['user']['display']['member_for'] = array(
+  $fields['user']['user']['display']['member_for'] = [
     'label' => t('Member for'),
-    'description' => t('User module \'member for\' view element.'),
+    'description' => t("User module 'member for' view element."),
     'weight' => 5,
-  );
+  ];
 
   return $fields;
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for user entities.
+ *
+ * @todo https://www.drupal.org/project/drupal/issues/3112704 Move to
+ *   \Drupal\user\Entity\User::preSave().
+ */
+function user_user_presave(UserInterface $account) {
+  $config = \Drupal::config('system.date');
+  if ($config->get('timezone.user.configurable') && !$account->getTimeZone() && !$config->get('timezone.user.default')) {
+    $account->timezone = $config->get('timezone.default');
+  }
 }
 
 /**
@@ -179,18 +215,15 @@ function user_entity_extra_field_info() {
  * @return array
  *   An array of user objects, indexed by uid.
  *
- * @see entity_load_multiple()
- * @see \Drupal\user\Entity\User::load()
- * @see user_load_by_mail()
- * @see user_load_by_name()
- * @see \Drupal\Core\Entity\Query\QueryInterface
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal\user\Entity\User::loadMultiple().
  *
- * @deprecated in Drupal 8.x, will be removed before Drupal 9.0.
- *   Use \Drupal\user\Entity\User::loadMultiple().
+ * @see https://www.drupal.org/node/2266845
  */
 function user_load_multiple(array $uids = NULL, $reset = FALSE) {
+  @trigger_error('user_load_multiple() is deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0. Use \Drupal\user\Entity\User::loadMultiple(). See https://www.drupal.org/node/2266845', E_USER_DEPRECATED);
   if ($reset) {
-    \Drupal::entityManager()->getStorage('user')->resetCache($uids);
+    \Drupal::entityTypeManager()->getStorage('user')->resetCache($uids);
   }
   return User::loadMultiple($uids);
 }
@@ -208,14 +241,15 @@ function user_load_multiple(array $uids = NULL, $reset = FALSE) {
  *   A fully-loaded user object upon successful user load, or NULL if the user
  *   cannot be loaded.
  *
- * @deprecated in Drupal 8.x, will be removed before Drupal 9.0.
- *   Use \Drupal\user\Entity\User::load().
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use
+ *   Drupal\user\Entity\User::load().
  *
- * @see \Drupal\user\Entity\User::loadMultiple()
+ * @see https://www.drupal.org/node/2266845
  */
 function user_load($uid, $reset = FALSE) {
+  @trigger_error('user_load() is deprecated in Drupal 8.0.0 and will be removed before Drupal 9.0.0. Use \Drupal\user\Entity\User::load(). See https://www.drupal.org/node/2266845', E_USER_DEPRECATED);
   if ($reset) {
-    \Drupal::entityManager()->getStorage('user')->resetCache(array($uid));
+    \Drupal::entityTypeManager()->getStorage('user')->resetCache([$uid]);
   }
   return User::load($uid);
 }
@@ -225,9 +259,9 @@ function user_load($uid, $reset = FALSE) {
  *
  * @param string $mail
  *   String with the account's email address.
- * @return object|bool
- *   A fully-loaded $user object upon successful user load or FALSE if user
- *   cannot be loaded.
+ *
+ * @return \Drupal\user\UserInterface|false
+ *   A user entity upon successful user load, or FALSE if user cannot be loaded.
  *
  * @see \Drupal\user\Entity\User::loadMultiple()
  */
@@ -242,9 +276,9 @@ function user_load_by_mail($mail) {
  *
  * @param string $name
  *   String with the account's user name.
- * @return object|bool
- *   A fully-loaded $user object upon successful user load or FALSE if user
- *   cannot be loaded.
+ *
+ * @return \Drupal\user\UserInterface|false
+ *   A user entity upon successful user load, or FALSE if user cannot be loaded.
  *
  * @see \Drupal\user\Entity\User::loadMultiple()
  */
@@ -266,7 +300,7 @@ function user_load_by_name($name) {
  */
 function user_validate_name($name) {
   $definition = BaseFieldDefinition::create('string')
-    ->addConstraint('UserName', array());
+    ->addConstraint('UserName', []);
   $data = \Drupal::typedDataManager()->create($definition);
   $data->setValue($name);
   $violations = $data->validate();
@@ -277,30 +311,26 @@ function user_validate_name($name) {
 
 /**
  * Generate a random alphanumeric password.
+ *
+ * @param int $length
+ *   The desired password length, in characters.
+ *
+ * @return string
+ *   The generated random password.
  */
 function user_password($length = 10) {
-  // This variable contains the list of allowable characters for the
-  // password. Note that the number 0 and the letter 'O' have been
-  // removed to avoid confusion between the two. The same is true
-  // of 'I', 1, and 'l'.
-  $allowable_characters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  // This variable contains the list of allowed characters for the password.
+  // Note that the number 0 and the letter 'O' have been removed to avoid
+  // confusion between the two. The same is true of 'I', 1, and 'l'.
+  $allowed_characters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-  // Zero-based count of characters in the allowable list:
-  $len = strlen($allowable_characters) - 1;
+  // The maximum integer we want from random_int().
+  $max = strlen($allowed_characters) - 1;
 
-  // Declare the password as a blank string.
   $pass = '';
 
-  // Loop the number of times specified by $length.
   for ($i = 0; $i < $length; $i++) {
-    do {
-      // Find a secure random number within the range needed.
-      $index = ord(Crypt::randomBytes(1));
-    } while ($index > $len);
-
-    // Each iteration, pick a random character from the
-    // allowable string and append it to the password:
-    $pass .= $allowable_characters[$index];
+    $pass .= $allowed_characters[random_int(0, $max)];
   }
 
   return $pass;
@@ -321,9 +351,9 @@ function user_role_permissions(array $roles) {
     return _user_role_permissions_update($roles);
   }
   $entities = Role::loadMultiple($roles);
-  $role_permissions = array();
+  $role_permissions = [];
   foreach ($roles as $rid) {
-    $role_permissions[$rid] = isset($entities[$rid]) ? $entities[$rid]->getPermissions() : array();
+    $role_permissions[$rid] = isset($entities[$rid]) ? $entities[$rid]->getPermissions() : [];
   }
   return $role_permissions;
 }
@@ -343,9 +373,9 @@ function user_role_permissions(array $roles) {
  *   for the given role.
  */
 function _user_role_permissions_update($roles) {
-  $role_permissions = array();
+  $role_permissions = [];
   foreach ($roles as $rid) {
-    $role_permissions[$rid] = \Drupal::config("user.role.$rid")->get('permissions') ?: array();
+    $role_permissions[$rid] = \Drupal::config("user.role.$rid")->get('permissions') ?: [];
   }
   return $role_permissions;
 }
@@ -371,10 +401,10 @@ function user_is_blocked($name) {
  */
 function user_user_view(array &$build, UserInterface $account, EntityViewDisplayInterface $display) {
   if ($display->getComponent('member_for')) {
-    $build['member_for'] = array(
+    $build['member_for'] = [
       '#type' => 'item',
       '#markup' => '<h4 class="label">' . t('Member for') . '</h4> ' . \Drupal::service('date.formatter')->formatTimeDiffSince($account->getCreatedTime()),
-    );
+    ];
   }
 }
 
@@ -385,11 +415,18 @@ function user_user_view(array &$build, UserInterface $account, EntityViewDisplay
  * accessibility.
  */
 function user_user_view_alter(array &$build, UserInterface $account, EntityViewDisplayInterface $display) {
-  if (user_picture_enabled() && !empty($build['user_picture'])) {
+  if (!empty($build['user_picture']) && user_picture_enabled()) {
     foreach (Element::children($build['user_picture']) as $key) {
+      if (!isset($build['user_picture'][$key]['#item']) || !($build['user_picture'][$key]['#item'] instanceof ImageItem)) {
+        // User picture field is provided by standard profile install. If the
+        // display is configured to use a different formatter, the #item render
+        // key may not exist, or may not be an image field.
+        continue;
+      }
+      /** @var \Drupal\image\Plugin\Field\FieldType\ImageItem $item */
       $item = $build['user_picture'][$key]['#item'];
       if (!$item->get('alt')->getValue()) {
-        $item->get('alt')->setValue(\Drupal::translation()->translate('Profile picture for user @username', ['@username' => $account->getUsername()]));
+        $item->get('alt')->setValue(\Drupal::translation()->translate('Profile picture for user @username', ['@username' => $account->getAccountName()]));
       }
     }
   }
@@ -417,12 +454,13 @@ function user_preprocess_block(&$variables) {
  * @return string
  *   An unsanitized string with the username to display.
  *
- * @deprecated in Drupal 8.0.x-dev, will be removed before Drupal 9.0.0.
- *   Use \Drupal\Core\Session\AccountInterface::getDisplayName().
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
+ *   Use $account->label() or $account->getDisplayName() instead
  *
- * @todo Remove usage in https://www.drupal.org/node/2311219.
+ * @see https://www.drupal.org/node/3050794
  */
 function user_format_name(AccountInterface $account) {
+  @trigger_error('user_format_name() is deprecated in drupal:8.0.0 and is removed from drupal:9.0.0. Use $account->label() or $account->getDisplayName() instead. See https://www.drupal.org/node/3050794', E_USER_DEPRECATED);
   return $account->getDisplayName();
 }
 
@@ -471,9 +509,9 @@ function template_preprocess_username(&$variables) {
   // unsanitized version, in case other preprocess functions want to implement
   // their own shortening logic or add markup. If they do so, they must ensure
   // that $variables['name'] is safe for printing.
-  $name  = $account->getDisplayName();
-  $variables['name_raw'] = $account->getUsername();
-  if (Unicode::strlen($name) > 20) {
+  $name = $account->getDisplayName();
+  $variables['name_raw'] = $account->getAccountName();
+  if (mb_strlen($name) > 20) {
     $name = Unicode::truncate($name, 15, FALSE, TRUE);
     $variables['truncated'] = TRUE;
   }
@@ -481,7 +519,12 @@ function template_preprocess_username(&$variables) {
     $variables['truncated'] = FALSE;
   }
   $variables['name'] = $name;
-  $variables['profile_access'] = \Drupal::currentUser()->hasPermission('access user profiles');
+  if ($account instanceof AccessibleInterface) {
+    $variables['profile_access'] = $account->access('view');
+  }
+  else {
+    $variables['profile_access'] = \Drupal::currentUser()->hasPermission('access user profiles');
+  }
 
   $external = FALSE;
   // Populate link path and attributes if appropriate.
@@ -506,9 +549,9 @@ function template_preprocess_username(&$variables) {
         ->toString();
     }
     else {
-      $variables['attributes']['href'] = Url::fromRoute('entity.user.canonical', array(
+      $variables['attributes']['href'] = Url::fromRoute('entity.user.canonical', [
         'user' => $variables['uid'],
-      ))->toString();
+      ])->toString();
     }
   }
 }
@@ -529,11 +572,11 @@ function template_preprocess_username(&$variables) {
  */
 function user_login_finalize(UserInterface $account) {
   \Drupal::currentUser()->setAccount($account);
-  \Drupal::logger('user')->notice('Session opened for %name.', array('%name' => $account->getUsername()));
+  \Drupal::logger('user')->notice('Session opened for %name.', ['%name' => $account->getAccountName()]);
   // Update the user table timestamp noting user has logged in.
   // This is also used to invalidate one-time login links.
   $account->setLastLoginTime(REQUEST_TIME);
-  \Drupal::entityManager()
+  \Drupal::entityTypeManager()
     ->getStorage('user')
     ->updateLastLoginTimestamp($account);
 
@@ -543,22 +586,34 @@ function user_login_finalize(UserInterface $account) {
   // in place.
   \Drupal::service('session')->migrate();
   \Drupal::service('session')->set('uid', $account->id());
-  \Drupal::moduleHandler()->invokeAll('user_login', array($account));
+  \Drupal::moduleHandler()->invokeAll('user_login', [$account]);
 }
 
 /**
  * Implements hook_user_login().
  */
-function user_user_login($account) {
+function user_user_login(UserInterface $account) {
   // Reset static cache of default variables in template_preprocess() to reflect
   // the new user.
   drupal_static_reset('template_preprocess');
+
+  // If the user has a NULL time zone, notify them to set a time zone.
+  $config = \Drupal::config('system.date');
+  if (!$account->getTimezone() && $config->get('timezone.user.configurable') && $config->get('timezone.user.warn')) {
+    \Drupal::messenger()
+      ->addStatus(t('Configure your <a href=":user-edit">account time zone setting</a>.', [
+        ':user-edit' => $account->toUrl('edit-form', [
+          'query' => \Drupal::destination()->getAsArray(),
+          'fragment' => 'edit-timezone',
+        ])->toString(),
+      ]));
+  }
 }
 
 /**
  * Implements hook_user_logout().
  */
-function user_user_logout($account) {
+function user_user_logout(AccountInterface $account) {
   // Reset static cache of default variables in template_preprocess() to reflect
   // the new user.
   drupal_static_reset('template_preprocess');
@@ -578,20 +633,20 @@ function user_user_logout($account) {
  *   A unique URL that provides a one-time log in for the user, from which
  *   they can change their password.
  */
-function user_pass_reset_url($account, $options = array()) {
+function user_pass_reset_url($account, $options = []) {
   $timestamp = REQUEST_TIME;
   $langcode = isset($options['langcode']) ? $options['langcode'] : $account->getPreferredLangcode();
-  return \Drupal::url('user.reset',
-    array(
+  return Url::fromRoute('user.reset',
+    [
       'uid' => $account->id(),
       'timestamp' => $timestamp,
       'hash' => user_pass_rehash($account, $timestamp),
-    ),
-    array(
+    ],
+    [
       'absolute' => TRUE,
-      'language' => \Drupal::languageManager()->getLanguage($langcode)
-    )
-  );
+      'language' => \Drupal::languageManager()->getLanguage($langcode),
+    ]
+  )->toString();
 }
 
 /**
@@ -611,15 +666,15 @@ function user_pass_reset_url($account, $options = array()) {
  * @see user_mail_tokens()
  * @see \Drupal\user\Controller\UserController::confirmCancel()
  */
-function user_cancel_url(UserInterface $account, $options = array()) {
+function user_cancel_url(UserInterface $account, $options = []) {
   $timestamp = REQUEST_TIME;
   $langcode = isset($options['langcode']) ? $options['langcode'] : $account->getPreferredLangcode();
-  $url_options = array('absolute' => TRUE, 'language' => \Drupal::languageManager()->getLanguage($langcode));
-  return \Drupal::url('user.cancel_confirm', [
+  $url_options = ['absolute' => TRUE, 'language' => \Drupal::languageManager()->getLanguage($langcode)];
+  return Url::fromRoute('user.cancel_confirm', [
     'user' => $account->id(),
     'timestamp' => $timestamp,
-    'hashed_pass' => user_pass_rehash($account, $timestamp)
-  ], $url_options);
+    'hashed_pass' => user_pass_rehash($account, $timestamp),
+  ], $url_options)->toString();
 }
 
 /**
@@ -670,16 +725,16 @@ function user_cancel($edit, $uid, $method) {
   $account = User::load($uid);
 
   if (!$account) {
-    drupal_set_message(t('The user account %id does not exist.', array('%id' => $uid)), 'error');
-    \Drupal::logger('user')->error('Attempted to cancel non-existing user account: %id.', array('%id' => $uid));
+    \Drupal::messenger()->addError(t('The user account %id does not exist.', ['%id' => $uid]));
+    \Drupal::logger('user')->error('Attempted to cancel non-existing user account: %id.', ['%id' => $uid]);
     return;
   }
 
   // Initialize batch (to set title).
-  $batch = array(
+  $batch = [
     'title' => t('Cancelling account'),
-    'operations' => array(),
-  );
+    'operations' => [],
+  ];
   batch_set($batch);
 
   // When the 'user_cancel_delete' method is used, user_delete() is called,
@@ -688,16 +743,16 @@ function user_cancel($edit, $uid, $method) {
   // account deletion.
   if ($method != 'user_cancel_delete') {
     // Allow modules to add further sets to this batch.
-    \Drupal::moduleHandler()->invokeAll('user_cancel', array($edit, $account, $method));
+    \Drupal::moduleHandler()->invokeAll('user_cancel', [$edit, $account, $method]);
   }
 
   // Finish the batch and actually cancel the account.
-  $batch = array(
+  $batch = [
     'title' => t('Cancelling user account'),
-    'operations' => array(
-      array('_user_cancel', array($edit, $account, $method)),
-    ),
-  );
+    'operations' => [
+      ['_user_cancel', [$edit, $account, $method]],
+    ],
+  ];
 
   // After cancelling account, ensure that user is logged out.
   if ($account->id() == \Drupal::currentUser()->id()) {
@@ -741,8 +796,8 @@ function _user_cancel($edit, $account, $method) {
       }
       $account->block();
       $account->save();
-      drupal_set_message(t('%name has been disabled.', array('%name' => $account->getDisplayName())));
-      $logger->notice('Blocked user: %name %email.', array('%name' => $account->getAccountName(), '%email' => '<' . $account->getEmail() . '>'));
+      \Drupal::messenger()->addStatus(t('%name has been disabled.', ['%name' => $account->getDisplayName()]));
+      $logger->notice('Blocked user: %name %email.', ['%name' => $account->getAccountName(), '%email' => '<' . $account->getEmail() . '>']);
       break;
 
     case 'user_cancel_reassign':
@@ -752,8 +807,8 @@ function _user_cancel($edit, $account, $method) {
         _user_mail_notify('status_canceled', $account);
       }
       $account->delete();
-      drupal_set_message(t('%name has been deleted.', array('%name' => $account->getDisplayName())));
-      $logger->notice('Deleted user: %name %email.', array('%name' => $account->getAccountName(), '%email' => '<' . $account->getEmail() . '>'));
+      \Drupal::messenger()->addStatus(t('%name has been deleted.', ['%name' => $account->getDisplayName()]));
+      $logger->notice('Deleted user: %name %email.', ['%name' => $account->getAccountName(), '%email' => '<' . $account->getEmail() . '>']);
       break;
   }
 
@@ -793,33 +848,33 @@ function _user_cancel_session_regenerate() {
 function user_cancel_methods() {
   $user_settings = \Drupal::config('user.settings');
   $anonymous_name = $user_settings->get('anonymous');
-  $methods = array(
-    'user_cancel_block' => array(
+  $methods = [
+    'user_cancel_block' => [
       'title' => t('Disable the account and keep its content.'),
       'description' => t('Your account will be blocked and you will no longer be able to log in. All of your content will remain attributed to your username.'),
-    ),
-    'user_cancel_block_unpublish' => array(
+    ],
+    'user_cancel_block_unpublish' => [
       'title' => t('Disable the account and unpublish its content.'),
       'description' => t('Your account will be blocked and you will no longer be able to log in. All of your content will be hidden from everyone but administrators.'),
-    ),
-    'user_cancel_reassign' => array(
-      'title' => t('Delete the account and make its content belong to the %anonymous-name user.', array('%anonymous-name' => $anonymous_name)),
-      'description' => t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', array('%anonymous-name' => $anonymous_name)),
-    ),
-    'user_cancel_delete' => array(
+    ],
+    'user_cancel_reassign' => [
+      'title' => t('Delete the account and make its content belong to the %anonymous-name user.', ['%anonymous-name' => $anonymous_name]),
+      'description' => t('Your account will be removed and all account information deleted. All of your content will be assigned to the %anonymous-name user.', ['%anonymous-name' => $anonymous_name]),
+    ],
+    'user_cancel_delete' => [
       'title' => t('Delete the account and its content.'),
       'description' => t('Your account will be removed and all account information deleted. All of your content will also be deleted.'),
       'access' => \Drupal::currentUser()->hasPermission('administer users'),
-    ),
-  );
+    ],
+  ];
   // Allow modules to customize account cancellation methods.
   \Drupal::moduleHandler()->alter('user_cancel_methods', $methods);
 
   // Turn all methods into real form elements.
-  $form = array(
-    '#options' => array(),
+  $form = [
+    '#options' => [],
     '#default_value' => $user_settings->get('cancel_method'),
-  );
+  ];
   foreach ($methods as $name => $method) {
     $form['#options'][$name] = $method['title'];
     // Add the description for the confirmation form. This description is never
@@ -840,9 +895,18 @@ function user_cancel_methods() {
  *
  * @param int $uid
  *   A user ID.
+ *
+ * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use the user
+ *   entity's delete method to delete the user.
+ * @code
+ *   Drupal::entityTypeManager->getStorage('user')->load($uid)->delete();
+ * @endcode
+ *
+ * @see https://www.drupal.org/node/3051463
  */
 function user_delete($uid) {
-  user_delete_multiple(array($uid));
+  @trigger_error("user_delete() is deprecated in drupal:8.8.0. Use the user entity's delete method to delete the user. See https://www.drupal.org/node/3051463", E_USER_DEPRECATED);
+  user_delete_multiple([$uid]);
 }
 
 /**
@@ -851,10 +915,18 @@ function user_delete($uid) {
  * @param int[] $uids
  *   An array of user IDs.
  *
- * @see hook_ENTITY_TYPE_predelete()
- * @see hook_ENTITY_TYPE_delete()
+ * @deprecated in drupal:8.8.0 and is removed from drupal:9.0.0. Use the
+ *   entity storage system to delete the users.
+ * @code
+ *   $storage_handler = \Drupal::entityTypeManager()->getStorage('user');
+ *   $users = $storage_handler->loadMultiple($uids);
+ *   $storage_handler->delete($users);
+ * @endcode
+ *
+ * @see https://www.drupal.org/node/3051463
  */
 function user_delete_multiple(array $uids) {
+  @trigger_error("user_delete_multiple() is deprecated in drupal:8.8.0. Use the entity storage system to delete the users. See https://www.drupal.org/node/3051463", E_USER_DEPRECATED);
   entity_delete_multiple('user', $uids);
 }
 
@@ -880,10 +952,18 @@ function user_delete_multiple(array $uids) {
  *   content language of the current request.
  *
  * @return array
- *   An array as expected by drupal_render().
+ *   An array as expected by \Drupal\Core\Render\RendererInterface::render().
+ *
+ * @deprecated in drupal:8.7.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal::entityTypeManager()->getViewBuilder('user')->view() instead.
+ *
+ * @see https://www.drupal.org/node/3033656
  */
 function user_view($account, $view_mode = 'full', $langcode = NULL) {
-  return entity_view($account, $view_mode, $langcode);
+  @trigger_error("user_view() is deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0. Use \Drupal::entityTypeManager()->getViewBuilder('user')->view() instead. See https://www.drupal.org/node/3033656", E_USER_DEPRECATED);
+  return \Drupal::entityTypeManager()
+    ->getViewBuilder('user')
+    ->view($account, $view_mode, $langcode);
 }
 
 /**
@@ -898,10 +978,20 @@ function user_view($account, $view_mode = 'full', $langcode = NULL) {
  *   content language of the current request.
  *
  * @return array
- *   An array in the format expected by drupal_render().
+ *   An array in the format expected by
+ *   \Drupal\Core\Render\RendererInterface::render().
+ *
+ * @deprecated in drupal:8.7.0 and is removed from drupal:9.0.0. Use
+ *   \Drupal::entityTypeManager()->getViewBuilder('user')->viewMultiple()
+ *   instead.
+ *
+ * @see https://www.drupal.org/node/3033656
  */
 function user_view_multiple($accounts, $view_mode = 'full', $langcode = NULL) {
-  return entity_view_multiple($accounts, $view_mode, $langcode);
+  @trigger_error("user_view_multiple() is deprecated in Drupal 8.7.0 and will be removed before Drupal 9.0.0. Use \Drupal::entityTypeManager()->getViewBuilder('user')->viewMultiple() instead. See https://www.drupal.org/node/3033656", E_USER_DEPRECATED);
+  return \Drupal::entityTypeManager()
+    ->getViewBuilder('user')
+    ->viewMultiple($accounts, $view_mode, $langcode);
 }
 
 /**
@@ -911,9 +1001,9 @@ function user_mail($key, &$message, $params) {
   $token_service = \Drupal::token();
   $language_manager = \Drupal::languageManager();
   $langcode = $message['langcode'];
-  $variables = array('user' => $params['account']);
+  $variables = ['user' => $params['account']];
 
-  $language = \Drupal::languageManager()->getLanguage($params['account']->getPreferredLangcode());
+  $language = $language_manager->getLanguage($params['account']->getPreferredLangcode());
   $original_language = $language_manager->getConfigOverrideLanguage();
   $language_manager->setConfigOverrideLanguage($language);
   $mail_config = \Drupal::config('user.mail');
@@ -953,8 +1043,6 @@ function user_mail_tokens(&$replacements, $data, $options) {
   }
 }
 
-/*** Administrative features ***********************************************/
-
 /**
  * Retrieves the names of roles matching specified conditions.
  *
@@ -981,34 +1069,34 @@ function user_role_names($membersonly = FALSE, $permission = NULL) {
  */
 function user_user_role_insert(RoleInterface $role) {
   // Ignore the authenticated and anonymous roles or the role is being synced.
-  if (in_array($role->id(), array(RoleInterface::AUTHENTICATED_ID, RoleInterface::ANONYMOUS_ID)) || $role->isSyncing()) {
+  if (in_array($role->id(), [RoleInterface::AUTHENTICATED_ID, RoleInterface::ANONYMOUS_ID]) || $role->isSyncing()) {
     return;
   }
 
   $add_id = 'user_add_role_action.' . $role->id();
   if (!Action::load($add_id)) {
-    $action = Action::create(array(
+    $action = Action::create([
       'id' => $add_id,
       'type' => 'user',
-      'label' => t('Add the @label role to the selected users', array('@label' => $role->label())),
-      'configuration' => array(
+      'label' => t('Add the @label role to the selected user(s)', ['@label' => $role->label()]),
+      'configuration' => [
         'rid' => $role->id(),
-      ),
+      ],
       'plugin' => 'user_add_role_action',
-    ));
+    ]);
     $action->trustData()->save();
   }
   $remove_id = 'user_remove_role_action.' . $role->id();
   if (!Action::load($remove_id)) {
-    $action = Action::create(array(
+    $action = Action::create([
       'id' => $remove_id,
       'type' => 'user',
-      'label' => t('Remove the @label role from the selected users', array('@label' => $role->label())),
-      'configuration' => array(
+      'label' => t('Remove the @label role from the selected user(s)', ['@label' => $role->label()]),
+      'configuration' => [
         'rid' => $role->id(),
-      ),
+      ],
       'plugin' => 'user_remove_role_action',
-    ));
+    ]);
     $action->trustData()->save();
   }
 }
@@ -1018,11 +1106,11 @@ function user_user_role_insert(RoleInterface $role) {
  */
 function user_user_role_delete(RoleInterface $role) {
   // Delete role references for all users.
-  $user_storage = \Drupal::entityManager()->getStorage('user');
-  $user_storage->deleteRoleReferences(array($role->id()));
+  $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+  $user_storage->deleteRoleReferences([$role->id()]);
 
   // Ignore the authenticated and anonymous roles or the role is being synced.
-  if (in_array($role->id(), array(RoleInterface::AUTHENTICATED_ID, RoleInterface::ANONYMOUS_ID)) || $role->isSyncing()) {
+  if (in_array($role->id(), [RoleInterface::AUTHENTICATED_ID, RoleInterface::ANONYMOUS_ID]) || $role->isSyncing()) {
     return;
   }
 
@@ -1075,7 +1163,7 @@ function user_roles($membersonly = FALSE, $permission = NULL) {
  *   A fully-loaded role object if a role with the given ID exists, or NULL
  *   otherwise.
  *
- * @deprecated in Drupal 8.x, will be removed before Drupal 9.0.
+ * @deprecated in drupal:8.0.0 and is removed from drupal:9.0.0.
  *   Use \Drupal\user\Entity\Role::load().
  */
 function user_role_load($rid) {
@@ -1112,7 +1200,7 @@ function user_role_load($rid) {
  * @see user_role_grant_permissions()
  * @see user_role_revoke_permissions()
  */
-function user_role_change_permissions($rid, array $permissions = array()) {
+function user_role_change_permissions($rid, array $permissions = []) {
   // Grant new permissions for the role.
   $grant = array_filter($permissions);
   if (!empty($grant)) {
@@ -1136,7 +1224,7 @@ function user_role_change_permissions($rid, array $permissions = array()) {
  * @see user_role_change_permissions()
  * @see user_role_revoke_permissions()
  */
-function user_role_grant_permissions($rid, array $permissions = array()) {
+function user_role_grant_permissions($rid, array $permissions = []) {
   // Grant new permissions for the role.
   if ($role = Role::load($rid)) {
     foreach ($permissions as $permission) {
@@ -1157,7 +1245,7 @@ function user_role_grant_permissions($rid, array $permissions = array()) {
  * @see user_role_change_permissions()
  * @see user_role_grant_permissions()
  */
-function user_role_revoke_permissions($rid, array $permissions = array()) {
+function user_role_revoke_permissions($rid, array $permissions = []) {
   // Revoke permissions for the role.
   $role = Role::load($rid);
   foreach ($permissions as $permission) {
@@ -1196,7 +1284,7 @@ function user_role_revoke_permissions($rid, array $permissions = array()) {
  *
  * @see user_mail_tokens()
  */
-function _user_mail_notify($op, $account, $langcode = NULL) {
+function _user_mail_notify($op, AccountInterface $account, $langcode = NULL) {
   if (\Drupal::config('user.settings')->get('notify.' . $op)) {
     $params['account'] = $account;
     $langcode = $langcode ? $langcode : $account->getPreferredLangcode();
@@ -1238,16 +1326,16 @@ function user_element_info_alter(array &$types) {
  * validation.
  */
 function user_form_process_password_confirm($element) {
-  $password_settings = array(
+  $password_settings = [
     'confirmTitle' => t('Passwords match:'),
     'confirmSuccess' => t('yes'),
     'confirmFailure' => t('no'),
     'showStrengthIndicator' => FALSE,
-  );
+  ];
 
   if (\Drupal::config('user.settings')->get('password_strength')) {
     $password_settings['showStrengthIndicator'] = TRUE;
-    $password_settings += array(
+    $password_settings += [
       'strengthTitle' => t('Password strength:'),
       'hasWeaknesses' => t('Recommendations to make your password stronger:'),
       'tooShort' => t('Make it at least 12 characters'),
@@ -1260,8 +1348,8 @@ function user_form_process_password_confirm($element) {
       'fair' => t('Fair'),
       'good' => t('Good'),
       'strong' => t('Strong'),
-      'username' => \Drupal::currentUser()->getUsername(),
-    );
+      'username' => \Drupal::currentUser()->getAccountName(),
+    ];
   }
 
   $element['#attached']['library'][] = 'user/drupal.user';
@@ -1307,80 +1395,57 @@ function user_cookie_delete($cookie_name) {
 function user_toolbar() {
   $user = \Drupal::currentUser();
 
-  // Add logout & user account links or login link.
-  $links_cache_contexts = [];
-  if ($user->isAuthenticated()) {
-    $links = array(
-      'account' => array(
-        'title' => t('View profile'),
-        'url' => Url::fromRoute('user.page'),
-        'attributes' => array(
-          'title' => t('User account'),
-        ),
-      ),
-      'account_edit' => array(
-        'title' => t('Edit profile'),
-        'url' => Url::fromRoute('entity.user.edit_form', ['user' => $user->id()]),
-        'attributes' => array(
-          'title' => t('Edit user account'),
-        ),
-      ),
-      'logout' => array(
-        'title' => t('Log out'),
-        'url' => Url::fromRoute('user.logout'),
-      ),
-    );
-    // The "Edit user account" link is per-user.
-    $links_cache_contexts[] = 'user';
-  }
-  else {
-    $links = array(
-      'login' => array(
-        'title' => t('Log in'),
-        'url' => Url::fromRoute('user.page'),
-      ),
-    );
-  }
-
-  $items['user'] = array(
+  $items['user'] = [
     '#type' => 'toolbar_item',
-    'tab' => array(
+    'tab' => [
       '#type' => 'link',
       '#title' => $user->getDisplayName(),
       '#url' => Url::fromRoute('user.page'),
-      '#attributes' => array(
+      '#attributes' => [
         'title' => t('My account'),
-        'class' => array('toolbar-icon', 'toolbar-icon-user'),
-      ),
-      '#cache' => [
-        'contexts' => [
-          // Cacheable per user, because the current user's name is shown.
-          'user',
-        ],
+        'class' => ['toolbar-icon', 'toolbar-icon-user'],
       ],
-    ),
-    'tray' => array(
+      '#cache' => [
+        // Vary cache for anonymous and authenticated users.
+        'contexts' => ['user.roles:anonymous'],
+      ],
+    ],
+    'tray' => [
       '#heading' => t('User account actions'),
-      'user_links' => array(
-        '#cache' => [
-          // Cacheable per "authenticated or not", because the links to
-          // display depend on that.
-          'contexts' => Cache::mergeContexts(array('user.roles:authenticated'), $links_cache_contexts),
-        ],
-        '#theme' => 'links__toolbar_user',
-        '#links' => $links,
-        '#attributes' => array(
-          'class' => array('toolbar-menu'),
-        ),
-      ),
-    ),
+    ],
     '#weight' => 100,
-    '#attached' => array(
-      'library' => array(
+    '#attached' => [
+      'library' => [
         'user/drupal.user.icons',
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
+
+  if ($user->isAnonymous()) {
+    $links = [
+      'login' => [
+        'title' => t('Log in'),
+        'url' => Url::fromRoute('user.page'),
+      ],
+    ];
+    $items['user']['tray']['user_links'] = [
+      '#theme' => 'links__toolbar_user',
+      '#links' => $links,
+      '#attributes' => [
+        'class' => ['toolbar-menu'],
+      ],
+    ];
+  }
+  else {
+    $items['user']['tab']['#title'] = [
+      '#lazy_builder' => ['user.toolbar_link_builder:renderDisplayName', []],
+      '#create_placeholder' => TRUE,
+    ];
+    $items['user']['tray']['user_links'] = [
+      '#lazy_builder' => ['user.toolbar_link_builder:renderToolbarLinks', []],
+      '#create_placeholder' => TRUE,
+    ];
+  }
 
   return $items;
 }
@@ -1391,9 +1456,9 @@ function user_toolbar() {
 function user_logout() {
   $user = \Drupal::currentUser();
 
-  \Drupal::logger('user')->notice('Session closed for %name.', array('%name' => $user->getAccountName()));
+  \Drupal::logger('user')->notice('Session closed for %name.', ['%name' => $user->getAccountName()]);
 
-  \Drupal::moduleHandler()->invokeAll('user_logout', array($user));
+  \Drupal::moduleHandler()->invokeAll('user_logout', [$user]);
 
   // Destroy the current session, and reset $user to the anonymous user.
   // Note: In Symfony the session is intended to be destroyed with
@@ -1423,4 +1488,59 @@ function template_preprocess_user(&$variables) {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for \Drupal\system\Form\RegionalForm.
+ */
+function user_form_system_regional_settings_alter(&$form, FormStateInterface $form_state) {
+  $config = \Drupal::config('system.date');
+
+  $form['timezone']['configurable_timezones'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Users may set their own time zone'),
+    '#default_value' => $config->get('timezone.user.configurable'),
+  ];
+
+  $form['timezone']['configurable_timezones_wrapper'] = [
+    '#type' => 'container',
+    '#states' => [
+      // Hide the user configured timezone settings when users are forced to use
+      // the default setting.
+      'invisible' => [
+        'input[name="configurable_timezones"]' => ['checked' => FALSE],
+      ],
+    ],
+  ];
+  $form['timezone']['configurable_timezones_wrapper']['empty_timezone_message'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Remind users at login if their time zone is not set'),
+    '#default_value' => $config->get('timezone.user.warn'),
+    '#description' => t('Only applied if users may set their own time zone.'),
+  ];
+
+  $form['timezone']['configurable_timezones_wrapper']['user_default_timezone'] = [
+    '#type' => 'radios',
+    '#title' => t('Time zone for new users'),
+    '#default_value' => $config->get('timezone.user.default'),
+    '#options' => [
+      UserInterface::TIMEZONE_DEFAULT => t('Default time zone'),
+      UserInterface::TIMEZONE_EMPTY   => t('Empty time zone'),
+      UserInterface::TIMEZONE_SELECT  => t('Users may set their own time zone at registration'),
+    ],
+    '#description' => t('Only applied if users may set their own time zone.'),
+  ];
+
+  $form['#submit'][] = 'user_form_system_regional_settings_submit';
+}
+
+/**
+ * Additional submit handler for \Drupal\system\Form\RegionalForm.
+ */
+function user_form_system_regional_settings_submit($form, FormStateInterface $form_state) {
+  \Drupal::configFactory()->getEditable('system.date')
+    ->set('timezone.user.configurable', $form_state->getValue('configurable_timezones'))
+    ->set('timezone.user.warn', $form_state->getValue('empty_timezone_message'))
+    ->set('timezone.user.default', $form_state->getValue('user_default_timezone'))
+    ->save();
 }

@@ -17,9 +17,9 @@ class MenuLinkDefaultIntegrationTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array(
+  public static $modules = [
     'menu_test',
-  );
+  ];
 
   /**
    * Tests moving a static menu link without a specified menu to the root.
@@ -34,19 +34,19 @@ class MenuLinkDefaultIntegrationTest extends KernelTestBase {
     $this->assertEqual($menu_link['menu_name'], 'test');
 
     $tree = \Drupal::menuTree()->load('test', new MenuTreeParameters());
-    $this->assertEqual(count($tree), 1);
+    $this->assertCount(1, $tree);
     $this->assertEqual($tree['menu_test.parent']->link->getPluginId(), 'menu_test.parent');
     $this->assertEqual($tree['menu_test.parent']->subtree['menu_test.child']->link->getPluginId(), 'menu_test.child');
 
     // Ensure that the menu name is not forgotten.
-    $menu_link_manager->updateDefinition('menu_test.child', array('parent' => ''));
+    $menu_link_manager->updateDefinition('menu_test.child', ['parent' => '']);
     $menu_link = $menu_link_manager->getDefinition('menu_test.child');
 
     $this->assertEqual($menu_link['parent'], '');
     $this->assertEqual($menu_link['menu_name'], 'test');
 
     $tree = \Drupal::menuTree()->load('test', new MenuTreeParameters());
-    $this->assertEqual(count($tree), 2);
+    $this->assertCount(2, $tree);
     $this->assertEqual($tree['menu_test.parent']->link->getPluginId(), 'menu_test.parent');
     $this->assertEqual($tree['menu_test.child']->link->getPluginId(), 'menu_test.child');
 

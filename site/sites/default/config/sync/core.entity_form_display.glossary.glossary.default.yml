@@ -63,6 +63,7 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
   field_teaser:
     type: string_textarea
     weight: 2
@@ -70,6 +71,7 @@ content:
       rows: 5
       placeholder: ''
     third_party_settings: {  }
+    region: content
   field_vocabularies:
     type: inline_entity_form_complex
     weight: 3
@@ -82,6 +84,7 @@ content:
       allow_new: true
       allow_existing: false
     third_party_settings: {  }
+    region: content
 hidden:
   langcode: true
   user_id: true

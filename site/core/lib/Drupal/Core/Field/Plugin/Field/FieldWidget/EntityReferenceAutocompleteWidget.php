@@ -26,37 +26,45 @@ class EntityReferenceAutocompleteWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public static function defaultSettings() {
-    return array(
+    return [
       'match_operator' => 'CONTAINS',
-      'size' => '60',
+      'match_limit' => 10,
+      'size' => 60,
       'placeholder' => '',
-    ) + parent::defaultSettings();
+    ] + parent::defaultSettings();
   }
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element['match_operator'] = array(
+    $element['match_operator'] = [
       '#type' => 'radios',
       '#title' => t('Autocomplete matching'),
       '#default_value' => $this->getSetting('match_operator'),
       '#options' => $this->getMatchOperatorOptions(),
       '#description' => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of entities.'),
-    );
-    $element['size'] = array(
+    ];
+    $element['match_limit'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Number of results'),
+      '#default_value' => $this->getSetting('match_limit'),
+      '#min' => 0,
+      '#description' => $this->t('The number of suggestions that will be listed. Use <em>0</em> to remove the limit.'),
+    ];
+    $element['size'] = [
       '#type' => 'number',
       '#title' => t('Size of textfield'),
       '#default_value' => $this->getSetting('size'),
       '#min' => 1,
       '#required' => TRUE,
-    );
-    $element['placeholder'] = array(
+    ];
+    $element['placeholder'] = [
       '#type' => 'textfield',
       '#title' => t('Placeholder'),
       '#default_value' => $this->getSetting('placeholder'),
       '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
-    );
+    ];
     return $element;
   }
 
@@ -64,14 +72,16 @@ class EntityReferenceAutocompleteWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
-    $summary = array();
+    $summary = [];
 
     $operators = $this->getMatchOperatorOptions();
-    $summary[] = t('Autocomplete matching: @match_operator', array('@match_operator' => $operators[$this->getSetting('match_operator')]));
-    $summary[] = t('Textfield size: @size', array('@size' => $this->getSetting('size')));
+    $summary[] = t('Autocomplete matching: @match_operator', ['@match_operator' => $operators[$this->getSetting('match_operator')]]);
+    $size = $this->getSetting('match_limit') ?: $this->t('unlimited');
+    $summary[] = $this->t('Autocomplete suggestion list size: @size', ['@size' => $size]);
+    $summary[] = t('Textfield size: @size', ['@size' => $this->getSetting('size')]);
     $placeholder = $this->getSetting('placeholder');
     if (!empty($placeholder)) {
-      $summary[] = t('Placeholder: @placeholder', array('@placeholder' => $placeholder));
+      $summary[] = t('Placeholder: @placeholder', ['@placeholder' => $placeholder]);
     }
     else {
       $summary[] = t('No placeholder');
@@ -88,9 +98,12 @@ class EntityReferenceAutocompleteWidget extends WidgetBase {
     $referenced_entities = $items->referencedEntities();
 
     // Append the match operation to the selection settings.
-    $selection_settings = $this->getFieldSetting('handler_settings') + ['match_operator' => $this->getSetting('match_operator')];
+    $selection_settings = $this->getFieldSetting('handler_settings') + [
+      'match_operator' => $this->getSetting('match_operator'),
+      'match_limit' => $this->getSetting('match_limit'),
+    ];
 
-    $element += array(
+    $element += [
       '#type' => 'entity_autocomplete',
       '#target_type' => $this->getFieldSetting('target_type'),
       '#selection_handler' => $this->getFieldSetting('handler'),
@@ -102,23 +115,23 @@ class EntityReferenceAutocompleteWidget extends WidgetBase {
       '#default_value' => isset($referenced_entities[$delta]) ? $referenced_entities[$delta] : NULL,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
-    );
+    ];
 
-    if ($this->getSelectionHandlerSetting('auto_create') && ($bundle = $this->getAutocreateBundle())) {
-      $element['#autocreate'] = array(
+    if ($bundle = $this->getAutocreateBundle()) {
+      $element['#autocreate'] = [
         'bundle' => $bundle,
-        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : \Drupal::currentUser()->id()
-      );
+        'uid' => ($entity instanceof EntityOwnerInterface) ? $entity->getOwnerId() : \Drupal::currentUser()->id(),
+      ];
     }
 
-    return array('target_id' => $element);
+    return ['target_id' => $element];
   }
 
   /**
    * {@inheritdoc}
    */
   public function errorElement(array $element, ConstraintViolationInterface $error, array $form, FormStateInterface $form_state) {
-    return isset($element['target_id']) ? $element['target_id'] : FALSE;
+    return $element['target_id'];
   }
 
   /**
@@ -141,16 +154,23 @@ class EntityReferenceAutocompleteWidget extends WidgetBase {
    * Returns the name of the bundle which will be used for autocreated entities.
    *
    * @return string
-   *   The bundle name.
+   *   The bundle name. If autocreate is not active, NULL will be returned.
    */
   protected function getAutocreateBundle() {
     $bundle = NULL;
-    if ($this->getSelectionHandlerSetting('auto_create') && $target_bundles = $this->getSelectionHandlerSetting('target_bundles')) {
+    if ($this->getSelectionHandlerSetting('auto_create')) {
+      $target_bundles = $this->getSelectionHandlerSetting('target_bundles');
+      // If there's no target bundle at all, use the target_type. It's the
+      // default for bundleless entity types.
+      if (empty($target_bundles)) {
+        $bundle = $this->getFieldSetting('target_type');
+      }
       // If there's only one target bundle, use it.
-      if (count($target_bundles) == 1) {
+      elseif (count($target_bundles) == 1) {
         $bundle = reset($target_bundles);
       }
-      // Otherwise use the target bundle stored in selection handler settings.
+      // If there's more than one target bundle, use the autocreate bundle
+      // stored in selection handler settings.
       elseif (!$bundle = $this->getSelectionHandlerSetting('auto_create_bundle')) {
         // If no bundle has been set as auto create target means that there is
         // an inconsistency in entity reference field settings.

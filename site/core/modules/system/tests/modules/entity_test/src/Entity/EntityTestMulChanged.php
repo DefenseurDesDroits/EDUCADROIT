@@ -23,7 +23,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
- *     "translation" = "Drupal\content_translation\ContentTranslationHandler",
  *     "views_data" = "Drupal\views\EntityViewsData"
  *   },
  *   base_table = "entity_test_mul_changed",
@@ -59,6 +58,10 @@ class EntityTestMulChanged extends EntityTestMul implements EntityChangedInterfa
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'))
       ->setTranslatable(TRUE);
+
+    $fields['not_translatable'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Non translatable'))
+      ->setDescription(t('A non-translatable string field'));
 
     return $fields;
   }

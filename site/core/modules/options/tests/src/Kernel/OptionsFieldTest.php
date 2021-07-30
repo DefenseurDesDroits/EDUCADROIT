@@ -19,12 +19,12 @@ class OptionsFieldTest extends OptionsFieldUnitTestBase {
    *
    * @var array
    */
-  public static $modules = array('options');
+  public static $modules = ['options'];
 
   /**
    * Test that allowed values can be updated.
    */
-  function testUpdateAllowedValues() {
+  public function testUpdateAllowedValues() {
     // All three options appear.
     $entity = EntityTest::create();
     $form = \Drupal::service('entity.form_builder')->getForm($entity);
@@ -40,10 +40,10 @@ class OptionsFieldTest extends OptionsFieldUnitTestBase {
     $this->fieldStorage->setSetting('allowed_values', [2 => 'Two']);
     try {
       $this->fieldStorage->save();
-      $this->fail(t('Cannot update a list field storage to not include keys with existing data.'));
+      $this->fail('Cannot update a list field storage to not include keys with existing data.');
     }
     catch (FieldStorageDefinitionUpdateForbiddenException $e) {
-      $this->pass(t('Cannot update a list field storage to not include keys with existing data.'));
+      // Expected exception; just continue testing.
     }
     // Empty the value, so that we can actually remove the option.
     unset($entity->{$this->fieldName});
@@ -80,10 +80,11 @@ class OptionsFieldTest extends OptionsFieldUnitTestBase {
       'bundle' => 'entity_test',
       'required' => TRUE,
     ])->save();
-    entity_get_form_display('entity_test', 'entity_test', 'default')
-      ->setComponent($this->fieldName, array(
+    \Drupal::service('entity_display.repository')
+      ->getFormDisplay('entity_test', 'entity_test')
+      ->setComponent($this->fieldName, [
         'type' => 'options_buttons',
-      ))
+      ])
       ->save();
     $entity = EntityTest::create();
     $form = \Drupal::service('entity.form_builder')->getForm($entity);

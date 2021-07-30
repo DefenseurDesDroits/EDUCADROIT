@@ -24,13 +24,13 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
    * {@inheritdoc}
    */
   public function referencedEntities() {
-    if (empty($this->list)) {
-      return array();
+    if ($this->isEmpty()) {
+      return [];
     }
 
     // Collect the IDs of existing entities to load, and directly grab the
     // "autocreate" entities that are already populated in $item->entity.
-    $target_entities = $ids = array();
+    $target_entities = $ids = [];
     foreach ($this->list as $delta => $item) {
       if ($item->target_id !== NULL) {
         $ids[$delta] = $item->target_id;
@@ -43,7 +43,7 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
     // Load and add the existing entities.
     if ($ids) {
       $target_type = $this->getFieldDefinition()->getSetting('target_type');
-      $entities = \Drupal::entityManager()->getStorage($target_type)->loadMultiple($ids);
+      $entities = \Drupal::entityTypeManager()->getStorage($target_type)->loadMultiple($ids);
       foreach ($ids as $delta => $target_id) {
         if (isset($entities[$target_id])) {
           $target_entities[$delta] = $entities[$target_id];
@@ -64,7 +64,7 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
 
     if ($default_value) {
       // Convert UUIDs to numeric IDs.
-      $uuids = array();
+      $uuids = [];
       foreach ($default_value as $delta => $properties) {
         if (isset($properties['target_uuid'])) {
           $uuids[$delta] = $properties['target_uuid'];
@@ -75,11 +75,11 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
         $entity_ids = \Drupal::entityQuery($target_type)
           ->condition('uuid', $uuids, 'IN')
           ->execute();
-        $entities = \Drupal::entityManager()
+        $entities = \Drupal::entityTypeManager()
           ->getStorage($target_type)
           ->loadMultiple($entity_ids);
 
-        $entity_uuids = array();
+        $entity_uuids = [];
         foreach ($entities as $id => $entity) {
           $entity_uuids[$entity->uuid()] = $id;
         }
@@ -107,7 +107,7 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
     $default_value = parent::defaultValuesFormSubmit($element, $form, $form_state);
 
     // Convert numeric IDs to UUIDs to ensure config deployability.
-    $ids = array();
+    $ids = [];
     foreach ($default_value as $delta => $properties) {
       if (isset($properties['entity']) && $properties['entity']->isNew()) {
         // This may be a newly created term.
@@ -117,7 +117,7 @@ class EntityReferenceFieldItemList extends FieldItemList implements EntityRefere
       }
       $ids[] = $default_value[$delta]['target_id'];
     }
-    $entities = \Drupal::entityManager()
+    $entities = \Drupal::entityTypeManager()
       ->getStorage($this->getSetting('target_type'))
       ->loadMultiple($ids);
 

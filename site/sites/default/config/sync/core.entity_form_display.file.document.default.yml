@@ -11,6 +11,7 @@ dependencies:
   module:
     - entity_browser
     - field_group
+    - path
 third_party_settings:
   field_group:
     group_infos:
@@ -40,6 +41,7 @@ content:
       placeholder: ''
     third_party_settings: {  }
     type: string_textarea
+    region: content
   field_image:
     weight: 4
     settings:
@@ -52,12 +54,20 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: entity_browser_file
+    region: content
   field_title:
     type: string_textfield
     weight: 2
     settings:
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+    region: content
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
     third_party_settings: {  }
 hidden:
   filename: true

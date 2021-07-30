@@ -20,16 +20,16 @@ class CacheFactoryTest extends UnitTestCase {
    * @covers ::get
    */
   public function testCacheFactoryWithDefaultSettings() {
-    $settings = new Settings(array());
+    $settings = new Settings([]);
     $cache_factory = new CacheFactory($settings);
 
     $container = new ContainerBuilder();
     $cache_factory->setContainer($container);
 
-    $builtin_default_backend_factory = $this->getMock('\Drupal\Core\Cache\CacheFactoryInterface');
+    $builtin_default_backend_factory = $this->createMock('\Drupal\Core\Cache\CacheFactoryInterface');
     $container->set('cache.backend.database', $builtin_default_backend_factory);
 
-    $render_bin = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
+    $render_bin = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
     $builtin_default_backend_factory->expects($this->once())
       ->method('get')
       ->with('render')
@@ -46,20 +46,20 @@ class CacheFactoryTest extends UnitTestCase {
    * @covers ::get
    */
   public function testCacheFactoryWithCustomizedDefaultBackend() {
-    $settings = new Settings(array(
-      'cache' => array(
+    $settings = new Settings([
+      'cache' => [
         'default' => 'cache.backend.custom',
-      ),
-    ));
+      ],
+    ]);
     $cache_factory = new CacheFactory($settings);
 
     $container = new ContainerBuilder();
     $cache_factory->setContainer($container);
 
-    $custom_default_backend_factory = $this->getMock('\Drupal\Core\Cache\CacheFactoryInterface');
+    $custom_default_backend_factory = $this->createMock('\Drupal\Core\Cache\CacheFactoryInterface');
     $container->set('cache.backend.custom', $custom_default_backend_factory);
 
-    $render_bin = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
+    $render_bin = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
     $custom_default_backend_factory->expects($this->once())
       ->method('get')
       ->with('render')
@@ -77,11 +77,11 @@ class CacheFactoryTest extends UnitTestCase {
    */
   public function testCacheFactoryWithDefaultBinBackend() {
     // Ensure the default bin backends are used before the configured default.
-    $settings = new Settings(array(
-      'cache' => array(
+    $settings = new Settings([
+      'cache' => [
         'default' => 'cache.backend.unused',
-      ),
-    ));
+      ],
+    ]);
 
     $default_bin_backends = [
       'render' => 'cache.backend.custom',
@@ -92,10 +92,10 @@ class CacheFactoryTest extends UnitTestCase {
     $container = new ContainerBuilder();
     $cache_factory->setContainer($container);
 
-    $custom_default_backend_factory = $this->getMock('\Drupal\Core\Cache\CacheFactoryInterface');
+    $custom_default_backend_factory = $this->createMock('\Drupal\Core\Cache\CacheFactoryInterface');
     $container->set('cache.backend.custom', $custom_default_backend_factory);
 
-    $render_bin = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
+    $render_bin = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
     $custom_default_backend_factory->expects($this->once())
       ->method('get')
       ->with('render')
@@ -114,14 +114,14 @@ class CacheFactoryTest extends UnitTestCase {
   public function testCacheFactoryWithSpecifiedPerBinBackend() {
     // Ensure the per-bin configuration is used before the configured default
     // and per-bin defaults.
-    $settings = new Settings(array(
-      'cache' => array(
+    $settings = new Settings([
+      'cache' => [
         'default' => 'cache.backend.unused',
-        'bins' => array(
+        'bins' => [
           'render' => 'cache.backend.custom',
-        ),
-      ),
-    ));
+        ],
+      ],
+    ]);
 
     $default_bin_backends = [
       'render' => 'cache.backend.unused',
@@ -132,10 +132,10 @@ class CacheFactoryTest extends UnitTestCase {
     $container = new ContainerBuilder();
     $cache_factory->setContainer($container);
 
-    $custom_render_backend_factory = $this->getMock('\Drupal\Core\Cache\CacheFactoryInterface');
+    $custom_render_backend_factory = $this->createMock('\Drupal\Core\Cache\CacheFactoryInterface');
     $container->set('cache.backend.custom', $custom_render_backend_factory);
 
-    $render_bin = $this->getMock('\Drupal\Core\Cache\CacheBackendInterface');
+    $render_bin = $this->createMock('\Drupal\Core\Cache\CacheBackendInterface');
     $custom_render_backend_factory->expects($this->once())
       ->method('get')
       ->with('render')

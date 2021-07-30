@@ -51,6 +51,13 @@
       if (!empty($q['specialite'])){
         $query->condition('field_speciality', $q['specialite']);
       }
+
+      if (!empty($q['search'])){
+        $condition_or = $query->orConditionGroup();
+        $condition_or->condition('title', '%'.$q['search'].'%', 'LIKE');
+        $condition_or->condition('field_description', '%'.$q['search'].'%', 'LIKE');
+        $query->condition($condition_or);
+      }
       $node_ids = $query->execute();
 
       $chunked_ids = array_chunk($node_ids , $num_per_page, TRUE );

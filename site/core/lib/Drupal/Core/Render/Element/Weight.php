@@ -33,41 +33,42 @@ class Weight extends FormElement {
    */
   public function getInfo() {
     $class = get_class($this);
-    return array(
+    return [
       '#input' => TRUE,
       '#delta' => 10,
       '#default_value' => 0,
-      '#process' => array(
-        array($class, 'processWeight'),
-        array($class, 'processAjaxForm'),
-      ),
-    );
+      '#process' => [
+        [$class, 'processWeight'],
+        [$class, 'processAjaxForm'],
+      ],
+    ];
   }
 
   /**
-   * Expands a weight element into a select element.
+   * Expands a weight element into a select/number element.
    */
   public static function processWeight(&$element, FormStateInterface $form_state, &$complete_form) {
+    // If the number of options is small enough, use a select field. Otherwise,
+    // use a number field.
+    $type = $element['#delta'] <= \Drupal::config('system.site')->get('weight_select_max') ? 'select' : 'number';
+    $element = array_merge($element, \Drupal::service('element_info')->getInfo($type));
     $element['#is_weight'] = TRUE;
 
-    $element_info_manager = \Drupal::service('element_info');
-    // If the number of options is small enough, use a select field.
-    $max_elements = \Drupal::config('system.site')->get('weight_select_max');
-    if ($element['#delta'] <= $max_elements) {
-      $element['#type'] = 'select';
-      $weights = array();
+    if ($type === 'select') {
+      $weights = [];
       for ($n = (-1 * $element['#delta']); $n <= $element['#delta']; $n++) {
         $weights[$n] = $n;
       }
+      $default_value = (int) $element['#default_value'];
+      if (!isset($weights[$default_value])) {
+        $weights[$default_value] = $default_value;
+        ksort($weights);
+      }
       $element['#options'] = $weights;
-      $element += $element_info_manager->getInfo('select');
     }
-    // Otherwise, use a text field.
     else {
-      $element['#type'] = 'number';
       // Use a field big enough to fit most weights.
       $element['#size'] = 10;
-      $element += $element_info_manager->getInfo('number');
     }
 
     return $element;

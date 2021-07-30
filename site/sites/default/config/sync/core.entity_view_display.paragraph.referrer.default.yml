@@ -20,6 +20,7 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: basic_string
+    region: content
   field_firstname:
     weight: 0
     label: visually_hidden
@@ -27,6 +28,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_lastname:
     weight: 1
     label: visually_hidden
@@ -34,6 +36,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_phone:
     weight: 3
     label: visually_hidden
@@ -41,6 +44,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
   field_position:
     weight: 2
     label: visually_hidden
@@ -48,6 +52,7 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
 hidden:
   created: true
   uid: true
