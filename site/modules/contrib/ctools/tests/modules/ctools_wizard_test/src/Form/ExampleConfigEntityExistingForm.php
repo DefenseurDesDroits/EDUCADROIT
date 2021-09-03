@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools_wizard_test\Form\ExampleConfigEntityExistingForm.
- */
-
 namespace Drupal\ctools_wizard_test\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -26,9 +21,9 @@ class ExampleConfigEntityExistingForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['existing'] = array(
+    $form['existing'] = [
       '#markup' => '<p>This step only shows if the entity is already existing!</p>',
-    );
+    ];
     return $form;
   }
 

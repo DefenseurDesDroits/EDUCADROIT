@@ -23,9 +23,9 @@ class EntityBrowserSelectionDisplay extends Plugin {
   /**
    * The human-readable name of the selection display.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $label;
 
@@ -34,9 +34,9 @@ class EntityBrowserSelectionDisplay extends Plugin {
    *
    * This will be shown when adding or configuring this selection display.
    *
-   * @ingroup plugin_translatable
+   * @var \Drupal\Core\Annotation\Translation
    *
-   * @var \Drupal\Core\Annotation\Translation (optional)
+   * @ingroup plugin_translatable
    */
   public $description = '';
 
@@ -49,5 +49,17 @@ class EntityBrowserSelectionDisplay extends Plugin {
    * @var bool
    */
   public $acceptPreselection = FALSE;
+
+  /**
+   * Indicates that javascript commands can be executed for Selection display.
+   *
+   * Currently supported javascript commands are adding and removing selection
+   * from selection display. Javascript commands use Ajax requests to load
+   * relevant changes and makes user experience way better, becase form is not
+   * flashed every time.
+   *
+   * @var bool
+   */
+  public $js_commands = FALSE;
 
 }

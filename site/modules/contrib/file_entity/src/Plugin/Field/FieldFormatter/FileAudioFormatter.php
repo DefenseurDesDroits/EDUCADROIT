@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- *  Contains Drupal\file_entity\Plugin\Field\FieldFormatter\FileAudioFormatter
- */
-
 namespace Drupal\file_entity\Plugin\Field\FieldFormatter;
 
 
@@ -55,9 +50,7 @@ class FileAudioFormatter extends FileFormatterBase implements ContainerFactoryPl
    *   The view mode.
    * @param array $third_party_settings
    *   Any third party settings settings.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param Drupal\Core\Render\RendererInterface $renderer
+   * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The rendered service
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, RendererInterface $renderer) {

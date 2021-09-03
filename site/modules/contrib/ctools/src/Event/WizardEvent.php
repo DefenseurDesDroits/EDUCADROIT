@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools\Event\WizardEvent.
- */
-
 namespace Drupal\ctools\Event;
 
 use Drupal\ctools\Wizard\FormWizardInterface;
@@ -25,18 +20,22 @@ class WizardEvent extends Event {
    */
   protected $values;
 
-  function __construct(FormWizardInterface $wizard, $values) {
+
+  public function __construct(FormWizardInterface $wizard, $values) {
     $this->wizard = $wizard;
     $this->values = $values;
   }
+
 
   public function getWizard() {
     return $this->wizard;
   }
 
+
   public function getValues() {
     return $this->values;
   }
+
 
   public function setValues($values) {
     $this->values = $values;

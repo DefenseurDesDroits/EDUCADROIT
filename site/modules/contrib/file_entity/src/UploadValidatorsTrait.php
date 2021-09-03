@@ -1,12 +1,9 @@
 <?php
-/**
- * @file
- * Contains \Drupal\file_entity\UploadValidatorsTrait.
- */
 
 namespace Drupal\file_entity;
 
 use Drupal\Component\Utility\Bytes;
+use Drupal\Component\Utility\Environment;
 
 /**
  * Trait for validating form uploads.
@@ -34,7 +31,7 @@ trait UploadValidatorsTrait {
     }
 
     // Cap the upload size according to the system or user defined limit.
-    $max_filesize = file_upload_max_size();
+    $max_filesize = Environment::getUploadMaxSize();
     $user_max_filesize = Bytes::toInt(\Drupal::config('file_entity.settings')
       ->get('max_filesize'));
 

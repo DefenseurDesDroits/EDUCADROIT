@@ -1,6 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: gaya_editorial_text_two_col
-label: 'Gaya Editorial Text Two Cols'
-locked: true

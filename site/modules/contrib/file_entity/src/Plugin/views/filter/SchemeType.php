@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\file_entity\Plugin\views\filter\SchemeType.
- */
-
 namespace Drupal\file_entity\Plugin\views\filter;
 
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
@@ -50,7 +45,7 @@ class SchemeType extends InOperator {
     $composite = $not_in ? ' AND ' : ' OR ';
 
     foreach ($this->value as $schema) {
-      $statements[] = 'uri ' . $schema_operator . ' \'' . db_like($schema) . '://%\'';
+      $statements[] = 'uri ' . $schema_operator . ' \'' . \Drupal::database()->escapeLike($schema) . '://%\'';
     }
 
     $this->query->addWhereExpression($this->options['group'], implode($composite, $statements));

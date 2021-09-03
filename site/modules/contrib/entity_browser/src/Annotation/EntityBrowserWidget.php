@@ -23,9 +23,9 @@ class EntityBrowserWidget extends Plugin {
   /**
    * The human-readable name of the widget.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $label;
 
@@ -34,10 +34,17 @@ class EntityBrowserWidget extends Plugin {
    *
    * This will be shown when adding or configuring this widget.
    *
-   * @ingroup plugin_translatable
+   * @var \Drupal\Core\Annotation\Translation
    *
-   * @var \Drupal\Core\Annotation\Translation (optional)
+   * @ingroup plugin_translatable
    */
   public $description = '';
+
+  /**
+   * Indicates that widget supports auto selection of entities.
+   *
+   * @var bool
+   */
+  public $auto_select = FALSE;
 
 }

@@ -1,0 +1,9 @@
+uuid: 5210cf1e-bc0f-4fe9-bbb9-77087c396b8c
+langcode: fr
+status: true
+dependencies: {  }
+id: site-content
+label: site-content
+weight: 1
+menu: site-content
+rewrite_label: true

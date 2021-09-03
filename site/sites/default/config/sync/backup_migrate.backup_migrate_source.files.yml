@@ -1,9 +1,0 @@
-uuid: 227c2fa8-ab49-4444-8ead-ddac00f79654
-langcode: fr
-status: true
-dependencies: {  }
-id: files
-label: Files
-type: FileDirectory
-config:
-  directory: sites/default/files

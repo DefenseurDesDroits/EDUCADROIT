@@ -1,12 +1,9 @@
 <?php
-/**
- * @file
- * Contains \Drupal\ctools\Wizard\EntityEditWizardTest.
- */
 
 namespace Drupal\ctools_wizard_test\Wizard;
 
 use Drupal\ctools\Wizard\EntityFormWizardBase;
+
 
 class EntityEditWizardTest extends EntityFormWizardBase {
 
@@ -72,4 +69,5 @@ class EntityEditWizardTest extends EntityFormWizardBase {
 
     return $steps;
   }
+
 }

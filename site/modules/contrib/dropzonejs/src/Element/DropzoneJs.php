@@ -3,6 +3,7 @@
 namespace Drupal\dropzonejs\Element;
 
 use Drupal\Component\Utility\Bytes;
+use Drupal\Component\Utility\Environment;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
@@ -13,22 +14,42 @@ use Drupal\Core\Url;
 /**
  * Provides a DropzoneJS atop of the file element.
  *
- * Configuration options are:
- * - #title
+ * Required options are:
+ * - #title (string)
  *   The main field title.
- * - #description
+ * - #description (string)
  *   Description under the field.
- * - #dropzone_description
+ * - #dropzone_description (string)
  *   Will be visible inside the upload area.
- * - #max_filesize
+ * - #max_filesize (string)
  *   Used by dropzonejs and expressed in number + unit (i.e. 1.1M) This will be
- *   converted to a form that DropzoneJs understands. See:
+ *   converted to a form that DropzoneJS understands. See:
  *   http://www.dropzonejs.com/#config-maxFilesize
- * - #extensions
+ * - #extensions (string)
  *   A string of valid extensions separated by a space.
- * - #max_files
+ * - #max_files (integer)
  *   Number of files that can be uploaded.
  *   If < 1, there is no limit.
+ * - #clientside_resize (bool)
+ *   Whether or not to use DropzoneJS clientside resizing. It requires v4.4.0+
+ *   version of the library.
+ *
+ * Optional options are:
+ * - #resize_width (integer)
+ *   (optional) The maximum with in px. If omitted defaults to NULL.
+ * - #resize_height (integer)
+ *   (optional) The maximum height in px. If omitted defaults to NULL.
+ * - #resize_quality (float)
+ *   (optional) The quality of the resize. Accepts values from 0 - 1. Ie: 0.8.
+ *   Defautls to 1.
+ * - #resize_method (string)
+ *   (optional) Accepts 'contain', which scales the image, or 'crop' which crops
+ *   the image. Defaults to 'contain'.
+ * - #thumbnail_method (string).
+ *   (optional) Accepts 'contain', which scales the image, or 'crop' which crops
+ *   the image. Defaults to 'contain'.
+ *
+ * @todo Not sure about the version for clientside.
  *
  * When submitted the element returns an array of temporary file locations. It's
  * the duty of the environment that implements this element to handle the
@@ -76,7 +97,7 @@ class DropzoneJs extends FormElement {
     ];
 
     if (empty($element['#max_filesize'])) {
-      $element['#max_filesize'] = file_upload_max_size();
+      $element['#max_filesize'] = Environment::getUploadMaxSize();
     }
 
     // Set #max_files to NULL (explicitly unlimited) if #max_files is not
@@ -87,7 +108,7 @@ class DropzoneJs extends FormElement {
 
     if (!\Drupal::currentUser()->hasPermission('dropzone upload files')) {
       $element['#access'] = FALSE;
-      drupal_set_message(new TranslatableMarkup("You don't have sufficent permissions to use the DropzoneJS uploader. Contact your system administrator"), 'warning');
+      \Drupal::messenger()->addWarning(new TranslatableMarkup("You don't have sufficent permissions to use the DropzoneJS uploader. Contact your system administrator"));
     }
 
     return $element;
@@ -117,9 +138,21 @@ class DropzoneJs extends FormElement {
           'dictDefaultMessage' => Html::escape($element['#dropzone_description']),
           'acceptedFiles' => '.' . str_replace(' ', ',.', self::getValidExtensions($element)),
           'maxFiles' => $element['#max_files'],
+          'timeout' => \Drupal::configFactory()->get('dropzonejs.settings')->get('upload_timeout_ms'),
         ],
       ],
     ];
+
+    if (!empty($element['#clientside_resize'])) {
+      $element['#attached']['drupalSettings']['dropzonejs']['instances'][$element['#id']] += [
+        'resizeWidth' => !empty($element['#resize_width']) ? $element['#resize_width'] : NULL,
+        'resizeHeight' => !empty($element['#resize_height']) ? $element['#resize_height'] : NULL,
+        'resizeQuality' => !empty($element['#resize_quality']) ? $element['#resize_quality'] : 1,
+        'resizeMethod' => !empty($element['#resize_method']) ? $element['#resize_method'] : 'contain',
+        'thumbnailMethod' => !empty($element['#thumbnail_method']) ? $element['#thumbnail_method'] : 'contain',
+      ];
+      array_unshift($element['#attached']['library'], 'dropzonejs/exif-js');
+    }
 
     static::setAttributes($element, ['dropzone-enable']);
     return $element;
@@ -154,7 +187,9 @@ class DropzoneJs extends FormElement {
           if (file_exists($old_filepath)) {
             // Finaly rename the file and add it to results.
             $new_filepath = $tmp_upload_scheme . '://' . $name;
-            $move_result = file_unmanaged_move($old_filepath, $new_filepath);
+            /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+            $file_system = \Drupal::service('file_system');
+            $move_result = $file_system->move($old_filepath, $new_filepath);
 
             if ($move_result) {
               $return['uploaded_files'][] = [
@@ -163,7 +198,7 @@ class DropzoneJs extends FormElement {
               ];
             }
             else {
-              drupal_set_message(self::t('There was a problem while processing the file named @name', ['@name' => $name]), 'error');
+              \Drupal::messenger()->addError(self::t('There was a problem while processing the file named @name', ['@name' => $name]));
             }
           }
         }

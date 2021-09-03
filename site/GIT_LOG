@@ -1,3 +1,9 @@
+ff2d2fa6 Julien Liébert 2021-09-03 14:49:52 +0200 [BUGFIX] Fichier settings.php manquant au delivery
+0658784f fgutknecht 2021-08-27 10:47:02 +0200 [SECURITY] DDD-106 Update extension Admin Toolbar to 8.x-2.5
+8d2f2a24 fgutknecht 2021-08-18 18:15:40 +0200 [BUGFIX] Déploiement bloqué à cause de la librairie backupmigrate
+4b2e769e sgrimard 2021-08-18 09:19:16 +0200 [SECURITY] DDD-103 Update Défenseur des Droits core to 8.9.18 + drush 10
+52939669 sgrimard 2021-08-02 15:59:53 +0200 [TASK|SECURITY] DDD-102 Mise à jour du core 8.9.17 + modules et thème
+eb5878e9 Benoit Chenu 2021-05-28 06:09:44 +0200 [TASK] Update gaya/drupal-8-module-gaya-editorial module
 ab1728a4 Julien Liébert 2021-03-08 11:29:50 +0100 [TASK] Ajouts d'un settings.local.php pour la production
 6311176e Sébastien Libbrecht 2021-02-16 14:44:35 +0100 Pull request #20: [TASK] DDD-83 - Ajout de placeholder sur les champs de recherche libre
 bea92320 Sébastien Libbrecht 2021-02-16 14:44:08 +0100 [TASK] DDD-83 - Ajout de placeholder sur les champs de recherche libre
@@ -92,9 +98,3 @@ e4342084 adrien-gontier 2017-05-25 15:47:51 +0200 [TASK] DDD-44
 4eb547e2 adrien-gontier 2017-05-25 12:51:30 +0200 [TASK] DDD-42
 59499f9f adrien-gontier 2017-05-25 12:27:35 +0200 [TASK[ DDD-41
 685f809c adrien-gontier 2017-05-25 12:11:03 +0200 [TASK] DDD-40
-7e5120f2 adrien-gontier 2017-05-25 11:21:34 +0200 [TASK] DDD-33 Message incorrect fiches intervenant
-de5d14e4 adrien-gontier 2017-04-20 10:35:16 +0200 integration glossary debug
-5c7ee0bd adrien-gontier 2017-04-19 18:10:06 +0200 [TASK] DDD-39 Parcours élémentaire - Texte d'introduction
-0ada8192 adrien-gontier 2017-04-19 17:40:40 +0200 [TASK] DDD-38 Fiche ressource - Affichage du diaporama d'images
-2dd2906a adrien-gontier 2017-04-19 16:11:01 +0200 [TASK] DDD-37 glossary sort
-5bbfddf7 adrien-gontier 2017-04-19 14:14:21 +0200 ddd-34

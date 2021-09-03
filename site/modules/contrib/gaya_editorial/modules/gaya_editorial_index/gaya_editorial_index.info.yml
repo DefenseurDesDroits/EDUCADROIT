@@ -1,9 +1,0 @@
-name: Gaya Editorial Index
-type: module
-description: Provide a title field used for generate an index list on the content page.
-core: 8.x
-package: Gaya
-dependencies:
-  - gaya_editorial
-isGayaEditorial: yes
-version: '1.0'

@@ -1,13 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\file_entity\Plugin\views\field\LinkDelete.
- */
-
 namespace Drupal\file_entity\Plugin\views\field;
 
 use Drupal\views\ResultRow;
+use Drupal\Core\Routing\RedirectDestinationTrait;
 
 /**
  * Field handler to present a link to edit the file.
@@ -17,6 +13,8 @@ use Drupal\views\ResultRow;
  * @ViewsField("file_entity_link_edit")
  */
 class LinkEdit extends Link {
+
+  use RedirectDestinationTrait;
 
   /**
    * Prepares the link to editing the file entity.
@@ -36,7 +34,7 @@ class LinkEdit extends Link {
     if ($file->access('update')) {
       $this->options['alter']['make_link'] = TRUE;
       $this->options['alter']['path'] = 'file/' . $file->id() . '/edit';
-      $this->options['alter']['query'] = drupal_get_destination();
+      $this->options['alter']['query'] = $this->getDestinationArray();
 
       $text = !empty($this->options['text']) ? $this->options['text'] : t('Edit');
     }

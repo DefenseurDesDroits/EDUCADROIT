@@ -16,6 +16,11 @@ class InstallationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
     $this->drupalLogin($this->createAdminUser());
@@ -45,7 +50,7 @@ class InstallationTest extends BrowserTestBase {
     // @todo, add video_embed_media once infrastructure places version
     // information in module info files.
     foreach (['video_embed_field', 'video_embed_wysiwyg'] as $module) {
-      $this->assertSession()->{$installed ? 'checkboxChecked' : 'checkboxNotChecked'}('modules[Video Embed Field][' . $module . '][enable]');
+      $this->assertSession()->{$installed ? 'checkboxChecked' : 'checkboxNotChecked'}('modules[' . $module . '][enable]');
     }
   }
 
@@ -68,8 +73,8 @@ class InstallationTest extends BrowserTestBase {
    */
   protected function installModules() {
     $this->drupalPostForm('admin/modules', [
-      'modules[Video Embed Field][video_embed_field][enable]' => TRUE,
-      'modules[Video Embed Field][video_embed_wysiwyg][enable]' => TRUE,
+      'modules[video_embed_field][enable]' => TRUE,
+      'modules[video_embed_wysiwyg][enable]' => TRUE,
     ], 'Install');
     // Continue is only required to confirm dependencies being enabled on the
     // first call of this function.

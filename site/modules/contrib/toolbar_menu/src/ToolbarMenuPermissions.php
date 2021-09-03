@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\toolbar_menu\ToolbarMenuPermissions.
- */
-
 namespace Drupal\toolbar_menu;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
@@ -21,7 +16,6 @@ class ToolbarMenuPermissions implements ContainerInjectionInterface {
    * @var \Drupal\toolbar_menu\ToolbarMenuManager
    */
   protected $toolbarMenuManager;
-
 
   /**
    * Constructs a new ToolbarMenuPermissions instance.

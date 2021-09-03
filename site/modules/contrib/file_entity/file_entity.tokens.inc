@@ -4,10 +4,10 @@
  * @file
  * Token integration for the file_entity module.
  */
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Url;
 use Drupal\file_entity\Entity\FileType;
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Component\Utility\Html;
 
 /**
  * Implements hook_token_info().
@@ -73,8 +73,6 @@ function file_entity_tokens($type, $tokens, array $data, array $options, Bubblea
     $langcode = NULL;
   }
 
-  $sanitize = !empty($options['sanitize']);
-
   // File tokens.
   if ($type == 'file' && !empty($data['file'])) {
     $file = $data['file'];
@@ -84,7 +82,7 @@ function file_entity_tokens($type, $tokens, array $data, array $options, Bubblea
         case 'type':
           if ($file_type = FileType::load($file->bundle())) {
             $bubbleable_metadata->addCacheableDependency($file_type);
-            $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($file_type->label()) : $file_type->label();
+            $replacements[$original] = $file_type->label();
           }
           break;
 
@@ -111,7 +109,7 @@ function file_entity_tokens($type, $tokens, array $data, array $options, Bubblea
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'name':
-          $replacements[$original] = $sanitize ? SafeMarkup::checkPlain($file_type->label()) : $file_type->label();
+          $replacements[$original] = $file_type->label();
           break;
 
         case 'machine-name':
@@ -120,7 +118,7 @@ function file_entity_tokens($type, $tokens, array $data, array $options, Bubblea
           break;
 
         case 'count':
-          $query = db_select('file_managed');
+          $query = \Drupal::database()->select('file_managed');
           $query->condition('type', $file_type->id());
           $query->addTag('file_type_file_count');
           $count = $query->countQuery()->execute()->fetchField();

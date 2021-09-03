@@ -18,6 +18,11 @@ class FormatterConfigurationTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $defaultTheme = 'stark';
+
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = [
     'video_embed_field',
     'node',
@@ -99,6 +104,7 @@ class FormatterConfigurationTest extends BrowserTestBase {
     $this->find('input[name="refresh_rows"]')->setValue($this->fieldName);
     $this->submitForm([
       'fields[' . $this->fieldName . '][type]' => $formatter,
+      'fields[' . $this->fieldName . '][region]' => 'content',
     ], t('Refresh'));
     $this->submitForm([], t('Save'));
   }

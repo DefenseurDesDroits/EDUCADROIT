@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\FileTypeListBuilder.
- */
-
 namespace Drupal\file_entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
@@ -37,7 +32,7 @@ class FileTypeListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /** @var FileType $entity */
     $row['label'] = array(
-      'data' => $this->getLabel($entity),
+      'data' => $entity->label(),
       'class' => array('menu-label'),
     );
     $row['description']['data'] = ['#markup' => $entity->getDescription()];

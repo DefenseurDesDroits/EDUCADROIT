@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools_wizard_test\ExampleConfigEntityInterface.
- */
-
 namespace Drupal\ctools_wizard_test;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;
@@ -22,7 +17,7 @@ interface ExampleConfigEntityInterface extends ConfigEntityInterface {
   public function getOne();
 
   /**
-   * Get second piece of information;
+   * Get second piece of information;.
    *
    * @return string
    */

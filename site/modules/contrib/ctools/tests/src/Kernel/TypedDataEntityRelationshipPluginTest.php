@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\Tests\ctools\Kernel\TypedDataRelationshipPluginTest.
- */
 
 namespace Drupal\Tests\ctools\Kernel;
 
@@ -15,7 +11,7 @@ use Drupal\user\Entity\User;
  */
 class TypedDataEntityRelationshipPluginTest extends RelationshipsTestBase {
 
-    /**
+  /**
    * @covers ::getName
    */
   public function testRelationshipName() {

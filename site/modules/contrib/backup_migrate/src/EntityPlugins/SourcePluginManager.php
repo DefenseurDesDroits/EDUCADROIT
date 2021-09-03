@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains BackupMigrate\Drupal\Source\SourcePluginManager
- */
-
 
 namespace BackupMigrate\Drupal\EntityPlugins;
 
@@ -11,12 +6,13 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
-
 /**
- * Class SourcePluginManager
+ * Class SourcePluginManager.
+ *
  * @package BackupMigrate\Drupal\Source
  */
 class SourcePluginManager extends DefaultPluginManager {
+
   /**
    * Constructs a SourcePluginManager object.
    *

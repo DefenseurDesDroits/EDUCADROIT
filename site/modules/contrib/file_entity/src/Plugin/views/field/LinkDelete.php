@@ -1,13 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\file_entity\Plugin\views\field\LinkDelete.
- */
-
 namespace Drupal\file_entity\Plugin\views\field;
 
 use Drupal\views\ResultRow;
+use Drupal\Core\Routing\RedirectDestinationTrait;
 
 /**
  * Field handler to present a link to delete the file.
@@ -17,6 +13,8 @@ use Drupal\views\ResultRow;
  * @ViewsField("file_entity_link_delete")
  */
 class LinkDelete extends Link {
+
+  use RedirectDestinationTrait;
 
   /**
    * Prepares the link to delete the media item.
@@ -36,7 +34,7 @@ class LinkDelete extends Link {
     if ($file->access('delete')) {
       $this->options['alter']['make_link'] = TRUE;
       $this->options['alter']['path'] = 'file/' . $file->id() . '/delete';
-      $this->options['alter']['query'] = drupal_get_destination();
+      $this->options['alter']['query'] = $this->getDestinationArray();
 
       $text = !empty($this->options['text']) ? $this->options['text'] : t('Delete');
     }

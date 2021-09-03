@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools\Form\AjaxFormTrait.
- */
-
 namespace Drupal\ctools\Form;
 
 use Drupal\Component\Serialization\Json;
@@ -20,7 +15,7 @@ trait AjaxFormTrait {
    *
    * @return array
    */
-   public static function getAjaxAttributes() {
+  public static function getAjaxAttributes() {
     return [
       'class' => ['use-ajax'],
       'data-dialog-type' => 'modal',
@@ -35,7 +30,7 @@ trait AjaxFormTrait {
    *
    * @return array
    */
-   public static function getAjaxButtonAttributes() {
+  public static function getAjaxButtonAttributes() {
     return NestedArray::mergeDeep(AjaxFormTrait::getAjaxAttributes(), [
       'class' => [
         'button',

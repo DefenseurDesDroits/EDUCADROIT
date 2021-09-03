@@ -16,12 +16,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 
 /**
- * Uses a view to provide entity listing in a browser's widget.
+ * Provides entity form widget.
  *
  * @EntityBrowserWidget(
  *   id = "entity_form",
  *   label = @Translation("Entity form"),
- *   description = @Translation("Provides entity form widget.")
+ *   description = @Translation("Provides entity form widget."),
+ *   auto_select = FALSE
  * )
  */
 class EntityForm extends WidgetBase {
@@ -106,7 +107,7 @@ class EntityForm extends WidgetBase {
 
     // Pretend to be IEFs submit button.
     $form['#submit'] = [['Drupal\inline_entity_form\ElementSubmit', 'trigger']];
-    $form['actions']['submit']['#ief_submit_trigger']  = TRUE;
+    $form['actions']['submit']['#ief_submit_trigger'] = TRUE;
     $form['actions']['submit']['#ief_submit_trigger_all'] = TRUE;
 
     $form['inline_entity_form'] = [
@@ -131,14 +132,16 @@ class EntityForm extends WidgetBase {
    * {@inheritdoc}
    */
   public function submit(array &$element, array &$form, FormStateInterface $form_state) {
-    $entities = $this->prepareEntities($form, $form_state);
-    array_walk(
-      $entities,
-      function (EntityInterface $entity) {
-        $entity->save();
-      }
-    );
-    $this->selectEntities($entities, $form_state);
+    if (!empty($form_state->getTriggeringElement()['#eb_widget_main_submit'])) {
+      $entities = $this->prepareEntities($form, $form_state);
+      array_walk(
+        $entities,
+        function (EntityInterface $entity) {
+          $entity->save();
+        }
+      );
+      $this->selectEntities($entities, $form_state);
+    }
   }
 
   /**
@@ -234,6 +237,15 @@ class EntityForm extends WidgetBase {
     parent::submitConfigurationForm($form, $form_state);
     $this->configuration['bundle'] = $this->configuration['bundle']['select'];
     $this->configuration['form_mode'] = $this->configuration['form_mode']['form_select'];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function access() {
+    return $this->entityTypeManager
+      ->getAccessControlHandler($this->configuration['entity_type'])
+      ->createAccess($this->configuration['bundle'], NULL, [], TRUE);
   }
 
 }
