@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools\Wizard\FormWizardBase.
- */
-
 namespace Drupal\ctools\Wizard;
 
 use Drupal\Core\Ajax\AjaxResponse;
@@ -18,8 +13,9 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\ctools\Ajax\OpenModalWizardCommand;
 use Drupal\ctools\Event\WizardEvent;
-use Drupal\user\SharedTempStoreFactory;
+use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The base class for all form wizard.
@@ -29,7 +25,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   /**
    * Tempstore Factory for keeping track of values in each step of the wizard.
    *
-   * @var \Drupal\user\SharedTempStoreFactory
+   * @var \Drupal\Core\TempStore\SharedTempStoreFactory
    */
   protected $tempstore;
 
@@ -43,7 +39,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   /**
    * The class resolver.
    *
-   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface;
+   * @var \Drupal\Core\DependencyInjection\ClassResolverInterface
    */
   protected $classResolver;
 
@@ -64,19 +60,19 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   /**
    * The SharedTempStore key for our current wizard values.
    *
-   * @var string|NULL
+   * @var string|null
    */
   protected $machine_name;
 
   /**
    * The current active step of the wizard.
    *
-   * @var string|NULL
+   * @var string|null
    */
   protected $step;
 
   /**
-   * @param \Drupal\user\SharedTempStoreFactory $tempstore
+   * @param \Drupal\Core\TempStore\SharedTempStoreFactory $tempstore
    *   Tempstore Factory for keeping track of values in each step of the
    *   wizard.
    * @param \Drupal\Core\Form\FormBuilderInterface $builder
@@ -108,7 +104,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
    */
   public static function getParameters() {
     return [
-      'tempstore' => \Drupal::service('user.shared_tempstore'),
+      'tempstore' => \Drupal::service('tempstore.shared'),
       'builder' => \Drupal::service('form_builder'),
       'class_resolver' => \Drupal::service('class_resolver'),
       'event_dispatcher' => \Drupal::service('event_dispatcher'),
@@ -136,7 +132,8 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
    * {@inheritdoc}
    */
   public function getTempstore() {
-    return $this->tempstore->get($this->getTempstoreId());
+    $tempstore = $this->tempstore->get($this->getTempstoreId());
+    return $tempstore;
   }
 
   /**
@@ -167,8 +164,8 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     if (!empty($operations[$step])) {
       return $operations[$step];
     }
-    $operation = reset($operations);
-    return $operation;
+
+    throw new NotFoundHttpException();
   }
 
   /**
@@ -277,7 +274,7 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Only perform this logic if we're moving to the next page. This prevents
     // the loss of cached values on ajax submissions.
-    if ((string)$form_state->getValue('op') == (string)$this->getNextOp()) {
+    if ((string) $form_state->getValue('op') == (string) $this->getNextOp()) {
       $cached_values = $form_state->getTemporaryValue('wizard');
       if ($form_state->hasValue('label')) {
         $cached_values['label'] = $form_state->getValue('label');
@@ -398,25 +395,25 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
       $actions['submit']['#ajax'] = [
         'callback' => '::ajaxSubmit',
         'url' => Url::fromRoute($this->getRouteName(), $parameters),
-        'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+        'options' => ['query' => $this->getRequest()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
       ];
     }
 
     // If there are steps before this one, label the button "previous"
     // otherwise do not display a button.
     if ($before) {
-      $actions['previous'] = array(
+      $actions['previous'] = [
         '#type' => 'submit',
         '#value' => $this->t('Previous'),
-        '#validate' => array(
-          array($this, 'populateCachedValues'),
-        ),
-        '#submit' => array(
-          array($this, 'previous'),
-        ),
-        '#limit_validation_errors' => array(),
+        '#validate' => [
+          [$this, 'populateCachedValues'],
+        ],
+        '#submit' => [
+          [$this, 'previous'],
+        ],
+        '#limit_validation_errors' => [],
         '#weight' => -10,
-      );
+      ];
       if ($form_state->get('ajax')) {
         // Ajax submissions need to submit to the current step, not "previous".
         $parameters = $this->getPreviousParameters($cached_values);
@@ -424,15 +421,15 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
         $actions['previous']['#ajax'] = [
           'callback' => '::ajaxPrevious',
           'url' => Url::fromRoute($this->getRouteName(), $parameters),
-          'options' => ['query' => \Drupal::request()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
+          'options' => ['query' => $this->getRequest()->query->all() + [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]],
         ];
       }
     }
 
     // If there are not steps after this one, label the button "Finish".
     if (!$after) {
-      $actions['submit']['#value'] = t('Finish');
-      $actions['submit']['#submit'][] = array($this, 'finish');
+      $actions['submit']['#value'] = $this->t('Finish');
+      $actions['submit']['#submit'][] = [$this, 'finish'];
       if ($form_state->get('ajax')) {
         $actions['submit']['#ajax']['callback'] = [$this, 'ajaxFinish'];
       }
@@ -441,27 +438,31 @@ abstract class FormWizardBase extends FormBase implements FormWizardInterface {
     return $actions;
   }
 
+
   public function ajaxSubmit(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $response = new AjaxResponse();
     $parameters = $this->getNextParameters($cached_values);
-    $response->addCommand(new OpenModalWizardCommand(get_class($this), $this->getTempstoreId(), $parameters));
+    $response->addCommand(new OpenModalWizardCommand($this, $this->getTempstoreId(), $parameters));
     return $response;
   }
+
 
   public function ajaxPrevious(array $form, FormStateInterface $form_state) {
     $cached_values = $form_state->getTemporaryValue('wizard');
     $response = new AjaxResponse();
     $parameters = $this->getPreviousParameters($cached_values);
-    $response->addCommand(new OpenModalWizardCommand(get_class($this), $this->getTempstoreId(), $parameters));
+    $response->addCommand(new OpenModalWizardCommand($this, $this->getTempstoreId(), $parameters));
     return $response;
   }
+
 
   public function ajaxFinish(array $form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $response->addCommand(new CloseModalDialogCommand());
     return $response;
   }
+
 
   public function getRouteName() {
     return $this->routeMatch->getRouteName();

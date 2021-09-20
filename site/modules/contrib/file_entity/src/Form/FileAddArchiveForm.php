@@ -1,17 +1,16 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\Form\FileAddArchiveForm.
- */
-
 namespace Drupal\file_entity\Form;
 
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Archiver\ArchiverManager;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\Entity\File;
 use Drupal\file_entity\UploadValidatorsTrait;
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for archive type forms.
@@ -19,6 +18,47 @@ use Drupal\file_entity\UploadValidatorsTrait;
 class FileAddArchiveForm extends FormBase {
 
   use UploadValidatorsTrait;
+
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * The archiver manager.
+   *
+   * @var \Drupal\Core\Archiver\ArchiverManager
+   */
+  protected $archiverManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(FileSystemInterface $file_system, MessengerInterface $messenger, ArchiverManager $archiver_manager) {
+    $this->fileSystem = $file_system;
+    $this->messenger = $messenger;
+    $this->archiverManager = $archiver_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('file_system'),
+      $container->get('messenger'),
+      $container->get('plugin.manager.archiver')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -32,7 +72,7 @@ class FileAddArchiveForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $options = [
-      'file_extensions' => archiver_get_extensions(),
+      'file_extensions' => $this->archiverManager->getExtensions(),
     ];
     $options = $form_state->get('options') ? $form_state->get('options') : $options;
     $validators = $this->getUploadValidators($options);
@@ -77,16 +117,17 @@ class FileAddArchiveForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     if ($archive = File::load($form_state->getValue('upload')[0])) {
-      if ($archiver = archiver_get_archiver($archive->getFileUri())) {
 
-        $extract_dir = file_default_scheme() . '://' . pathinfo($archive->getFilename(), PATHINFO_FILENAME);
-        $extract_dir = file_destination($extract_dir, FILE_EXISTS_RENAME);
-        if (!file_prepare_directory($extract_dir, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY)) {
+      if ($archiver = $this->archiverManager->getInstance(['filepath' => $this->fileSystem->realpath($archive->getFileUri())])) {
+
+        $extract_dir = $this->config('system.file')->get('default_scheme') . '://' . pathinfo($archive->getFilename(), PATHINFO_FILENAME);
+        $extract_dir = $this->fileSystem->getDestinationFilename($extract_dir, FileSystemInterface::EXISTS_RENAME);
+        if (!$this->fileSystem->prepareDirectory($extract_dir, FileSystemInterface::MODIFY_PERMISSIONS | FileSystemInterface::CREATE_DIRECTORY)) {
           throw new \Exception(t('Unable to prepare, the directory %dir for extraction.', array('%dir' => $extract_dir)));
         }
         $archiver->extract($extract_dir);
         $pattern = '/' . $form_state->getValue('pattern') . '/';
-        if ($files = file_scan_directory($extract_dir, $pattern)) {
+        if ($files = $this->fileSystem->scanDirectory($extract_dir, $pattern)) {
           foreach ($files as $file) {
             $file = File::create([
               'uri' => $file->uri,
@@ -95,16 +136,16 @@ class FileAddArchiveForm extends FormBase {
             ]);
             $file->save();
           }
-          $all_files = file_scan_directory($extract_dir, '/.*/');
+          $all_files = $this->fileSystem->scanDirectory($extract_dir, '/.*/');
           // Get all files that don't match the pattern so we can remove them.
           $remainig_files = array_diff_key($all_files, $files);
           foreach ($remainig_files as $file) {
-            drupal_unlink($file->uri);
+            $this->fileSystem->unlink($file->uri);
           }
         }
-        drupal_set_message($this->t('Extracted %file and added @count new files.', array('%file' => $archive->getFilename(), '@count' => count($files))));
+        $this->messenger->addMessage($this->t('Extracted %file and added @count new files.', array('%file' => $archive->getFilename(), '@count' => count($files))));
         if ($form_state->getValue('remove_archive')) {
-          drupal_set_message($this->t('Archive %name was removed from the system.', array('%name' => $archive->getFilename())));
+          $this->messenger->addMessage($this->t('Archive %name was removed from the system.', array('%name' => $archive->getFilename())));
           $archive->delete();
         }
         else {

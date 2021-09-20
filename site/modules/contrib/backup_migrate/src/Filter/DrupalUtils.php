@@ -1,20 +1,17 @@
 <?php
-/**
- * @file
- * Contains BackupMigrate\Drupal\Filter\DrupalUtils
- */
-
 
 namespace BackupMigrate\Drupal\Filter;
+
+use BackupMigrate\Core\Exception\BackupMigrateException;
 use BackupMigrate\Core\File\BackupFileReadableInterface;
 use BackupMigrate\Core\Plugin\PluginBase;
 use BackupMigrate\Core\Config\Config;
 use BackupMigrate\Core\Translation\TranslatableTrait;
 use Drupal\Core\Database\Database;
 
-
 /**
- * Class DrupalUtils
+ * Class DrupalUtils.
+ *
  * @package BackupMigrate\Drupal\Filter
  */
 class DrupalUtils extends PluginBase {
@@ -27,11 +24,10 @@ class DrupalUtils extends PluginBase {
   /**
    * {@inheritdoc}
    */
-  public function configSchema($params = array()) {
-    $schema = array();
+  public function configSchema($params = []) {
+    $schema = [];
 
-    // Backup configuration
-
+    // Backup configuration.
     if ($params['operation'] == 'backup' || $params['operation'] == 'restore') {
       $schema['groups']['advanced'] = [
         'title' => 'Advanced Settings',
@@ -92,6 +88,22 @@ class DrupalUtils extends PluginBase {
     if ($this->maintenance_mode) {
       \Drupal::state()->set('system.maintenance_mode', FALSE);
     }
+  }
+
+  /**
+   * Perform actions before restoring the backup.
+   *
+   * This used to perform a file size check but it occurred *after* the file
+   * was uploaded and uncompressed, which was a complete waste of time.
+   *
+   * @todo Remove this.
+   *
+   * @param BackupFileReadableInterface $file
+   *
+   * @return BackupFileReadableInterface
+   */
+  public function beforeRestore(BackupFileReadableInterface $file) {
+    return $file;
   }
 
 }

@@ -1,13 +1,11 @@
 <?php
-/**
- * @file
- * Contains \Drupal\file_entity\FileEntityServiceProvider.
- */
 
 namespace Drupal\file_entity;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
+use Drupal\file_entity\Normalizer\FileEntityNormalizer;
+use Drupal\file_entity\Normalizer\FileItemNormalizer;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -21,13 +19,15 @@ class FileEntityServiceProvider extends ServiceProviderBase {
    */
   public function alter(ContainerBuilder $container) {
     $modules = $container->getParameter('container.modules');
-    // Check for installed REST & HAL modules, as HAL requires REST.
-    if (isset($modules['hal']) ) {
+    if (isset($modules['hal'])) {
       // Add a normalizer service for file entities.
-      $service_definition = new Definition('Drupal\file_entity\Normalizer\FileEntityNormalizer', array(
-        new Reference('rest.link_manager'),
-        new Reference('entity.manager'),
+      $service_definition = new Definition(FileEntityNormalizer::class, array(
+        new Reference('hal.link_manager'),
+        new Reference('entity_type.manager'),
         new Reference('module_handler'),
+        new Reference('entity_type.repository'),
+        new Reference('entity_field.manager'),
+
       ));
       // The priority must be higher than that of
       // serializer.normalizer.file_entity.hal in hal.services.yml
@@ -35,8 +35,8 @@ class FileEntityServiceProvider extends ServiceProviderBase {
       $container->setDefinition('serializer.normalizer.entity.file_entity', $service_definition);
 
       // Add a normalizer service for file fields.
-      $service_definition = new Definition('Drupal\file_entity\Normalizer\FileItemNormalizer', array(
-        new Reference('rest.link_manager'),
+      $service_definition = new Definition(FileItemNormalizer::class, array(
+        new Reference('hal.link_manager'),
         new Reference('serializer.entity_resolver'),
       ));
       // Supersede EntityReferenceItemNormalizer.

@@ -71,6 +71,9 @@ class Modal extends IFrame {
           'library' => ['core/drupal.dialog.ajax', 'entity_browser/modal'],
           'drupalSettings' => [
             'entity_browser' => [
+              $this->getUuid() => [
+                'auto_open' => $this->configuration['auto_open'],
+              ],
               'modal' => [
                 $this->getUuid() => [
                   'uuid' => $this->getUuid(),
@@ -109,20 +112,23 @@ class Modal extends IFrame {
     $element_name = $this->configuration['entity_browser_id'];
     $name = 'entity_browser_iframe_' . $element_name;
     $content = [
+      '#prefix' => '<div class="ajax-progress-throbber"></div>',
       '#type' => 'html_tag',
       '#tag' => 'iframe',
       '#attributes' => [
         'src' => $src,
         'class' => 'entity-browser-modal-iframe',
         'width' => '100%',
-        'height' => $this->configuration['height'] - 90,
         'frameborder' => 0,
-        'style' => 'padding:0',
+        'style' => 'padding:0; position:relative; z-index:10002;',
         'name' => $name,
         'id' => $name,
       ],
     ];
-    $html = drupal_render($content);
+    if (!empty($this->configuration['height']) && is_numeric($this->configuration['height']) && $this->configuration['height'] > 90) {
+      $content['#attributes']['height'] = $this->configuration['height'] - 90;
+    }
+    $html = $this->renderer->render($content);
 
     $response = new AjaxResponse();
     $response->addCommand(new OpenDialogCommand('#' . Html::getUniqueId($field_name . '-' . $element_name . '-dialog'), $this->configuration['link_text'], $html, [
@@ -134,6 +140,7 @@ class Modal extends IFrame {
       'fluid' => 1,
       'autoResize' => 0,
       'resizable' => 0,
+      'classes' => ['ui-dialog' => 'entity-browser-modal'],
     ]));
     return $response;
   }

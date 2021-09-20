@@ -1,19 +1,15 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\Entity\FileEntity.
- */
-
 namespace Drupal\file_entity\Entity;
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\Core\Url;
 use Drupal\Component\Utility\Crypt;
 use Drupal\file\Entity\File;
@@ -44,7 +40,7 @@ class FileEntity extends File implements FileEntityInterface {
   protected function loadMetadata() {
     if ($this->metadata === NULL) {
       // Load and unserialize metadata.
-      $results = db_query("SELECT * FROM {file_metadata} WHERE fid = :fid", array(':fid' => $this->id()));
+      $results = \Drupal::database()->query("SELECT * FROM {file_metadata} WHERE fid = :fid", array(':fid' => $this->id()));
       foreach ($results as $result) {
         $this->metadata[$result->name] = unserialize($result->value);
       }
@@ -117,7 +113,7 @@ class FileEntity extends File implements FileEntityInterface {
       return '';
     }
 
-    $uri = $this->urlInfo($rel);
+    $uri = $this->toUrl($rel);
     $options += $uri->getOptions();
     $uri->setOptions($options);
     return $uri->toString();
@@ -205,11 +201,11 @@ class FileEntity extends File implements FileEntityInterface {
     // Save file metadata.
     if ($this->metadataChanged) {
       if ($update) {
-        db_delete('file_metadata')
+        \Drupal::database()->delete('file_metadata')
           ->condition('fid', $this->id())
           ->execute();
       }
-      $query = db_insert('file_metadata')->fields(array('fid', 'name', 'value'));
+      $query = \Drupal::database()->insert('file_metadata')->fields(array('fid', 'name', 'value'));
       foreach ($this->getAllMetadata() as $name => $value) {
         $query->values(array(
           'fid' => $this->id(),
@@ -275,12 +271,12 @@ class FileEntity extends File implements FileEntityInterface {
   /**
    * Update the image dimensions on the given image field on the given entity.
    *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $entity
    *    The entity to be updated.
    * @param string $image_field
    *    The field to be updated.
    */
-  protected function updateImageFieldDimensionsByEntity(ContentEntityInterface $entity, $image_field) {
+  protected function updateImageFieldDimensionsByEntity(FieldableEntityInterface $entity, $image_field) {
     foreach (array_keys($entity->getTranslationLanguages()) as $langcode) {
       $translation = $entity->getTranslation($langcode);
 
@@ -302,7 +298,7 @@ class FileEntity extends File implements FileEntityInterface {
   public static function preDelete(EntityStorageInterface $storage, array $entities) {
     parent::preDelete($storage, $entities);
     // Remove file metadata.
-    db_delete('file_metadata')
+    \Drupal::database()->delete('file_metadata')
       ->condition('fid', array_keys($entities), 'IN')
       ->execute();
   }
@@ -399,7 +395,7 @@ class FileEntity extends File implements FileEntityInterface {
    *   TRUE if the file is using a readable stream wrapper, or FALSE otherwise.
    */
   function isReadable() {
-    $scheme = file_uri_scheme($this->getFileUri());
+    $scheme = StreamWrapperManager::getScheme($this->getFileUri());
     $wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::READ);
     return !empty($wrappers[$scheme]);
   }
@@ -412,7 +408,7 @@ class FileEntity extends File implements FileEntityInterface {
    *   or FALSE otherwise.
    */
   public function isWritable() {
-    $scheme = file_uri_scheme($this->getFileUri());
+    $scheme = StreamWrapperManager::getScheme($this->getFileUri());
     $wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::WRITE_VISIBLE);
     return !empty($wrappers[$scheme]);
   }
@@ -436,7 +432,7 @@ class FileEntity extends File implements FileEntityInterface {
    *   TRUE if the file is using a local stream wrapper, or FALSE otherwise.
    */
   public function isLocal() {
-    $scheme = file_uri_scheme($this->uri);
+    $scheme = StreamWrapperManager::getScheme($this->uri);
     $wrappers = \Drupal::service('stream_wrapper_manager')->getWrappers(StreamWrapperInterface::LOCAL);
     return !empty($wrappers[$scheme]) && empty($wrappers[$scheme]['remote']);
   }
@@ -504,6 +500,18 @@ class FileEntity extends File implements FileEntityInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function validate() {
+    // Try to update the bundle if not exist.
+    if ($this->bundle() === FILE_TYPE_NONE) {
+      $this->updateBundle();
+    }
+
+    return parent::validate();
+  }
+
+  /**
    * Invalidates an entity's cache tags upon save.
    *
    * @param bool $update
@@ -520,7 +528,7 @@ class FileEntity extends File implements FileEntityInterface {
       // tags of entities that use that file.
       foreach (\Drupal::service('file.usage')->listUsage($this) as $module => $module_references) {
         foreach ($module_references as $type => $ids) {
-          if ($this->entityManager()->hasDefinition($type)) {
+          if ($this->entityTypeManager()->hasDefinition($type)) {
             $tags = Cache::mergeTags($tags, Cache::buildTags($type, array_keys($ids)));
           }
         }

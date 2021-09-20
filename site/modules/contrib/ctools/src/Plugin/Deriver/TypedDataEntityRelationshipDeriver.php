@@ -1,13 +1,9 @@
 <?php
-/**
- * @file
- * Contains \Drupal\ctools\Plugin\Deriver\TypedDataEntityRelationshipDeriver.
- */
 
 namespace Drupal\ctools\Plugin\Deriver;
 
-
 use Drupal\Core\TypedData\DataDefinitionInterface;
+
 
 class TypedDataEntityRelationshipDeriver extends TypedDataRelationshipDeriver {
 

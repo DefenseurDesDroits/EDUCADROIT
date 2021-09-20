@@ -1,19 +1,16 @@
-toolbar_menu.settings:
-  path: "admin/config/toolbar_menu/settings"
+entity.toolbar_menu_element.collection:
+  path: 'admin/config/user-interface/toolbar-menu/elements'
   defaults:
-    _form: 'Drupal\toolbar_menu\Form\ToolbarMenuForm'
-    _title: "Toolbar Menu"
-  options:
-    _admin_route: TRUE
+    _entity_list: 'toolbar_menu_element'
+    _title: 'Toolbar menu elements'
   requirements:
-    _permission: "administer toolbar menu"
+    _permission: 'administer toolbar menu'
 
-toolbar_menu.settings.base:
-  path: "admin/config/toolbar_menu"
-  options:
-    _admin_route: TRUE
+entity.toolbar_menu_element.add_form:
+  path: 'admin/config/user-interface/toolbar-menu/elements/add'
   defaults:
-    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
-    _title: 'Settings'
+    _entity_form: 'toolbar_menu_element.default'
+    _title: 'Add Toolbar menu element'
+    tempstore_id: 'toolbar_menu.element'
   requirements:
-    _permission: "administer toolbar menu"
+    _permission: 'administer toolbar menu'

@@ -15,4 +15,5 @@ permissions:
   - 'view courses entity'
   - 'view files'
   - 'view glossary entity'
+  - 'view media'
   - 'view vocabulary entity'

@@ -1,22 +1,23 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\Form\FileAddForm.
- */
-
 namespace Drupal\file_entity\Form;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\field\FieldConfigInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\file_entity\Entity\FileType;
 use Drupal\file_entity\UploadValidatorsTrait;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for file type forms.
@@ -24,6 +25,56 @@ use Drupal\file_entity\UploadValidatorsTrait;
 class FileAddForm extends FormBase {
 
   use UploadValidatorsTrait;
+
+  /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(RendererInterface $renderer, EntityTypeManagerInterface $entity_type_manager, FileSystemInterface $file_system, MessengerInterface $messenger) {
+    $this->renderer = $renderer;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->fileSystem = $file_system;
+    $this->messenger = $messenger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('renderer'),
+      $container->get('entity_type.manager'),
+      $container->get('file_system'),
+      $container->get('messenger')
+    );
+  }
 
   /**
    * Returns a unique string identifying the form.
@@ -94,7 +145,7 @@ class FileAddForm extends FormBase {
       '#theme' => 'file_upload_help',
       '#upload_validators' => $form['upload']['#upload_validators'],
     );
-    $form['upload']['#description'] = drupal_render($file_upload_help);
+    $form['upload']['#description'] = $this->renderer->render($file_upload_help);
 
     $form['actions'] = array('#type' => 'actions');
     $form['actions']['next'] = array(
@@ -121,7 +172,7 @@ class FileAddForm extends FormBase {
    */
   function getUploadDestinationUri(array $params, array $data = array()) {
     $params += array(
-      'uri_scheme' => file_default_scheme(),
+      'uri_scheme' => $this->config('system.file')->get('default_scheme'),
       'file_directory' => '',
     );
 
@@ -186,7 +237,7 @@ class FileAddForm extends FormBase {
     $candidates = array();
     foreach ($types as $type) {
 
-      if ($has_access = \Drupal::entityManager()->getAccessControlHandler('file')
+      if ($has_access = $this->entityTypeManager->getAccessControlHandler('file')
         ->createAccess($type)
       ) {
         $candidates[$type] = FileType::load($type)->label();
@@ -206,14 +257,14 @@ class FileAddForm extends FormBase {
   function stepScheme(array $form, FormStateInterface $form_state) {
     $options = array();
     foreach (\Drupal::service('stream_wrapper_manager')->getDescriptions(StreamWrapperInterface::WRITE_VISIBLE) as $scheme => $description) {
-      $options[$scheme] = SafeMarkup::checkPlain($description);
+      $options[$scheme] = Html::escape($description);
     }
 
     $form['scheme'] = array(
       '#type' => 'radios',
       '#title' => t('Destination'),
       '#options' => $options,
-      '#default_value' => $form_state->get('scheme') ?: file_default_scheme(),
+      '#default_value' => $form_state->get('scheme') ?: $this->config('system.file')->get('default_scheme'),
       '#required' => TRUE,
     );
 
@@ -338,7 +389,7 @@ class FileAddForm extends FormBase {
           if (!$file->isWritable()) {
             // The file is read-only (remote) and must use its provided scheme.
             $current_step += ($trigger == 'edit-previous') ? -1 : 1;
-            $form_state->set('scheme', file_uri_scheme($file->getFileUri()));
+            $form_state->set('scheme', StreamWrapperManager::getScheme($file->getFileUri()));
           }
           elseif (count($schemes) == 1) {
             // There is only one possible stream wrapper for this file.
@@ -349,7 +400,7 @@ class FileAddForm extends FormBase {
           elseif (\Drupal::config('file_entity.settings')->get('wizard_skip_scheme')) {
             // Assign the file the default scheme.
             $current_step += ($trigger == 'edit-previous') ? -1 : 1;
-            $form_state->set('scheme', file_default_scheme());
+            $form_state->set('scheme', $this->config('system.file')->get('default_scheme'));
           }
         }
       }
@@ -393,9 +444,9 @@ class FileAddForm extends FormBase {
     $form_state->set('step', $current_step);
 
     if ($save) {
-      if (file_uri_scheme($file->getFileUri()) != $form_state->get('scheme')) {
+      if (StreamWrapperManager::getScheme($file->getFileUri()) != $form_state->get('scheme')) {
         // @TODO: Users should not be allowed to create private files without permission ('view private files')
-        if ($moved_file = file_move($file, $form_state->get('scheme') . '://' . file_uri_target($file->getFileUri()), FILE_EXISTS_RENAME)) {
+        if ($moved_file = file_move($file, $form_state->get('scheme') . '://' . StreamWrapperManager::getTarget($file->getFileUri()), FileSystemInterface::EXISTS_RENAME)) {
           // Only re-assign the file object if file_move() did not fail.
           $moved_file->setFilename($file->getFilename());
 
@@ -412,7 +463,7 @@ class FileAddForm extends FormBase {
 
       $form_state->set('file', $file);
 
-      drupal_set_message(t('@type %name was uploaded.', array(
+      $this->messenger->addMessage(t('@type %name was uploaded.', array(
         '@type' => $file->type->entity->label(),
         '%name' => $file->getFilename()
       )));
@@ -422,7 +473,7 @@ class FileAddForm extends FormBase {
         $form_state->setRedirect('entity.file.collection');
       }
       else {
-        $form_state->setRedirectUrl($file->urlInfo());
+        $form_state->setRedirectUrl($file->toUrl());
       }
     }
     else {

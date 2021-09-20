@@ -1,6 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: gaya_editorial_picture
-label: 'Gaya Editorial Picture'
-locked: true

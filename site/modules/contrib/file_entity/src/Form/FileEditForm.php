@@ -2,14 +2,19 @@
 
 namespace Drupal\file_entity\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\file_entity\Entity\FileEntity;
 use Drupal\file_entity\Entity\FileType;
 use Drupal\file_entity\UploadValidatorsTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for file type forms.
@@ -17,6 +22,31 @@ use Drupal\file_entity\UploadValidatorsTrait;
 class FileEditForm extends ContentEntityForm {
 
   use UploadValidatorsTrait;
+
+  /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * The file system service.
+   *
+   * @var \Drupal\Core\File\FileSystemInterface
+   */
+  protected $fileSystem;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    /** @var static $form */
+    $form = parent::create($container);
+    $form->renderer = $container->get('renderer');
+    $form->fileSystem = $container->get('file_system');
+    return $form;
+  }
 
   /**
    * {@inheritdoc}
@@ -65,7 +95,7 @@ class FileEditForm extends ContentEntityForm {
           '#description' => $this->t('This file will replace the existing file. This action cannot be undone.'),
           '#upload_validators' => $form['replace_upload']['#upload_validators'],
         );
-        $form['replace_upload']['#description'] = drupal_render($file_upload_help);
+        $form['replace_upload']['#description'] = $this->renderer->render($file_upload_help);
       }
     }
 
@@ -83,20 +113,20 @@ class FileEditForm extends ContentEntityForm {
     $t_args = array('%title' => $file->label());
 
     if ($insert) {
-      drupal_set_message(t('%title has been created.', $t_args));
+      $this->messenger()->addMessage(t('%title has been created.', $t_args));
     }
     else {
-      drupal_set_message(t('%title has been updated.', $t_args));
+      $this->messenger()->addMessage(t('%title has been updated.', $t_args));
     }
 
     // Check if file ID exists.
     if ($file->id()) {
-      $form_state->setRedirectUrl($file->urlInfo());
+      $form_state->setRedirectUrl($file->toUrl());
     }
     else {
       // In the unlikely case something went wrong on save, the file will be
       // rebuilt and file form redisplayed the same way as in preview.
-      drupal_set_message(t('The post could not be saved.'), 'error');
+      $this->messenger()->addMessage(t('The post could not be saved.'), 'error');
       $form_state->setRebuild();
     }
   }
@@ -135,7 +165,7 @@ class FileEditForm extends ContentEntityForm {
       }
       $log_args = array('@old' => $this->entity->getFilename(), '@new' => $entity_replacement->getFileName());
       // Move file from temp to permanent home.
-      if (file_unmanaged_copy($entity_replacement->getFileUri(), $this->entity->getFileUri(), FILE_EXISTS_REPLACE)) {
+      if ($this->fileSystem->copy($entity_replacement->getFileUri(), $this->entity->getFileUri(), FileSystemInterface::EXISTS_REPLACE)) {
         $entity_replacement->delete();
         \Drupal::logger('file_entity')->info('File @old was replaced by @new', $log_args);
       }

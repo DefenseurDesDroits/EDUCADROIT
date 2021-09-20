@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- *  Contains Drupal\file_entity\Plugin\Field\FieldFormatter\FileVideoFormatter.
- */
-
 namespace Drupal\file_entity\Plugin\Field\FieldFormatter;
 
 
@@ -55,9 +50,7 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
    *   The view mode.
    * @param array $third_party_settings
    *   Any third party settings settings.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param Drupal\Core\Render\RendererInterface $renderer
+   * @param \Drupal\Core\Render\RendererInterface $renderer
    *   The rendered service
    */
   public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, $label, $view_mode, array $third_party_settings, RendererInterface $renderer) {
@@ -91,6 +84,7 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
       'autoplay' => FALSE,
       'loop' => FALSE,
       'muted' => FALSE,
+      'playsinline' => FALSE,
       'width' => NULL,
       'height' => NULL,
       'multiple_file_behavior' => 'tags',
@@ -120,6 +114,11 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
       '#title' => t('Muted'),
       '#type' => 'checkbox',
       '#default_value' => $this->getSetting('muted'),
+    );
+    $element['playsinline'] = array(
+      '#title' => t('Plays inline'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('playsinline'),
     );
     $element['width'] = array(
       '#type' => 'textfield',
@@ -159,6 +158,7 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
     $summary[] = t('Autoplay: %autoplay', array('%autoplay' => $this->getSetting('autoplay') ? t('yes') : t('no')));
     $summary[] = t('Loop: %loop', array('%loop' => $this->getSetting('loop') ? t('yes') : t('no')));
     $summary[] = t('Muted: %muted', array('%muted' => $this->getSetting('muted') ? t('yes') : t('no')));
+    $summary[] = t('Plays inline: %playsinline', array('%playsinline' => $this->getSetting('playsinline') ? t('yes') : t('no')));
     $width = $this->getSetting('width');
     $height = $this->getSetting('height');
     if ($width && $height) {
@@ -186,7 +186,7 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
         $source_attributes->setAttribute('src', file_create_url($file->getFileUri()));
         $source_attributes->setAttribute('type', $file->getMimeType());
         if ($multiple_file_behavior == 'tags') {
-          $source_files[] = array(array('file' => $file, 'source_attributes' => $source_attributes));
+          $source_files[$delta] = array(array('file' => $file, 'source_attributes' => $source_attributes));
         }
         else {
           $source_files[0][] = array('file' => $file, 'source_attributes' => $source_attributes);
@@ -197,7 +197,7 @@ class FileVideoFormatter extends FileFormatterBase implements ContainerFactoryPl
     if (!empty($source_files)) {
       // Prepare the video attributes according to the settings.
       $video_attributes = new Attribute();
-      foreach (array('controls', 'autoplay', 'loop', 'muted') as $attribute) {
+      foreach (array('controls', 'autoplay', 'loop', 'muted', 'playsinline') as $attribute) {
         if ($this->getSetting($attribute)) {
           $video_attributes->setAttribute($attribute, $attribute);
         }

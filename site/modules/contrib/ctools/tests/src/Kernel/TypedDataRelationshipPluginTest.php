@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\Tests\ctools\Kernel\TypedDataRelationshipPluginTest.
- */
 
 namespace Drupal\Tests\ctools\Kernel;
 
@@ -13,8 +9,6 @@ use Drupal\Core\Plugin\Context\ContextInterface;
  * @group CTools
  */
 class TypedDataRelationshipPluginTest extends RelationshipsTestBase {
-
-
 
   /**
    * @covers ::getName

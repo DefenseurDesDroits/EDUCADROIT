@@ -1,19 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\Form\FileDeleteMultipleForm.
- */
-
 namespace Drupal\file_entity\Form;
 
-use Drupal\Component\Utility\SafeMarkup;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\file\FileInterface;
-use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -42,19 +37,19 @@ class FileDeleteMultipleForm extends ConfirmFormBase {
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected $manager;
+  protected $storage;
 
   /**
    * Constructs a FileDeleteMultipleForm object.
    *
-   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(PrivateTempStoreFactory $temp_store_factory, EntityManagerInterface $manager) {
+  public function __construct(PrivateTempStoreFactory $temp_store_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->tempStore = $temp_store_factory->get('file_multiple_delete_confirm');
-    $this->storage = $manager->getStorage('file');
+    $this->storage = $entity_type_manager->getStorage('file');
   }
 
   /**
@@ -62,8 +57,8 @@ class FileDeleteMultipleForm extends ConfirmFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('user.private_tempstore'),
-      $container->get('entity.manager')
+      $container->get('tempstore.private'),
+      $container->get('entity_type.manager')
     );
   }
 
@@ -111,7 +106,7 @@ class FileDeleteMultipleForm extends ConfirmFormBase {
     $form['files'] = array(
       '#theme' => 'item_list',
       '#items' => array_map(function (FileInterface $file) {
-        return SafeMarkup::checkPlain($file->label());
+        return Html::escape($file->label());
       }, $this->files),
     );
     $form = parent::buildForm($form, $form_state);

@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\ctools\ConstraintConditionInterface.
- */
 
 namespace Drupal\ctools;
 
@@ -14,17 +10,17 @@ interface ConstraintConditionInterface {
    *
    * @param \Drupal\Core\Plugin\Context\ContextInterface[] $contexts
    *
-   * @return NULL
+   * @return null
    */
-  public function applyConstraints(array $contexts = array());
+  public function applyConstraints(array $contexts = []);
 
   /**
    * Removes constraints for this condition from the injected contexts.
    *
    * @param \Drupal\Core\Plugin\Context\ContextInterface[] $contexts
    *
-   * @return NULL
+   * @return null
    */
-  public function removeConstraints(array $contexts = array());
+  public function removeConstraints(array $contexts = []);
 
 }

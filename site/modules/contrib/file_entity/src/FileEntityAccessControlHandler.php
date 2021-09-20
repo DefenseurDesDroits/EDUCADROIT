@@ -1,16 +1,12 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\FileEntityAccessControlHandler.
- */
-
 namespace Drupal\file_entity;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
 use Drupal\file\FileAccessControlHandler;
 use Drupal\file_entity\Entity\FileEntity;
 
@@ -55,7 +51,7 @@ class FileEntityAccessControlHandler extends FileAccessControlHandler {
 
     if ($operation == 'view') {
       $schemes = file_entity_get_public_and_private_stream_wrapper_names();
-      if (isset($schemes['private'][file_uri_scheme($entity->getFileUri())])) {
+      if (isset($schemes['private'][StreamWrapperManager::getScheme($entity->getFileUri())])) {
         return AccessResult::allowedIfHasPermission($account, 'view private files')
           ->orIf(AccessResult::allowedIf($account->isAuthenticated() && $is_owner)->addCacheableDependency($entity)
             ->andIf(AccessResult::allowedIfHasPermission($account, 'view own private files')));
@@ -65,6 +61,12 @@ class FileEntityAccessControlHandler extends FileAccessControlHandler {
           ->orIf(AccessResult::allowedIf($is_owner)->addCacheableDependency($entity)
             ->andIf(AccessResult::allowedIfHasPermission($account, 'view own files')));
       }
+    }
+
+    // Public files can always be downloaded, fix for regression after
+    // SA-CORE-2020-011.
+    if ($operation == 'download' && StreamWrapperManager::getScheme($entity->getFileUri()) == 'public') {
+      return AccessResult::allowed();
     }
 
     // User can perform these operations if they have the "any" permission or if

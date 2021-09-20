@@ -3,18 +3,18 @@
 namespace Drupal\dropzonejs_eb_widget\Plugin\EntityBrowser\Widget;
 
 use Drupal\Component\Utility\Bytes;
+use Drupal\Component\Utility\Environment;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\InvokeCommand;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Utility\Token;
 use Drupal\dropzonejs\DropzoneJsUploadSaveInterface;
 use Drupal\entity_browser\WidgetBase;
-use Drupal\entity_browser\WidgetValidationManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Drupal\Core\Asset\LibraryDiscoveryInterface;
 
 /**
  * Provides an Entity Browser widget that uploads new files.
@@ -50,49 +50,81 @@ class DropzoneJsEbWidget extends WidgetBase {
   protected $token;
 
   /**
-   * Constructs widget plugin.
+   * The file system service.
    *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $event_dispatcher
-   *   Event dispatcher service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager service.
-   * @param \Drupal\entity_browser\WidgetValidationManager $validation_manager
-   *   The Widget Validation Manager service.
-   * @param \Drupal\dropzonejs\DropzoneJsUploadSaveInterface $dropzonejs_upload_save
-   *   The upload saving dropzonejs service.
-   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   *   The current user service.
-   * @param \Drupal\Core\Utility\Token $token
-   *   The token service.
+   * @var \Drupal\Core\File\FileSystemInterface
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EventDispatcherInterface $event_dispatcher, EntityTypeManagerInterface $entity_type_manager, WidgetValidationManager $validation_manager, DropzoneJsUploadSaveInterface $dropzonejs_upload_save, AccountProxyInterface $current_user, Token $token) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $event_dispatcher, $entity_type_manager, $validation_manager);
-    $this->dropzoneJsUploadSave = $dropzonejs_upload_save;
-    $this->currentUser = $current_user;
-    $this->token = $token;
-  }
+  protected $fileSystem;
+
+  /**
+   * The library discovery service.
+   *
+   * @var \Drupal\Core\Asset\LibraryDiscoveryInterface
+   */
+  protected $libraryDiscovery;
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $container->get('event_dispatcher'),
-      $container->get('entity_type.manager'),
-      $container->get('plugin.manager.entity_browser.widget_validation'),
-      $container->get('dropzonejs.upload_save'),
-      $container->get('current_user'),
-      $container->get('token')
-    );
+    $widget = parent::create($container, $configuration, $plugin_id, $plugin_definition);
+    $widget->setDropzoneJsUploadSave($container->get('dropzonejs.upload_save'));
+    $widget->setCurrentUser($container->get('current_user'));
+    $widget->setToken($container->get('token'));
+    $widget->setFileSystem($container->get('file_system'));
+    $widget->setLibraryDiscovery($container->get('library.discovery'));
+
+    return $widget;
+  }
+
+  /**
+   * Set the upload saving dropzonejs service.
+   *
+   * @param \Drupal\dropzonejs\DropzoneJsUploadSaveInterface $dropzoneJsUploadSave
+   *   The upload saving dropzonejs service.
+   */
+  protected function setDropzoneJsUploadSave(DropzoneJsUploadSaveInterface $dropzoneJsUploadSave) {
+    $this->dropzoneJsUploadSave = $dropzoneJsUploadSave;
+  }
+
+  /**
+   * Set the current user service.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $currentUser
+   *   The current user service.
+   */
+  protected function setCurrentUser(AccountProxyInterface $currentUser) {
+    $this->currentUser = $currentUser;
+  }
+
+  /**
+   * Set the token service.
+   *
+   * @param \Drupal\Core\Utility\Token $token
+   *   The token service.
+   */
+  protected function setToken(Token $token) {
+    $this->token = $token;
+  }
+
+  /**
+   * Set the filesystem service.
+   *
+   * @param \Drupal\Core\File\FileSystemInterface $fileSystem
+   *   The filesystem service.
+   */
+  protected function setFileSystem(FileSystemInterface $fileSystem) {
+    $this->fileSystem = $fileSystem;
+  }
+
+  /**
+   * Set the Library Discovery service.
+   *
+   * @param \Drupal\Core\Asset\LibraryDiscoveryInterface $library_discovery
+   *   The library discovery service.
+   */
+  protected function setLibraryDiscovery(LibraryDiscoveryInterface $library_discovery) {
+    $this->libraryDiscovery = $library_discovery;
   }
 
   /**
@@ -102,8 +134,14 @@ class DropzoneJsEbWidget extends WidgetBase {
     return [
       'upload_location' => 'public://[date:custom:Y]-[date:custom:m]',
       'dropzone_description' => $this->t('Drop files here to upload them'),
-      'max_filesize' => file_upload_max_size() / pow(Bytes::KILOBYTE, 2) . 'M',
+      'max_filesize' => Environment::getUploadMaxSize() / pow(Bytes::KILOBYTE, 2) . 'M',
       'extensions' => 'jpg jpeg gif png txt doc xls pdf ppt pps odt ods odp',
+      'clientside_resize' => FALSE,
+      'resize_width' => NULL,
+      'resize_height' => NULL,
+      'resize_quality' => 1,
+      'resize_method' => 'contain',
+      'thumbnail_method' => 'contain',
     ] + parent::defaultConfiguration();
   }
 
@@ -127,7 +165,16 @@ class DropzoneJsEbWidget extends WidgetBase {
       '#max_filesize' => $config['settings']['max_filesize'],
       '#extensions' => $config['settings']['extensions'],
       '#max_files' => ($cardinality > 0) ? $cardinality : 0,
+      '#clientside_resize' => $config['settings']['clientside_resize'],
     ];
+
+    if ($config['settings']['clientside_resize']) {
+      $form['upload']['#resize_width'] = $config['settings']['resize_width'];
+      $form['upload']['#resize_height'] = $config['settings']['resize_height'];
+      $form['upload']['#resize_quality'] = $config['settings']['resize_quality'];
+      $form['upload']['#resize_method'] = $config['settings']['resize_method'];
+      $form['upload']['#thumbnail_method'] = $config['settings']['thumbnail_method'];
+    }
 
     $form['#attached']['library'][] = 'dropzonejs/widget';
     // Disable the submit button until the upload sucesfully completed.
@@ -198,7 +245,9 @@ class DropzoneJsEbWidget extends WidgetBase {
           $this->currentUser,
           $additional_validators
         );
-        $files[] = $entity;
+        if ($entity) {
+          $files[] = $entity;
+        }
       }
     }
 
@@ -232,7 +281,7 @@ class DropzoneJsEbWidget extends WidgetBase {
     // it's still better not to rely only on client side validation.
     if (($trigger['#type'] == 'submit' && $trigger['#name'] == 'op') || $trigger['#name'] === 'auto_select_handler') {
       $upload_location = $this->getUploadLocation();
-      if (!file_prepare_directory($upload_location, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      if (!$this->fileSystem->prepareDirectory($upload_location, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS)) {
         $form_state->setError($form['widget']['upload'], $this->t('Files could not be uploaded because the destination directory %destination is not configured correctly.', ['%destination' => $this->getConfiguration()['settings']['upload_location']]));
       }
 
@@ -360,6 +409,107 @@ class DropzoneJsEbWidget extends WidgetBase {
       '#default_value' => $configuration['extensions'],
     ];
 
+
+    $exif_found = $this->libraryDiscovery->getLibraryByName('dropzonejs', 'exif-js');
+
+    $form['clientside_resize'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use client side resizing'),
+      '#default_value' => $configuration['clientside_resize'],
+    ];
+
+    if (!$exif_found) {
+      $form['clientside_resize']['#description'] = $this->t('Requires droopzone version v4.4.0 or higher and the <a href="@exif" target="_blank">exif</a> library.', ['@exif' => 'https://github.com/exif-js/exif-js']);
+
+      // We still want to provide a way to disable this if the library does not
+      // exist.
+      if ($configuration['clientside_resize'] == FALSE) {
+        $form['clientside_resize']['#disabled'] = TRUE;
+      }
+    }
+
+    $form['resize_width'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Max width'),
+      '#default_value' => $configuration['resize_width'],
+      '#size' => 60,
+      '#field_suffix' => 'px',
+      '#min' => 0,
+      '#states' => [
+        'visible' => [
+          ':input[name="table[' . $this->uuid() .  '][form][clientside_resize]"]' => [
+            'checked' => TRUE,
+          ],
+        ]
+      ]
+    ];
+
+    $form['resize_height'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Max height'),
+      '#default_value' => $configuration['resize_height'],
+      '#size' => 60,
+      '#field_suffix' => 'px',
+      '#min' => 0,
+      '#states' => [
+        'visible' => [
+          ':input[name="table[' . $this->uuid() .  '][form][clientside_resize]"]' => [
+            'checked' => TRUE,
+          ],
+        ]
+      ]
+    ];
+
+    $form['resize_quality'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Resize quality'),
+      '#default_value' => $configuration['resize_quality'],
+      '#min' => 0,
+      '#max' => 1,
+      '#step' => 0.1,
+      '#states' => [
+        'visible' => [
+          ':input[name="table[' . $this->uuid() .  '][form][clientside_resize]"]' => [
+            'checked' => TRUE,
+          ],
+        ]
+      ]
+    ];
+
+    $form['resize_method'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Resize method'),
+      '#default_value' => $configuration['resize_method'],
+      '#options' => [
+        'contain' => $this->t('Contain (scale)'),
+        'crop' => $this->t('Crop'),
+      ],
+      '#states' => [
+        'visible' => [
+          ':input[name="table[' . $this->uuid() .  '][form][clientside_resize]"]' => [
+            'checked' => TRUE,
+          ],
+        ]
+      ]
+    ];
+
+    $form['thumbnail_method'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Thumbnail method'),
+      '#default_value' => $configuration['thumbnail_method'],
+      '#options' => [
+        'contain' => $this->t('Contain (scale)'),
+        'crop' => $this->t('Crop'),
+      ],
+      '#states' => [
+        'visible' => [
+          ':input[name="table[' . $this->uuid() .  '][form][clientside_resize]"]' => [
+            'checked' => TRUE,
+          ],
+        ]
+      ]
+    ];
+
     return $form;
   }
 
@@ -451,6 +601,20 @@ class DropzoneJsEbWidget extends WidgetBase {
     }
 
     return $ajax;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function handleWidgetContext($widget_context) {
+    parent::handleWidgetContext($widget_context);
+    $validators = isset($widget_context['upload_validators']) ? $widget_context['upload_validators'] : [];
+    if (isset($validators['file_validate_size'])) {
+      $this->configuration['max_filesize'] = $validators['file_validate_size'][0];
+    }
+    if (isset($validators['file_validate_extensions'])) {
+      $this->configuration['extensions'] = $validators['file_validate_extensions'][0];
+    }
   }
 
 }

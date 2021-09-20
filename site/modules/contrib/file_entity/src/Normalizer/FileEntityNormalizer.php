@@ -1,12 +1,9 @@
 <?php
-/**
- * @file
- * Contains \Drupal\file_entity\Normalizer\FileEntityNormalizer.
- */
 
 namespace Drupal\file_entity\Normalizer;
 
-use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\hal\Normalizer\ContentEntityNormalizer;
 
 /**
@@ -44,13 +41,13 @@ class FileEntityNormalizer extends ContentEntityNormalizer {
     // Decode and save to file.
     $file_contents = base64_decode($file_data);
     $entity = parent::denormalize($data, $class, $format, $context);
-    $dirname = drupal_dirname($entity->getFileUri());
-    file_prepare_directory($dirname, FILE_CREATE_DIRECTORY);
-    if ($uri = file_unmanaged_save_data($file_contents, $entity->getFileUri())) {
+    $dirname = \Drupal::service('file_system')->dirname($entity->getFileUri());
+    \Drupal::service('file_system')->prepareDirectory($dirname, FileSystemInterface::CREATE_DIRECTORY);
+    if ($uri = \Drupal::service('file_system')->saveData($file_contents, $entity->getFileUri())) {
       $entity->setFileUri($uri);
     }
     else {
-      throw new \RuntimeException(SafeMarkup::format('Failed to write @filename.', array('@filename' => $entity->getFilename())));
+      throw new \RuntimeException(new FormattableMarkup('Failed to write @filename.', array('@filename' => $entity->getFilename())));
     }
     return $entity;
   }

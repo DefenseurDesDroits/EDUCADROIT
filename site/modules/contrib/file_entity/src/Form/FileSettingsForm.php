@@ -2,6 +2,7 @@
 
 namespace Drupal\file_entity\Form;
 
+use Drupal\Component\Utility\Environment;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -38,7 +39,7 @@ class FileSettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => t('Maximum upload size'),
       '#default_value' => \Drupal::config('file_entity.settings')->get('max_filesize'),
-      '#description' => t('Enter a value like "512" (bytes), "80 KB" (kilobytes) or "50 MB" (megabytes) in order to restrict the allowed file size. If left empty the file sizes will be limited only by PHP\'s maximum post and file upload sizes (current max limit <strong>%limit</strong>).', array('%limit' => format_size(file_upload_max_size()))),
+      '#description' => t('Enter a value like "512" (bytes), "80 KB" (kilobytes) or "50 MB" (megabytes) in order to restrict the allowed file size. If left empty the file sizes will be limited only by PHP\'s maximum post and file upload sizes (current max limit <strong>%limit</strong>).', array('%limit' => format_size(Environment::getUploadMaxSize()))),
       '#element_validate' => ['\Drupal\file\Plugin\Field\FieldType\FileItem::validateMaxFilesize'],
       '#size' => 10,
     );
@@ -134,6 +135,6 @@ class FileSettingsForm extends ConfigFormBase {
       ->set('wizard_skip_fields', $form_state->getValue('wizard_skip_fields'))
       ->save();
 
-    drupal_set_message(t('File Settings have been succesfully saved.'));
+    $this->messenger()->addMessage(t('File Settings have been succesfully saved.'));
   }
 }

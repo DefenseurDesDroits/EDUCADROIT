@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\ctools_wizard_test\Form\ExampleConfigEntityTwoForm.
- */
-
 namespace Drupal\ctools_wizard_test\Form;
 
 use Drupal\Core\Form\FormBase;
@@ -30,11 +25,11 @@ class ExampleConfigEntityTwoForm extends FormBase {
     /** @var $page \Drupal\ctools_wizard_test\Entity\ExampleConfigEntity */
     $config_entity = $cached_values['ctools_wizard_test_config_entity'];
 
-    $form['two'] = array(
-      '#title' => t('Two'),
+    $form['two'] = [
+      '#title' => $this->t('Two'),
       '#type' => 'textfield',
       '#default_value' => $config_entity->getTwo() ?: '',
-    );
+    ];
     return $form;
   }
 

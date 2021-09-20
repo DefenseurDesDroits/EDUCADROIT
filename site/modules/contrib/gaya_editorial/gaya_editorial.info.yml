@@ -1,9 +1,0 @@
-name: Gaya Editorial
-type: module
-description: Gaya Editorial Module. Provide all and most Editorial Block for Drupal 8
-core: 8.x
-package: Gaya
-version: '8.x-1.0'
-configure: gaya_editorial.admin_config_page
-interface translation project: gaya_editorial
-interface translation server pattern: sites/all/modules/custom/%project/languages/%project-%version.%language.po

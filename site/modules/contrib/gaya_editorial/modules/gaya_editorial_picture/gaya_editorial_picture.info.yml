@@ -1,9 +1,0 @@
-name: Gaya Editorial Picture
-type: module
-description: Provide a new image field with link and provide an image field used for generate an image on content page or slideshow
-core: 8.x
-package: Gaya
-dependencies:
-  - gaya_editorial
-isGayaEditorial: yes
-version: '1.0'

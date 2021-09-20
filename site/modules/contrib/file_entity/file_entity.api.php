@@ -5,6 +5,9 @@
  * Hooks provided by the File Entity module.
  */
 
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManager;
+
 /**
  * Control access to listings of files.
  *
@@ -15,9 +18,9 @@
  * @see hook_query_TAG_alter()
  * @ingroup file_entity_access
  */
-function hook_query_file_entity_access_alter(QueryAlterableInterface $query) {
+function hook_query_file_entity_access_alter(AlterableInterface $query) {
   // Only show files that have been uploaded more than an hour ago.
-  $query->condition('timestamp', REQUEST_TIME - 3600, '<=');
+  $query->condition('timestamp', \Drupal::time()->getRequestTime() - 3600, '<=');
 }
 
 /**
@@ -39,7 +42,7 @@ function hook_file_download_headers_alter(array &$headers, $file) {
  */
 function hook_file_transfer($uri, array $headers) {
   // Redirect a download for an S3 file to the actual location.
-  if (file_uri_scheme($uri) == 's3') {
+  if (StreamWrapperManager::getScheme($uri) == 's3') {
     $url = file_create_url($uri);
     drupal_goto($url);
   }
@@ -60,7 +63,7 @@ function hook_file_transfer($uri, array $headers) {
  */
 function hook_file_type($file) {
   // Assign all files uploaded by anonymous users to a special file type.
-  if (user_is_anonymous()) {
+  if (\Drupal::currentUser()->isAnonymous()) {
     return array('untrusted_files');
   }
 }

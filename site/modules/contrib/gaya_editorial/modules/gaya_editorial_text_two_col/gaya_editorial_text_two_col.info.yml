@@ -1,9 +1,0 @@
-name: Gaya Editorial Text Two Cols
-type: module
-description: Provide a text formated value on two cols
-core: 8.x
-package: Gaya
-dependencies:
-  - gaya_editorial
-isGayaEditorial: yes
-version: '1.0'

@@ -1,17 +1,12 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\toolbar_menu\ToolbarMenuMenuLinkTreeManipulators.
- */
-
 namespace Drupal\toolbar_menu;
 
 /**
  * Provides a couple of menu link tree manipulators.
  *
  * This class provides menu link tree manipulators to:
- * - add icons on each toolbar menu entries
+ * - add icons on each toolbar menu entries.
  */
 class ToolbarMenuMenuLinkTreeManipulators {
 
@@ -20,8 +15,8 @@ class ToolbarMenuMenuLinkTreeManipulators {
   /**
    * Construct a new ToolbarMenuMenuLinkTreeManipulators.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\toolbar_menu\ToolbarMenuManager $toolbar_menu_manager
+   *   The toolbar_menu manager.
    */
   public function __construct(ToolbarMenuManager $toolbar_menu_manager) {
     $this->toolbarMenuManager = $toolbar_menu_manager;
@@ -36,7 +31,7 @@ class ToolbarMenuMenuLinkTreeManipulators {
    * @return \Drupal\Core\Menu\MenuLinkTreeElement[]
    *   The manipulated menu link tree.
    */
-  function addIcons(array $tree) {
+  public function addIcons(array $tree) {
     foreach ($tree as $element) {
       $element->options['attributes']['class'][] = 'toolbar-icon';
       $element->options['attributes']['class'][] = 'toolbar-icon-link-toolbar-menu';
@@ -45,4 +40,5 @@ class ToolbarMenuMenuLinkTreeManipulators {
     }
     return $tree;
   }
+
 }

@@ -20,7 +20,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "file_image",
  *   label = @Translation("File Image"),
  *   field_types = {
- *     "uri"
+ *     "uri",
+ *     "file_uri"
  *   }
  * )
  */
@@ -75,7 +76,7 @@ class FileImageFormatter extends ImageFormatter {
       $configuration['view_mode'],
       $configuration['third_party_settings'],
       $container->get('current_user'),
-      $container->get('entity.manager')->getStorage('image_style'),
+      $container->get('entity_type.manager')->getStorage('image_style'),
       $container->get('entity_field.manager')
     );
   }

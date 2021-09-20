@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\file_entity\Form\FileTypeForm.
- */
-
 namespace Drupal\file_entity\Form;
 
 use Drupal\Core\Entity\EntityForm;
@@ -114,10 +109,10 @@ class FileTypeForm extends EntityForm {
     $t_args = array('%name' => $this->entity->label());
 
     if ($status == SAVED_UPDATED) {
-      drupal_set_message(t('The file type %name has been updated.', $t_args));
+      $this->messenger()->addMessage(t('The file type %name has been updated.', $t_args));
     }
     elseif ($status == SAVED_NEW) {
-      drupal_set_message(t('The file type %name has been added.', $t_args));
+      $this->messenger()->addMessage(t('The file type %name has been added.', $t_args));
       \Drupal::logger('file_entity')->notice(t('Added file type %name.', $t_args));
     }
 

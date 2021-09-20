@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\Tests\file_entity\Kernel\FileEntityNormalizerTest.
- */
 
 namespace Drupal\Tests\file_entity\Kernel;
 
@@ -21,7 +17,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * Tests the File entity normalizer.
  *
- * @see Drupal\file_entity\Normalizer\FileEntityNormalizer
+ * @see \Drupal\file_entity\Normalizer\FileEntityNormalizer
  *
  * @group file_entity
  */
@@ -111,7 +107,7 @@ class FileEntityNormalizerTest extends KernelTestBase {
     $deserialized = $this->container->get('serializer')->deserialize($serialized, 'Drupal\node\Entity\Node', 'hal_json');
 
     // Compare.
-    $this->assertEqual($node->toArray()['field_file'], $deserialized->toArray()['field_file'], "File field persists.");
+    $this->assertEquals($node->toArray()['field_file'], $deserialized->toArray()['field_file'], "File field persists.");
   }
 
 
@@ -138,9 +134,9 @@ class FileEntityNormalizerTest extends KernelTestBase {
 
       // Remove file.
       $file->delete();
-      $this->container->get('entity.manager')->getStorage('file')->resetCache();
+      $this->container->get('entity_type.manager')->getStorage('file')->resetCache();
       $this->assertFalse(file_exists($file_obj->uri), "Deleted file $file_obj->uri from disk");
-      $this->assertFalse(File::load($file->id()), "Deleted file {$file->id()} entity");
+      $this->assertNull(File::load($file->id()), "Deleted file {$file->id()} entity");
 
       // Deserialize again.
       $deserialized = $this->container->get('serializer')->deserialize($serialized, 'Drupal\file\Entity\File', 'hal_json');
@@ -154,10 +150,10 @@ class FileEntityNormalizerTest extends KernelTestBase {
 
       // Assert file is equal.
       foreach (array('filename', 'uri', 'filemime', 'filesize', 'type') as $property) {
-        $this->assertEqual($file->get($property)->value, $last_file->get($property)->value);
+        $this->assertEquals($file->get($property)->value, $last_file->get($property)->value);
       }
-      $this->assertEqual($file->get('type')->target_id, $last_file->get('type')->target_id);
-      $this->assertEqual($file_contents, file_get_contents($last_file->getFileUri()), 'File contents are equal');
+      $this->assertEquals($file->get('type')->target_id, $last_file->get('type')->target_id);
+      $this->assertEquals($file_contents, file_get_contents($last_file->getFileUri()), 'File contents are equal');
     }
   }
 
@@ -212,7 +208,7 @@ class FileEntityNormalizerTest extends KernelTestBase {
     $deserialized = $this->container->get('serializer')->deserialize($serialized, 'Drupal\node\Entity\Node', 'hal_json');
 
     // Compare.
-    $this->assertEqual($node->toArray()['field_image'], $deserialized->toArray()['field_image'], "Image field persists.");
+    $this->assertEquals($node->toArray()['field_image'], $deserialized->toArray()['field_image'], "Image field persists.");
   }
 
   /**
@@ -223,11 +219,12 @@ class FileEntityNormalizerTest extends KernelTestBase {
    *   and 'name' properties corresponding to the test files.
    */
   protected function getTestFiles() {
-    $original = drupal_get_path('module', 'simpletest') . '/files';
-    $files = file_scan_directory($original, '/(html|image|javascript|php|sql)-.*/');
+    /** @var \Drupal\Core\File\FileSystemInterface $file_system */
+    $file_system = \Drupal::service('file_system');
+    $files = $file_system->scanDirectory(DRUPAL_ROOT . '/core/tests/fixtures/files/', '/(html|image|javascript|php|sql)-.*/');
     foreach ($files as $file) {
       unset($files[$file->uri]);
-      $new_path = file_unmanaged_copy($file->uri, PublicStream::basePath());
+      $new_path = $file_system->copy($file->uri, PublicStream::basePath());
       $file->uri = $new_path;
       $files[$new_path] = $file;
     }

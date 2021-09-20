@@ -44,9 +44,7 @@ Thumbs.db
 .sass-cache
 
 sites/default/settings.local.php
-sites/default/settings.local.php
 sites/default/default.settings.php
-sites/default/settings.php
 sites/default/default.services.yml
 sites/default/services.yml
 

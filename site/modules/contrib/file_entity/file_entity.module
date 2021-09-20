@@ -5,16 +5,16 @@
  * Extends Drupal file entities to be fieldable and viewable.
  */
 
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Database\Query\SelectInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
-use Drupal\Core\Url;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
+use Drupal\file_entity\Entity\FileEntity;
 use Drupal\file_entity\Entity\FileType;
 
 /**
@@ -156,7 +156,6 @@ function file_entity_entity_type_alter(&$entity_types) {
     ->set('bundle_entity_type', 'file_type')
     ->set('admin_permission', 'administer files')
     ->setClass('Drupal\file_entity\Entity\FileEntity')
-    ->setHandlerClass('storage_schema', 'Drupal\file_entity\FileEntityStorageSchema')
     ->setFormClass('default', 'Drupal\file_entity\Form\FileEditForm')
     ->setFormClass('edit', 'Drupal\file_entity\Form\FileEditForm')
     ->setFormClass('inline_edit', 'Drupal\file_entity\Form\FileInlineEditForm')
@@ -193,6 +192,23 @@ function file_entity_entity_type_alter(&$entity_types) {
 }
 
 /**
+ * Implements hook_entity_operation().
+ */
+function file_entity_entity_operation(EntityInterface $entity) {
+  $operations = [];
+
+  if ($entity instanceof FileEntity && $entity->access('download')) {
+    $operations['download'] = array(
+      'title' => t('Download'),
+      'weight' => 100,
+      'url' => $entity->downloadUrl(),
+    );
+  }
+
+  return $operations;
+}
+
+/**
  * Prepares variables for file templates.
  *
  * Default template: file.html.twig.
@@ -218,7 +234,7 @@ function template_preprocess_file(&$variables) {
   );
   $variables['name']      = $username;
 
-  $variables['file_url']  = $file->url('canonical');
+  $variables['file_url']  = $file->toUrl('canonical')->toString();
   $variables['label']     = $file->label();
   $variables['page']      = $view_mode == 'full' && $file->isPage();
 
@@ -278,7 +294,7 @@ function file_entity_type_get_names() {
  * Return the label for a specific file entity view mode.
  */
 function file_entity_view_mode_label($view_mode, $default = FALSE) {
-  $labels = \Drupal::entityManager()->getViewModeOptions('file');
+  $labels = \Drupal::getContainer()->get('entity_display.repository')->getViewModeOptions('file');
   return isset($labels[$view_mode]) ? $labels[$view_mode] : $default;
 }
 
@@ -308,7 +324,9 @@ function file_entity_file_download($uri) {
  * @{
  */
 
-// @todo move
+/**
+ * Implements hook_entity_base_field_info().
+ */
 function file_entity_entity_base_field_info(EntityTypeInterface $entity_type) {
   // @todo: Make this configurable and/or remove if
   //   https://drupal.org/node/476294 is resolved.
@@ -318,6 +336,7 @@ function file_entity_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setCustomStorage(TRUE)
       ->setLabel(t('URL alias'))
       ->setTranslatable(TRUE)
+      ->setProvider('file_entity')
       ->setDisplayOptions('form', array(
         'type' => 'path',
         'weight' => 30,
@@ -375,7 +394,11 @@ function file_entity_entity_storage_load($entities, $entity_type) {
 
   // Loop over all the entities looking for entities with attached images.
   foreach ($entities as $entity) {
-    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    // Skip non-fieldable entities.
+    if (!$entity instanceof FieldableEntityInterface) {
+      continue;
+    }
+    /** @var \Drupal\Core\Entity\FieldableEntityInterface $entity */
     // Examine every image field instance attached to this entity's bundle.
     foreach ($entity->getFieldDefinitions() as $field_definition) {
       if ($field_definition->getSetting('target_type') == 'file' && $field_definition->getType() != 'image') {
@@ -388,7 +411,7 @@ function file_entity_entity_storage_load($entities, $entity_type) {
               foreach (['alt', 'title'] as $key) {
                 if (empty($item->$key)) {
                   $token_bubbleable_metadata = new BubbleableMetadata();
-                  $item->key = $token_service->replace($config->get($key), ['file' => $item->entity], $replace_options, $token_bubbleable_metadata);
+                  $item->$key = $token_service->replace($config->get($key), ['file' => $item->entity], $replace_options, $token_bubbleable_metadata);
                   // Add the cacheability metadata of the token to the entity.
                   // This means attachments are discarded, but it does not ever
                   // make sense to have attachments for an image's "alt" and
@@ -441,11 +464,15 @@ function file_entity_get_public_and_private_stream_wrapper_names($flag = StreamW
  */
 function file_uri_to_object($uri, $use_existing = TRUE) {
   $file = FALSE;
-  $uri = file_stream_wrapper_uri_normalize($uri);
+  $uri = \Drupal::service('stream_wrapper_manager')->normalizeUri($uri);
 
   if ($use_existing) {
     // We should always attempt to re-use a file if possible.
-    $files = entity_load_multiple_by_properties('file', array('uri' => $uri));
+    $files = \Drupal::entityTypeManager()
+      ->getStorage('file')
+      ->loadByProperties([
+        'uri' => $uri,
+      ]);
     $file = !empty($files) ? reset($files) : FALSE;
   }
 

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\ctools\Unit\BlockVariantTraitTest.
- */
-
 namespace Drupal\Tests\ctools\Unit;
 
 use Drupal\Component\Uuid\UuidInterface;
@@ -95,7 +90,7 @@ class TestBlockVariantTrait {
   protected $uuidGenerator;
 
   /**
-   * @param BlockPluginCollection $block_plugin_collection
+   * @param \Drupal\ctools\Plugin\BlockPluginCollection $block_plugin_collection
    *
    * @return $this
    */
