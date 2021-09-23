@@ -1,3 +1,4 @@
+724c5195 sgrimard 2021-09-14 12:15:58 +0200 [TASK|SECURITY] DDD-105 suppression module non utilisé : EU Cookie Compliance DDD-107 Update Educadroit core to 8.9.19 DDD-108 Update extension Entity Embed to 8.x-1.2
 ff2d2fa6 Julien Liébert 2021-09-03 14:49:52 +0200 [BUGFIX] Fichier settings.php manquant au delivery
 0658784f fgutknecht 2021-08-27 10:47:02 +0200 [SECURITY] DDD-106 Update extension Admin Toolbar to 8.x-2.5
 8d2f2a24 fgutknecht 2021-08-18 18:15:40 +0200 [BUGFIX] Déploiement bloqué à cause de la librairie backupmigrate
@@ -97,4 +98,3 @@ e4342084 adrien-gontier 2017-05-25 15:47:51 +0200 [TASK] DDD-44
 784a0a2d adrien-gontier 2017-05-25 12:55:04 +0200 [TASK] DDD-43
 4eb547e2 adrien-gontier 2017-05-25 12:51:30 +0200 [TASK] DDD-42
 59499f9f adrien-gontier 2017-05-25 12:27:35 +0200 [TASK[ DDD-41
-685f809c adrien-gontier 2017-05-25 12:11:03 +0200 [TASK] DDD-40
