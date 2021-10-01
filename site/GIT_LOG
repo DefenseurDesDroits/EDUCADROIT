@@ -1,3 +1,6 @@
+655b8e2e Julien Liébert 2021-10-01 20:30:09 +0200 [BUGFIX] Ajout de composer.json et composer.lock en production pour permettre à drush de trouver le root Drupal
+156f7e09 fgutknecht 2021-09-30 12:13:43 +0200 [SECURITY] DDD-109 Update extension Linkit to 8.x-4.4
+0f5694dc fgutknecht 2021-09-30 11:57:31 +0200 [SECURITY] DDD-82 Installer le security agent
 724c5195 sgrimard 2021-09-14 12:15:58 +0200 [TASK|SECURITY] DDD-105 suppression module non utilisé : EU Cookie Compliance DDD-107 Update Educadroit core to 8.9.19 DDD-108 Update extension Entity Embed to 8.x-1.2
 ff2d2fa6 Julien Liébert 2021-09-03 14:49:52 +0200 [BUGFIX] Fichier settings.php manquant au delivery
 0658784f fgutknecht 2021-08-27 10:47:02 +0200 [SECURITY] DDD-106 Update extension Admin Toolbar to 8.x-2.5
@@ -95,6 +98,3 @@ e136d5de adrien-gontier 2017-05-26 14:26:15 +0200 [TASK] DDD-41
 7e424abe adrien-gontier 2017-05-26 12:20:06 +0200 composer
 774cf30d adrien-gontier 2017-05-25 16:52:34 +0200 [TASK] DDD-45
 e4342084 adrien-gontier 2017-05-25 15:47:51 +0200 [TASK] DDD-44
-784a0a2d adrien-gontier 2017-05-25 12:55:04 +0200 [TASK] DDD-43
-4eb547e2 adrien-gontier 2017-05-25 12:51:30 +0200 [TASK] DDD-42
-59499f9f adrien-gontier 2017-05-25 12:27:35 +0200 [TASK[ DDD-41
