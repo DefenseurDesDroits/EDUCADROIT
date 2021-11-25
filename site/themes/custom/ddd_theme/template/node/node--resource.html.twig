@@ -1,82 +1,98 @@
 <div class="container">
-        <div class="article">
-            <header class="article-header">
-                <h1 class="article-title">{{ label }}</h1>
-            </header>
-            <!-- .article-header -->
+  <div class="article">
+    <header class="article-header">
+      <h1 class="article-title">{{ label }}</h1>
+    </header>
+    <!-- .article-header -->
 
-            <div class="article-focus article-focus-2">
-                <div class="row">
-                    {% if content.field_image|render %}
-                    <div class="col-sm-3">
-                        <figure>
-                            {{content.field_image}}
-                        </figure>
-                    </div>
-
-                    <div class="col-sm-9">
-                    {% else %}
-                    <div class="col-sm-12">
-                    {% endif %}
-                        <h2>Description</h2>
-                        <p class="small">
-                            {% if content.field_key_points|render %}
-                                <strong>Point clés :</strong>
-                                {% for i in 0..content.field_key_points|length %}
-                                  {% if content.field_key_points[i]|render %}
-                                    {% if content.field_key_points[i + 1]|render %}
-                                      {{ content.field_key_points[i] }},
-                                    {% else %}
-                                      {{ content.field_key_points[i] }}
-                                    {% endif %}
-                                  {% endif %}
-                                {% endfor %}
-                                <br />
-                              {% endif %}
-
-                              {% if content.field_themes|render %}
-                                <strong>Thématiques :</strong>
-                                {% for i in 0..content.field_themes|length %}
-                                  {% if content.field_themes[i]|render %}
-                                    {% if content.field_themes[i + 1]|render %}
-                                      {{ content.field_themes[i] }},
-                                    {% else %}
-                                      {{ content.field_themes[i] }}
-                                    {% endif %}
-                                  {% endif %}
-                                {% endfor %}
-                                <br />
-                              {% endif %}
-
-                              {% if content.field_publics|render %}
-                                <strong>Public :</strong>
-                                {% for i in 0..content.field_publics|length %}
-                                  {% if content.field_publics[i]|render %}
-                                    {% if content.field_publics[i + 1]|render %}
-                                      {{ content.field_publics[i] }},
-                                    {% else %}
-                                      {{ content.field_publics[i] }}
-                                    {% endif %}
-                                  {% endif %}
-                                {% endfor %}
-                                <br />
-                              {% endif %}
-                            {% if content.field_format|render %}
-                              <strong>Format :</strong> {{content.field_format}}<br />
-                            {% endif %}
-                            {% if content.field_author|render %}
-                              <strong>Auteur :</strong> {{content.field_author}}<br />
-                            {% endif %}
-                            {% if content.field_year|render %}
-                              <strong>Publié en :</strong> {{content.field_year}}<br />
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {{content.field_description }}
-            <hr />
-            {{content.field_paragraphs }}
-            {{share}}
+    <div class="article-focus article-focus-2">
+      <div class="row">
+        {% if content.field_image|render %}
+        <div class="col-sm-3">
+          <figure>
+            {{ content.field_image }}
+          </figure>
         </div>
+
+        <div class="col-sm-9">
+          {% else %}
+          <div class="col-sm-12">
+            {% endif %}
+            <h2>Description</h2>
+            <p class="small">
+              {% if content.field_key_points|render %}
+                <strong>Point clés :</strong>
+                {% for i in 0..content.field_key_points|length %}
+                  {% if content.field_key_points[i]|render %}
+                    {% if content.field_key_points[i + 1]|render %}
+                      {{ content.field_key_points[i] }},
+                    {% else %}
+                      {{ content.field_key_points[i] }}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+                <br/>
+              {% endif %}
+
+              {% if content.field_themes|render %}
+                <strong>Thématiques :</strong>
+                {% for i in 0..content.field_themes|length %}
+                  {% if content.field_themes[i]|render %}
+                    {% if content.field_themes[i + 1]|render %}
+                      {{ content.field_themes[i] }},
+                    {% else %}
+                      {{ content.field_themes[i] }}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+                <br/>
+              {% endif %}
+
+              {% if content.field_publics|render %}
+                <strong>Public :</strong>
+                {% for i in 0..content.field_publics|length %}
+                  {% if content.field_publics[i]|render %}
+                    {% if content.field_publics[i + 1]|render %}
+                      {{ content.field_publics[i] }},
+                    {% else %}
+                      {{ content.field_publics[i] }}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+                <br/>
+              {% endif %}
+              {% if content.field_format|render %}
+                <strong>Format :</strong> {{ content.field_format }}<br/>
+              {% endif %}
+              {% if content.field_author|render %}
+                <strong>Auteur :</strong> {{ content.field_author }}<br/>
+              {% endif %}
+              {% if content.field_year|render %}
+                <strong>Publié en :</strong> {{ content.field_year }}<br/>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      {{ content.field_description }}
+
+      {{ content.field_paragraphs }}
+
+      <div class="missing-ressourses">
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+            Signaler qu’une ressource n'est plus en ligne <span class="icon-warning"></span>
+            <span class="icon-nav-prev"></span>
+          </button>
+          <div class="dropdown-menu">
+            <p>Avez-vous essayé dans un autre navigateur ? Si le problème persiste,
+              <a onclick="offlineResource()" id="offline-resource" class="warning" data-link="{{ path('ddd_resources.offline_resource', {'id': node.id()}) }}">cliquez ici</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {{ share }}
+
     </div>
+  </div>

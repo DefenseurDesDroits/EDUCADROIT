@@ -5,7 +5,7 @@
   {% if ('internal:/' in link.uri) %}
     <p><a target="_blank" class="download" href="{{ file_url(link.uri|replace({'internal:/': ''})) }}" title="{{link.title}}"><span>{{link.title}}</span> ({{ link.filemime }}, {{ link.filesize }})</a></p>
   {% else %}
-    <p><a class="external" title="{{link.title}}" target="_blank" href="{{ link.uri }}">{{link.title}}</a></p>
+    <p><a class="btn" title="{{link.title}}" target="_blank" href="{{ link.uri }}">{{link.title}}</a></p>
   {% endif %}
 {% endfor %}
 

@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Groups all hook use during install, uninstall and update for module DDD base
+ */
+
+/**
+ * Update/install fields definition
+ */
+function ddd_base_update_8001() {
+  $type_manager = \Drupal::entityTypeManager();
+  $entity_type = $type_manager->getDefinition('file');
+  \Drupal::entityDefinitionUpdateManager()->installEntityType($entity_type);
+
+  return t('File path définition installation');
+}
