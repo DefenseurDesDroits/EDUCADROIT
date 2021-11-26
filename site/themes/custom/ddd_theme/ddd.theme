@@ -8,7 +8,13 @@ use \Drupal\Core\Entity\EntityViewBuilderInterface;
 //   kpr($variables);
 // }
 
-
+function ddd_preprocess_views_view(&$variables){
+  $view = $variables['view'];
+  $id = $view->storage->id();
+  if($id === 'global_search') {
+    $variables['total_results'] = $view->total_rows;
+  }
+}
 
 function ddd_preprocess_paragraph__text_content(&$variables){
   $variables['render'] = str_replace(
@@ -294,12 +300,6 @@ function ddd_preprocess_share(&$variables){
     'raw' => $title,
     'encoded' => urlencode($title)
   ];
-  $request = Drupal::request();
-  if ($node = $request->attributes->get('node')){
-    if ($node->getType() == 'resource'){
-      $variables['resource'] = $node->id();
-    }
-  }
   $variables['#cache']['contexts'][] = 'url';
 }
 

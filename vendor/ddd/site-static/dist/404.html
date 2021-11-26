@@ -72,8 +72,39 @@
         
             <li><a href=""><span class="icon-private"></span> Espace réservé</a></li>
         
+        <li><button type="button" class="btn btn-search" data-toggle="quick-search"><span class="sr-only">Rechercher</span> </button></li>
     </ul>
 </nav>
+
+<div id="quick-search" class="search">
+    <div class="container">
+        <form class="search-form">
+            <div class="form-group">
+                <div class="input-group input-group-lg">
+                    <input type="text" placeholder="Rechercher" class="form-control">
+
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="far fa-search" aria-hidden="true"></i>
+                            <span class="sr-only">Rechercher</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="search-suggestions">
+            <ul class="list-unstyled mb-0">
+                <li><a href="#">Suggestion 1</a></li>
+                <li><a href="#">Suggestion 2</a></li>
+                <li><a href="#">Suggestion 3</a></li>
+                <li><a href="#">Suggestion 4</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="quick-search-mask"></div>
+
         </div><!-- .container -->
     </header>
 
@@ -126,7 +157,34 @@
         </main>
         <!-- .main -->
 
-        <footer id="footer" class="footer">
+        <section class="section-blue section-newsletter">
+    <div class="container">
+        <h2 class="section-title">S’inscrire à la newsletter</h2>
+        <p>Vous souhaitez recevoir les dernières nouvelles de notre plateforme, inscrivez-vous !</p>
+
+        <form class="form-newsletter" action="#">
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" placeholder="Votre email" class="form-control">
+
+                    <button type="submit" class="btn btn-primary">
+                        S'inscrire
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <p class="small">Votre adresse de messagerie est uniquement utilisée pour vous envoyer les lettres d'information d’Educadroit. Vous pouvez à tout moment utiliser le lien de désabonnement intégré dans la newsletter. <a href="#">En savoir plus sur la gestion de vos données et vos droits</a>. </p>
+    </div>
+</section>
+
+<div id="newsletter-ok" class="white-popup mfp-hide newsletter-popup">
+    <h1>Inscription à la newsletter</h1>
+
+    <p>Votre inscription à la newsletter Educadroit a bien été prise en compte.</p>
+</div>
+
+<footer id="footer" class="footer">
     <div class="links">
         <p>
             <a href="#">Contact</a>
@@ -156,6 +214,7 @@
         </div>
     </div>
 </footer>
+
     </div>
 </div>
 <!-- .page-container -->

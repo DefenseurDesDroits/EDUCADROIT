@@ -1,0 +1,86 @@
+---
+title: Résultats de recherche
+psd:
+
+order: 300
+resultats: true
+---
+
+<section class="section-content">
+    <div class="container">
+        {{>breadcrumb}}
+
+        <div class="article">
+            <header class="article-header">
+                <h1 class="article-title">{{title}}</h1>
+            </header>
+            <!-- .article-header -->
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="nb-result"><strong>15 résultats</strong> pour les critères sélectionnés</p>
+                </div>
+
+                <div class="col-md-6">
+                    {{> pagination}}
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="item">
+                <p class="meta"><a href="#">Centre-de-ressources</a> › <a href="#">lorem ipsum</a> </p>
+
+                <h2><a href="#">La discrimination en deux minutes</a></h2>
+
+                <p>Pour sensibiliser ses élèves aux mécanismes de la discrimination, une institutrice québécoise s'est livrée à une expérience : elle a séparé sa classe en deux groupes de nombre égal...</p>
+            </div>
+
+            <hr />
+
+            <div class="item">
+                <p class="meta"><a href="#">Centre-de-ressources</a> › <a href="#">lorem ipsum</a> </p>
+
+                <h2><a href="#">La discrimination en deux minutes</a></h2>
+
+                <p>Pour sensibiliser ses élèves aux mécanismes de la discrimination, une institutrice québécoise s'est livrée à une expérience : elle a séparé sa classe en deux groupes de nombre égal...</p>
+            </div>
+
+            <hr />
+
+            <div class="item">
+                <p class="meta"><a href="#">Centre-de-ressources</a> › <a href="#">lorem ipsum</a> </p>
+
+                <h2><a href="#">La discrimination en deux minutes</a></h2>
+
+                <p>Pour sensibiliser ses élèves aux mécanismes de la discrimination, une institutrice québécoise s'est livrée à une expérience : elle a séparé sa classe en deux groupes de nombre égal...</p>
+            </div>
+
+            <hr />
+
+            <div class="row">
+                <div class="col-md-12">
+                    {{> pagination}}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<aside>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Manuel D’éducation au(x) droit(s)", "text": "Ce manuel décrit les objectifs pédagogiques et propose des contenus et des éléments pour faciliter vos interventions.", "figure": "yes", "button": "Télécharger", "icon": "icon-download-2"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+
+            <div class="col-md-6">
+                {{#parseJSON '{"heading": "Proposer un outil pédagogique", "text": "Lorem ipsum dolor sit amet, conse ctetur adi piscing elit. Cras hendrerit massa non congue ulla mcorper. Pellentesque sollicitudin.", "figure": "yes", "button": "Soumettre", "icon": "icon-link", "submit": "yes"}'}}
+                    {{>post}}
+                {{/parseJSON}}
+            </div>
+        </div>
+    </div>
+</aside>

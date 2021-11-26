@@ -20,7 +20,7 @@
     color: #fff;
     text-decoration: underline;
   }
-  
+
   .article & { color: #fff; text-decoration: none; }
   .article &:hover, .article &:focus { color: #fff; text-decoration: underline; }
 }
@@ -48,11 +48,11 @@ form .btn {
     color: #494b61;
     font-size: 50px;
   }
-  
+
   &:hover, &:focus {
     text-decoration: underline;
   }
-  
+
   .text-left & {
     float: none;
     margin-top: 50px;
@@ -69,5 +69,29 @@ form .btn {
   &:focus {
     background-color: transparent;
     color: @link-color;
+  }
+}
+
+
+.btn-search {
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  background: #eaeef1;
+
+  &::after {
+    content: '';
+    display: block;
+    margin: 0 auto;
+    width: 20px;
+    height: 20px;
+    background: url(../images/ico-search.png) 0 0 no-repeat;
+    background-size: cover;
+  }
+
+  &:hover, &:focus {
+    &:after {
+      background-position: 100% 0;
+    }
   }
 }

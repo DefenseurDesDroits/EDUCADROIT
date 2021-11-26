@@ -1,3 +1,15 @@
+7baef782 Sébastien Libbrecht 2021-11-22 10:53:13 +0100 [TASK] Remove link all video in the top right.
+4d11f70d fgutknecht 2021-11-19 14:57:40 +0100 [SECURITY] DDD-114 Update Educadroit core to 8.9.20
+2ed08641 Sébastien Libbrecht 2021-11-19 14:52:22 +0100 [BUGFIX] Blocs of media has not the good size.
+c64dd366 Sébastien Libbrecht 2021-11-16 10:46:29 +0100 [BUGFIX] DDD-113 - Fix broken signalement d'une ressource HS.
+59f0ba7e Sébastien Libbrecht 2021-11-16 10:24:43 +0100 [TASK] DDD-96 - Move the All videos link.
+88a9c438 Sébastien Libbrecht 2021-11-16 10:17:27 +0100 [BUGFIX] DDD-113 - Fix broken signalement d'une ressource HS.
+edd0f4e4 Sébastien Libbrecht 2021-11-10 20:43:56 +0100 [BUGFIX] DDD-111 - Fix document can not upload.
+bddb9a1c sgrimard 2021-11-10 18:59:40 +0100 [TASK] DDD-111 Correction file alias url definition
+4cb86b22 sgrimard 2021-11-10 16:08:14 +0100 [TASK] DDD-98 Back-office : pouvoir faire une recherche libre dans les ressources
+6c8d1900 sgrimard 2021-11-10 14:36:51 +0100 [TASK] DDD-89 Optimisations du bas de la page de détail d'une ressource
+bd96ac11 Sébastien Libbrecht 2021-10-20 10:11:32 +0200 [TASK] DDD-85 - Mise en place d'un index de recherche SolR pour les pages.
+0589e56c Sébastien Libbrecht 2021-10-19 18:36:53 +0200 [TASK] DDD-85 - Mise en place d'un index de recherche SolR pour les pages.
 655b8e2e Julien Liébert 2021-10-01 20:30:09 +0200 [BUGFIX] Ajout de composer.json et composer.lock en production pour permettre à drush de trouver le root Drupal
 156f7e09 fgutknecht 2021-09-30 12:13:43 +0200 [SECURITY] DDD-109 Update extension Linkit to 8.x-4.4
 0f5694dc fgutknecht 2021-09-30 11:57:31 +0200 [SECURITY] DDD-82 Installer le security agent
@@ -86,15 +98,3 @@ d58fdfb3 Arnaud 2017-06-16 19:08:14 +0200 [TASK] pager count
 6bd7ad75 Arnaud 2017-06-16 18:28:50 +0200 [TASK] composer update
 52a45f97 Julien Liébert 2017-06-14 20:29:04 +0200 [PROVISIONING] Revue déploiement en test/production
 416d00ef adrien-gontier 2017-06-09 18:06:00 +0200 pager resources
-ab66b1f0 adrien-gontier 2017-06-09 18:04:52 +0200 ressrouces debug
-4fb690eb adrien-gontier 2017-06-09 18:03:23 +0200 resource debug
-3314efed adrien-gontier 2017-06-09 17:54:11 +0200 recettes
-8280f44f adrien-gontier 2017-05-29 16:45:13 +0200 rm contrib modules
-6b3cf0d1 adrien-gontier 2017-05-29 16:27:31 +0200 composer placing
-3ca8d8c2 adrien-gontier 2017-05-29 14:11:16 +0200 composer.json erratum
-6cce3b4a Julien Liébert 2017-05-29 12:13:54 +0200 [PROVISIONING] Augmentation de l'espace disque
-95b231f9 adrien-gontier 2017-05-26 15:50:28 +0200 [TASK] DDD-16
-e136d5de adrien-gontier 2017-05-26 14:26:15 +0200 [TASK] DDD-41
-7e424abe adrien-gontier 2017-05-26 12:20:06 +0200 composer
-774cf30d adrien-gontier 2017-05-25 16:52:34 +0200 [TASK] DDD-45
-e4342084 adrien-gontier 2017-05-25 15:47:51 +0200 [TASK] DDD-44

@@ -122,3 +122,7 @@ div.facets-widget-checkbox .facet-item a.is-active {
 div.facets-widget-checkbox .facet-item a.is-active .facet-item__status {
   color: #007bc9;
 }
+
+.article .post.post-2 .txt {
+  width: auto;
+}

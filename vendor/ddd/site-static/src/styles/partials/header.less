@@ -25,7 +25,7 @@
   background: #1e274a;
   color: #fff;
   font-size: 0.875em;
-  
+
   a {
     color: #fff;
     text-decoration: underline;
@@ -60,7 +60,7 @@
   z-index:999;
   background: #fff;
   border-bottom: solid 1px #eaeef1;
-  
+
   .container::after {
     @media (max-width: 991px) {
       content: '';
@@ -235,7 +235,7 @@
       @media (min-width: @screen-md-min) {
         padding: 0 10px;
       }
-      
+
       &:hover, &:focus {
         color: #007bc9;
         text-decoration: none;
@@ -252,6 +252,7 @@
     text-transform: none;
 
     @media (min-width: @screen-md-min) {
+      padding-top: 0;
       border-top: none;
     }
 
@@ -278,10 +279,191 @@
           left: -9999px;
         }
       }
-      
+
       &.active {
         color: #007bc9;
       }
     }
+  }
+}
+
+// Search
+.search {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 3042;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: opacity .15s, transform .3s;
+
+  &.show {
+    opacity: 1;
+    transform: translateY(50%);
+
+    .search-form,
+    .search-suggestions {
+      pointer-events: auto;
+    }
+  }
+
+  @media (min-width: @screen-lg-min) {
+    > .container {
+    max-width: 45rem;
+  }
+}
+
+  .btn-close {
+    float: right;
+    margin-bottom: 20px;
+    padding: 0;
+    color: #fff;
+
+    .far {
+      font-size: 30px;
+      margin-right: 0;
+    }
+  }
+}
+
+.search-form {
+  .input-group {
+    position: relative;
+    width: 100%;
+    box-shadow: 2px 0 10px rgba(0,0,0,.7);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 15px;
+      z-index: 9;
+      display: block;
+      margin: 0 auto;
+      width: 20px;
+      height: 20px;
+      background: url(../images/ico-search.png) 0 0 no-repeat;
+      background-size: cover;
+    }
+  }
+
+  .form-control,
+  .input-group-text {
+    background-color: #fff;
+    border: none;
+  }
+
+  .form-control {
+    padding: 5px 20px 5px 50px;
+    font-size: 14px;
+    color: #000;
+    height: 60px;
+    border-radius: 0;
+    border: solid 4px #eaeef1;
+    font-weight: 600;
+  }
+
+  .input-group-lg > .form-control:not(textarea) {
+    height: 60px;
+  }
+
+  .input-group > .input-group-append > .input-group-text {
+    border-radius: 0;
+  }
+
+  .input-group-text {
+    font-size: 14px;
+    color: #000;
+  }
+}
+
+.search-suggestions {
+  position: relative;
+  padding: 1.5rem;
+  min-height: 10rem;
+  background-color: #fff;
+  border-radius: 0;
+  opacity: 0;
+  transform: translateY(-1rem);
+  transition: all .3s .2s;
+
+  &::before {
+    position: absolute;
+    left: .75rem;
+    bottom: 100%;
+    z-index: -5;
+    width: 1rem;
+    height: 1rem;
+    background-color: #fff;
+    border-radius: .2rem;
+    box-shadow: none;
+    content: "";
+    display: block;
+    transform: rotate(-45deg) translateY(1rem);
+  }
+
+  ul {
+    margin: 0;
+
+    li {
+      padding-left: 0;
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+
+  a {
+    position: relative;
+    padding: 5px 0 5px 30px;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #000;
+    display: block;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 0;
+      z-index: 9;
+      display: block;
+      margin: 0 auto;
+      width: 13px;
+      height: 13px;
+      background: url(../images/ico-search-small.png) 0 0 no-repeat;
+      background-size: cover;
+    }
+
+    &:hover, &:focus {
+      span::after {
+        top: 2px;
+      }
+    }
+  }
+
+  .search.show & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-search-mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2042;
+  background: #000;
+  opacity: .8;
+  display: none;
+
+  &.show {
+    display: block;
+    transform: translateY(0);
   }
 }

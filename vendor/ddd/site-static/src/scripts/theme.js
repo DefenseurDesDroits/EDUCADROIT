@@ -26,6 +26,8 @@ Theme = {
         this.initNavMain();
         this.valign();
         this.mPopup();
+        this.quickSearch();
+        this.newsletter();
         this.inputFile();
         this.formChosen();
         this.waypoints();
@@ -187,6 +189,44 @@ Theme = {
             type:'inline',
             midClick: true // Allow opening popup on middle mouse click. Always set it to true if you don't provide alternative source in href.
         });
+    },
+
+    quickSearch: function() {
+        var $btnQuickSearch = $('.btn-search');
+        var $quickSearch = $('#quick-search');
+        var $closeSearch = $quickSearch.find('.btn-close');
+        var $mask = $('.quick-search-mask');
+
+        $btnQuickSearch.on('click', function() {
+            $quickSearch.addClass('show');
+            $mask.addClass('show');
+            $quickSearch.find('.form-control').focus();
+        });
+
+        $closeSearch.on('click', function() {
+            $quickSearch.removeClass('show');
+            $mask.removeClass('show');
+        });
+
+        $mask.on('click', function() {
+            $quickSearch.removeClass('show');
+            $mask.removeClass('show');
+        });
+    },
+
+    newsletter: function() {
+        $('.section-newsletter .form-newsletter').on('submit', function(e){
+            var $popin = $('#newsletter-ok');
+            if($popin.length !== 0) {
+                $popin.magnificPopup.open;
+                $.magnificPopup.open({
+                    items: {
+                        src: $popin
+                    }
+                });
+                e.preventDefault();
+            }
+        })
     },
 
     inputFile: function(){

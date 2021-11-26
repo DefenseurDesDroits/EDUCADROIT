@@ -1,0 +1,78 @@
+<section class="section-content">
+  <div class="container">
+    <div class="article">
+      <header class="article-header">
+        <h1 class="article-title">{{ title }}</h1>
+
+        <div class="standfirst">
+          <p>{{ teaser }}</p>
+        </div>
+      </header>
+      <!-- .article-header -->
+
+      <!-- Section blue -->
+      <div class="section-default section-blue">
+        <h3>{{ "Recherche dans le site"|t }}</h3>
+        <div class="row">
+          {{ exposed }}
+        </div>
+      </div>
+
+      <!-- Pager of the top -->
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>{{ total_results }} résultats</strong> pour les critères sélectionnés</p>
+        </div>
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      <hr/>
+
+      <!-- Result of the search -->
+
+      <!-- Facet column -->
+      {% if empty -%}
+        <div class="col-12">
+          <p>{{ "Aucun filtre disponible pour votre recherche."|t }}</p>
+        </div>
+      {% endif %}
+
+      <!-- Results column -->
+      <div class="col-12">
+        {% if rows -%}
+          {{ rows }}
+        {% elseif empty -%}
+          {{ empty }}
+        {% endif %}
+      </div>
+      <hr/>
+
+      <!-- Pager of the bottom -->
+      <div class="row">
+        <div class="col-sm-6">
+          <p class="nb-result"><strong>{{ total_results }} résultats</strong> pour les critères sélectionnés</p>
+        </div>
+        <div class="col-sm-6">
+          {{ pager }}
+        </div>
+      </div>
+      <hr/>
+    </div>
+  </div>
+</section>
+
+<!-- Spotlight -->
+<aside>
+  <div class="container">
+    <div class="row">
+      {% for paragraph in spotlight %}
+        {{ paragraph }}
+      {% endfor %}
+    </div>
+  </div>
+</aside>
+
+
+
+

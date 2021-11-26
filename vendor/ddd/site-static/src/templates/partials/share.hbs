@@ -1,12 +1,35 @@
+{{#if button}}
+    <div class="missing-ressourses">
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                Signaler qu’une ressource n'est plus en ligne <span class="icon-warning"></span>
+
+                <span class="icon-nav-prev"></span>
+            </button>
+            <div class="dropdown-menu">
+                <p>Avez-vous essayé dans un autre navigateur ? Si le problème persiste, <a class="warning" href="#">cliquez ici</a></p>
+            </div>
+        </div>
+    </div>
+{{/if}}
+
+{{#if text}}
+    <div class="missing-ressourses">
+        <div class="dropdown open">
+            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                Signaler qu’une ressource n'est plus en ligne <span class="icon-warning"></span>
+
+                <span class="icon-nav-prev"></span>
+            </button>
+            <div class="dropdown-menu">
+                <p><span class="warning">Merci pour votre aide</span></p>
+            </div>
+        </div>
+    </div>
+{{/if}}
+
+
 <div class="share">
-    {{#if button}}
-        <a class="warning" href="#">Signaler qu’une ressource n'est plus en ligne</a>
-    {{/if}}
-
-    {{#if text}}
-        <span class="warning">Merci pour votre aide</span>
-    {{/if}}
-
     <p class="text-right">
         <strong>Partager sur </strong>
         <a class="icon-facebook" href=""><span>Facebook</span></a> <a class="icon-twitter" href=""><span>Twitter</span></a>
