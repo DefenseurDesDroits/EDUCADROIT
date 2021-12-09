@@ -42,6 +42,7 @@
 
       $query = \Drupal::entityQuery('node');
       $query->condition('type', 'speaker');
+      $query->condition('status', true);
       if (!empty($q['region'])){
         $query->condition('field_region', $q['region']);
       }
@@ -66,8 +67,12 @@
 
       if (!empty($page_ids)){
         foreach ($page_ids as $id => $value) {
-          $speaker =  \Drupal\node\Entity\Node::load($id);
-          $rows[$id] = node_view($speaker, 'teaser');
+          if($id){
+            $speaker =  \Drupal\node\Entity\Node::load($id);
+            if($speaker){
+              $rows[$id] = node_view($speaker, 'teaser');
+            }
+          }
         }
       }
 
