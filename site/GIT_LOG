@@ -1,3 +1,7 @@
+81d917a9 Sébastien Libbrecht 2021-12-09 14:19:44 +0100 [BUGFIX] Fix error on unavailable ressource.
+1af6fc30 Julien Liébert 2021-12-08 13:23:50 +0100 [BUGFIX] Le deploy.sh plante sur le changement de dossier du site
+6581bfa4 Sébastien Libbrecht 2021-12-07 20:00:29 +0100 [BUGFIX] DDD-116 Error on pagination
+273e6145 Sébastien Libbrecht 2021-12-07 17:48:58 +0100 [BUGFIX] DDD-115 Do not load unpublished node
 7baef782 Sébastien Libbrecht 2021-11-22 10:53:13 +0100 [TASK] Remove link all video in the top right.
 4d11f70d fgutknecht 2021-11-19 14:57:40 +0100 [SECURITY] DDD-114 Update Educadroit core to 8.9.20
 2ed08641 Sébastien Libbrecht 2021-11-19 14:52:22 +0100 [BUGFIX] Blocs of media has not the good size.
@@ -94,7 +98,3 @@ bbccca92 Arnaud 2017-06-20 14:03:51 +0200 [TASK] cookie disclaimer config
 26b959ab Arnaud 2017-06-16 22:38:34 +0200 [TASK] files paragraphs
 5a6c32da Arnaud 2017-06-16 19:48:39 +0200 [TASK] cookie disclaimer
 d58fdfb3 Arnaud 2017-06-16 19:08:14 +0200 [TASK] pager count
-2e77cece Arnaud 2017-06-16 19:05:33 +0200 [TASK] pager count
-6bd7ad75 Arnaud 2017-06-16 18:28:50 +0200 [TASK] composer update
-52a45f97 Julien Liébert 2017-06-14 20:29:04 +0200 [PROVISIONING] Revue déploiement en test/production
-416d00ef adrien-gontier 2017-06-09 18:06:00 +0200 pager resources

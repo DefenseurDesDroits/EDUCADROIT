@@ -42,6 +42,7 @@
 
       $query = \Drupal::entityQuery('node');
       $query->condition('type', 'resource');
+      $query->condition('status', true);
       $node_ids = $query->execute();
 
       if (!empty($node_ids)){
