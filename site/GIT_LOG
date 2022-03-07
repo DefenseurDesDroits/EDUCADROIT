@@ -1,3 +1,4 @@
+5d1f3efd Sébastien Libbrecht 2022-02-23 13:44:39 +0100 [BUGFIX] DDD-117 Fixe les ressources dans les intervenants
 81d917a9 Sébastien Libbrecht 2021-12-09 14:19:44 +0100 [BUGFIX] Fix error on unavailable ressource.
 1af6fc30 Julien Liébert 2021-12-08 13:23:50 +0100 [BUGFIX] Le deploy.sh plante sur le changement de dossier du site
 6581bfa4 Sébastien Libbrecht 2021-12-07 20:00:29 +0100 [BUGFIX] DDD-116 Error on pagination
@@ -97,4 +98,3 @@ bbccca92 Arnaud 2017-06-20 14:03:51 +0200 [TASK] cookie disclaimer config
 5eaec900 Arnaud 2017-06-20 13:24:44 +0200 add user import module
 26b959ab Arnaud 2017-06-16 22:38:34 +0200 [TASK] files paragraphs
 5a6c32da Arnaud 2017-06-16 19:48:39 +0200 [TASK] cookie disclaimer
-d58fdfb3 Arnaud 2017-06-16 19:08:14 +0200 [TASK] pager count

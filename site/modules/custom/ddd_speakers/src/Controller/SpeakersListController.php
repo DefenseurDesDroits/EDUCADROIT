@@ -52,7 +52,6 @@
       if (!empty($q['specialite'])){
         $query->condition('field_speciality', $q['specialite']);
       }
-
       if (!empty($q['search'])){
         $condition_or = $query->orConditionGroup();
         $condition_or->condition('title', '%'.$q['search'].'%', 'LIKE');
@@ -60,7 +59,6 @@
         $query->condition($condition_or);
       }
       $node_ids = $query->execute();
-
       $chunked_ids = array_chunk($node_ids , $num_per_page, TRUE );
       if (!empty($chunked_ids[$page]))
         $page_ids = $chunked_ids[$page];
@@ -68,7 +66,7 @@
       if (!empty($page_ids)){
         foreach ($page_ids as $id => $value) {
           if($id){
-            $speaker =  \Drupal\node\Entity\Node::load($id);
+            $speaker =  \Drupal\node\Entity\Node::load($value);
             if($speaker){
               $rows[$id] = node_view($speaker, 'teaser');
             }

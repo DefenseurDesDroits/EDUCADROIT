@@ -47,7 +47,7 @@
 
       if (!empty($node_ids)){
         foreach ($node_ids as $id => $value) {
-          $resource =  \Drupal\node\Entity\Node::load($id);
+          $resource =  \Drupal\node\Entity\Node::load($value);
           $rows[$id] = node_view($resource, 'teaser');
         }
       }
